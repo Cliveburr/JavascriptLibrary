@@ -1,0 +1,10 @@
+{
+  "name": "NodeHttp",
+  "version": "0.0.0",
+  "description": "NodeHttp",
+  "main": "app.js",
+  "author": {
+    "name": "AManzoli",
+    "email": ""
+  }
+}
