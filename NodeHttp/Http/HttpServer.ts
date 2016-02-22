@@ -2,7 +2,7 @@
 
 module internal {
     export interface IPipeline {
-        process(pipeInfo: IPipeInfo): void;
+        process(pipeInfo: IPipeInfo, next: () => void): void;
     }
 
     export interface IPipelineType {
@@ -27,16 +27,19 @@ module internal {
 
     export interface IServerConfigs {
         rootApp: string;
+        wwwroot: string;
     }
 
     export class Server {
         public httpServer: http.Server;
         public rootApp: string;
+        public wwwroot: string;
         private _pipe: IPipeline[];
 
         constructor(configs: IServerConfigs) {
             var that = this;
             this.rootApp = configs.rootApp;
+            this.wwwroot = configs.wwwroot;
             this._pipe = [];
             this.httpServer = http.createServer((req, res) => that.handleRequest(req, res));
         }
@@ -50,17 +53,24 @@ module internal {
             };
 
             try {
-                for (var i = 0, pipe: IPipeline; pipe = this._pipe[i]; i++) {
-                    pipe.process(pipeInfo);
-                    if (pipeInfo.alreadyProcess)
-                        break;
-                }
+                var i = 0;
+                var processPipe = () => {
+                    if (this._pipe[i] && !pipeInfo.alreadyProcess) {
+                        this._pipe[i].process(pipeInfo, () => {
+                            i++;
+                            processPipe();
+                        });
+                    }
+                    else {
+                        res.end();
+                    }
+                };
+                processPipe();
             }
             catch (err) {
                 pipeInfo.response.statusCode = 500;
+                res.end();
             }
-
-            res.end();
         }
 
         public configureServices(configure: (services: IConfigureServices) => void): void {
@@ -87,8 +97,9 @@ module internal {
     }
 
     export class ErrorNotFound implements IPipeline {
-        public process(pipeInfo: IPipeInfo): void {
-            pipeInfo.response.statusCode = 400;
+        public process(pipeInfo: IPipeInfo, next: () => void): void {
+            pipeInfo.response.statusCode = 404;
+            next();
         }
     }
 }

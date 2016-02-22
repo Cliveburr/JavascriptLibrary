@@ -1,7 +1,7 @@
 {
-  "name": "NodeHttp",
+  "name": "NodeHttpExample",
   "version": "0.0.0",
-  "description": "NodeHttp",
+  "description": "NodeHttpExample",
   "main": "app.js",
   "author": {
     "name": "AManzoli",

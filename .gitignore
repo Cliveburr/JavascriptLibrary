@@ -54,3 +54,13 @@ NodeHttp/**/*.js
 NodeHttp/**/*.js.map
 NodeHttp/bin
 NodeHttp/obj
+
+# =========================
+# Ignores for NodeHttpExample
+# =========================
+
+Examples/NodeHttpExample/**/*.suo
+Examples/NodeHttpExample/**/*.js
+Examples/NodeHttpExample/**/*.js.map
+Examples/NodeHttpExample/NodeHttpExample/bin
+Examples/NodeHttpExample/NodeHttpExample/obj

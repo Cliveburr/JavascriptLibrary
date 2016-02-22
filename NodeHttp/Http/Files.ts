@@ -9,10 +9,11 @@ module internal {
     }
 
     export class DefaultFiles implements httpServer.IPipeline {
-        public process(pipeInfo: httpServer.IPipeInfo): void {
+        public process(pipeInfo: httpServer.IPipeInfo, next: () => void): void {
             if (pipeInfo.request.url == '/') {
                 pipeInfo.request.url = '/index.html';
             }
+            next();
         }
     }
 
@@ -24,9 +25,9 @@ module internal {
             { extension: '.html', contentType: 'text/html' },
         ];
 
-        public process(pipeInfo: httpServer.IPipeInfo): void {
+        public process(pipeInfo: httpServer.IPipeInfo, next: () => void): void {
             var parts: string[] = pipeInfo.request.url.split('/').removeAll('');
-            parts.unshift(pipeInfo.server.rootApp);
+            parts.unshift(pipeInfo.server.wwwroot);
             var file = path.resolve(parts.join('\\'));
 
             if (fs.existsSync(file)) {
@@ -38,6 +39,8 @@ module internal {
                     pipeInfo.alreadyProcess = true;
                 }
             }
+
+            next();
         }
     }
 }
