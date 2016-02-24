@@ -5,6 +5,8 @@
     has(element: T): boolean;
     last(): T;
     filterOne(filter: (item: T) => boolean): T;
+    any(): boolean;
+    firstOrDefault():T
 }
 
 Object.defineProperties(Array.prototype, {
@@ -53,6 +55,21 @@ Object.defineProperties(Array.prototype, {
         enumerable: false,
         value: function (filter) {
             var f = this.filter(filter);
+            if (f.length > 0)
+                return f[0];
+            else
+                return null;
+        }
+    },
+    "any": {
+        enumerable: false,
+        value: function () {
+            return this.length > 0;
+        }
+    },
+    "firstOrDefault": {
+        enumerable: false,
+        value: function () {
             if (f.length > 0)
                 return f[0];
             else

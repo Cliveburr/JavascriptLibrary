@@ -25,6 +25,7 @@ module internal {
             if (parts.length == 0)
                 return;
 
+            debugger;
             var ctrPath = pipeInfo.server.rootApp + '\\' + MVC.controllersFolder + '\\' + parts[0] + '.js';
             var ctrFile = path.resolve(ctrPath);
 

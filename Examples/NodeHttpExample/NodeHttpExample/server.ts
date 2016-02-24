@@ -10,19 +10,26 @@ var server = new httpServer.Server({
     wwwroot: __dirname + '/wwwroot'
 });
 
+var __extends = function (d, b) {
+    console.log('test');
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
 server.configureServices((services: httpServer.IConfigureServices): void => {
 
-    var wss = new webSocket.Server(server);
-    wss.on('connection', function (ws) {
-        var id = setInterval(function () {
-            ws.send(JSON.stringify(process.memoryUsage()), function () { /* ignore errors */ });
-        }, 100);
-        console.log('started client interval');
-        ws.on('close', function () {
-            console.log('stopping client interval');
-            clearInterval(id);
-        });
-    });
+    //var wss = new webSocket.Server(server);
+    //wss.on('connection', function (ws) {
+    //    var id = setInterval(function () {
+    //        ws.send(JSON.stringify(process.memoryUsage()), function () { /* ignore errors */ });
+    //    }, 100);
+    //    console.log('started client interval');
+    //    ws.on('close', function () {
+    //        console.log('stopping client interval');
+    //        clearInterval(id);
+    //    });
+    //});
 
 });
 
@@ -35,6 +42,8 @@ server.configure((app) => {
     app.use(mvc.MVC);
 
     app.useErrorNotFound();
+
+    
 
 });
 
