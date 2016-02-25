@@ -42,7 +42,7 @@
     <TypeScriptCompile Include="Http\Api\Services\Formatter.ts" />
     <TypeScriptCompile Include="Http\Api\Results\HttpResult.ts" />
     <TypeScriptCompile Include="Http\Api\Services\Route.ts" />
-    <TypeScriptCompile Include="Http\Api\Services\ControlleSelector.ts" />
+    <TypeScriptCompile Include="Http\Api\Services\ControllerSelector.ts" />
     <TypeScriptCompile Include="Http\Files.ts" />
     <TypeScriptCompile Include="Http\HttpServer.ts" />
     <TypeScriptCompile Include="Http\MVC.ts" />

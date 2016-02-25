@@ -1,19 +1,16 @@
 ﻿import httpServer = require('../../HttpServer');
 import path = require('path');
 import fs = require('fs');
-import api = require('../Api');
 
 module internal {
 
-
-    export interface IHttpResult<T> {
-        data: T;
+    export interface IHttpResult {
+        data: any;
         responseCode: number;
         execute(context: httpServer.IPipeInfo): void;
     }
 
-
-    export abstract class HttpResultBase<T> implements IHttpResult<T> {
+    export abstract class HttpResultBase<T> implements IHttpResult {
 
         public data: T;
         public responseCode: number;
@@ -27,8 +24,9 @@ module internal {
             context.response.writeHead(this.responseCode);
             if (this.data) {
                 var accept = context.request.headers["Accept"];
+                var api = require('../Api');
                 var responseData = api.ApiContext.instance.formatterService.serialize(accept, this.data);
-                context.response.write(JSON.stringify(this.data));
+                context.response.write(responseData);
             }
         }
 
@@ -40,7 +38,7 @@ module internal {
         }
     }
 
-    export class NoContent<T> extends HttpResultBase<T>  {
+    export class NoContentResult<T> extends HttpResultBase<T>  {
 
         constructor() {
             super(204, null);
@@ -53,11 +51,19 @@ module internal {
         }
     }
 
-    export class InternalError<T> extends HttpResultBase<T>  {
+    export class NotAllowedResult<T> extends HttpResultBase<T>  {
+        constructor(data: T) {
+            super(405, data);
+        }
+    }
+
+    export class InternalErrorResult<T> extends HttpResultBase<T>  {
         constructor(data: T) {
             super(500, data);
         }
     }
+
+
 
 }
 

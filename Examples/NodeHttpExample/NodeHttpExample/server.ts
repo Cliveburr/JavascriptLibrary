@@ -4,6 +4,7 @@ import httpServer = require('../../../NodeHttp/Http/HttpServer');
 import files = require('../../../NodeHttp/Http/Files');
 import mvc = require('../../../NodeHttp/Http/MVC');
 import webSocket = require('../../../NodeHttp/Http/WebSocket');
+import api = require('../../../NodeHttp/Http/Api/Api');
 
 var server = new httpServer.Server({
     rootApp: __dirname,
@@ -35,11 +36,12 @@ server.configureServices((services: httpServer.IConfigureServices): void => {
 
 server.configure((app) => {
     
-    app.use(files.DefaultFiles);
+  //  app.use(files.DefaultFiles);
 
-    app.use(files.StaticFiles);
+   // app.use(files.StaticFiles);
 
-    app.use(mvc.MVC);
+    app.use(api.Api);
+    api.ApiContext.instance.routes.addRoute("default", "api/{controller}/{action?}");
 
     app.useErrorNotFound();
 

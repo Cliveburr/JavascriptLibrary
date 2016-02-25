@@ -66,16 +66,7 @@ Object.defineProperties(Array.prototype, {
         value: function () {
             return this.length > 0;
         }
-    },
-    "firstOrDefault": {
-        enumerable: false,
-        value: function () {
-            if (f.length > 0)
-                return f[0];
-            else
-                return null;
-        }
-    },
+    }
 });
 
 interface String {
