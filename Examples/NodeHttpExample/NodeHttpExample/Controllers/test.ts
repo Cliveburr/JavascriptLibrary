@@ -32,6 +32,18 @@ class ledController extends api.ApiController {
         params.response.statusCode = 200;
         console.log('discovery!');
     }
+
+    public get() {
+        return { a: 'a', b: 3 };
+    }
+
+    public post() {
+        this.ok({ a: 'a', b: 3 });
+    }
+
+    public delete() {
+        this.okNoContent();
+    }
 }
 
 export = ledController;
