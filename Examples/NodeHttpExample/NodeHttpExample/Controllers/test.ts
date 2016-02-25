@@ -1,6 +1,9 @@
 ﻿import mvc = require('../../../../NodeHttp/Http/MVC');
+import api = require('../../../../NodeHttp/Http/Api/ApiController');
 
-class ledController {
+
+class ledController extends api.ApiController {
+
     public state(params: mvc.IMVCMethodParams): void {
         if (params.request.method == 'GET') {
             let data = JSON.stringify({ 'someData': 1234 });

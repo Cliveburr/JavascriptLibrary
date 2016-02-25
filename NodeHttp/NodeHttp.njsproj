@@ -37,6 +37,12 @@
     <Content Include="package.json" />
     <Content Include="README.md" />
     <TypeScriptCompile Include="Extenders.ts" />
+    <TypeScriptCompile Include="Http\Api\Api.ts" />
+    <TypeScriptCompile Include="Http\Api\ApiController.ts" />
+    <TypeScriptCompile Include="Http\Api\Services\Formatter.ts" />
+    <TypeScriptCompile Include="Http\Api\Results\HttpResult.ts" />
+    <TypeScriptCompile Include="Http\Api\Services\Route.ts" />
+    <TypeScriptCompile Include="Http\Api\Services\ControlleSelector.ts" />
     <TypeScriptCompile Include="Http\Files.ts" />
     <TypeScriptCompile Include="Http\HttpServer.ts" />
     <TypeScriptCompile Include="Http\MVC.ts" />
@@ -46,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Http\" />
+    <Folder Include="Http\Api\" />
+    <Folder Include="Http\Api\Services\" />
+    <Folder Include="Http\Api\Results\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />
     <Folder Include="Scripts\typings\node\" />
