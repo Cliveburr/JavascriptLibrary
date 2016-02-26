@@ -57,11 +57,11 @@ module internal {
                 for (var i = 0; i < splitedPattern.length; i++) {
                     if (this._varRegex.test(splitedPattern[i])) {
                         var urlVarName = this._varRegex.exec(splitedPattern[i])[1];
-                        if (splitedUrl.length < i) {
+                        if (!splitedUrl[i]) {
 
                             if (this.defaults && urlVarName in this.defaults) {
                                 this._data.data[urlVarName] = this.defaults[urlVarName];
-                            } else if (urlVarName.endsWith('?')) {
+                            } else if (urlVarName.indexOf('?') === urlVarName.length-1) {
                                 
                             } else {
                                 return false;

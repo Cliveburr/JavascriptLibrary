@@ -29,7 +29,7 @@ module internal {
 
                     for (var key in this) {
                         if (key.toLowerCase() === action) {
-                            method = this[action];
+                            method = this[key];
                             if (typeof method !== "function") {
                                 method = null;
                             }
