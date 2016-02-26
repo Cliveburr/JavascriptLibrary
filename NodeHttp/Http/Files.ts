@@ -18,6 +18,9 @@ module internal {
     }
 
     export class StaticFiles implements httpServer.IPipeline {
+        public static $inject = ['log'];
+        public static $pipeReusable = true;
+
         public static fileTypes: IFileType[] = [
             { extension: '.js', contentType: 'text/javascript' },
             { extension: '.js.map', contentType: 'application/json' },
@@ -25,7 +28,13 @@ module internal {
             { extension: '.html', contentType: 'text/html' },
         ];
 
+        constructor(
+            private _log) {
+        }
+
         public process(pipeInfo: httpServer.IPipeInfo, next: () => void): void {
+            this._log.writeLine('StaticFiles: {0}'.format(pipeInfo.request.url));
+
             var parts: string[] = pipeInfo.request.url.split('/').removeAll('');
             parts.unshift(pipeInfo.server.wwwroot);
             var file = path.resolve(parts.join('\\'));
