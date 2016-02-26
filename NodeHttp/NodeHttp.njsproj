@@ -45,16 +45,21 @@
     <TypeScriptCompile Include="Http\Api\Services\ControllerSelector.ts" />
     <TypeScriptCompile Include="Http\Files.ts" />
     <TypeScriptCompile Include="Http\HttpServer.ts" />
+    <TypeScriptCompile Include="Services\Identity.ts" />
     <TypeScriptCompile Include="Http\MVC.ts" />
     <TypeScriptCompile Include="Http\WebSocket.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\ws\ws.d.ts" />
+    <TypeScriptCompile Include="Services\Log.ts" />
+    <TypeScriptCompile Include="System\Collection.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Http\" />
     <Folder Include="Http\Api\" />
     <Folder Include="Http\Api\Services\" />
     <Folder Include="Http\Api\Results\" />
+    <Folder Include="System\" />
+    <Folder Include="Services\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />
     <Folder Include="Scripts\typings\node\" />
