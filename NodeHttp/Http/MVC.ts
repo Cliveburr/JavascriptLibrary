@@ -19,14 +19,13 @@ module internal {
     export class MVC implements httpServer.IPipeline {
         public static controllersFolder = 'Controllers';
 
-        public process(pipeInfo: httpServer.IPipeInfo, next: () => void): void {
-            var parts: string[] = pipeInfo.request.url.split('/').removeAll('');
+        public process(ctx: httpServer.IContext, next: () => void): void {
+            var parts: string[] = ctx.request.url.split('/').removeAll('');
 
             if (parts.length == 0)
                 return;
 
-            debugger;
-            var ctrPath = pipeInfo.server.rootApp + '\\' + MVC.controllersFolder + '\\' + parts[0] + '.js';
+            var ctrPath = ctx.server.rootApp + '\\' + MVC.controllersFolder + '\\' + parts[0] + '.js';
             var ctrFile = path.resolve(ctrPath);
 
             if (!fs.existsSync(ctrFile)) {
@@ -35,7 +34,7 @@ module internal {
             }
 
             var ctrModule = require(ctrFile);
-            var ctr = new ctrModule();
+            var ctr = ctx.inject(ctrModule);
 
             var method = parts[1];
 
@@ -45,26 +44,26 @@ module internal {
             }
 
             var methodParams: IMVCMethodParams = {
-                request: pipeInfo.request,
-                response: pipeInfo.response,
+                request: ctx.request,
+                response: ctx.response,
                 isProcessed: true,
                 postContent: ''
             }
 
             var processMethod = () => {
                 ctr[method](methodParams);
-                pipeInfo.alreadyProcess = methodParams.isProcessed;
+                ctx.alreadyProcess = methodParams.isProcessed;
                 next();
             };
 
-            if (pipeInfo.request.method == 'POST') {
+            if (ctx.request.method == 'POST') {
                 var contentData = '';
 
-                pipeInfo.request.on('data', function (data) {
+                ctx.request.on('data', function (data) {
                     contentData += data;
                 });
 
-                pipeInfo.request.on('end', function () {
+                ctx.request.on('end', function () {
                     methodParams.postContent = contentData;
                     processMethod();
                 });

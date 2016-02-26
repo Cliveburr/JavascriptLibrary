@@ -12,10 +12,10 @@ module internal {
 
     export abstract class ApiController {
 
-        public context: httpServer.IPipeInfo
+        public context: httpServer.IContext;
         public route: routing.RouteInfo;
 
-        public init(context: httpServer.IPipeInfo, route: routing.RouteInfo): void {
+        public init(context: httpServer.IContext, route: routing.RouteInfo): void {
             this.context = context;
             this.route = route.data;
         }

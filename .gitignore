@@ -54,6 +54,7 @@ NodeHttp/**/*.js
 NodeHttp/**/*.js.map
 NodeHttp/bin
 NodeHttp/obj
+NodeHttp/node_modules
 
 # =========================
 # Ignores for NodeHttpExample

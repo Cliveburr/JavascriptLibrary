@@ -16,60 +16,59 @@ module internal {
             }
         }
 
-        public Get = (id: string): T => {
-            if (typeof this._data[id] === "undefined")
-                return null;
-            else
+        public get(id: string): T {
+            if (id in this._data)
                 return this._data[id];
+            else
+                return null;
         }
 
-        public Has = (id: string): boolean => {
-            return typeof this._data[id] !== "undefined";
+        public has(id: string): boolean {
+            return id in this._data;
         }
 
-        public Remove = (id: string): boolean => {
-            if (typeof this._data[id] === "undefined") {
-                return false;
-            }
-            else {
+        public remove(id: string): boolean {
+            if (id in this._data) {
                 delete this._data[id];
                 this._count--;
                 return true;
             }
+            else {
+                return false;
+            }
         }
 
-        public List = (): Array<T> => {
+        public toList(): Array<T> {
             var ta = this;
             return Object.keys(this._data).map(function (e: string) {
                 return ta._data[e];
             });
         }
-
     }
 
     export class AutoDictonary<T> extends Dictonary<T> {
-
-        constructor(public Chars: string, public Lenght: number) {
+        constructor(
+            public chars: string,
+            public lenght: number) {
             super();
         }
 
-        public GenerateID = (): string => {
+        public generateID = (): string => {
             var tr: string;
             do {
                 tr = "";
-                for (var i = 0; i < this.Lenght; i++) {
-                    tr += this.Chars[Math.floor(Math.random() * this.Chars.length)];
+                for (var i = 0; i < this.lenght; i++) {
+                    tr += this.chars[Math.floor(Math.random() * this.chars.length)];
                 }
-            } while (this.Has[tr]);
+            } while (this.has(tr));
             return tr;
         }
 
-        public ASet = (item: T): string => {
-            var id = this.GenerateID();
-            this.Set(id, item);
+        public autoSet(item: T): string {
+            var id = this.generateID();
+            this.set(id, item);
             return id;
         }
-
     }
 }
 

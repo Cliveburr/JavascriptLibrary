@@ -7,7 +7,7 @@ module internal {
     export interface IHttpResult {
         data: any;
         responseCode: number;
-        execute(context: httpServer.IPipeInfo): void;
+        execute(context: httpServer.IContext): void;
     }
 
     export abstract class HttpResultBase<T> implements IHttpResult {
@@ -20,7 +20,7 @@ module internal {
             this.responseCode = responseCode;
         }
 
-        public execute(context: httpServer.IPipeInfo): void {
+        public execute(context: httpServer.IContext): void {
             context.response.writeHead(this.responseCode);
             if (this.data) {
                 var accept = context.request.headers["Accept"];

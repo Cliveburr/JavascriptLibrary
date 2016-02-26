@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="wwwroot\Index.html" />
+    <TypeScriptCompile Include="Controllers\mvcTest.ts" />
     <TypeScriptCompile Include="Controllers\test.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\ws\ws.d.ts" />

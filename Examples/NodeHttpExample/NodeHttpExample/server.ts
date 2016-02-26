@@ -7,6 +7,7 @@ import webSocket = require('../../../NodeHttp/Http/WebSocket');
 import api = require('../../../NodeHttp/Http/Api/Api');
 import identity = require('../../../NodeHttp/Services/Identity');
 import log = require('../../../NodeHttp/Services/Log');
+import session = require('../../../NodeHttp/Services/Session');
 
 var server = new httpServer.Server({
     rootApp: __dirname,
@@ -15,8 +16,11 @@ var server = new httpServer.Server({
 
 server.configureServices((services: httpServer.IConfigureServices): void => {
 
-    services.addSingleton<log.LogServices>('log', log.LogServices, (log) => {
+    services.addPerRequest<log.LogServices>('log', log.LogServices, (log) => {
         log.output = 'D:\\testlog.txt';
+    });
+
+    services.add<session.SessionServices>(session.SessionServices, (session) => {
     });
 
     services.add(identity.identityServices, (identity) => void {
@@ -38,12 +42,16 @@ server.configureServices((services: httpServer.IConfigureServices): void => {
 
 server.configure((app) => {
     
-    var log = app.useService<log.LogServices>('log');
-    log.writeLine('App initialized...');
+    //var log = app.useService<log.LogServices>('log');
+    //log.writeLine('App initialized...');
 
     app.use(files.DefaultFiles);
 
     app.use(files.StaticFiles);
+
+    app.use(session.Session);
+
+    app.use(mvc.MVC);
 
     app.use(api.Api);
     api.ApiContext.instance.routes.addRoute("default", "api/{controller}/{action?}");

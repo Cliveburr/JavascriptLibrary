@@ -10,12 +10,12 @@ module internal {
 
     export interface IControllerSelector{
 
-        getType(context: httpServer.IPipeInfo, route: routeI.IRouteInfo): any; 
+        getType(context: httpServer.IContext, route: routeI.IRouteInfo): any; 
 
     }
 
     export class DefaultControllerSelector implements IControllerSelector {
-        public getType(context: httpServer.IPipeInfo, route: routeI.IRouteInfo): any {
+        public getType(context: httpServer.IContext, route: routeI.IRouteInfo): any {
 
             var ctrPath = context.server.rootApp + '\\Controllers\\' + route.controllerName + '.js';
             var ctrFile = path.resolve(ctrPath);

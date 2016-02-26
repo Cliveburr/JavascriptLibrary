@@ -25,7 +25,7 @@ module internal {
     }
 
     export class Api implements httpServer.IPipeline {
-        public process(pipeInfo: httpServer.IPipeInfo, next: () => void): void {
+        public process(pipeInfo: httpServer.IContext, next: () => void): void {
 
             var url = pipeInfo.request.url;
 
