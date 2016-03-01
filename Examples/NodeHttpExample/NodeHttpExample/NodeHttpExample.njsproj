@@ -35,22 +35,35 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="wwwroot\Home\Index.html" />
     <Content Include="wwwroot\Index.html" />
+    <Content Include="wwwroot\Account\Index.html" />
     <TypeScriptCompile Include="Controllers\mvcTest.ts" />
     <TypeScriptCompile Include="Controllers\test.ts" />
+    <TypeScriptCompile Include="Database\DBServices.ts" />
+    <TypeScriptCompile Include="Database\Model.ts" />
+    <TypeScriptCompile Include="Scripts\typings\angular\angular.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\ws\ws.d.ts" />
     <TypeScriptCompile Include="server.ts" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="wwwroot\Account\Index.ts" />
+    <TypeScriptCompile Include="wwwroot\Index.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Folder Include="Database\" />
+    <Folder Include="Scripts\typings\angular\" />
+    <Folder Include="Scripts\typings\jquery\" />
     <Folder Include="Scripts\typings\ws\" />
     <Folder Include="wwwroot\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />
     <Folder Include="Scripts\typings\node\" />
+    <Folder Include="wwwroot\Account\" />
+    <Folder Include="wwwroot\Home\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

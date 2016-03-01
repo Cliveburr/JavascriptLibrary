@@ -52,14 +52,13 @@
     <TypeScriptCompile Include="Scripts\typings\ws\ws.d.ts" />
     <TypeScriptCompile Include="Services\Log.ts" />
     <TypeScriptCompile Include="Services\Session.ts" />
-    <TypeScriptCompile Include="System\Collection.ts" />
+    <TypeScriptCompile Include="System.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Http\" />
     <Folder Include="Http\Api\" />
     <Folder Include="Http\Api\Services\" />
     <Folder Include="Http\Api\Results\" />
-    <Folder Include="System\" />
     <Folder Include="Services\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />

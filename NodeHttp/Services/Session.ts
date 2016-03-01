@@ -1,5 +1,5 @@
 ﻿import httpServer = require('../Http/HttpServer');
-import collection = require('../System/Collection');
+import system = require('../System');
 var cookies = require("cookies");
 
 module internal {
@@ -7,13 +7,14 @@ module internal {
         public static instance: SessionServices;
         public name: string;
         public type: httpServer.ServicesType;
-        public sessions: collection.AutoDictonary<SessionInstance>;
-        public configuration: (session: SessionInstance) => void;
+        public sessions: system.AutoDictonary<SessionInstance>;
+        public on_create = new system.Event<(service: any) => void>();
+        public on_destroy = new system.Event<(service: any) => void>(); 
 
         constructor() {
             this.name = 'session';
             this.type = httpServer.ServicesType.PerRequest;
-            this.sessions = new collection.AutoDictonary<SessionInstance>("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", 24);
+            this.sessions = new system.AutoDictonary<SessionInstance>("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", 24);
             SessionServices.instance = this;
         }
 
@@ -27,8 +28,8 @@ module internal {
                 sid = this.sessions.generateID();
 
                 session = new SessionInstance();
-                if (this.configuration)
-                    this.configuration(session);
+                if (this.on_create)
+                    this.on_create.raise(session);
 
                 session.sid = sid;
                 this.sessions.set(sid, session);
@@ -42,11 +43,11 @@ module internal {
             }
             session.timeOutEvent = setTimeout(() => this.release_session(session), session.timeOut * 1000);
 
-            var expires = new Date(Date.now() + (session.timeOut * 1000));
+            //var expires = new Date(Date.now() + (session.timeOut * 1000));
             ckos.set("SID", sid, {
                 domain: '',
                 path: '/',
-                expires: expires,
+                //expires: expires,
                 secure: false,
                 httpOnly: false
             });

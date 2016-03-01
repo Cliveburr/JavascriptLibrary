@@ -8,23 +8,28 @@ import api = require('../../../NodeHttp/Http/Api/Api');
 import identity = require('../../../NodeHttp/Services/Identity');
 import log = require('../../../NodeHttp/Services/Log');
 import session = require('../../../NodeHttp/Services/Session');
+import db = require('./Database/DBServices');
 
 var server = new httpServer.Server({
     rootApp: __dirname,
     wwwroot: __dirname + '/wwwroot'
 });
 
+var c = 0;
+
 server.configureServices((services: httpServer.IConfigureServices): void => {
 
-    services.addPerRequest<log.LogServices>('log', log.LogServices, (log) => {
-        log.output = 'D:\\testlog.txt';
-    });
+    db.addServices(services, 'NodeHttpExample');
 
-    services.add<session.SessionServices>(session.SessionServices, (session) => {
-    });
+    services.addPerRequest<log.LogServices>('log', log.LogServices)
+        .on(log => {
+            log.output = 'D:\\testlog.txt';
+        });
 
-    services.add(identity.identityServices, (identity) => void {
-    });
+    services.add<session.SessionServices>(session.SessionServices);
+
+    //services.add(identity.identityServices, (identity) => void {
+    //});
 
     var wss = new webSocket.Server(server);
     wss.on('connection', function (ws) {

@@ -20,7 +20,7 @@ module internal {
     }
 
     export class StaticFiles implements httpServer.IPipeline {
-        public static $inject = ['log'];
+        //public static $inject = ['log'];
         //public static $reusable = true;
 
         public static fileTypes: IFileType[] = [

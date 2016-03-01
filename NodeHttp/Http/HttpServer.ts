@@ -1,5 +1,5 @@
 ﻿import http = require('http');
-import collection = require('../System/Collection');
+import system = require('../System');
 
 module internal {
     export interface IPipeline {
@@ -30,7 +30,7 @@ module internal {
     }
 
     export interface IServicesDirectlyType {
-        new (): any;
+        new (...params: any[]): any;
     }
 
     export interface IServices {
@@ -38,19 +38,25 @@ module internal {
         type: ServicesType;
         instances?: any;
         getInstance: (ctx: IContext) => any;
-        configuration?(config: any): void;
+        on_create?: system.Event<(service: any) => void>;
+        on_destroy?: system.Event<(service: any) => void>;
     }
 
     export interface IServicesType {
         new (): IServices;
     }
 
+    export interface IServicesFluent<T> {
+        on(service: (service: T) => void): IServicesFluent<T>;
+        off(service: (service: T) => void): IServicesFluent<T>;
+    }
+
     export interface IConfigureServices {
         httpServer: Server;
-        add<T>(service: IServicesType, configuration?: (config: T) => void): void;
-        addSingleton<T>(name: string, service: IServicesDirectlyType, configuration?: (service: T) => void): void;
-        addLocal<T>(name: string, service: IServicesDirectlyType, configuration?: (service: T) => void): void;
-        addPerRequest<T>(name: string, service: IServicesDirectlyType, configuration?: (service: T) => void): void;
+        add<T>(service: IServicesType): IServicesFluent<T>;
+        addSingleton<T>(name: string, service: IServicesDirectlyType): IServicesFluent<T>;
+        addLocal<T>(name: string, service: IServicesDirectlyType): IServicesFluent<T>;
+        addPerRequest<T>(name: string, service: IServicesDirectlyType): IServicesFluent<T>;
     }
 
     export interface IConfigure {
@@ -68,18 +74,20 @@ module internal {
         public httpServer: http.Server;
         public rootApp: string;
         public wwwroot: string;
+        public logErrorOnConsole: boolean;
 
         private _pipe: IPipelineType[];
         private _injector: Injector;
-        private _contexts: collection.AutoDictonary<IContext>;
+        private _contexts: system.AutoDictonary<IContext>;
 
         constructor(configs: IServerConfigs) {
             var that = this;
             this.rootApp = configs.rootApp;
             this.wwwroot = configs.wwwroot;
+            this.logErrorOnConsole = true;
             this._pipe = [];
             this._injector = new Injector();
-            this._contexts = new collection.AutoDictonary<IContext>('asdfghjklqwertyuiopzxcvbnmASDFGHJKLQWERTYUIOPZXCVBNM0123456789', 10);
+            this._contexts = new system.AutoDictonary<IContext>('asdfghjklqwertyuiopzxcvbnmASDFGHJKLQWERTYUIOPZXCVBNM0123456789', 10);
             this.httpServer = http.createServer((req, res) => that.handleRequest(req, res));
         }
 
@@ -118,6 +126,9 @@ module internal {
                 processPipe(this._pipe[i]);
             }
             catch (err) {
+                if (this.logErrorOnConsole)
+                    console.log(err);
+
                 ctx.response.statusCode = 500;
                 this.endRequest(ctx);
             }
@@ -132,10 +143,10 @@ module internal {
         public configureServices(configure: (services: IConfigureServices) => void): void {
             configure({
                 httpServer: this,
-                add: (services, configuration) => this.services_add(services, configuration),
-                addSingleton: (name, service, configuration?) => this.add_directly(name, service, ServicesType.Singleton, configuration),
-                addLocal: (name, service, configuration?) => this.add_directly(name, service, ServicesType.Local, configuration),
-                addPerRequest: (name, service, configuration?) => this.add_directly(name, service, ServicesType.PerRequest, configuration)
+                add: (services) => this.services_add(services),
+                addSingleton: (name, service) => this.add_directly(name, service, ServicesType.Singleton),
+                addLocal: (name, service) => this.add_directly(name, service, ServicesType.Local),
+                addPerRequest: (name, service) => this.add_directly(name, service, ServicesType.PerRequest)
             });
         }
 
@@ -157,26 +168,57 @@ module internal {
             this._pipe.push(pipe);
         }
 
-        private services_add(service: IServicesType, configuration?: (config: any) => void): void {
+        private services_add<T extends IServices>(service: IServicesType): IServicesFluent<T> {
             var newService = new service();
-            if (configuration)
-                newService.configuration = configuration;
+
             this._injector.add(newService);
+
+            var fluent = {
+                on: (callBack) => {
+                    if (newService.on_create)
+                        newService.on_create.add(callBack);
+                    return fluent;
+                },
+                off: (callBack) => {
+                    if (newService.on_destroy)
+                        newService.on_destroy.add(callBack);
+                    return fluent;
+                }
+            };
+
+            return fluent;
         }
 
-        private add_directly(name: string, service: IServicesDirectlyType, type: ServicesType, configuration?: (config: any) => void): void {
+        private add_directly<T extends IServices>(name: string, service: IServicesDirectlyType, type: ServicesType): IServicesFluent<T> {
             var that = this;
-            this._injector.add({
+
+            var newService: IServices = {
                 name: name,
                 type: type,
-                configuration: configuration,
                 getInstance: (ctx) => {
                     var instance = that._injector.make(ctx, service)
-                    if (configuration)
-                        configuration(instance);
+                    if (newService.on_create)
+                        newService.on_create.raise(instance);
                     return instance;
+                },
+                on_create: new system.Event<(service: any) => void>(),
+                on_destroy: new system.Event<(service: any) => void>()
+            };
+
+            this._injector.add(newService);
+
+            var fluent = {
+                on: (callBack) => {
+                    newService.on_create.add(callBack);
+                    return fluent;
+                },
+                off: (callBack) => {
+                    newService.on_destroy.add(callBack);
+                    return fluent;
                 }
-            });
+            };
+
+            return fluent;
         }
     }
 

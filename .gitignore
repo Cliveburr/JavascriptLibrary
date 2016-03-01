@@ -65,3 +65,4 @@ Examples/NodeHttpExample/**/*.js
 Examples/NodeHttpExample/**/*.js.map
 Examples/NodeHttpExample/NodeHttpExample/bin
 Examples/NodeHttpExample/NodeHttpExample/obj
+Examples/NodeHttpExample/NodeHttpExample/node_modules
