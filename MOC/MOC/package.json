@@ -1,0 +1,10 @@
+{
+  "name": "MOC",
+  "version": "0.0.0",
+  "description": "MOC",
+  "main": "app.js",
+  "author": {
+    "name": "AManzoli",
+    "email": ""
+  }
+}

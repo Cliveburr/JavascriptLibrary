@@ -9,7 +9,7 @@ module internal {
     }
 
     export class DefaultFiles implements httpServer.IPipeline {
-        public static $inject = ['log'];
+        //public static $inject = ['log'];
 
         public process(ctx: httpServer.IContext, next: () => void): void {
             if (ctx.request.url == '/') {
@@ -25,9 +25,10 @@ module internal {
 
         public static fileTypes: IFileType[] = [
             { extension: '.js', contentType: 'text/javascript' },
-            { extension: '.js.map', contentType: 'application/json' },
+            { extension: '.map', contentType: 'application/json' },
             { extension: '.ts', contentType: 'text/x-typescript' },
             { extension: '.html', contentType: 'text/html' },
+            { extension: '.css', contentType: 'text/css' }
         ];
 
         //constructor() {
@@ -48,6 +49,30 @@ module internal {
                 }
             }
 
+            next();
+        }
+    }
+
+    export class SpaFiles implements httpServer.IPipeline {
+        public static fileTypes: string[] = [
+            '.js', '.map', '.ts', 'css', '.html'
+        ];
+
+        public process(ctx: httpServer.IContext, next: () => void): void {
+            if (ctx.request.url == '/') {
+                ctx.request.url = '/index.html';
+            }
+            else {
+                var valid = false;
+                for (var i = 0, t: string; t = SpaFiles.fileTypes[i]; i++) {
+                    if (ctx.request.url.endsWith(t)) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if (!valid)
+                    ctx.request.url = '/index.html';
+            }
             next();
         }
     }

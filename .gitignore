@@ -66,3 +66,15 @@ Examples/NodeHttpExample/**/*.js.map
 Examples/NodeHttpExample/NodeHttpExample/bin
 Examples/NodeHttpExample/NodeHttpExample/obj
 Examples/NodeHttpExample/NodeHttpExample/node_modules
+
+# =========================
+# Ignores for MOC
+# =========================
+
+MOC/**/*.suo
+MOC/**/*.dat
+MOC/**/*.js
+MOC/**/*.js.map
+MOC/**/bin
+MOC/**/obj
+MOC/**/node_modules

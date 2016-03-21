@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MOC", "MOC\MOC.njsproj", "{3A6E1185-E81A-4023-9B2C-CF628F3CEEFD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Model Object Controller", "01 - Model Object Controller", "{77A92F18-9105-4C94-82F8-18545A6D022A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - NodeHttp", "02 - NodeHttp", "{787F5FAA-5C4C-4A18-A661-1BE1309EC56C}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "NodeHttp", "..\NodeHttp\NodeHttp.njsproj", "{49308476-5C15-491B-8BDB-49B9AA28B2DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A6E1185-E81A-4023-9B2C-CF628F3CEEFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A6E1185-E81A-4023-9B2C-CF628F3CEEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A6E1185-E81A-4023-9B2C-CF628F3CEEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A6E1185-E81A-4023-9B2C-CF628F3CEEFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49308476-5C15-491B-8BDB-49B9AA28B2DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49308476-5C15-491B-8BDB-49B9AA28B2DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49308476-5C15-491B-8BDB-49B9AA28B2DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49308476-5C15-491B-8BDB-49B9AA28B2DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3A6E1185-E81A-4023-9B2C-CF628F3CEEFD} = {77A92F18-9105-4C94-82F8-18545A6D022A}
+		{49308476-5C15-491B-8BDB-49B9AA28B2DA} = {787F5FAA-5C4C-4A18-A661-1BE1309EC56C}
+	EndGlobalSection
+EndGlobal

@@ -51,6 +51,7 @@
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\ws\ws.d.ts" />
     <TypeScriptCompile Include="Services\Log.ts" />
+    <TypeScriptCompile Include="Services\Route.ts" />
     <TypeScriptCompile Include="Services\Session.ts" />
     <TypeScriptCompile Include="System.ts" />
   </ItemGroup>
