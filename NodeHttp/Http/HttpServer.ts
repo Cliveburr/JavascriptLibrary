@@ -1,4 +1,6 @@
-﻿import http = require('http');
+﻿/// <reference path="../Extenders.ts"/>
+require('../Extenders');
+import http = require('http');
 import system = require('../System');
 
 module internal {

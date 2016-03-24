@@ -1,0 +1,10 @@
+{
+  "name": "SystemOnWeb",
+  "version": "0.0.0",
+  "description": "SystemOnWeb",
+  "main": "app.js",
+  "author": {
+    "name": "AManzoli",
+    "email": ""
+  }
+}

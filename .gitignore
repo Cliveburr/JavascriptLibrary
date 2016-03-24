@@ -78,3 +78,15 @@ MOC/**/*.js.map
 MOC/**/bin
 MOC/**/obj
 MOC/**/node_modules
+
+# =========================
+# Ignores for SystemOnWeb
+# =========================
+
+SystemOnWeb/**/*.suo
+SystemOnWeb/**/*.dat
+SystemOnWeb/**/*.js
+SystemOnWeb/**/*.js.map
+SystemOnWeb/**/bin
+SystemOnWeb/**/obj
+SystemOnWeb/**/node_modules
