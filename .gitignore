@@ -90,3 +90,15 @@ SystemOnWeb/**/*.js.map
 SystemOnWeb/**/bin
 SystemOnWeb/**/obj
 SystemOnWeb/**/node_modules
+
+# =========================
+# Ignores for MSC
+# =========================
+
+MSC/**/*.suo
+MSC/**/*.dat
+MSC/**/*.js
+MSC/**/*.js.map
+MSC/**/bin
+MSC/**/obj
+MSC/**/node_modules

@@ -1,0 +1,19 @@
+﻿/* Um comentário doido
+ *
+ *
+*/
+
+
+namespace test {   //outro comentário
+	public class testando {
+		
+		public void Method(int /* esse é doido */ a) {
+			Console.Write(" testing de string");
+		}
+	}
+
+	export function test() {
+
+		
+	}
+}

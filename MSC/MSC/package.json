@@ -1,0 +1,10 @@
+{
+  "name": "MSC",
+  "version": "0.0.0",
+  "description": "MSC",
+  "main": "msc.js",
+  "author": {
+    "name": "AManzoli",
+    "email": ""
+  }
+}
