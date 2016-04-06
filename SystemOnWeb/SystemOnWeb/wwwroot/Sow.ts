@@ -4,6 +4,11 @@ module Sow {
         private _msgTypes: { [mid: string]: IMessageStore } = {};
         private _msgs: IMessage[] = [];
         private _msgsClock: boolean = false;
+        private _set: (cb: Function) => void;
+
+        constructor() {
+            this._set = typeof (setImmediate) === 'undefined' ? (cb) => setTimeout(cb, 0) : setImmediate;
+        }
 
         public initialize(): void {
             Sow.addMsgsType([
@@ -43,7 +48,7 @@ module Sow {
         private checkMsgClock(): void {
             if (!this._msgsClock && this._msgs.length > 0) {
                 this._msgsClock = true;
-                setImmediate(() => {
+                this._set(() => {
                     this._msgsClock = false;
                     this.processMsg();
                 })

@@ -3,11 +3,13 @@ module MetalEngine {
     export class Engine {
         private _inputs: InputManager;
         private _renderer: RendererManager;
+        private _object: ObjectManager;
 
         constructor() {
             this.initMsgs();
             this.initInputs();
             this.initRenderer();
+            this.initObject();
         }
 
         private initMsgs(): void {
@@ -16,6 +18,7 @@ module MetalEngine {
         private initInputs(): void {
             this._inputs = new InputManager();
             Sow.sendMsgA('me.input.add', Keyboard);
+            Sow.sendMsgA('me.input.add', Mouse);
         }
 
         private initRenderer(): void {
@@ -24,6 +27,21 @@ module MetalEngine {
 
         public setRenderer(renderer: IRenderer): void {
             Sow.sendMsgA('me.render.set', renderer);
+        }
+
+        public getRendererSize(): ISize {
+            return {
+                width: this._renderer.renderer.element.clientWidth,
+                height: this._renderer.renderer.element.clientHeight
+            };
+        }
+
+        private initObject(): void {
+            this._object = new ObjectManager();
+        }
+
+        public addObject(obj: ObjectBase): void {
+            Sow.sendMsgA('me.obj.add', obj);
         }
     }
 
@@ -38,7 +56,7 @@ module MetalEngine {
         private initMsgs(): void {
             Sow.addMsgsType([
                 { mid: 'me.input.add', help: 'Called for add new input source. Data: MetalEngine.IInput' },
-                { mid: 'me.input.ev', help: 'Happen when input. Data: MetalEngine.IInputData' },
+                { mid: 'me.input.hit', help: 'Happen when input. Data: MetalEngine.IInputData' },
             ]);
             Sow.subscribe('me.input.add', this.addInput.bind(this));
         }
@@ -53,14 +71,36 @@ module MetalEngine {
 
         constructor() {
             this.name = 'keyboard';
-            window.addEventListener('keydown', (ev) => this.keydown(ev), false);
+            window.addEventListener('keydown', (ev) => this.sendInput(ev, 'keydown'), false);
+            window.addEventListener('keyup', (ev) => this.sendInput(ev, 'keyup'), false);
+            window.addEventListener('keypress', (ev) => this.sendInput(ev, 'keypress'), false);
         }
 
-        private keydown(ev: KeyboardEvent): void {
-            Sow.sendMsgA<IKeyboardData>('me.input.ev', {
+        private sendInput(ev: KeyboardEvent, event: string): void {
+            Sow.sendMsgA<IKeyboardData>('me.input.hit', {
                 source: this.name,
                 ev: ev,
-                event: 'keydown'
+                event: event
+            });
+        }
+    }
+
+    export class Mouse implements IInput {
+        public name: string;
+
+        constructor() {
+            this.name = 'mouse';
+            window.addEventListener('mousedown', (ev) => this.sendInput(ev, 'mousedown'), false);
+            window.addEventListener('mouseup', (ev) => this.sendInput(ev, 'mouseup'), false);
+            window.addEventListener('click', (ev) => this.sendInput(ev, 'click'), false);
+            window.addEventListener('mousemove', (ev) => this.sendInput(ev, 'mousemove'), false);
+        }
+
+        private sendInput(ev: MouseEvent, event: string): void {
+            Sow.sendMsgA<IMouseData>('me.input.hit', {
+                source: this.name,
+                ev: ev,
+                event: event
             });
         }
     }
@@ -68,16 +108,27 @@ module MetalEngine {
     export class RendererManager {
         private _renderer: IRenderer;
 
+        public get renderer(): IRenderer { return this._renderer; }
+
         constructor() {
             this.initMsgs();
+            this.setEvents();
         }
 
         private initMsgs(): void {
             Sow.addMsgsType([
                 { mid: 'me.render.set', help: 'Called for set the renderer. Data: MetalEngine.IRenderer' },
                 { mid: 'me.render.draw', help: 'Happen when draw is called. Data: MetalEngine.' },
+                { mid: 'me.render.resize', help: 'Happen when draw is called. Data: MetalEngine.' },
             ]);
             Sow.subscribe('me.render.set', this.setRenderer.bind(this));
+        }
+
+        private setEvents(): void {
+            window.addEventListener('resize', () => Sow.sendMsgA<IRendererResize>('me.render.resize', {
+                width: this._renderer.element.clientWidth,
+                height: this._renderer.element.clientHeight
+            }), false);
         }
 
         private setRenderer(renderer: IRenderer): void {
@@ -94,7 +145,6 @@ module MetalEngine {
         }
 
         private tick(): void {
-            //this._drawSceneCallBack.apply(this._scene, [this._inputState.clone()]);
             Sow.sendMsgA('me.render.draw');
             this.requestAnimFrame(this.tick);
         }
@@ -116,18 +166,14 @@ module MetalEngine {
         private _element: HTMLElement;
         private _layers: CanvasLayer[];
 
+        public get element(): HTMLElement { return this._element; }
+
         constructor() {
             this._layers = [];
             this.initMsgs();
         }
 
         private initMsgs(): void {
-            Sow.subscribe('me.render.draw', this.draw.bind(this));
-        }
-
-        private draw(): void {
-            var ctx = new CanvasContext(500, 500);
-            this._layers[0].draw(ctx);
         }
 
         public attach(element: HTMLElement): void {
@@ -145,49 +191,161 @@ module MetalEngine {
     export class CanvasLayer implements IRendererLayer {
         private _el: HTMLCanvasElement;
         private _ctx: CanvasRenderingContext2D;
+        private _obj: ObjectBase[];
+        private _invalided: boolean;
 
         constructor(
-            private _element: HTMLElement,
+            private _parent: HTMLElement,
             private _zindex: number) {
+            this._invalided = false;
+            this._obj = [];
+            this.initMsgs();
             this.initElement();
+        }
+
+        private initMsgs(): void {
+            Sow.addMsgsType([
+                { mid: 'me.layer.invalid', help: 'Called to invalidate the layer. Data: zindex' },
+                { mid: 'me.layer.add', help: 'Called for add new object to the layer. Data: MetalEngine.ObjectBase' },
+            ]);
+            Sow.subscribe('me.layer.invalid', this.invalidate.bind(this));
+            Sow.subscribe('me.layer.add', this.addObj.bind(this));
+            Sow.subscribe('me.render.draw', this.draw.bind(this));
+            Sow.subscribe('me.render.resize', this.resize.bind(this));
         }
 
         private initElement(): void {
             this._el = document.createElement('canvas');
+            this._el.width = this._parent.clientWidth;
+            this._el.height = this._parent.clientHeight;
             this._el.style.zIndex = this._zindex.toString();
             this._ctx = this._el.getContext('2d');
-            this._element.appendChild(this._el);
+            this._parent.appendChild(this._el);
         }
 
-        public draw(ctx: CanvasContext): void {
-            this._ctx.drawImage(ctx.ctx.canvas, 0, 0);
+        private invalidate(zindex: number): void {
+            if (zindex === this._zindex) {
+                this._invalided = true;
+            }
         }
+
+        private resize(): void {
+            this._el.width = this._parent.clientWidth;
+            this._el.height = this._parent.clientHeight;
+            this._invalided = true;
+        }
+
+        private addObj(obj: ObjectBase): void {
+            if (obj.layer !== this._zindex)
+                return;
+
+            this._obj.push(obj);
+            Sow.sendMsgA('me.layer.invalid', obj.layer);
+        }
+
+        private draw(): void {
+            if (!this._invalided)
+                return;
+
+            this._invalided = false;
+            var ctx = new CanvasContext(this._el.width, this._el.height);
+
+            for (var i = 0, o: ObjectBase; o = this._obj[i]; i++) {
+                o.draw(ctx);
+            }
+
+            this._ctx.drawImage(ctx.element, 0, 0);
+        }
+
     }
 
     export class CanvasContext implements IDrawContext {
-        public element: HTMLCanvasElement;
-        public ctx: CanvasRenderingContext2D;
+        private _el: HTMLCanvasElement;
+        private _c: CanvasRenderingContext2D;
 
         constructor(width: number, height: number) {
-            this.element = window.document.createElement('canvas');
-            this.element.width = width;
-            this.element.height = height;
-            this.ctx = this.element.getContext('2d');
+            this._el = window.document.createElement('canvas');
+            this._el.width = width;
+            this._el.height = height;
+            this._c = this._el.getContext('2d');
             //this.ctx.scale(0.888, 0.888);
             //this.ctx.translate(0.5, 0.5)
-
-            this.ctx.fillStyle = 'rgb(0, 0, 0)';
-            this.ctx.fillRect(10, 10, 100, 100);
         }
 
+        public get element(): HTMLCanvasElement { return this._el; }
+
         public fillStyle(style: any): IDrawContext {
-            this.ctx.fillStyle = style;
+            this._c.fillStyle = style;
+            return this;
+        }
+
+        public strokeStyle(style: any): IDrawContext {
+            this._c.strokeStyle = style;
             return this;
         }
 
         public fillRect(x: number, y: number, w: number, h: number): IDrawContext {
-            this.ctx.fillRect(x, y, w, h);
+            this._c.fillRect(x, y, w, h);
             return this;
         }
+
+        public fillCircle(x: number, y: number): IDrawContext {
+            var c = this._c;
+            c.beginPath();
+            c.arc(x, y, 50, 0, 2 * Math.PI, false);
+            c.fill();
+            return this;
+        }
+
+        public line(bx: number, by: number, ex: number, ey: number, w: number): IDrawContext {
+            var c = this._c;
+            c.beginPath();
+            c.moveTo(bx, by);
+            c.lineTo(ex, ey);
+            c.lineWidth = w;
+            c.stroke();
+            return this;
+        }
+    }
+
+    export class ObjectManager {
+        private _objs: JS.AutoDictonary<ObjectBase>;
+
+        constructor() {
+            this._objs = new JS.AutoDictonary<ObjectBase>(JS.AutoDictonary.basicChars, 6);
+            this.initMsgs();
+        }
+
+        private initMsgs(): void {
+            Sow.addMsgsType([
+                { mid: 'me.obj.add', help: 'Called for add new object. Data: MetalEngine.ObjectBase' },
+            ]);
+            Sow.subscribe('me.obj.add', this.addObj.bind(this));
+        }
+
+        private addObj(obj: ObjectBase): void {
+            var oid = this._objs.autoSet(obj);
+            obj.oid = oid;
+            Sow.sendMsgA('me.layer.add', obj);
+        }
+    }
+
+    export abstract class ObjectBase {
+        private _layer: number;
+
+        public oid: string;
+
+        constructor() {
+            this._layer = 0;
+        }
+
+        public get layer(): number { return this._layer; }
+        public set layer(layer: number) {
+            Sow.sendMsgA('me.layer.rem', this);
+            this._layer = layer;
+            Sow.sendMsgA('me.layer.add', this);
+        }
+
+        public abstract draw(ctx: IDrawContext): void;
     }
 }

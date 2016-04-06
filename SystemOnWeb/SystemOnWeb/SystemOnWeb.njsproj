@@ -39,6 +39,7 @@
     <TypeScriptCompile Include="server.ts" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="wwwroot\JSSystem.ts" />
     <TypeScriptCompile Include="wwwroot\MetalEngine.d.ts" />
     <TypeScriptCompile Include="wwwroot\MetalEngine.ts" />
     <TypeScriptCompile Include="wwwroot\Sow.d.ts" />
