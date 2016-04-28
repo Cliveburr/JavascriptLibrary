@@ -1,48 +1,88 @@
 ﻿
 module Sow {
     export class System {
-        private _msgTypes: { [mid: string]: IMessageStore } = {};
+        private static _instance: System = new System();
+        public static get instance(): System { return System._instance; }
+
         private _msgs: IMessage[] = [];
         private _msgsClock: boolean = false;
         private _set: (cb: Function) => void;
+        private _roots: { [mid: string]: IAddress };
+        private _ihnd: number;
 
         constructor() {
-            this._set = typeof (setImmediate) === 'undefined' ? (cb) => setTimeout(cb, 0) : setImmediate;
+            if (System._instance)
+                return null;
+
+            this._ihnd = 0;
+            this._roots = {};
+            this._set = typeof (setImmediate) === 'undefined' ? (cb) => setTimeout(cb, 0) : (cb) => setImmediate(cb);
+            System._instance = this;
         }
 
-        public initialize(): void {
-            Sow.addMsgsType([
-                { mid: 'sow.interactive', help: 'Happen when the document.readyState enter on interactive' },
-                { mid: 'sow.complete', help: 'Happen when the document.readyState enter on complete' },
-            ]);
+        public getHandler(): number {
+            let tr = this._ihnd;
+            this._ihnd++;
+            return tr;
         }
 
-        public addMsgType(msgType: IMessageType): void {
-            if (this._msgTypes[msgType.mid])
-                throw 'Message type already exists!';
+        public addAddress(address: IAddAddress): void {
+            let ta = address.mid.split('.');
+            let to = this._roots;
+            let pa = null;
 
-            this._msgTypes[msgType.mid] = {
-                mid: msgType.mid,
-                subs: []
+            for (let i = 0, a: string; a = ta[i]; i++) {
+                let ad = to[a];
+
+                if (!ad) {
+                    let na: IAddress = {
+                        mid: a,
+                        help: i == ta.length - 1 ? address.help : '',
+                        parent: pa,
+                        childs: {},
+                        handlers: {},
+                        subs: []
+                    };
+                    to[a] = ad = na;
+                }
+
+                pa = ad;
+                to = ad.childs;
             }
         }
 
-        public sendMsg(msg: IMessage): void {
-            if (!this._msgTypes[msg.mid])
-                throw 'Message type not exists!';
+        public subscribe(address: string, handler: number, cb: Function): void {
+            let a = this.findAddress(address);
 
-            this._msgs.push(msg);
-
-            this.checkMsgClock();
+            if (handler) {
+                a.handlers[handler] = cb;
+            }
+            else {
+                a.subs.push(cb);
+            }
         }
 
-        public subscribe(mid: string, cb: Function): void {
-            var store = this._msgTypes[mid];
+        private findAddress(address: string): IAddress {
+            let ta = address.split('.');
+            let to = this._roots;
+            let tr: IAddress = null;
 
-            if (!store)
-                throw 'Message type not exists!';
+            for (let i = 0, a: string; a = ta[i]; i++) {
+                let ad = to[a];
 
-            store.subs.push(cb);
+                if (!ad)
+                    throw 'Message address not exists!';
+
+                tr = ad;
+                to = ad.childs;
+            }
+
+            return tr;
+        }
+
+        public send(msg: IMessage): void {
+            this._msgs.push(msg);
+            this.checkMsgClock();
         }
 
         private checkMsgClock(): void {
@@ -56,54 +96,78 @@ module Sow {
         }
 
         private processMsg(): void {
-            var msg = this._msgs.shift();
+            let msg = this._msgs.shift();
+            let ta = msg.address.split('.');
+            let to = this._roots;
 
-            var store = this._msgTypes[msg.mid];
+            for (let i = 0, a: string; a = ta[i]; i++) {
+                let ad = to[a];
 
-            if (store.subs.length > 0) {
-                for (var i = 0, s: Function; s = store.subs[i]; i++) {
-                    s(msg.data);
+                if (!ad)
+                    throw `Message address not found! '${msg.address}'`;
+
+                if (ad.subs.length > 0) {
+                    for (let i = 0, s: Function; s = ad.subs[i]; i++) {
+                        s(msg);
+                    }
                 }
+
+                if (i == ta.length - 1 && msg.handler) {
+                    if (!ad.handlers[msg.handler])
+                        throw `Message handler '${msg.handler}' not found for address '${msg.address}'!`;
+
+                    ad.handlers[msg.handler](msg);
+                }
+
+                to = ad.childs;
             }
 
             this.checkMsgClock();
         }
     }
 
-    export function sendMsg(msg: IMessage): void {
-        instance.sendMsg(msg);
+    export function send(msg: IMessage): void {
+        System.instance.send(msg);
     }
 
-    export function sendMsgA<T>(mid: string, data?: T): void {
-        instance.sendMsg({
-            mid: mid,
-            data: data
+    export function sendA<T>(address: string, data?: T, handler?: number): void {
+        System.instance.send({
+            address: address,
+            data: data,
+            handler: handler
         });
     }
 
-    export function addMsgType(msgType: IMessageType): void {
-        instance.addMsgType(msgType);
+    export function addAddress(address: IAddAddress): void {
+        System.instance.addAddress(address);
     }
 
-    export function addMsgsType(msgTypes: IMessageType[]): void {
-        for (var i = 0, m: IMessageType; m = msgTypes[i]; i++) {
-            instance.addMsgType(m);
+    export function addAddresses(address: IAddAddress[]): void {
+        for (let i = 0, a: IAddAddress; a = address[i]; i++) {
+            System.instance.addAddress(a);
         }
     }
 
     export function subscribe(mid: string, cb: Function): void {
-        instance.subscribe(mid, cb);
+        System.instance.subscribe(mid, null, cb);
     }
 
-    export var instance: System = new System();
-    instance.initialize();
+    export function subscribeH(mid: string, handler: number, cb: Function): void {
+        System.instance.subscribe(mid, handler, cb);
+    }
 
+    Sow.addAddresses([
+        { mid: 'sow', help: 'Root of the system' },
+        { mid: 'sow.interactive', help: 'Happen when the document.readyState enter on interactive' },
+        { mid: 'sow.complete', help: 'Happen when the document.readyState enter on complete' },
+    ]);
+    
     document.onreadystatechange = function () {
         if (document.readyState == "interactive") {
-            sendMsgA('sow.interactive');
+            sendA('sow.interactive');
         }
         else if (document.readyState == "complete") {
-            sendMsgA('sow.complete');
+            sendA('sow.complete');
         }
     }
 }

@@ -219,14 +219,14 @@ module Test {
                     Sow.sendMsgA('me.layer.invalid', this._b.layer);
                 }
             }
-            else if (data.source == 'mouse') {
-                var mouseData = data as MetalEngine.IMouseData;
+            //else if (data.source == 'mouse') {
+            //    var mouseData = data as MetalEngine.IMouseData;
 
-                if (mouseData.event == 'mousemove') {
-                    this._mouse.x = mouseData.ev.x;
-                    this._mouse.y = mouseData.ev.y;
-                }
-            }
+            //    if (mouseData.event == 'mousemove') {
+            //        this._mouse.x = mouseData.ev.x;
+            //        this._mouse.y = mouseData.ev.y;
+            //    }
+            //}
         }
     }
 }
