@@ -6,19 +6,15 @@ module MetalEngine {
         private _object: ObjectManager;
 
         constructor() {
-            this.initMsgs();
             this.initInputs();
             this.initRenderer();
             this.initObject();
         }
 
-        private initMsgs(): void {
-        }
-
         private initInputs(): void {
             this._inputs = new InputManager();
-            Sow.sendMsgA('me.input.add', Keyboard);
-            Sow.sendMsgA('me.input.add', Mouse);
+            Sow.send('me.input.add', Keyboard);
+            Sow.send('me.input.add', Mouse);
         }
 
         private initRenderer(): void {
@@ -26,22 +22,22 @@ module MetalEngine {
         }
 
         public setRenderer(renderer: IRenderer): void {
-            Sow.sendMsgA('me.render.set', renderer);
+            Sow.send('me.rnd.set', renderer, this._renderer.hnd);
         }
 
-        public getRendererSize(): ISize {
-            return {
-                width: this._renderer.renderer.element.clientWidth,
-                height: this._renderer.renderer.element.clientHeight
-            };
-        }
+        //public getRendererSize(): ISize {
+        //    return {
+        //        width: this._renderer.renderer.element.clientWidth,
+        //        height: this._renderer.renderer.element.clientHeight
+        //    };
+        //}
 
         private initObject(): void {
             this._object = new ObjectManager();
         }
 
         public addObject(obj: ObjectBase): void {
-            Sow.sendMsgA('me.obj.add', obj);
+            Sow.send('me.obj.add', obj);
         }
     }
 
@@ -50,14 +46,10 @@ module MetalEngine {
 
         constructor() {
             this._inputs = [];
-            this.initMsgs();
+            this.initSubs();
         }
 
-        private initMsgs(): void {
-            Sow.addMsgsType([
-                { mid: 'me.input.add', help: 'Called for add new input source. Data: MetalEngine.IInput' },
-                { mid: 'me.input.hit', help: 'Happen when input. Data: MetalEngine.IInputData' },
-            ]);
+        private initSubs(): void {
             Sow.subscribe('me.input.add', this.addInput.bind(this));
         }
 
@@ -77,7 +69,7 @@ module MetalEngine {
         }
 
         private sendInput(ev: KeyboardEvent, event: string): void {
-            Sow.sendMsgA<IKeyboardData>('me.input.hit', {
+            Sow.send<IKeyboardData>('me.input.hit', {
                 source: this.name,
                 ev: ev,
                 event: event
@@ -97,7 +89,7 @@ module MetalEngine {
         }
 
         private sendInput(ev: MouseEvent, event: string): void {
-            Sow.sendMsgA<IMouseData>('me.input.hit', {
+            Sow.send<IMouseData>('me.input.hit', {
                 source: this.name,
                 ev: ev,
                 event: event
@@ -108,24 +100,19 @@ module MetalEngine {
     export class RendererManager {
         private _renderer: IRenderer;
 
-        public get renderer(): IRenderer { return this._renderer; }
+        //public get renderer(): IRenderer { return this._renderer; }
 
         constructor() {
-            this.initMsgs();
+            this.initSubs();
             this.setEvents();
         }
 
-        private initMsgs(): void {
-            Sow.addMsgsType([
-                { mid: 'me.render.set', help: 'Called for set the renderer. Data: MetalEngine.IRenderer' },
-                { mid: 'me.render.draw', help: 'Happen when draw is called. Data: MetalEngine.' },
-                { mid: 'me.render.resize', help: 'Happen when draw is called. Data: MetalEngine.' },
-            ]);
-            Sow.subscribe('me.render.set', this.setRenderer.bind(this));
+        private initSubs(): void {
+            Sow.subscribeH('me.rnd.set', this.setRenderer.bind(this), this.hnd);
         }
 
         private setEvents(): void {
-            window.addEventListener('resize', () => Sow.sendMsgA<IRendererResize>('me.render.resize', {
+            window.addEventListener('resize', () => Sow.send<IRendererResize>('me.rnd.rsz', {
                 width: this._renderer.element.clientWidth,
                 height: this._renderer.element.clientHeight
             }), false);
@@ -145,7 +132,7 @@ module MetalEngine {
         }
 
         private tick(): void {
-            Sow.sendMsgA('me.render.draw');
+            Sow.send('me.rnd.draw', null, this.hnd);
             this.requestAnimFrame(this.tick);
         }
 
@@ -162,21 +149,22 @@ module MetalEngine {
         }
     }
 
-    export class CanvasRenderer implements IRenderer {
+    export class CanvasRenderer extends Sow.HandlerBase implements IRenderer {
         private _element: HTMLElement;
         private _layers: CanvasLayer[];
 
-        public get element(): HTMLElement { return this._element; }
+        //public get element(): HTMLElement { return this._element; }
 
         constructor() {
+            super();
             this._layers = [];
-            this.initMsgs();
+            this.setEvents();
         }
 
-        private initMsgs(): void {
+        private setEvents(): void {
         }
 
-        public attach(element: HTMLElement): void {
+        private attach(element: HTMLElement): void {
             this._element = element;
         }
 
@@ -348,4 +336,16 @@ module MetalEngine {
 
         public abstract draw(ctx: IDrawContext): void;
     }
+
+    Sow.addAddresses([
+        { mid: 'me', help: 'Root of the MetalEngine' },
+        { mid: 'me.engine', help: 'Root of the Engine' },
+        { mid: 'me.input', help: 'Root of the Input' },
+        { mid: 'me.input.add', help: 'Called for add new input source on Engine. Data: MetalEngine.IInput' },
+        { mid: 'me.input.hit', help: 'Happen when input. Data: MetalEngine.IInputData' },
+        { mid: 'me.rnd.set', help: 'Called for set the renderer. Data: MetalEngine.IRenderer' },
+        { mid: 'me.rnd.drw', help: 'Happen when draw is called. Data: MetalEngine.' },
+        { mid: 'me.rnd.rsz', help: 'Happen when draw is called. Data: MetalEngine.' },
+
+    ]);
 }

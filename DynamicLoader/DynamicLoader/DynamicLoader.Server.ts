@@ -1,0 +1,5 @@
+﻿
+class internal {
+}
+
+export = internal;

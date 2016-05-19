@@ -36,6 +36,7 @@
   <ItemGroup>
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="Client\WebSocket.ts" />
     <TypeScriptCompile Include="Extenders.ts" />
     <TypeScriptCompile Include="Http\Api\Api.ts" />
     <TypeScriptCompile Include="Http\Api\ApiController.ts" />
@@ -53,6 +54,7 @@
     <TypeScriptCompile Include="Services\Log.ts" />
     <TypeScriptCompile Include="Services\Route.ts" />
     <TypeScriptCompile Include="Services\Session.ts" />
+    <TypeScriptCompile Include="Services\WebSocket.ts" />
     <TypeScriptCompile Include="System.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -60,6 +62,7 @@
     <Folder Include="Http\Api\" />
     <Folder Include="Http\Api\Services\" />
     <Folder Include="Http\Api\Results\" />
+    <Folder Include="Client\" />
     <Folder Include="Services\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />

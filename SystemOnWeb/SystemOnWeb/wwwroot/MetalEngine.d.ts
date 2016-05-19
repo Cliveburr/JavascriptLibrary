@@ -24,7 +24,7 @@
     export interface IRenderer {
         addLayer(): void;
         dispose(): void;
-        element: HTMLElement
+        //element: HTMLElement
     }
 
     export interface IRendererResize {

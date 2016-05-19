@@ -51,7 +51,7 @@ module Sow {
             }
         }
 
-        public subscribe(address: string, handler: number, cb: Function): void {
+        public subscribe(address: string, cb: Function, handler: number): void {
             let a = this.findAddress(address);
 
             if (handler) {
@@ -126,11 +126,20 @@ module Sow {
         }
     }
 
-    export function send(msg: IMessage): void {
+    export class HandlerBase {
+        protected _hnd: number;
+        public get hnd(): number { return this._hnd; }
+
+        constructor() {
+            this._hnd = System.instance.getHandler();
+        }
+    }
+
+    export function sendA(msg: IMessage): void {
         System.instance.send(msg);
     }
 
-    export function sendA<T>(address: string, data?: T, handler?: number): void {
+    export function send<T>(address: string, data?: T, handler?: number): void {
         System.instance.send({
             address: address,
             data: data,
@@ -149,11 +158,11 @@ module Sow {
     }
 
     export function subscribe(mid: string, cb: Function): void {
-        System.instance.subscribe(mid, null, cb);
+        System.instance.subscribe(mid, cb, null);
     }
 
-    export function subscribeH(mid: string, handler: number, cb: Function): void {
-        System.instance.subscribe(mid, handler, cb);
+    export function subscribeH(mid: string, cb: Function, handler: number): void {
+        System.instance.subscribe(mid, cb, handler);
     }
 
     Sow.addAddresses([
@@ -164,10 +173,10 @@ module Sow {
     
     document.onreadystatechange = function () {
         if (document.readyState == "interactive") {
-            sendA('sow.interactive');
+            send('sow.interactive');
         }
         else if (document.readyState == "complete") {
-            sendA('sow.complete');
+            send('sow.complete');
         }
     }
 }

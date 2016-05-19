@@ -50,10 +50,12 @@ Temporary Items
 # Ignores for NodeHttp
 # =========================
 
+NodeHttp/**/*.dat
+NodeHttp/**/*.tmp
 NodeHttp/**/*.js
 NodeHttp/**/*.js.map
-NodeHttp/bin
-NodeHttp/obj
+NodeHttp/**/bin
+NodeHttp/**/obj
 NodeHttp/node_modules
 
 # =========================
@@ -102,3 +104,15 @@ MSC/**/*.js.map
 MSC/**/bin
 MSC/**/obj
 MSC/**/node_modules
+
+# =========================
+# Ignores for DynamicLoader
+# =========================
+
+DynamicLoader/**/*.suo
+DynamicLoader/**/*.dat
+DynamicLoader/**/*.js
+DynamicLoader/**/*.js.map
+DynamicLoader/**/bin
+DynamicLoader/**/obj
+DynamicLoader/**/node_modules
