@@ -9,6 +9,8 @@ module DynamicLoader {
         (success: boolean, data: string): void;
     }
 
+    export var items: Array<Item> = [];
+
     export function ajax(url: string, data: any, method: string, headers: IAjaxRequestHeader[], callBack: IAjaxCallBack): void {
         var client = new XMLHttpRequest();
 
@@ -71,8 +73,6 @@ module DynamicLoader {
         head.insertBefore(script, head.firstChild);
     }
 
-    export var items: Array<Item> = [];
-
     export function find(url: string): Item {
         for (let i = 0, item: Item; item = items[i]; i++) {
             if (item.url == url)
@@ -84,7 +84,7 @@ module DynamicLoader {
     function doGetHtml(item: Item): void {
         ajax(item.url, '', 'GET', [{
             header: 'Content-type', value: 'text/html'
-        }], item.riseUpdate);
+        }], item.riseUpdate.bind(item));
     }
 
     export function getHtml(url: string, callBack: IAjaxCallBack): Item {
@@ -96,7 +96,9 @@ module DynamicLoader {
         }
 
         item.onUpdate(callBack);
-        item.update();
+        getItemPath((itemPath) => {
+            itemPath.addItem(url);
+        });
 
         return item;
     }
@@ -111,7 +113,7 @@ module DynamicLoader {
         }
 
         public update(): void {
-            setInterval(this._doUpdate, 1, this);
+            setTimeout(this._doUpdate, 1, this);
         }
 
         public onUpdate(callBack: IAjaxCallBack): void {
@@ -122,6 +124,46 @@ module DynamicLoader {
             for (let i = 0, caller: IAjaxCallBack; caller = this._callers[i]; i++) {
                 caller(success, data);
             }
+        }
+    }
+
+    class ItemPath implements NodeHttp.WebSocket.IPath {
+        public index: number;
+        private _conn: NodeHttp.WebSocket.Connection;
+
+        public create(connection: NodeHttp.WebSocket.Connection): void {
+            this._conn = connection;
+        }
+
+        public addItem(url: string): void {
+            this._conn.send(this.index, 'addItem', url);
+        }
+
+        public refreshItem(url: string): void {
+            var item = find(url);
+
+            if (!item)
+                console.log('Refresh item message wrong! Url: ' + url);
+
+            item.update();
+        }
+    }
+    
+    NodeHttp.WebSocket.paths.push({ path: 'ItemPath', item: ItemPath });
+    var _itemPath: ItemPath;
+    var _ws: NodeHttp.WebSocket.Connection;
+
+    export function getItemPath(callBack: (itemPath: ItemPath) => void): void {
+        if (_itemPath) {
+            callBack(_itemPath);
+        }
+        else {
+            var host = window.document.location.host.replace(/:.*/, '');
+            _ws = NodeHttp.WebSocket.connect(host, 1337);
+            _ws.ready(() => {
+                _itemPath = _ws.createPath<ItemPath>('ItemPath');
+                callBack(_itemPath);
+            });;
         }
     }
 }

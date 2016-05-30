@@ -78,7 +78,6 @@ module internal {
                 }
                 return true;
             }
-            return false;
         }
 
         public getData(): IRouteInfo {

@@ -7,6 +7,7 @@ import system = require('../System');
 module internal {
     export interface IPath {
         index: number;
+        name?: string;
         create(client: Client): void;
     }
 
@@ -74,17 +75,6 @@ module internal {
             this.clients = new system.AutoDictonary<Client>("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", 24);
             this._server = new WebSocketServer.Server({ server: WebSocketService.server.httpServer });
             this._server.on('connection', this.connection.bind(this));
-            //var wss = new webSocket.Server(server);
-            //wss.on('connection', function (ws) {
-            //    var id = setInterval(function () {
-            //        ws.send(JSON.stringify(process.memoryUsage()), function () { /* ignore errors */ });
-            //    }, 100);
-            //    console.log('started client interval');
-            //    ws.on('close', function () {
-            //        console.log('stopping client interval');
-            //        clearInterval(id);
-            //    });
-            //});
             WebSocket.instance = this;
         }
 
@@ -114,7 +104,7 @@ module internal {
             return null;
         }
 
-        private findPathItem(path: string): IPathItem {
+        public findPathItem(path: string): IPathItem {
             for (let i = 0, p: IPathItem; p = WebSocketService.paths[i]; i++) {
                 if (p.path == path)
                     return p;
@@ -132,6 +122,7 @@ module internal {
 
                 let path = new pathType.item();
                 path.index = msg.index;
+                path.name = msg.args[1];
                 path.create(this);
                 this.items.push(path);
             }
@@ -159,6 +150,22 @@ module internal {
                 args: args
             };
             this._socket.send(JSON.stringify(m));
+        }
+
+        public sendAll(index: number, method: string, ...args: any[]): void {
+            let path = this.findItem(index);
+
+            if (!path)
+                throw 'não tem esse path'; //TODO: ver oque fazer
+
+            var clients = WebSocket.instance.clients.toList();
+            for (let i = 0, client: Client; client = clients[i]; i++) {
+                for (let p = 0, item: IPath; item = client.items[p]; p++) {
+                    if (item.name === path.name) {
+                        client.send(item.index, method, args);
+                    }
+                }
+            }
         }
     }
 }

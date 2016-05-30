@@ -59,7 +59,6 @@ module internal {
                 }
                 return new RouteInfo(data);
             }
-            return null;
         }
 
         public getRouteByUrl(url: string): IRouteInfo {
