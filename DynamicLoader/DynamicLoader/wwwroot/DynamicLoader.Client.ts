@@ -11,7 +11,7 @@ module DynamicLoader {
 
     export var items: Array<Item> = [];
 
-    export function ajax(url: string, data: any, method: string, headers: IAjaxRequestHeader[], callBack: IAjaxCallBack): void {
+    function ajax(url: string, data: any, method: string, headers: IAjaxRequestHeader[], callBack: IAjaxCallBack): void {
         var client = new XMLHttpRequest();
 
         var statechange = (ev): void => {
@@ -41,12 +41,12 @@ module DynamicLoader {
         client.send(data);
     }
 
-    export function getScript(name: string, callBack: (err: string) => void): void {
+    function innerGetScript(url: string, callBack: IAjaxCallBack): void {
         var script, head = document.head;
 
         script = document.createElement("script");
         script.async = true;
-        script.src = name;
+        script.src = url;
 
         script.onload = script.onreadystatechange = function (_, isAbort) {
             if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
@@ -59,15 +59,15 @@ module DynamicLoader {
                 script = null;
 
                 if (isAbort)
-                    callBack('Error loading script: ' + name);
+                    callBack(false, 'Error loading script: ' + url);
                 else {
-                    callBack(null);
+                    callBack(true, null);
                 }
             }
         };
 
         script.onerror = () => {
-            callBack('Error loading script: ' + name);
+            callBack(false, 'Error loading script: ' + url);
         };
 
         head.insertBefore(script, head.firstChild);
@@ -96,6 +96,28 @@ module DynamicLoader {
         }
 
         item.onUpdate(callBack);
+
+        getItemPath((itemPath) => {
+            itemPath.addItem(url);
+        });
+
+        return item;
+    }
+
+    function doGetScript(item: Item): void {
+        innerGetScript(item.url, item.riseUpdate.bind(item));
+    }
+
+    export function getScript(url: string, callBack?: IAjaxCallBack): Item {
+        var item = find(url);
+
+        if (!item) {
+            item = new Item(url, doGetScript);
+            items.push(item);
+        }
+
+        item.onUpdate(callBack);
+
         getItemPath((itemPath) => {
             itemPath.addItem(url);
         });
@@ -151,6 +173,7 @@ module DynamicLoader {
     
     NodeHttp.WebSocket.paths.push({ path: 'ItemPath', item: ItemPath });
     var _itemPath: ItemPath;
+    var _itemPathCallbacks: Array<(itemPath: ItemPath) => void>;
     var _ws: NodeHttp.WebSocket.Connection;
 
     export function getItemPath(callBack: (itemPath: ItemPath) => void): void {
@@ -158,12 +181,20 @@ module DynamicLoader {
             callBack(_itemPath);
         }
         else {
-            var host = window.document.location.host.replace(/:.*/, '');
-            _ws = NodeHttp.WebSocket.connect(host, 1337);
-            _ws.ready(() => {
-                _itemPath = _ws.createPath<ItemPath>('ItemPath');
-                callBack(_itemPath);
-            });;
+            if (_itemPathCallbacks) {
+                _itemPathCallbacks.push(callBack);
+            }
+            else {
+                _itemPathCallbacks = [callBack];
+                var host = window.document.location.host.replace(/:.*/, '');
+                _ws = NodeHttp.WebSocket.connect(host, 1337);
+                _ws.ready(() => {
+                    _itemPath = _ws.createPath<ItemPath>('ItemPath');
+                    for (let i = 0, cb: (itemPath: ItemPath) => void; cb = _itemPathCallbacks[i]; i++) {
+                        cb(_itemPath);
+                    }
+                });;
+            }
         }
     }
 }

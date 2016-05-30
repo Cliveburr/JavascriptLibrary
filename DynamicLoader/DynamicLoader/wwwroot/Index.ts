@@ -42,3 +42,6 @@ DynamicLoader.getHtml('/Sample.html', (success: boolean, data: string) => {
         document.body.innerHTML = data;
     }
 });
+
+
+DynamicLoader.getScript('/SampleScript.js');

@@ -47,6 +47,13 @@ Temporary Items
 .apdisk
 
 # =========================
+# Ignores for Node.js project
+# =========================
+
+**/node_modules
+**/.vs/**/*.*
+
+# =========================
 # Ignores for NodeHttp
 # =========================
 
@@ -56,7 +63,6 @@ NodeHttp/**/*.js
 NodeHttp/**/*.js.map
 NodeHttp/**/bin
 NodeHttp/**/obj
-NodeHttp/node_modules
 
 # =========================
 # Ignores for NodeHttpExample
@@ -116,3 +122,5 @@ DynamicLoader/**/*.js.map
 DynamicLoader/**/bin
 DynamicLoader/**/obj
 DynamicLoader/**/node_modules
+DynamicLoader/**/.vs/
+

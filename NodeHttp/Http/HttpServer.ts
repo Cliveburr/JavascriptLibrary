@@ -72,11 +72,14 @@ module internal {
         wwwroot: string;
     }
 
-    export class Server {
+    export class Server implements IServices {
         public httpServer: http.Server;
         public rootApp: string;
         public wwwroot: string;
         public logErrorOnConsole: boolean;
+        public name: string;
+        public type: ServicesType;
+        public instances: this;
 
         private _pipe: IPipelineType[];
         private _injector: Injector;
@@ -88,7 +91,11 @@ module internal {
             this.wwwroot = configs.wwwroot;
             this.logErrorOnConsole = true;
             this._pipe = [];
+            this.name = 'server';
+            this.type = ServicesType.Singleton;
+            this.instances = this;
             this._injector = new Injector();
+            this._injector.add(this);
             this._contexts = new system.AutoDictonary<IContext>('asdfghjklqwertyuiopzxcvbnmASDFGHJKLQWERTYUIOPZXCVBNM0123456789', 10);
             this.httpServer = http.createServer((req, res) => that.handleRequest(req, res));
         }
@@ -221,6 +228,10 @@ module internal {
             };
 
             return fluent;
+        }
+
+        public getInstance(ctx: IContext): this {
+            return this.instances;
         }
     }
 

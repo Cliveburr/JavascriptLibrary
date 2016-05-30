@@ -46,6 +46,7 @@
     <TypeScriptCompile Include="wwwroot\DynamicLoader.Client.ts" />
     <TypeScriptCompile Include="wwwroot\DynamicTag.ts" />
     <TypeScriptCompile Include="wwwroot\Index.ts" />
+    <TypeScriptCompile Include="wwwroot\SampleScript.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\" />

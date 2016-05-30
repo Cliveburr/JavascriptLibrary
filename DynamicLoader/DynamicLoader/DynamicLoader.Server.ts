@@ -5,55 +5,66 @@ import path = require('path');
 
 module internal {
     export function addServices(services: httpServer.IConfigureServices): void {
-        DynamicLoaderService.server = services.httpServer;
-        webSocket.WebSocketService.paths.push({ path: 'ItemPath', item: ItemPath });
+        webSocket.WebSocketService.instance.paths.push({ path: 'ItemPath', item: ItemPath });
         services.add<DynamicLoaderService>(DynamicLoaderService);
+        DynamicLoaderService.instance.server = services.httpServer;
     }
 
-    export class DynamicLoaderService implements httpServer.IServices {
-        public static server: httpServer.Server;
-        public static items: Array<Item> = [];
+    class DynamicLoaderService implements httpServer.IServices {
+        public static instance: DynamicLoaderService;
+        public server: httpServer.Server;
+        public items: Array<Item> = [];
         public name: string;
         public type: httpServer.ServicesType;
-        public instances: this;
+        public instances: DynamicLoaderService;
 
         constructor() {
             this.name = 'dynamicLoader';
             this.type = httpServer.ServicesType.Singleton;
-
             this.instances = this;
+            DynamicLoaderService.instance = this;
         }
 
-        public getInstance(ctx: httpServer.IContext): this {
+        public getInstance(ctx: httpServer.IContext): DynamicLoaderService {
             return this.instances;
+        }
+
+        public find(url: string): Item {
+            for (let i = 0, item: Item; item = this.items[i]; i++) {
+                if (item.url == url)
+                    return item;
+            }
+            return null;
         }
     }
 
     class Item {
         public fullName: string;
 
+        private _lock: boolean;
+
         constructor(
-            public url: string,
-            public itemPath: ItemPath) {
+            public url: string) {
+            this._lock = false;
 
             var parts: string[] = url.split('/').removeAll('');
-            parts.unshift(DynamicLoaderService.server.wwwroot);
+            parts.unshift(DynamicLoaderService.instance.server.wwwroot);
             this.fullName = path.resolve(parts.join('\\'));
 
             fs.watch(this.fullName, this.onWatch.bind(this));
         }
 
-        private onWatch(): void {
-            this.itemPath.refreshItem(this.url);
+        private onWatch(event: string): void {
+            if (!this._lock) {
+                this._lock = true;
+                webSocket.WebSocketService.instance.sendAll('ItemPath', 'refreshItem', this.url);
+                setTimeout(this.unlock.bind(this), 300);
+            }
         }
-    }
 
-    function find(url: string): Item {
-        for (let i = 0, item: Item; item = DynamicLoaderService.items[i]; i++) {
-            if (item.url == url)
-                return item;
+        private unlock(): void {
+            this._lock = false;
         }
-        return null;
     }
 
     class ItemPath implements webSocket.IPath {
@@ -65,11 +76,11 @@ module internal {
         }
 
         public addItem(url: string): void {
-            let item = find(url);
+            let item = DynamicLoaderService.instance.find(url);
 
             if (!item) {
-                item = new Item(url, this);
-                DynamicLoaderService.items.push(item);
+                item = new Item(url);
+                DynamicLoaderService.instance.items.push(item);
             }
 
             this.refreshItem(url);

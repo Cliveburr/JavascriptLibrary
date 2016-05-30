@@ -42,46 +42,55 @@ module internal {
     }
 
     export function addServices(services: httpServer.IConfigureServices, paths: Array<IPathItem>): void {
-        WebSocketService.server = services.httpServer;
-        WebSocketService.paths = paths;
         services.add<WebSocketService>(WebSocketService);
+        WebSocketService.instance.server = services.httpServer;
+        WebSocketService.instance.paths = paths;
+        WebSocketService.instance.start();
     }
 
     export class WebSocketService implements httpServer.IServices {
-        public static server: httpServer.Server;
-        public static paths: Array<IPathItem>;
+        public static instance: WebSocketService;
+        public server: httpServer.Server;
+        public paths: Array<IPathItem>;
         public name: string;
         public type: httpServer.ServicesType;
-        public instances: WebSocket;
+        public instances: WebSocketService;
+        public clients: system.AutoDictonary<Client>;
+
+        private _server: any;
 
         constructor() {
             this.name = 'webSocket';
             this.type = httpServer.ServicesType.Singleton;
-
-            this.instances = new WebSocket();
+            this.clients = new system.AutoDictonary<Client>("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", 24);
+            this.instances = this;
+            WebSocketService.instance = this;
         }
 
-        public getInstance(ctx: httpServer.IContext): WebSocket {
+        public getInstance(ctx: httpServer.IContext): WebSocketService {
             return this.instances;
         }
-    }
 
-    export class WebSocket {
-        public static instance: WebSocket;
-        private _server: any;
-        public clients: system.AutoDictonary<Client>;
-
-        constructor() {
-            this.clients = new system.AutoDictonary<Client>("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", 24);
-            this._server = new WebSocketServer.Server({ server: WebSocketService.server.httpServer });
+        public start(): void {
+            this._server = new WebSocketServer.Server({ server: this.server.httpServer });
             this._server.on('connection', this.connection.bind(this));
-            WebSocket.instance = this;
         }
 
         private connection(socket: any): void {
             let id = this.clients.generateID();
             let client = new Client(id, socket);
             this.clients.set(id, client);
+        }
+
+        public sendAll(path: string, method: string, ...args: any[]): void {
+            var clients = this.clients.toList();
+            for (let i = 0, client: Client; client = clients[i]; i++) {
+                for (let p = 0, item: IPath; item = client.items[p]; p++) {
+                    if (item.name === path) {
+                        client.send(item.index, method, args);
+                    }
+                }
+            }
         }
     }
 
@@ -105,7 +114,7 @@ module internal {
         }
 
         public findPathItem(path: string): IPathItem {
-            for (let i = 0, p: IPathItem; p = WebSocketService.paths[i]; i++) {
+            for (let i = 0, p: IPathItem; p = WebSocketService.instance.paths[i]; i++) {
                 if (p.path == path)
                     return p;
             }
@@ -140,7 +149,7 @@ module internal {
         }
 
         public close(): void {
-            WebSocket.instance.clients.remove(this.id);
+            WebSocketService.instance.clients.remove(this.id);
         }
 
         public send(index: number, method: string, ...args: any[]): void {
@@ -158,14 +167,7 @@ module internal {
             if (!path)
                 throw 'não tem esse path'; //TODO: ver oque fazer
 
-            var clients = WebSocket.instance.clients.toList();
-            for (let i = 0, client: Client; client = clients[i]; i++) {
-                for (let p = 0, item: IPath; item = client.items[p]; p++) {
-                    if (item.name === path.name) {
-                        client.send(item.index, method, args);
-                    }
-                }
-            }
+            WebSocketService.instance.sendAll(path.name, method, args);
         }
     }
 }
