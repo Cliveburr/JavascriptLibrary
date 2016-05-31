@@ -41,7 +41,8 @@ DynamicLoader.getHtml('/Sample.html', (success: boolean, data: string) => {
     if (success) {
         document.body.innerHTML = data;
     }
+
+    DynamicLoader.getScript('/SampleScript.js');
 });
 
-
-DynamicLoader.getScript('/SampleScript.js');
+DynamicLoader.getStyle('/SampleStyle.css');

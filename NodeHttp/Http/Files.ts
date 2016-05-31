@@ -1,6 +1,7 @@
 ﻿import httpServer = require('./HttpServer');
 import path = require('path');
 import fs = require('fs');
+import url = require('url');
 
 module internal {
     export interface IFileType {
@@ -35,14 +36,19 @@ module internal {
         //}
 
         public process(ctx: httpServer.IContext, next: () => void): void {
-            var parts: string[] = ctx.request.url.split('/').removeAll('');
-            parts.unshift(ctx.server.wwwroot);
-            var file = path.resolve(parts.join('\\'));
+            let pu = url.parse(ctx.request.url);
+
+            //var parts: string[] = ctx.request.url.split('/').removeAll('');
+            //parts.unshift(ctx.server.wwwroot);
+            //var file = path.resolve(parts.join('\\'));
+            let file = path.resolve(ctx.server.wwwroot + pu.pathname);
 
             if (fs.existsSync(file)) {
                 var extension = path.extname(file);
                 var tp = StaticFiles.fileTypes.filterOne((t) => t.extension == extension);
                 if (tp) {
+                    console.log('StaticFile reponse: ' + ctx.request.url);
+                    ctx.response.setHeader('etag', '1234');
                     ctx.response.writeHead(200, { "Content-Type": tp.contentType });
                     ctx.response.write(fs.readFileSync(file).toString());
                     ctx.alreadyProcess = true;

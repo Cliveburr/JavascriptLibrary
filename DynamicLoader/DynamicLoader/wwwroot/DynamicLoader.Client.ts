@@ -10,6 +10,7 @@ module DynamicLoader {
     }
 
     export var items: Array<Item> = [];
+    var ritem = 0;
 
     function ajax(url: string, data: any, method: string, headers: IAjaxRequestHeader[], callBack: IAjaxCallBack): void {
         var client = new XMLHttpRequest();
@@ -46,7 +47,8 @@ module DynamicLoader {
 
         script = document.createElement("script");
         script.async = true;
-        script.src = url;
+        script.src = url + '?v=' + ritem.toString();
+        ritem++;
 
         script.onload = script.onreadystatechange = function (_, isAbort) {
             if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
@@ -73,6 +75,45 @@ module DynamicLoader {
         head.insertBefore(script, head.firstChild);
     }
 
+    function innerGetStyle(url: string, callBack: IAjaxCallBack): void {
+        let link = findStyle(url);
+        let isNew = false;
+
+        if (!link) {
+            link = document.createElement("link");
+            link.rel = 'stylesheet';
+            link['__url__'] = url;
+            isNew = true;
+        }
+
+        link.onload = (ev: Event) => {
+            link.onload = null;
+            link = null;
+            callBack(true, null);
+        };
+
+        link.onerror = () => {
+            callBack(false, 'Error loading script: ' + url);
+        };
+
+        link.href = url + '?v=' + ritem.toString();
+        ritem++;
+
+        if (isNew)
+            document.head.insertBefore(link, document.head.firstChild);
+    }
+
+    function findStyle(url: string): HTMLLinkElement {
+        let sts = document.head.getElementsByTagName('link');
+        for (let s = 0, link: HTMLLinkElement; link = sts.item(s); s++) {
+            if (link['__url__'] === url) {
+                //link.parentNode.removeChild(link);
+                return link;
+            }
+        }
+        return null;
+    }
+
     export function find(url: string): Item {
         for (let i = 0, item: Item; item = items[i]; i++) {
             if (item.url == url)
@@ -82,9 +123,10 @@ module DynamicLoader {
     }
 
     function doGetHtml(item: Item): void {
-        ajax(item.url, '', 'GET', [{
+        ajax(item.url + '?v=' + ritem.toString(), '', 'GET', [{
             header: 'Content-type', value: 'text/html'
         }], item.riseUpdate.bind(item));
+        ritem++;
     }
 
     export function getHtml(url: string, callBack: IAjaxCallBack): Item {
@@ -113,6 +155,27 @@ module DynamicLoader {
 
         if (!item) {
             item = new Item(url, doGetScript);
+            items.push(item);
+        }
+
+        item.onUpdate(callBack);
+
+        getItemPath((itemPath) => {
+            itemPath.addItem(url);
+        });
+
+        return item;
+    }
+
+    function doGetStyle(item: Item): void {
+        innerGetStyle(item.url, item.riseUpdate.bind(item));
+    }
+
+    export function getStyle(url: string, callBack?: IAjaxCallBack): Item {
+        var item = find(url);
+
+        if (!item) {
+            item = new Item(url, doGetStyle);
             items.push(item);
         }
 
