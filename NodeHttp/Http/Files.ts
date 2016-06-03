@@ -47,7 +47,6 @@ module internal {
                 var extension = path.extname(file);
                 var tp = StaticFiles.fileTypes.filterOne((t) => t.extension == extension);
                 if (tp) {
-                    console.log('StaticFile reponse: ' + ctx.request.url);
                     ctx.response.setHeader('etag', '1234');
                     ctx.response.writeHead(200, { "Content-Type": tp.contentType });
                     ctx.response.write(fs.readFileSync(file).toString());

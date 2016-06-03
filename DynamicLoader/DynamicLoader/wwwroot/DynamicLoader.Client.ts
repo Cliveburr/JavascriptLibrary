@@ -158,7 +158,8 @@ module DynamicLoader {
             items.push(item);
         }
 
-        item.onUpdate(callBack);
+        if (callBack)
+            item.onUpdate(callBack);
 
         getItemPath((itemPath) => {
             itemPath.addItem(url);
@@ -179,7 +180,8 @@ module DynamicLoader {
             items.push(item);
         }
 
-        item.onUpdate(callBack);
+        if (callBack)
+            item.onUpdate(callBack);
 
         getItemPath((itemPath) => {
             itemPath.addItem(url);

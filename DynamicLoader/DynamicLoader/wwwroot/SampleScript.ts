@@ -7,4 +7,10 @@ button.onclick = () => alert('hay 3');
 
 
 var button2 = document.getElementById('novo');
-button2.onclick = () => alert('novo button 3');
+button2.onclick = () => alert('novo button mudei');
+
+
+
+
+var ter = document.getElementById('ter');
+ter.onclick = () => alert('novo input ter');
