@@ -46,26 +46,65 @@
 //    cssUrl: '/SampleStyle.css'
 //});
 
-DynamicLoader.getHtml('/Sample.html', (success: boolean, data: string) => {
-    if (success) {
-        document.body.innerHTML = data;
+//DynamicLoader.getHtml('/Sample.html', (success: boolean, data: string) => {
+//    if (success) {
+//        document.body.innerHTML = data;
+//    }
+
+//    DynamicLoader.getScript('/SampleScript.js');
+//});
+
+//DynamicLoader.getStyle('/SampleStyle.css');
+
+//DynamicTag.setTag({
+//    tag: 'customButton',
+//    htmlUrl: '/Objects/CustomButton.html',
+//});
+
+class tagProvider implements DynamicTag.ITagProvider {
+    public test(tagName: string): boolean {
+        return /^DY-/.test(tagName);
     }
 
-    DynamicLoader.getScript('/SampleScript.js');
-});
+    public define(tag: DynamicTag.IDefinition): void {
+        tag.htmlUrl = '/Elements/Button/Button.html';
+        tag.scripts = ['/Elements/Button/Button.js'];
+        tag.controller = 'app.Elements.Button';
+    }
+}
 
-DynamicLoader.getStyle('/SampleStyle.css');
+document.onreadystatechange = function () {
+    if (document.readyState == "complete") {
+        //DynamicTag.renderHtml(document.body, '<div>testando 2</div>');
+        //DynamicTag.renderUrl(document.body, '/Sample.html', '/SampleScript.js');
+        DynamicLoader.getStyle('/SampleStyle.css');
 
-DynamicTag.setTag({
-    tag: 'customButton',
-    htmlUrl: '/Objects/CustomButton.html',
-});
+        DynamicTag.setTagProvider(new tagProvider());
 
-//document.onreadystatechange = function () {
-//    if (document.readyState == "complete") {
-//        //DynamicTag.renderHtml(document.body, '<div>testando 2</div>');
+        var body = new DynamicTag.Anchor({
+                htmlUrl: '/Sample.html'
+            })
+            //.onAfterRender((data) => alert('alterou'))
+            .insertInto(document.body);
 
-//        DynamicTag.renderUrl(document.body, '/Sample.html', '/SampleScript.js');
-//        DynamicLoader.getStyle('/SampleStyle.css');
-//    }
-//}
+        var i1 = document.createElement('input');
+        i1.type = 'text';
+        document.body.appendChild(i1);
+
+        var b1 = document.createElement('input');
+        b1.type = 'button';
+        b1.value = 'click';
+        document.body.appendChild(b1);
+        
+        var t1 = document.createComment('teste');
+        //document.body.appendChild(t1);
+
+        var t2 = document.createTextNode('text');
+        document.body.appendChild(t2);
+
+        b1.onclick = () => {
+            t2.textContent = i1.value;
+        };
+
+    }
+}    

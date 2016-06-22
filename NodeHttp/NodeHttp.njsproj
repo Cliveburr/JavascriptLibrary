@@ -48,7 +48,6 @@
     <TypeScriptCompile Include="Http\HttpServer.ts" />
     <TypeScriptCompile Include="Services\Identity.ts" />
     <TypeScriptCompile Include="Http\MVC.ts" />
-    <TypeScriptCompile Include="Http\WebSocket.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\ws\ws.d.ts" />
     <TypeScriptCompile Include="Services\Log.ts" />

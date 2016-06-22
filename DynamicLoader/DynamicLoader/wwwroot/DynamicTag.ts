@@ -111,71 +111,236 @@ module DynamicTag2 {
 
 
 module DynamicTag {
-    export function renderHtml(el: HTMLElement, html: string): Tag {
-        var tag = new TagHtml(el, html);
-        el['__Tag__'] = tag;
-        tag.render();
-        return tag;
+    var renderIndex = 0;
+
+    export interface ITagProvider {
+        test(tagName: string): boolean;
+        define(tag: IDefinition): void;
     }
 
-    export function renderUrl(el: HTMLElement, url: string, ...scripts: string[]): Tag {
-        var tag = new TagUrl(el, url, scripts);
-        el['__Tag__'] = tag;
-        tag.render();
-        return tag;
+    export interface IDefinition {
+        name?: string;
+        htmlUrl?: string;
+        scripts?: Array<string>;
+        controller?: string;
+        styles?: Array<string>;
     }
 
-    export abstract class Tag {
-        constructor(
-            public el: HTMLElement) {
-        }
-
-        public abstract render(): void;
+    export interface IController {
+        onRender?(nodes: NodeList, render: (nodes: NodeList) => void): void;
+        afterRender?(nodes: NodeList): void;
     }
 
-    export class TagHtml extends Tag {
-        constructor(
-            el: HTMLElement,
-            private _html: string) {
-            super(el);
-        }
-
-        public render(): void {
-            this.el.innerHTML = this._html;
-        }
+    export interface IAnchorChild {
+        index: number;
     }
 
-    export class TagUrl extends Tag {
-        private _scriptsReady: boolean;
+    export class Anchor {
+        private _index: number;
+        private _anchor: Text;
+        private _def: IDefinition;
+        private _childs: Array<Node>;
+        private _token: DynamicLoader.Token;
+        private _ctr: IController;
 
-        constructor(
-            el: HTMLElement,
-            private _url: string,
-            private _scripts: string[]) {
-            super(el);
+        public get index(): number { return this._index; }
+        public get anchor(): Node { return this._anchor; }
+
+        constructor(def: IDefinition) {
+            this._index = renderIndex++;
+            this._def = def;
+            this.createAnchor();
         }
 
-        public render(): void {
-            DynamicLoader.getHtml(this._url, (success, data) => {
-                if (success) {
-                    this.el.innerHTML = data;
-                    this.loadScripts();
+        private createAnchor(): void {
+            this._anchor = document.createTextNode('');
+            this._anchor['__Anchor__'] = this;
+        }
+
+        protected createLoader(): void {
+            this._token = new DynamicLoader.Token()
+                .getHtml(this._def.htmlUrl)
+                .getScript(this._def.scripts)
+                .getStyle(this._def.styles)
+                .on(this.onLoad.bind(this));
+        }
+
+        private onLoad(sender: DynamicLoader.Token): void {
+            let data: string;
+
+            for (let f = 0, t: DynamicLoader.TokenItem; t = sender.items[f]; f++) {
+                if (!t.success)
+                    throw 'Error loading url ' + t.item.url + '! Error: ' + t.data;
+
+                if (t.data)
+                    data = t.data;
+            }
+
+            if (data) {
+                this.doRender(data);
+            }
+        }
+
+        public clear(): void {
+            let pa = this._anchor.parentNode;
+
+            if (this._childs) {
+                for (let f = 0, n: Node; n = this._childs[f]; f++) {
+                    if (n['__Anchor__']) {
+                        (<Anchor>n['__Anchor__']).clear(); //  destroy?
+                    }
+                    pa.removeChild(n);
                 }
-                else {
-                    console.log('Error on getHtml! ' + data);
+            }
+
+            this._childs = [];
+        }
+
+        private doRender(data: string): void {
+            let pa = <HTMLElement>this._anchor.parentNode;
+            if (!pa) // need to remove this!!
+                return;
+
+            let ns = render(data);
+
+            this.onRender(ns, (node) => {
+                this.clear();
+
+                let afel: Node = this._anchor.nextSibling;
+                for (let b = node.length - 1; b >= 0; b--) {
+                    let n = node.item(b);
+                    n['__AnchorChild__'] = <IAnchorChild>{
+                        index: this._index
+                    };
+                    if (n['__Anchor__']) {
+                        (<Anchor>n['__Anchor__']).insertBefore(pa, afel);
+                    }
+                    else {
+                        pa.insertBefore(n, afel);
+                    }
+                    afel = n;
+                    this._childs.unshift(n);
                 }
+
+                this.afterRender(node);
             });
         }
 
-        private loadScripts(): void {
-            if (this._scriptsReady)
-                return;
+        public insertInto(el: HTMLElement): void {
+            el.appendChild(this.anchor);
+            this.createLoader();
+        }
 
-            for (let i = 0, s: string; s = this._scripts[i]; i++) {
-                DynamicLoader.getScript(s);
+        public insertBefore(el: HTMLElement, refChild?: Node): void {
+            el.insertBefore(this.anchor, refChild);
+            this.createLoader();
+        }
+
+        public get controller(): IController {
+            if (!this._ctr && this._def.controller) {
+                let ctr = this.getObj(window, this._def.controller);
+                if (ctr) {
+                    this._ctr = new ctr();
+                }
             }
+            return this._ctr;
+        }
 
-            this._scriptsReady = true;
+        private getObj(base: any, nameSpace: string): any {
+            let names = nameSpace.split('.');
+            if (names.length == 1) {
+                return base[names[0]];
+            }
+            else {
+                let name = names.splice(0, 1)[0];
+                return this.getObj(base[name], names.join('.'));
+            }
+        }
+
+        private onRender(ns: NodeList, callBack: (nodes: NodeList) => void): void {
+            if (this.controller && this.controller.onRender) {
+                this.controller.onRender(ns, callBack);
+            }
+            else {
+                callBack(ns);
+            }
+        }
+
+        private afterRender(ns: NodeList): void {
+            if (this.controller && this.controller.afterRender) {
+                this.controller.afterRender(ns);
+            }
         }
     }
+
+    class Provider {
+        public tagProvider: ITagProvider;
+        private _defs: Array<IDefinition>;
+
+        constructor() {
+            this._defs = [];
+        }
+
+        public findOrCreate(tagName: string): IDefinition {
+            for (let i = 0, d: IDefinition; d = this._defs[i]; i++) {
+                if (d.name === tagName) {
+                    return d;
+                }
+            }
+            let d: IDefinition = {
+                name: tagName
+            };
+            provider.tagProvider.define(d);
+            this._defs.push(d);
+            return d;
+        }
+    }
+
+    var provider = new Provider();
+
+    export function setTagProvider(tagProvider: ITagProvider): void {
+        provider.tagProvider = tagProvider;
+    }
+
+    function render(html: string): NodeList {
+        let c = document.createElement('div');
+        c.innerHTML = html;
+        runChilds(c);
+        return c.childNodes;
+    }
+
+    function runChilds(el: HTMLElement): void {
+        let childs: Array<Node> = [];
+        while (el.childNodes.length > 0) {
+            childs.push(el.firstChild);
+            el.removeChild(el.firstChild);
+        }
+        el.innerHTML = '';
+        for (let i = 0, n: Node; n = childs[i]; i++) {
+            let newN = run(n);
+            el.appendChild(newN);
+        }
+    }
+
+    function run(node: Node): Node {
+        if (node.nodeType != 1)
+            return node;
+
+        var el = <HTMLElement>node;
+        if (provider.tagProvider.test(el.tagName)) {
+            let def = provider.findOrCreate(el.tagName);
+            var ta = new Anchor(def);
+            return ta.anchor;
+        }
+        else {
+            runChilds(el);
+            return node;
+        }
+    }
+
+    //function parse(html: string): NodeList {
+    //    let d = document.createElement('div');
+    //    d.innerHTML = html;
+    //    return d.childNodes;
+    //}
 }
