@@ -87,7 +87,7 @@ module internal {
             for (let i = 0, client: Client; client = clients[i]; i++) {
                 for (let p = 0, item: IPath; item = client.items[p]; p++) {
                     if (item.name === path) {
-                        client.send(item.index, method, args);
+                        client.send.apply(client, [item.index, method].concat(args));
                     }
                 }
             }
@@ -167,7 +167,7 @@ module internal {
             if (!path)
                 throw 'não tem esse path'; //TODO: ver oque fazer
 
-            WebSocketService.instance.sendAll(path.name, method, args);
+            WebSocketService.instance.sendAll.apply(WebSocketService.instance, [path.name, method].concat(args));
         }
     }
 }
