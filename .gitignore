@@ -124,3 +124,21 @@ DynamicLoader/**/obj
 DynamicLoader/**/node_modules
 DynamicLoader/**/.vs/
 
+/Examples/ChatExample/wwwroot/client.js
+/Examples/ChatExample/server.js
+/Examples/ChatExample/hub.js
+
+# =========================
+# Ignores TestingTransfer
+# =========================
+
+TestingTransfer/**/*.suo
+TestingTransfer/**/*.dat
+TestingTransfer/**/src/**/*.js
+TestingTransfer/**/src/**/*.d.ts
+TestingTransfer/**/src/**/*.js.map
+TestingTransfer/**/css/**/*.css
+TestingTransfer/**/bin
+TestingTransfer/**/obj
+TestingTransfer/**/node_modules
+TestingTransfer/**/.vs/
