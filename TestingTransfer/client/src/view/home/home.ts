@@ -1,8 +1,14 @@
 import { remote } from 'electron';
+//import * as components from '../../components/menu/menu';
+import * as components from '../../components/allComponents';
 const {dialog} = remote;
 
+//debugger;
+
+components.run();
+
 export class MainController {
-    
+    public a = 1;
 }
 
 function AppViewModel() {
@@ -18,7 +24,7 @@ document.onreadystatechange = () => {
 
 
 
-function openFile () {
+window['openFile'] = () => {
   dialog.showOpenDialog(function (fileNames) {
   }); 
 }

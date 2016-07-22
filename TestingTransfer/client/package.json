@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/program.js",
+  "typings": "src/Index",
   "scripts": {
     "start": "electron .",
-    "compile": "batchs\\compile.bat",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "batchs\\build.bat",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setlinks": "batchs\\setlinks.bat"
   },
   "keywords": [],
   "author": "",

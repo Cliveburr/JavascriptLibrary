@@ -20,13 +20,17 @@
             "args": ["run", "test"]
         },
         {
-            "taskName": "compile",
+            "taskName": "build",
             "isBuildCommand": true,
-            "args": [ "run", "compile" ]
+            "args": [ "run", "build" ]
         },
         {
             "taskName": "start",
             "args": [ "run", "start" ]
+        },
+        {
+            "taskName": "setlinks",
+            "args": [ "run", "setlinks" ]
         }
     ]
 }

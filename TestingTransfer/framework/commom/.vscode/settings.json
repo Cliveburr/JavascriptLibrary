@@ -4,10 +4,8 @@
         "**/.git": true,
         "**/.svn": true,
         "**/.DS_Store": true,
-        "node_modules": true,
         "src/**/*.js": true,
         "src/**/*.d.ts": true,
-        "src/**/*.js.map": true,
-        "src/css/**/*.css": true
+        "src/**/*.js.map": true
     }
 }

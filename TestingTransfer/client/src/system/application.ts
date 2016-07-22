@@ -32,7 +32,7 @@ export abstract class Application {
             this._win = new BrowserWindow(options);
             this._win.setMenu(null);
             this._win.on('closed', this.onWindowClose.bind(this));
-            this._win.webContents.openDevTools();
+            //this._win.webContents.openDevTools();
             let p = path.resolve(__dirname, '../index.html');
             this._win.loadURL(p);
         }
