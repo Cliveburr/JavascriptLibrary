@@ -1,16 +1,14 @@
-import { Window } from '../window';
+// import { Window, WindowOptions } from '../../system/window';
 
-function AppViewModel() {
-    this.firstName = "Bert";
-    this.lastName = "Bertington";
-}
+// export class MainWindow extends Window {
+//     public firstName = 'Bert';
+//     public lastName = 'Bertigton';
 
-document.onreadystatechange = () => {
-    if (document.readyState == "complete") {
-        ko.applyBindings(new AppViewModel());
-    }
-}
+//     constructor (options?: WindowOptions) {
+//         super(`file://${__dirname}/main-window.html`, options);
+//     }
 
-export class MainWindow extends Window {
-
-}
+//     protected onShow(): void {
+//         //ko.applyBindings(this);
+//     }
+// }

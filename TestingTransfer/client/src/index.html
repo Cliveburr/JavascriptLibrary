@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World 2!</title>
+    <link rel="stylesheet" href="../../../css/main.css">
+    <script src="../../../vendor/knockout/knockout-3.4.0.js"></script>
+    <script src="main-controller.js"></script>
+    <script src="components/allComponents.js"></script>
+  </head>
+  <body>
+    <section class="hero is-primary is-fullheight">
+      <!-- Hero header: will stick at the top -->
+      <div class="hero-head">
+        <header class="nav">
+          <div class="container">
+            <span class="nav-toggle">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <div class="nav-right nav-menu">
+              <a class="nav-item is-active">
+                Home
+              </a>
+              <a class="nav-item">
+                Examples
+              </a>
+              <a class="nav-item">
+                Documentation
+              </a>
+            </div>
+          </div>
+        </header>
+      </div>
+
+      <!-- Hero content: will be in the middle -->
+      <div class="hero-body">
+        <div id="main-form" class="container has-text-centered">
+          <p>First name: <input data-bind="value: firstName" /></p>
+          <p>Last name: <input data-bind="value: lastName" /></p>
+          <button id="openFile" onclick="openFile();">Open</button>
+        </div>
+      </div>
+
+      <!-- Hero footer: will stick at the bottom -->
+      <div class="hero-foot">
+        <nav class="tabs">
+          <div class="container">
+            <ul>
+              <li class="is-active"><a>Overview</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </section>
+  </body>
+</html>

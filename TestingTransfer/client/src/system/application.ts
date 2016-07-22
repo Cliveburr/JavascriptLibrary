@@ -1,35 +1,21 @@
-import { app } from 'electron';
-import { Window, WindowType } from '../windows/window';
+import { app, BrowserWindow } from 'electron';
+import * as path from 'path';
 
-export class Application {
-    private _windows: Array<Window>;
-    private _mainWindowType: WindowType;
-    private _mainWindow: Window;
+export abstract class Application {
+    private _win: Electron.BrowserWindow;
+    private _options: Electron.BrowserWindowOptions;
 
     constructor () {
-
-    }
-
-    public setMainWindow(window: WindowType): void {
-        this._mainWindowType = window;
-    }
-
-    public get windows(): Array<Window> {
-        if (this._mainWindow)
-            return [this._mainWindow].concat(this._windows);
-        else
-            return this._windows;
-    }
-
-    public run(): void {
         app.on('ready', this.onReady.bind(this));
         app.on('window-all-closed', this.onWindowAllClosed.bind(this));
-        app.on('activate', this.onActive.bind(this));
+        app.on('activate', this.onWindowActive.bind(this));
     }
 
-    private onReady(): void {
-        this.createMainWindow();
+    public get window(): Electron.BrowserWindow {
+        return this._win;
     }
+
+    protected abstract onReady(): void;
 
     private onWindowAllClosed(): void {
         if (process.platform !== 'darwin') {
@@ -37,21 +23,34 @@ export class Application {
         }
     }
 
-    private onActive(): void {
-        this.createMainWindow();
-    }
+    public setWindow(options?: Electron.BrowserWindowOptions): void {
+        if (this._win) {
 
-    private createMainWindow(): void {
-        if (this._mainWindow) {
-            return;
         }
         else {
-            let win = new this._mainWindowType();
-            win.onClosedEvent.add(this.onWindowClose.bind(this));
+            this._options = options;
+            this._win = new BrowserWindow(options);
+            this._win.setMenu(null);
+            this._win.on('closed', this.onWindowClose.bind(this));
+            this._win.webContents.openDevTools();
+            let p = path.resolve(__dirname, '../index.html');
+            this._win.loadURL(p);
         }
+    }
+
+    private onWindowActive(): void {
+        this.setWindow();
+        this.onActive();
+    }
+
+    protected onActive(): void {
     }
 
     private onWindowClose(sender: Window): void {
+        this._win = null;
+        this.onClosed();
+    }
 
+    protected onClosed(): void {
     }
 }
