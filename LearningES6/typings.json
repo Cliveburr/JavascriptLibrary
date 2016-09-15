@@ -1,0 +1,6 @@
+{
+  "globalDependencies": {
+    "node": "registry:dt/node#6.0.0+20160914131736",
+    "webcomponents.js": "registry:dt/webcomponents.js#0.6.0+20160728153134"
+  }
+}

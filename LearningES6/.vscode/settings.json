@@ -1,0 +1,16 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "editor.mouseWheelZoom": true,
+    "explorer.openEditors.visible": 0,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.DS_Store": true,
+        "program.js": true,
+        "program.d.ts": true,
+        "program.js.map": true,
+        "src/**/*.js": true,
+        "src/**/*.d.ts": true,
+        "src/**/*.js.map": true
+    }
+}
