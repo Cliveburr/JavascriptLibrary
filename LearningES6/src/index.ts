@@ -43,7 +43,6 @@ namespace learninges6 {
 
         public start(): void {
             window.addEventListener('popstate', this.popstate.bind(this));
-            window.addEventListener('beforeunload', this.beforeunload.bind(this));
             this.to(window.location.pathname);
         }
 
@@ -57,21 +56,18 @@ namespace learninges6 {
             return this;
         }
 
-        private beforeunload(ev: BeforeUnloadEvent): boolean {
-            ev.
-            return false;
-        }
-
         private popstate(ev: PopStateEvent): void {
-            console.log(ev);
+            this.load(ev.state.url, ev.state.title);
         }
 
         public to(url: string, title?: string): void {
-            // pega o statedata do ctr
-            let sd = this._currentCtr ? this._currentCtr.statedata: {};
             // atualizar o state
             if (this._currentCtr)
-                window.history.pushState(sd, title, url);
+                window.history.pushState({url,title}, title, url);
+            this.load(url, title);
+        }
+
+        private load(url: string, title?: string): void {
             // gera o info
             let info = {
                 url: url,
@@ -214,8 +210,8 @@ namespace learninges6 {
         public createdCallback() {
             this.isScope = true;
             this.scopeInitialize();
-            setTimeout(this.load.bind(this), 2000);
-            setTimeout(this.load2.bind(this), 4000);
+            setTimeout(this.load.bind(this), 100);
+            //setTimeout(this.load2.bind(this), 4000);
         }
 
         private load(): void {
@@ -225,8 +221,12 @@ namespace learninges6 {
                 number: 1234,
                 childs: [
                     { something: 1234 }
-                ]
+                ],
+                link1: 'home',
+                link2: 'something',
+                link3: 'help'
             });
+            this.initilize();
         }
 
         private load2(): void {
@@ -236,8 +236,49 @@ namespace learninges6 {
                 number: 1234,
                 childs: [
                     { something: 1234 }
-                ]
+                ],
+                link1: 'home'
             });
+        }
+
+        private initilize(): void {
+            let links = this.getElementsByTagName('nt-link');
+            for (let i = 0; i < links.length; i++) {
+                let a = links.item(i) as LinkElement;
+                a.ntOnClick = (ev: MouseEvent): void => {
+                    Program.navigate.to(a.href);
+                };
+            }
+        }
+    }
+
+    export class LinkElement extends BaseElement {
+        public ntOnClick: (ev: MouseEvent) => void;
+        public get href(): string { return this._a.href; }
+
+        private _root: webcomponents.ShadowRootPolyfill;
+        private _a: HTMLAnchorElement;
+
+        public createdCallback() {
+            this._root = this.createShadowRoot();
+            this._a = document.createElement('a');
+            this._a.addEventListener('click', this.a_onClick.bind(this));
+            this._root.appendChild(this._a);
+
+            let textAttr = this.attributes.getNamedItem('text');
+
+            this.onScope((scope) => {
+                if (scope) {
+                    this._a.innerText = scope[textAttr.value];
+                    this._a.href = scope[textAttr.value];
+                }
+            });            
+        }
+
+        private a_onClick(ev: MouseEvent): void {
+            if (this.ntOnClick)
+                this.ntOnClick(ev);
+            ev.preventDefault();
         }
     }
 
@@ -252,6 +293,7 @@ document.onreadystatechange = () => {
         document.registerElement('container-element', learninges6.ContainerElement);
         document.registerElement('test-element', learninges6.TestElement);
         document.registerElement('nt-view', learninges6.ViewElement);
+        document.registerElement('nt-link', learninges6.LinkElement);
 
         learninges6.Program.start();
     }
