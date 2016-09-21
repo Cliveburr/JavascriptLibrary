@@ -10,17 +10,11 @@ module DynamicLoader {
     }
 
     export interface IItemCallBack {
-        (sender: Item, success: boolean, data: string): void;
+        (sender: Item, success: boolean): void;
     }
 
     export interface ITokenCallBack {
         (sender: Token): void;
-    }
-
-    export interface TokenItem {
-        item: Item;
-        success?: boolean;
-        data?: string;
     }
 
     export var items: Array<Item> = [];
@@ -59,36 +53,46 @@ module DynamicLoader {
 
     function innerGetScript(url: string, callBack: IAjaxCallBack): void {
         let script: any = findScript(url);
-        let isNew = false;
-
-        if (!script) {
-            script = document.createElement("script");
-            script.async = true;
-            script['__url__'] = url;
-            isNew = true;
-        }
-
-        script.onload = script.onreadystatechange = function (_, isAbort) {
-            if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
-                script = script.onload = script.onreadystatechange = null;
-
-                if (isAbort)
-                    callBack(false, 'Error loading script: ' + url);
-                else {
-                    callBack(true, null);
-                }
-            }
-        };
-
-        script.onerror = () => {
-            callBack(false, 'Error loading script: ' + url);
-        };
-
-        script.src = url + '?v=' + ritem.toString();
+        let vurl = url + '?v=' + ritem.toString();
         ritem++;
 
-        if (isNew)
+        if (script) {
+            script.src = vurl;
+
+            ajax(vurl, '', 'GET', [{
+                header: 'Content-type', value: 'text/javascript'
+            }], (success, data) => {
+                if (success) {
+                    eval(data);
+                }
+                callBack(success, null);
+            });
+        }
+        else {
+            script = document.createElement("script");
+            script.src = vurl;
+            //script.async = true;
+            script['__url__'] = url;
+
+            script.onload = script.onreadystatechange = (_, isAbort) => {
+                if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
+                    script = script.onload = script.onreadystatechange = null;
+
+                    if (isAbort)
+                        callBack(false, 'Error loading script: ' + url);
+                    else {
+                        callBack(true, null);
+                    }
+                }
+            };
+
+            script.onerror = () => {
+                script = script.onload = script.onreadystatechange = null;
+                callBack(false, 'Error loading script: ' + url);
+            };
+
             document.head.appendChild(script);
+        }
     }
 
     function findScript(url: string): HTMLScriptElement {
@@ -157,43 +161,14 @@ module DynamicLoader {
         return item;
     }
 
-    function doGetHtml(item: Item): void {
-        ajax(item.url + '?v=' + ritem.toString(), '', 'GET', [{
-            header: 'Content-type', value: 'text/html'
-        }], item.riseUpdate.bind(item));
-        ritem++;
-    }
-
-    export function getHtml(url: string, callBack: IItemCallBack): Item {
-        var item = find(url);
-
-        if (!item) {
-            item = new Item(url, doGetHtml);
-            items.push(item);
-        }
-
-        if (callBack)
-            item.onUpdate(callBack);
-
-        getItemPath((itemPath) => {
-            itemPath.addItem(url);
-        });
-
-        return item;
-    }
-
-    function doGetScript(item: Item): void {
-        innerGetScript(item.url, item.riseUpdate.bind(item));
-    }
-
-    export function getScript(url: string, callBack?: IItemCallBack): Item {
-        var item = findOrCreate(url, doGetScript);
+    function innerGet(url: string, callBack: IItemCallBack,  doGet: (item: Item) => void): Item {
+        var item = findOrCreate(url, doGet);
 
         if (callBack)
             item.onUpdate(callBack);
 
         if (item.ready) {
-            callBack(item, true, item.data);
+            callBack(item, true);
         }
         else {
             getItemPath((itemPath) => {
@@ -204,30 +179,35 @@ module DynamicLoader {
         return item;
     }
 
+    function doGetHtml(item: Item): void {
+        ajax(item.url + '?v=' + ritem.toString(), '', 'GET', [{
+            header: 'Content-type', value: 'text/html'
+        }], item.riseUpdate.bind(item));
+        ritem++;
+    }
+
+    export function getHtml(url: string, callBack: IItemCallBack): Item {
+        return innerGet(url, callBack, doGetHtml);
+    }
+
+    function doGetScript(item: Item): void {
+        innerGetScript(item.url, item.riseUpdate.bind(item));
+    }
+
+    export function getScript(url: string, callBack?: IItemCallBack): Item {
+        return innerGet(url, callBack, doGetScript);
+    }
+
     function doGetStyle(item: Item): void {
         innerGetStyle(item.url, item.riseUpdate.bind(item));
     }
 
     export function getStyle(url: string, callBack?: IItemCallBack): Item {
-        var item = find(url);
-
-        if (!item) {
-            item = new Item(url, doGetStyle);
-            items.push(item);
-        }
-
-        if (callBack)
-            item.onUpdate(callBack);
-
-        getItemPath((itemPath) => {
-            itemPath.addItem(url);
-        });
-
-        return item;
+        return innerGet(url, callBack, doGetStyle);
     }
 
     export class Token {
-        public items: Array<TokenItem>;
+        public items: Array<Item>;
 
         private _ready: boolean;
         private _callBack: ITokenCallBack;
@@ -239,9 +219,10 @@ module DynamicLoader {
 
         public getHtml(url: string): this {
             var item = findOrCreate(url, doGetHtml);
-            this.items.push({
-                item: item
-            });
+            //this.items.push({
+            //    item: item
+            //});
+            this.items.push(item);
             return this;
         }
 
@@ -249,9 +230,10 @@ module DynamicLoader {
             if (urls) {
                 for (let i = 0, url: string; url = urls[i]; i++) {
                     let item = findOrCreate(url, doGetScript);
-                    this.items.push({
-                        item: item
-                    });
+                    //this.items.push({
+                    //    item: item
+                    //});
+                    this.items.push(item);
                 }
             }
             return this;
@@ -261,9 +243,10 @@ module DynamicLoader {
             if (urls) {
                 for (let i = 0, url: string; url = urls[i]; i++) {
                     let item = findOrCreate(url, doGetStyle);
-                    this.items.push({
-                        item: item
-                    });
+                    //this.items.push({
+                    //    item: item
+                    //});
+                    this.items.push(item);
                 }
             }
             return this;
@@ -272,47 +255,36 @@ module DynamicLoader {
         public on(callBack: ITokenCallBack): this {
             if (callBack) {
                 this._callBack = callBack;
-                for (let f = 0, i: TokenItem; i = this.items[f]; f++) {
-                    i.item.onUpdate(this.onCallBack.bind(this));
+                for (let f = 0, i: Item; i = this.items[f]; f++) {
+                    i.onUpdate(this.onCallBack.bind(this));
                 }
             }
 
-            for (let f = 0, i: TokenItem; i = this.items[f]; f++) {
-                if (i.item.ready) {
-                    this.onCallBack(i.item, true, i.item.data);
+            for (let f = 0, i: Item; i = this.items[f]; f++) {
+                if (i.ready && callBack) {
+                    this.onCallBack(i, true);
                 }
                 else {
                     getItemPath((itemPath) => {
-                        itemPath.addItem(i.item.url);
+                        itemPath.addItem(i.url);
                     });
                 }
             }
             return this;
         }
 
-        private onCallBack(sender: Item, success: boolean, data: string): void {
-            let item = this.findItem(sender.index);
-            item.success = success;
-            item.data = data;
+        private onCallBack(item: Item, success: boolean): void {
             if (this._ready) {
                 this._callBack(this);
             }
             else {
-                for (let f = 0, i: TokenItem; i = this.items[f]; f++) {
-                    if (!i.item.ready)
+                for (let f = 0, i: Item; i = this.items[f]; f++) {
+                    if (!i.ready)
                         return;
                 }
                 this._ready = true;
                 this._callBack(this);
             }
-        }
-
-        private findItem(index: number): TokenItem {
-            for (let f = 0, i: TokenItem; i = this.items[f]; f++) {
-                if (i.item.index === index)
-                    return i;
-            }
-            return null;
         }
     }
 
@@ -321,10 +293,12 @@ module DynamicLoader {
         private _callers: Array<IItemCallBack>;
         private _ready: boolean;
         private _data: string;
+        private _error: string;
 
         public get index(): number { return this._index; }
         public get ready(): boolean { return this._ready; }
         public get data(): string { return this._data; }
+        public get error(): string { return this._error; }
 
         constructor(
             public url: string,
@@ -343,13 +317,19 @@ module DynamicLoader {
         }
 
         public riseUpdate(success: boolean, data: string): void {
+            this._ready = true;
+
             if (success) {
                 this._data = data;
-                this._ready = true;
+                this._error = undefined;
+            }
+            else {
+                this._data = undefined;
+                this._error = data;
             }
 
             for (let i = 0, caller: IItemCallBack; caller = this._callers[i]; i++) {
-                caller(this, success, data);
+                caller(this, success);
             }
         }
     }

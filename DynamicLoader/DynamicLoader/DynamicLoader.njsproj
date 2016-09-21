@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="wwwroot\Elements\Button\Button.html" />
+    <Content Include="wwwroot\Elements\Menu\Menu.html" />
     <Content Include="wwwroot\SampleStyle.css" />
     <TypeScriptCompile Include="Scripts\NodeHttp_WebSocket.d.ts" />
     <Content Include="wwwroot\Index.html" />
@@ -48,6 +49,7 @@
     <TypeScriptCompile Include="wwwroot\DynamicLoader.Client.ts" />
     <TypeScriptCompile Include="wwwroot\DynamicTag.ts" />
     <TypeScriptCompile Include="wwwroot\Elements\Button\Button.ts" />
+    <TypeScriptCompile Include="wwwroot\Elements\Menu\Menu.ts" />
     <TypeScriptCompile Include="wwwroot\Index.ts" />
     <TypeScriptCompile Include="wwwroot\SampleScript.ts" />
   </ItemGroup>
@@ -58,6 +60,7 @@
     <Folder Include="Scripts\typings\node\" />
     <Folder Include="wwwroot\Elements\" />
     <Folder Include="wwwroot\Elements\Button\" />
+    <Folder Include="wwwroot\Elements\Menu\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

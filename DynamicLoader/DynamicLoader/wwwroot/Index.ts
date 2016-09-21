@@ -67,9 +67,11 @@ class tagProvider implements DynamicTag.ITagProvider {
     }
 
     public define(tag: DynamicTag.IDefinition): void {
-        tag.htmlUrl = '/Elements/Button/Button.html';
-        tag.scripts = ['/Elements/Button/Button.js'];
-        tag.controller = 'app.Elements.Button';
+        let name = /^DY-(.*)/.exec(tag.name)[1];
+        name = name[0].toUpperCase() + name.substr(1).toLowerCase();
+        tag.htmlUrl = `/Elements/${name}/${name}.html`;
+        tag.scripts = [`/Elements/${name}/${name}.js`];
+        tag.controller = `app.Elements.${name}`;
     }
 }
 
@@ -87,24 +89,24 @@ document.onreadystatechange = function () {
             //.onAfterRender((data) => alert('alterou'))
             .insertInto(document.body);
 
-        var i1 = document.createElement('input');
-        i1.type = 'text';
-        document.body.appendChild(i1);
+        //var i1 = document.createElement('input');
+        //i1.type = 'text';
+        //document.body.appendChild(i1);
 
-        var b1 = document.createElement('input');
-        b1.type = 'button';
-        b1.value = 'click';
-        document.body.appendChild(b1);
+        //var b1 = document.createElement('input');
+        //b1.type = 'button';
+        //b1.value = 'click';
+        //document.body.appendChild(b1);
         
-        var t1 = document.createComment('teste');
-        //document.body.appendChild(t1);
+        //var t1 = document.createComment('teste');
+        ////document.body.appendChild(t1);
 
-        var t2 = document.createTextNode('text');
-        document.body.appendChild(t2);
+        //var t2 = document.createTextNode('text');
+        //document.body.appendChild(t2);
 
-        b1.onclick = () => {
-            t2.textContent = i1.value;
-        };
+        //b1.onclick = () => {
+        //    t2.textContent = i1.value;
+        //};
 
     }
 }    

@@ -168,9 +168,9 @@ module DynamicTag {
         private onLoad(sender: DynamicLoader.Token): void {
             let data: string;
 
-            for (let f = 0, t: DynamicLoader.TokenItem; t = sender.items[f]; f++) {
-                if (!t.success)
-                    throw 'Error loading url ' + t.item.url + '! Error: ' + t.data;
+            for (let f = 0, t: DynamicLoader.Item; t = sender.items[f]; f++) {
+                if (t.error)
+                    throw 'Error loading url ' + t.url + '! Error: ' + t.error;
 
                 if (t.data)
                     data = t.data;
@@ -198,7 +198,7 @@ module DynamicTag {
 
         private doRender(data: string): void {
             let pa = <HTMLElement>this._anchor.parentNode;
-            if (!pa) // need to remove this!!
+            if (!pa) //TODO: need to remove this!!
                 return;
 
             let ns = render(data);

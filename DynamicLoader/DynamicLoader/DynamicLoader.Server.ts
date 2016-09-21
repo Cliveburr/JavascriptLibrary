@@ -76,6 +76,7 @@ module internal {
         }
 
         public addItem(url: string): void {
+            console.log(`addItem: url = ${url}`);
             let item = DynamicLoaderService.instance.find(url);
 
             if (!item) {
