@@ -1,0 +1,13 @@
+{
+  "name": "one",
+  "version": "0.0.0",
+  "description": "One",
+  "main": "server.js",
+  "author": {
+    "name": "AManzoli",
+    "email": ""
+  },
+  "dependencies": {
+    "webhost": "0.0.15"
+  }
+}
