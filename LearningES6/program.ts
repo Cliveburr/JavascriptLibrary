@@ -12,7 +12,7 @@ export class SPA implements webhost.IPipeline {
      public process(ctx: webhost.IContext, next: () => void): void {
         let isAjax = ctx.request.headers['x-requested-with'] == 'XMLHttpRequest';
         if (!isAjax && ctx.request.url.indexOf('.') == -1) {
-            ctx.request.url = '/index.html';
+            ctx.request.url = './index.html';
         } 
         next();
     }
