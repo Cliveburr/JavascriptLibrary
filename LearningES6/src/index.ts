@@ -1,6 +1,9 @@
 //import { App } from './app';
 import { LinkElement } from './elements/linkElement';
 import { DivElement } from './elements/divElement';
+import { InputElement } from './elements/inputElement';
+import { ButtonElement } from './elements/buttonElement';
+import { SpanElement } from './elements/spanElement';
 import { ControllerManager } from './binding/controller';
 import { Navigate } from './system/navigate';
 import { Loader } from './system/loader';
@@ -8,7 +11,7 @@ import { Loader } from './system/loader';
 //App.start();
 
 ControllerManager.setResolver((name) => {
-    let url = `./${name.replace('.', '/')}`;
+    let url = `/${name.replace('.', '/')}`;
     return Loader.getJs(url);
 });
 
@@ -43,8 +46,11 @@ Navigate.instance.onRoute((info) => {
     });
 });
 
- document.registerElement('nt-link', LinkElement);
- document.registerElement('nt-div', DivElement);
+document.registerElement('nt-link', LinkElement);
+document.registerElement('nt-div', DivElement);
+document.registerElement('nt-input', InputElement);
+document.registerElement('nt-button', ButtonElement);
+document.registerElement('nt-span', SpanElement);
 
 
 // namespace learninges6 {

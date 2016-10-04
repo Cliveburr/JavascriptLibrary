@@ -77,7 +77,7 @@ export class Navigate {
     public to(url: string, title?: string): void {
         // atualizar o state
         if (this._currentCtr)
-            window.history.replaceState({url, title}, title, url);
+            window.history.pushState({url, title}, title, url);
         this.load(url, title);
     }
 
@@ -108,18 +108,18 @@ export class Navigate {
     }
 
     private processRoute(data: IRouteData, info: IRouteInfo): void {
+        if (!data.ctr)
+            throw 'Route controller not found!';
         // fazer o call da route unload
         if (this._currentCtr && this._currentCtr.onUnload)
             this._currentCtr.onUnload();
         // gerar um ctr
-        if (!data.ctr)
-            throw 'Route controller not found!';
         this._currentCtr = new data.ctr();
+        // realizar o render 
+        this.render(data.html);
         // fazer o call da route load
         if (this._currentCtr && this._currentCtr.onLoad)
             this._currentCtr.onLoad({});
-        // realizar o render 
-        this.render(data.html)
     }        
 
     private render(html: string): void {

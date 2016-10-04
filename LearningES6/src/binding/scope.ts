@@ -19,7 +19,7 @@ export class Scope {
     //private _scopeCallBack: Array<IScopeOn>;
 
     public constructor(
-        private _anchor: HTMLElement
+        private _anchor: Element
     ) {
         //this._scopeCallBack = [];
     }
