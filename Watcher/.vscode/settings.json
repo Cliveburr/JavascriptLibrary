@@ -1,0 +1,11 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "editor.mouseWheelZoom": true,
+    "explorer.openEditors.visible": 0,
+    "files.exclude": {
+        "*.js": true,
+        "*.d.ts": true,
+        "*.js.map": true
+    },
+    "typescript.tsdk": "C:/Users/amanzoli/AppData/Roaming/npm/node_modules/typescript/lib"
+}
