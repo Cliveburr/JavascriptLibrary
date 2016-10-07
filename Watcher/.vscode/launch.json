@@ -5,7 +5,7 @@
             "name": "Launch",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/program.js",
+            "program": "${workspaceRoot}/observer/program.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",

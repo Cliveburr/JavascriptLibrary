@@ -1,4 +1,4 @@
-import { watcher } from './watcher';
+import { watcher, removeWatcher } from './watcher';
 
 // Colocar watcher em 1 objeto, com ele como target, ou algum de seu filho como target
 // a partir do target atingido, observar todas suas props e dos filhos recursivamente
@@ -59,10 +59,66 @@ if (1) {
     });
     base2.array1 = [];
     base2.array1.push(0);
-    base2.array1.push(1);
-    base2.array1.push(2);
-    base2.array1.push(3);
-    base2.array1.push(4);
-    base2.array1.push(5);
+    base2.array1.push(111);
+    base2.array1.push(222);
+    base2.array1.push(333);
+    base2.array1.push(444);
+    base2.array1.push(555);
     base2.array1.splice(3, 1);
+}
+
+if (0) {
+    let base3: any = {};
+    watcher(base3, 'name1.prop1', (ns, n, o, c) => {
+        console.log('base3.name1.prop1:', ns, n, o, c);
+    });
+    base3.name1 = {};
+    base3.name1.prop1 = 1;
+    base3.name1.prop1 = {};
+    base3.name1.prop1.inside = 3;
+
+    watcher(base3, 'name2.prop2.some3', (ns, n, o, c) => {
+        console.log('base3.name2.prop2.some3:', ns, n, o, c);
+    });
+    base3.name2 = {};
+    base3.name2.prop2 = {};
+    base3.name2.prop2.some3 = 4;
+    base3.name2.prop2.some3 = 5;
+    base3.name2.prop2.some3 = {};
+    base3.name2.prop2.some3.inside = 7;
+}
+
+if (0) {
+    let base4: any = {};
+    let tw = (ns, n, o, c) => {
+        console.log('base4.torem:', ns, n, o, c);
+    };
+    watcher(base4, 'torem', tw);
+    base4.torem = 1;
+    base4.torem = 2;
+    base4.torem = 3;
+    removeWatcher(base4, 'torem', tw);
+    base4.torem = 4;
+    let tw2 = (ns, n, o, c) => {
+        console.log('base4.prop.torem2:', ns, n, o, c);
+    };
+    watcher(base4, 'prop.torem2', tw2);
+    base4.prop = {};
+    base4.prop.torem2 = 1;
+    base4.prop.torem2 = 2;
+    base4.prop.torem2 = 3;
+    removeWatcher(base4, 'prop.torem2', tw2);
+    base4.prop.torem2 = 4;
+}
+
+if (0) {
+    let base5: any = {};
+    let tw = (ns, n, o, c) => {
+        console.log('base5.prop5:', ns, n, o, c);
+    };
+    watcher(base5, 'prop5', tw);
+    base5.prop5 = 1;
+    let change = base5;
+    change.prop5 = 2;
+    base5.prop5 = 3;
 }
