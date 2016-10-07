@@ -6,16 +6,11 @@
     <script src="/lib/require1k.min.js" data-main="/index"></script>
 </head>
 <body>
-    <nt-div ctr="menu.menu">
-        <nt-link text='link1'></nt-link>
-        <nt-link text='link2'></nt-link>
-        <nt-link text='link3'></nt-link>
-    </nt-div>
-    <!--<container-element>
-        <div>
-            <test-element></test-element>
-        </div>
-    </container-element> -->
+    <nt-controller ctr="menu.menu">
+        <nt-array model="items">
+            <nt-link model=""></nt-link>
+        </nt-array>
+    </nt-controller>
 
     <nt-view></nt-view>
 </body>

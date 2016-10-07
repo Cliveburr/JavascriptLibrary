@@ -1,31 +1,32 @@
-import { IOnScope } from '../binding/scope';
+import { BaseElement } from './baseElement';
+
+export interface ILinkModel {
+    text: string;
+    url: string;
+}
 
 export interface IOnClick {
     (el: LinkElement, ev: MouseEvent): void;
 }
 
-export class LinkElement extends HTMLElement implements IOnScope {
-    public get url(): string { return this._url; }
-
-    private _root: webcomponents.ShadowRootPolyfill;
+export class LinkElement extends BaseElement<ILinkModel> {
     private _a: HTMLAnchorElement;
-    private _url: string;
 
     public createdCallback() {
         let ine = this.innerHTML;
         this.innerHTML = '';
 
-        this._root = this.createShadowRoot();
+        let root = this.createShadowRoot();
         this._a = document.createElement('a');
         this._a.addEventListener('click', this.a_onClick.bind(this));
-        this._root.appendChild(this._a);
-
-        let textAttr = this.attributes.getNamedItem('text');
-        if (!textAttr) {
-            this._a.innerText = ine;
-            this._a.href = this._url = '/';
-        }
+        root.appendChild(this._a);
     }
+
+    public attachedCallback(): void {
+        this.checkScope();
+    }
+
+    public get href(): string { return this._a.href; }
 
     private a_onClick(ev: MouseEvent): void {
         let typeAttr = this.attributes.getNamedItem('type');
@@ -34,10 +35,9 @@ export class LinkElement extends HTMLElement implements IOnScope {
     }
 
     public onScope(data: any): void {
-        let textAttr = this.attributes.getNamedItem('text');
-        if (data) {
-            this._a.innerText = data[textAttr.value];
-            this._a.href = this._url = '/' + data[textAttr.value];
+        if (this.model = this.getModel()) {
+            this._a.innerText = this.model.text || '';
+            this._a.href = this.model.url;
         }
     }
 }

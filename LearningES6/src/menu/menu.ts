@@ -1,42 +1,41 @@
-import { DivElement } from '../elements/divElement';
+import { ControllerElement } from '../elements/controllerElement';
+import * as Models from '../elements/models';
+
+export interface IMenuModel {
+    oneText: Models.ISpanModel;
+    oItems: Array<IMenuOitems>;
+    items: Array<Models.ILinkModel>;
+}
+
+export interface IMenuOitems {
+    text: Models.ISpanModel;
+}
 
 export default class Menu {
 
     public constructor(
-        public div: DivElement) {
-        //alert('foi');
-
-        div.initializeScope();
-
+        public ctr: ControllerElement) {
+        ctr.scopeInitialize();
         setTimeout(this.load.bind(this), 100);
-        //setTimeout(this.load2.bind(this), 4000);
-
     }
 
     private load(): void {
-        this.div.scope.set({
-            name: 'euuuuuu',
-            address: 'uma rua qualquer',
-            number: 1234,
-            childs: [
-                { something: 1234 }
+        let model: IMenuModel = {
+            oneText: {
+                text: 'oneText label'
+            },
+            oItems: [
+                { text: { text: 'oItem text 0' } },
+                { text: { text: 'oItem text 1' } },
+                { text: { text: 'oItem text 2' } },
+                { text: { text: 'oItem text 3' } }
             ],
-            link1: 'home',
-            link2: 'customer',
-            link3: 'home/about'
-        });
-        //this.initilize();
-    }
-
-    private load2(): void {
-        this.div.scope.set({
-            name: 'mudeiiiiiiiiiiii',
-            address: 'uma rua qualquer',
-            number: 1234,
-            childs: [
-                { something: 1234 }
-            ],
-            link1: 'home'
-        });
+            items: [
+                { text: 'Home', url: '/home' },
+                { text: 'Customer', url: '/customer' },
+                { text: 'About', url: '/home/about' }
+            ]
+        };
+        this.ctr.setScope(model);
     }
 }

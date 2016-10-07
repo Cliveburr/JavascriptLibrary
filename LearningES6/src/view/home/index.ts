@@ -1,24 +1,21 @@
-import { Scope } from '../../binding/scope';
-import * as emodels from '../../elements/models';
+import { ViewBase } from '../viewBase';
+import * as Models from '../../elements/models';
 
 export interface IHomeModel {
-    btOne: emodels.IInputModel;
-    action: emodels.IButtonModel
+    btOne: Models.IInputModel;
+    action: Models.IButtonModel;
+    names: Array<Models.ISpanModel>;
 }
 
-export default class HomeIndex {
-    public scope: Scope;
-
+export default class HomeIndex extends ViewBase<IHomeModel> {
     public constructor() {
-        let view = document.getElementsByTagName('nt-view');
-        this.scope = new Scope(view.item(0));
-        //setTimeout(this.load.bind(this), 100);
+        super();
     }
 
-    private onLoad(): void {
-        this.scope.set({
-            btnOne: {
-                label: 'Name:',
+    public attachedCallback(): void {
+        this.setModel({
+            btOne: {
+                text: 'Name:',
                 placeholder: 'testing...'
             },
             action: {
@@ -30,9 +27,9 @@ export default class HomeIndex {
     }
 
     private action_onclick(ev: MouseEvent): void {
-        //alert(this.scope.data.btnOne.value);
-        this.scope.data.names.push({
-            label: this.scope.data.btnOne.value
+        //alert(this.model.btOne.value);
+        this.model.names.push({
+            text: this.model.btOne.value
         });
     }
 }

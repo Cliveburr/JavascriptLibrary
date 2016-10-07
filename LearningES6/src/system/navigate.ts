@@ -2,7 +2,7 @@ import { LinkElement, LinkManager } from '../elements/linkElement';
 
 export interface IRouteController {
     statedata?: any;
-    onLoad?: (statedata: any) => void;
+    attachedCallback?: (statedata: any) => void;
     onUnload?: Function;
 }
 
@@ -52,7 +52,7 @@ export class Navigate {
     } 
 
     private link_onClick(el: LinkElement, ev: MouseEvent): void {
-        this.to(el.url);
+        this.to(el.href);
     }
 
     private start(): void {
@@ -118,8 +118,8 @@ export class Navigate {
         // realizar o render 
         this.render(data.html);
         // fazer o call da route load
-        if (this._currentCtr && this._currentCtr.onLoad)
-            this._currentCtr.onLoad({});
+        if (this._currentCtr && this._currentCtr.attachedCallback)
+            this._currentCtr.attachedCallback({});
     }        
 
     private render(html: string): void {
