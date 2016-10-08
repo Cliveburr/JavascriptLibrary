@@ -13,6 +13,6 @@
         "src/**/*.d.ts": true,
         "src/**/*.js.map": true
     },
-    "typescript.tsdk": "C:/Users/amanzoli/AppData/Roaming/npm/node_modules/typescript/lib",
+    //"typescript.tsdk": "C:/Users/amanzoli/AppData/Roaming/npm/node_modules/typescript/lib",
     "html.suggest.html5": true
 }

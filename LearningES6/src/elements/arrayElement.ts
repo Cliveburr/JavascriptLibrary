@@ -1,7 +1,7 @@
 import { BaseElement } from './baseElement';
-import { watcher, OnChangeType } from '../system/watcher';
+import { IObserverArray, OnChangeType } from '../system/observer';
 
-export class ArrayElement extends BaseElement<Array<any>> {
+export class ArrayElement extends BaseElement<Array<any> | IObserverArray<any>> {
     private static _count: number = 0;
 
     public isArray: boolean;
@@ -22,10 +22,14 @@ export class ArrayElement extends BaseElement<Array<any>> {
 
     public onScope(data: any): void {
         if (this.model = this.getModel()) {
-            if (!Array.isArray(this.model))
-                `Only array can be the model of ArrayElement!`;
+            if (this.isObserverArray(this.model)) {
+                this.model.on(this.onModelChange.bind(this));
+            }
+            else {
+                if (!Array.isArray(this.model))
+                    throw `Only array can be the model of ArrayElement!`;
+            }
             this.createElements();
-            watcher(this, 'model', this.onModelChange.bind(this));
         }
     }
 
@@ -47,9 +51,10 @@ export class ArrayElement extends BaseElement<Array<any>> {
             }
     }
 
-    private onModelChange(namespace: string, newValue: any, oldValue: any, type: OnChangeType): void {
+    private onModelChange(v: Array<any>, index: number, type: OnChangeType): void {
+        let m = this.model as IObserverArray<any>;
         if (type == OnChangeType.add) {
-            let id = this.model.length - 1;
+            let id = m.length - 1;
             this.createElement(id);
         }
     }

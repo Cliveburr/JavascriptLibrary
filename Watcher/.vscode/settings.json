@@ -6,6 +6,6 @@
         "**/*.js": false,
         "**/*.d.ts": true,
         "**/*.js.map": true
-    },
-    "typescript.tsdk": "C:/Users/amanzoli/AppData/Roaming/npm/node_modules/typescript/lib"
+    }
+    // "typescript.tsdk": "C:/Users/amanzoli/AppData/Roaming/npm/node_modules/typescript/lib"
 }

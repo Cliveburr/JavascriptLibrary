@@ -19,7 +19,10 @@ export class Loader {
             link.rel = 'import';
             link.href = url;
             link.onload = () => {
-                let html = link.import.body.innerHTML;
+                let tmp = link.import.head.getElementsByTagName('template');
+                let html = tmp.length > 0 ?
+                    tmp.item(0).innerHTML :
+                    link.import.body.innerHTML;
                 document.head.removeChild(link);
                 e(html);
             };

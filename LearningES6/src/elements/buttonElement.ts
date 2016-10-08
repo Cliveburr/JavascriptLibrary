@@ -2,7 +2,7 @@ import { BaseElement } from './baseElement';
 
 export interface IButtonModel {
     text: string;
-    onclick: (mode: IButtonModel, button: ButtonElement, ev: MouseEvent) => void;
+    onclick: (model: IButtonModel, button: ButtonElement, ev: MouseEvent) => void;
 }
 
 export class ButtonElement extends BaseElement<IButtonModel> {
