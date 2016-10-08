@@ -167,11 +167,11 @@ LinearCollider/LinearCollider/**/*.js.map
 /*.js
 
 # =========================
-# Ignores LearningVS6
+# Ignores Watcher
 # =========================
 
 Watcher/**/*.js
 Watcher/**/*.d.ts
 Watcher/**/*.js.map
-Watcher/**/node_modules
-Watcher/**/typings
+Watcher/node_modules
+Watcher/typings
