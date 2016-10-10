@@ -1,9 +1,9 @@
 import { LinkElement, LinkManager } from '../elements/linkElement';
 
 export interface IRouteController {
-    statedata?: any;
-    attachedCallback?: (statedata: any) => void;
-    onUnload?: Function;
+    createdCallback?(): void;
+    attachedCallback?(): void;
+    detachedCallback?(): void;
 }
 
 export interface IRouteControllerType {
@@ -25,6 +25,8 @@ export interface IPreRoute {
 export interface IRouteData {
     html: string;
     ctr: IRouteControllerType;
+    htmlState: Array<Node>;
+    ctrState: any;
 }
 
 export interface IOnRoute {
@@ -76,9 +78,23 @@ export class Navigate {
 
     public to(url: string, title?: string): void {
         // atualizar o state
-        if (this._currentCtr)
+        if (this._currentCtr) {
+            this.getState();
             window.history.pushState({url, title}, title, url);
+        }
         this.load(url, title);
+    }
+
+    private getState(): void {
+        let store = this._store[window.location.pathname];
+        let view = document.getElementsByTagName('nt-view');
+        if (view.length > 0) {
+            store.htmlState = [];
+            for (let i = 0; i < view.item(0).childNodes.length; i++) {
+                store.htmlState.push(view.item(0).childNodes.item(i));
+            }
+        }
+        store.ctrState = this._currentCtr;
     }
 
     private async load(url: string, title?: string): Promise<void> {
@@ -111,21 +127,36 @@ export class Navigate {
         if (!data.ctr)
             throw 'Route controller not found!';
         // fazer o call da route unload
-        if (this._currentCtr && this._currentCtr.onUnload)
-            this._currentCtr.onUnload();
-        // gerar um ctr
-        this._currentCtr = new data.ctr();
-        // realizar o render 
-        this.render(data.html);
-        // fazer o call da route load
+        if (this._currentCtr && this._currentCtr.detachedCallback)
+            this._currentCtr.detachedCallback();
+        if (data.ctrState) {
+            this._currentCtr = data.ctrState;
+            this.setState(data.htmlState);
+        }
+        else {
+            this._currentCtr = new data.ctr();
+            this.render(data.html);
+            if (this._currentCtr && this._currentCtr.createdCallback)
+                this._currentCtr.createdCallback();
+        }
         if (this._currentCtr && this._currentCtr.attachedCallback)
-            this._currentCtr.attachedCallback({});
+            this._currentCtr.attachedCallback();
     }        
 
     private render(html: string): void {
         let view = document.getElementsByTagName('nt-view');
         if (view.length > 0) {
             view.item(0).innerHTML = html;
+        }
+    }
+
+    private setState(childs: Array<Node>): void {
+        let view = document.getElementsByTagName('nt-view');
+        if (view.length > 0) {
+            view.item(0).innerHTML = '';
+            for (let child of childs) {
+                view.item(0).appendChild(child);
+            }
         }
     }
 }

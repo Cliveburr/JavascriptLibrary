@@ -17,7 +17,7 @@ export default class HomeIndex extends ViewBase<IHomeModel> {
         super();
     }
 
-    public attachedCallback(): void {
+    public createdCallback(): void {
         this.setModel({
             btOne: {
                 text: 'Name:',
@@ -33,18 +33,30 @@ export default class HomeIndex extends ViewBase<IHomeModel> {
 
     private action_onclick(ev: MouseEvent): void {
         //alert(this.model.btOne.value);
-        this.model.names.push({
+        let nName: IHomeItemModel = {
             sp: {
                 text: Observer(this.model.btOne.value),
-                onclick: this.sp_onclick.bind(this)
+                onclick: () => this.sp_onclick2(nName)
+                //this.sp_onclick.bind(this)
             }
-        });
+        };
+        this.model.names.push(nName);
+    }
+
+    private sp_onclick2(item: IHomeItemModel): void {
+        let h = this.model.names.indexOf(item);
+        let nName: IHomeItemModel = {
+            sp: {
+                text: '-- insert --'
+            }
+        };        
+        this.model.names.insert(h, nName);
     }
 
     private sp_onclick(model: Models.ISpanModel): void {
-        let tx = model.text as IObserver<string>;
-        tx(tx() + '-1-');
-        //this.model.names.pop();
+        //let tx = model.text as IObserver<string>;
+        //tx(tx() + '-1-');
+        //this.model.names.remove(model.parent);
     }
 }
 

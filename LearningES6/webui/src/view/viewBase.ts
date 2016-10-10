@@ -3,7 +3,9 @@ import { ViewElement } from '../elements/viewElement';
 export abstract class ViewBase<T> {
     private _model: T;
 
-    public abstract attachedCallback(): void;
+    public abstract createdCallback(): void;
+    //public abstract attachedCallback(): void;
+    //public abstract detachedCallback(): void;
 
     public get model(): T { return this._model }
 

@@ -147,12 +147,12 @@ TestingTransfer/**/.vs/
 # Ignores LearningVS6
 # =========================
 
-LearningES6/*.js
-LearningES6/*.d.ts
-LearningES6/*.js.map
-LearningES6/src/**/*.js
-LearningES6/src/**/*.d.ts
-LearningES6/src/**/*.js.map
+LearningES6/webui/*.js
+LearningES6/webui/*.d.ts
+LearningES6/webui/*.js.map
+LearningES6/webui/src/**/*.js
+LearningES6/webui/src/**/*.d.ts
+LearningES6/webui/src/**/*.js.map
 LearningES6/**/node_modules
 LearningES6/**/typings
 

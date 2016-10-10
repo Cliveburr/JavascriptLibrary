@@ -90,6 +90,9 @@ export interface IObserverArray<T> {
     pop(): T;
     shift(): T;
     unshift(...items: Array<T>): number;
+    remove(item: T): T;
+    insert(index: number, ...items: Array<T>): number;
+    indexOf(item: T, fromIndex?: number): number;
 }
 
 export function ObserverArray<T>(value?: Array<T>): IObserverArray<T> {
@@ -127,6 +130,18 @@ export function ObserverArray<T>(value?: Array<T>): IObserverArray<T> {
         'unshift': {
             enumerable: false,
             value: o.unshift.bind(o)
+        },
+        'remove': {
+            enumerable: false,
+            value: o.remove.bind(o)
+        },
+        'insert': {
+            enumerable: false,
+            value: o.insert.bind(o)
+        },
+        'indexOf': {
+            enumerable: false,
+            value: o.indexOf.bind(o)
         }
     });
     return t;
@@ -250,5 +265,35 @@ export class ObservableArray<T> {
             }
         }
         return val;
+    }
+
+    public remove(item: T): T {
+        for (let i = 0; i < this._v.length; i++) {
+            if (item === this._v[i]) {
+                this.notify(i, OnChangeType.remove);
+                let val = this._v.splice(i, 1)[0];
+                this.clearArrayItem(1);
+                return val;
+            }
+        }
+        return null;
+    }
+
+    public insert(index: number, ...items: Array<T>): number {
+        let bef = this._v.length;
+        Array.prototype.splice.apply(this._v, [index, 0].concat(<any>items));
+        if (items.length > 0) {
+            for (let a = bef; a < bef + items.length; a++) {
+                this.setArrayItem(a);
+            }
+            for (let a = index; a < index + items.length; a++) {
+                this.notify(a, OnChangeType.add);
+            }
+        }
+        return this._v.length;
+    }
+
+    public indexOf(item: T, fromIndex?: number): number {
+        return this._v.indexOf(item, fromIndex);
     }
 }
