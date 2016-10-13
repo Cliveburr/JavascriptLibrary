@@ -1,5 +1,16 @@
 ﻿
 
+lu  u  ru
+ l  0  r
+ld  d  rd
+
+          1
+		         2
+                  
+		             
+          
+
+
 ax
 ay
 bx
