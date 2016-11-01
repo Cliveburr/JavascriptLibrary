@@ -7,93 +7,170 @@ namespace TwoDPoint {
     }
 
     export class LCObject {
-
+        public point: LCPoint;
         public velocity: ILCVector;
 
-        constructor(
+        public constructor(
             public color: string) {
         }
-    }
 
-    export class LCPoint {
-        public upper: LCPoint;
-        public down: LCPoint;
-        public left: LCPoint;
-        public right: LCPoint;
-        public obj: LCObject;
-
-        constructor(
-            public id: number,
-            public pos: ILCVector) {
+        public collide(item: LCObject): boolean {
+            return this.point.pos.x == item.point.pos.x
+                && this.point.pos.y == item.point.pos.y;
         }
     }
 
-    export class LCArray {
-        private ids: number;
+    export interface ILCPoint {
+        low: ILCPoint;
+        high: ILCPoint;
+        pos: number;
+    }
 
-        public upper: LCPoint;
-        public down: LCPoint;
-        public left: LCPoint;
-        public right: LCPoint;
+    export class LCPoint implements ILCPoint {
+        public low: LCPoint;
+        public high: LCPoint;
+        public obj: LCObject;
+
+        public constructor(
+            public pos: number) {
+        }
+    }
+
+    export abstract class LCArrayBase<T extends ILCPoint> {
+        public low: T;
+        public high: T;
+
+        constructor(low: number, high: number) {
+            if (low >= high)
+                throw `The high value need to be greater than low value`;
+
+            let pLow = this.low = this.genNew(low);
+            let pHigh = this.high = this.genNew(high);
+            this.adjust2(pLow, pHigh);
+        }
+
+        public abstract genNew(pos: number): ILCPoint;
+
+        private adjust2(low: ILCPoint, high: ILCPoint): void {
+            low.high = high;
+            high.low = low;
+        }
+
+        private adjustPoint3(low: ILCPoint, middle: ILCPoint, high: ILCPoint): void {
+            low.high = middle;
+            middle.low = low;
+            middle.high = high;
+            high.low = middle;
+        }
+
+        public findAboveUntil(point: ILCPoint, pos: number): ILCPoint[] {
+            let p = point.high, tr = [];
+            while (p) {
+                if (p.pos <= pos) {
+                    tr.push(p);
+                    p = p.high;
+                }
+                else {
+                    return tr;
+                }
+            }
+            return tr;
+        }
+
+        public insertFromLow(pos: number): T {
+            var b = this.low, p = this.low.high;
+            while (p) {
+                if (pos == p.pos) {
+                    return p;
+                }
+                else if (pos < p.pos) {
+                    let np = this.genNew(pos);
+                    this.adjustPoint3(b, np, p);
+                    return np;
+                }
+                else {
+                    b = p;
+                    p = p.high;
+                }
+            }
+            throw 'Something very wrong happen!';
+        }
+
+        public findBelowUntil(point: ILCPoint, pos: number): ILCPoint[] {
+            let p = point.low, tr = [];
+            while (p) {
+                if (p.pos >= pos) {
+                    tr.push(p);
+                    p = p.low;
+                }
+                else {
+                    return tr;
+                }
+            }
+            return tr;
+        }
+
+        public insertFromHigh(pos: number): ILCPoint {
+            var b = this.high, p = this.high.low;
+            while (p) {
+                if (pos == p.pos) {
+                    return p;
+                }
+                else if (pos > p.pos) {
+                    let np = this.genNew(pos);
+                    this.adjustPoint3(p, np, b);
+                    return np;
+                }
+                else {
+                    b = p;
+                    p = p.low;
+                }
+            }
+            throw 'Something very wrong happen!';
+        }
+
+        public remove(point: ILCPoint): void {
+            point.low.high = point.high;
+            point.high.low = point.low;
+        }
+    }
+
+    export class LCArrayX extends LCArrayBase implements ILCPoint {
+        public low: ILCPoint;
+        public high: ILCPoint;
+
+        public constructor(x: number, width: number,
+            public pos: number) {
+            super(x, x + width);
+        }
+
+        public genNew(pos: number): LCPoint {
+            return new LCPoint(pos);
+        }
+    }
+
+    export class LCArrayY extends LCArrayBase {
+        public centerY: number;
+        public centerX: number;
 
         public constructor(
             private x: number,
             private y: number,
             private height: number,
             private width: number) {
-            this.ids = 0;
-            let centerX = ((x + width) - x) / 2;
-            let centerY = ((y + height) - y) / 2;
-            this.upper = new LCPoint(this.ids++, { x: centerX, y: y });
-            this.down = new LCPoint(this.ids++, { x: centerX, y: y + height });
-            this.left = new LCPoint(this.ids++, { x: x, y: centerY });
-            this.right = new LCPoint(this.ids++, { x: x + width, y: centerY });
+            super(y, y + height);
+            this.centerY = (height / 2) + y;
+            this.centerX = (width / 2) + x;
         }
 
-        public tryInsert(pos: ILCVector): LCPoint {
-            let tryY = this.tryInsertY(pos);
-            if (tryY.obj) {
-            }
-        }
-
-        private tryInsertY(pos: ILCVector): LCPoint {
-            let fy = pos.y < this.left.pos.y;
-            let by = fy ? this.upper : this.down;
-            let py = fy ? by.down : by.upper;
-            while (py) {
-                if (pos.y == by.pos.y) {
-                    return py;
-                }
-                else if (pos.y < py.pos.y && fy) {
-                    let np = new LCPoint(this.ids++, pos);
-                    this.adjustYPoint(by, np, py);
-                    return np;
-                }
-                else if (pos.y > py.pos.y && !fy) {
-                    let np = new LCPoint(this.ids++, pos);
-                    this.adjustYPoint(py, np, by);
-                    return np;
-                }
-                else {
-                    by = py;
-                    py = fy ? by.down : by.upper;
-                }
-            }
-            throw 'Something very wrong happen!';
-        }
-
-        private adjustYPoint(upper: LCPoint, middle: LCPoint, down: LCPoint): void {
-            upper.down = middle;
-            middle.upper = upper;
-            middle.down = down;
-            down.upper = middle;
-            middle.left = upper.left;
-            middle.right = upper.right;
+        public genNew(pos: number): LCArrayX {
+            return new LCArrayX(this.x, this.width, pos);
         }
     }
 
     export class LCField {
-        private _points: LCArray;
+        private entry: LCArrayY;
+
         private _toAdd: Array<{ obj: LCObject, pos: ILCVector }>;
         private _oldTime: number;
         private _interval;
@@ -102,7 +179,7 @@ namespace TwoDPoint {
         public paint: Function;
 
         public constructor(x: number, y: number, height: number, width: number) {
-            this._points = new LCArray(x, y, height, width);
+            this.entry = new LCArrayY(x, y, height, width);
         }
 
         public add(obj: LCObject, pos: ILCVector): void {
@@ -146,7 +223,17 @@ namespace TwoDPoint {
             this._interval = setTimeout(this.tick.bind(this), 1);
         }
 
-        public doAdd(obj: LCObject, pos: ILCPosition): void {
+        public doAdd(obj: LCObject, pos: ILCVector): void {
+            let isYlow = pos.y < this.entry.centerY;
+            let arrayY = isYlow ?
+                this.entry.insertFromLow(pos.y) :
+                this.entry.insertFromHigh(pos.y);
+
+            let isXlow = pos.x < this.entry.centerX;
+            let point = isXlow ?
+                arrayY.
+
+
             let y = this.doAxisAdd(this._yAxis, pos.ylow, pos.yhigh);
             let x = this.doAxisAdd(this._xAxis, pos.xlow, pos.xhigh);
 

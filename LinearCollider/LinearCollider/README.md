@@ -1,14 +1,15 @@
 ﻿
 
-lu  u  ru
- l  0  r
-ld  d  rd
+vector = x: 2, y: 1
 
-          1
-		         2
-                  
-		             
-          
+
+p1 = x: 20, y: 10
+p2 = x: 10, y: 20
+
+
+h2 = co2 + ca2 
+
+
 
 
 ax
