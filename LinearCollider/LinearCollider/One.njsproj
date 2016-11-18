@@ -36,6 +36,7 @@
   <ItemGroup>
     <Content Include="typings\globals\node\typings.json" />
     <TypeScriptCompile Include="wwwroot\2DBox.ts" />
+    <TypeScriptCompile Include="wwwroot\2DBoxQuadTree.ts" />
     <TypeScriptCompile Include="wwwroot\2DPoint.ts" />
     <TypeScriptCompile Include="wwwroot\SingleBox.ts" />
     <TypeScriptCompile Include="server.ts" />

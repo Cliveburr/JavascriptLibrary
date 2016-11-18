@@ -1,5 +1,139 @@
 ﻿
 
+container.x
+
+test.x
+
+
+test.x + test.height
+
+container.x + container.height
+
+
+
+r1.x
+
+r2.x
+
+
+r2.x + r2.height
+
+r1.x + r1.height
+
+
+
+uma grid tem um limite maximo para se dividr
+uma grid tem um limite minimo para se fundir
+
+
+insert
+	pega a grid root
+	
+		checa 
+
+
+
+
+
+low in x axis is the left side
+low in y axis is the bottom side
+
+
+Point
+	x: number
+	y: number
+	segs: Segment[]
+
+Segment
+	axis: { x or y }
+	plow: Point
+	phigh: Point
+
+Box
+	top: Segment
+	bottom: Segment
+	left: Segment
+	right: Segment
+
+Position
+	pos: number
+	low: Position
+	high: Position
+
+Array
+	axis: { x or y }
+	insert(Segment)
+
+
+
+pegar os points no intervalo X
+cada points tem varios objetos
+|
+|
+|  |
+[    ] 
+pegar os points no intervalo Y
+[] ---
+
+
+Array in X
+	positions
+		Array in Y
+			positions
+				object
+
+
+
+
+
+
+----- mover
+- se y for positivo e x for positivo
+	pegar a array y+x+ com os objetos mais proximos
+		pegar a distancia até eles
+			se for menor doque a distancia a percorrer
+				mover até a posição
+				atualizar objetos parentes
+			se for maior
+				checar a colisão com algum deles
+					se não colidiu
+						mover em distancia
+						atualizar objetos parentes
+		subtrair a distancia movida do total a mover
+	se houver ainda distanica a mover, repetir
+	
+
+
+
+- atualizar objetos parentes
+	se o deslocamento em y for positivo
+		checar a posição se for maior ou igual doque os dois quadrantes superiores
+			se for maior, efetuar a troca das relações
+	se y for negativo
+		checar a posição se for menor doque os dois quadrantes inferiores
+			se for menor, efetuar a troca das relações
+	se x for positivo
+		checar a posição se for maior ou igual doque os dois quadrantes a direita
+			se for maior, efetuar a troca das relações
+	se x for negativo
+		checar a posição se for menor doque os dois quadrantes a esquerda
+			se for menor, efetuar a troca das relações
+
+
+
+
+----- mover
+	gerar o vetor do movimento
+	para cada relação, checar se a direção do vetor de movimento é a mesma
+	se for, checar por colisão
+		se colidir
+			mover até 1 posição antes
+			checar relações
+			retornar falso
+	se não colidir
+		mover até 
+		
+
 vector = x: 2, y: 1
 
 
