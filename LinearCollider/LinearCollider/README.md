@@ -352,3 +352,74 @@ Field
 
 // Todo objeto tem 
 
+
+
+
+Segment {
+	start: number;
+	end: number;
+	above: Segment;
+	bellow: segment;
+}
+
+Array {
+	entry: Segment;
+
+	insert(nSeg: Segment): boolean {
+		if (this.entry) {
+			var seg = this.entry;
+			while (seg) {
+				if (nSeg.start >= seg.start && nSeg.end <= seg.end)
+					return false;
+				else if (nSeg.end < seg.start)
+					if (seg.bellow)
+						seg = seg.bellow;
+					else {
+						seg.bellow = nSeg;
+						return true;
+					}
+				else
+					if (seg.above) {
+						if (nSeg.end < seg.above.start) {
+							seg.above = nSeg;
+							nSeg.above = seg.above;
+							seg.above.bellow = nSeg;
+							nSeg.bellow = seg;
+						}
+						else
+							seg = seg.above;
+					}
+					else {
+						seg.above = nSeg;
+						nSeg.bellow = seg;
+						return true;
+					}
+			}
+		}
+		else {
+			this.entry = nSeg;
+		}
+	}
+
+	find(v: number): Segment {
+		var seg = this.entry;
+		while (seg) {
+			if (v >= seg.start && v <= seg.end)
+				return seg;
+			else if (v < seg.start)
+				seg = seg.bellow;
+			else
+				seg = seg.above;
+		}
+		return null;
+	}
+}
+
+
+
+seg0(50-70)
+seg2(75-77)
+seg1(80-100)
+
+
+max = 100

@@ -95,8 +95,8 @@ namespace TwoDPointQuadTree {
             public height: number,
             public color: string) {
 
-            this.id = QTObject.idCount++;
             this.grid = null;
+            this.id = QTObject.idCount++;
         }
     }
 
@@ -115,7 +115,7 @@ namespace TwoDPointQuadTree {
 
             this.objs = new QTArray<QTObject>();
             this.subs = new QTArray<QTGrid>();
-            this.id = QTObject.idCount++;
+            this.id = QTGrid.idCount++;
         }
     }
 

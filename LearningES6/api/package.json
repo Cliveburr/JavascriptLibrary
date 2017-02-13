@@ -1,0 +1,14 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "description": "",
+  "main": "program.ts",
+  "typings": "program",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setlinks": "batchs\\setlinks.bat"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
