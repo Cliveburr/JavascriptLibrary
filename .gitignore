@@ -175,3 +175,23 @@ Watcher/**/*.d.ts
 Watcher/**/*.js.map
 Watcher/node_modules
 Watcher/typings
+
+
+# =========================
+# Ignores CoreUITemplate
+# =========================
+
+CoreUITemplate/**/*.js
+CoreUITemplate/**/*.d.ts
+CoreUITemplate/**/*.js.map
+CoreUITemplate/node_modules
+CoreUITemplate/assets/css/style.css
+
+# =========================
+# Ignores WebSocket
+# =========================
+
+WebSocket/**/*.xproj.user
+WebSocket/**/project.lock.json
+WebSocket/**/bin
+WebSocket/**/obj
