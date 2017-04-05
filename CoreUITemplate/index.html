@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>test</title>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href='node_modules/font-awesome/css/font-awesome.min.css' />
+    <link rel="stylesheet" href='assets/css/style.css' />
+
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/reflect-metadata/Reflect.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    
+    <script src="systemjs.config.js"></script>
+    <script>
+      System.import('app').catch(function(err){ console.error(err); });
+    </script>
+  </head>
+  <body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+    <script>window.__theme = 'bs4';</script>
+  </body>
+</html>

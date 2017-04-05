@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": false,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "pretty": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noFallthroughCasesInSwitch": true,
+    "importHelpers": true,
+    "watch": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+        "node"
+    ]
+  },
+  "compileOnSave": false,
+  "files": [
+    "app/main/main.ts",
+    "app/view/home/home.module.ts"
+  ]
+}

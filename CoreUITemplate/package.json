@@ -1,0 +1,43 @@
+{
+  "name": "coreuitemplate",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build | npm run serve",
+    "build": "npm run build-ts | npm run build-scss",
+    "build-ts": "tsc",
+    "build-scss": "node-sass -w scss/style.scss assets/css/style.css",
+    "serve": "webhost-spa . 8080"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@angular/common": "^4.0.1",
+    "@angular/compiler": "^4.0.1",
+    "@angular/core": "^4.0.1",
+    "@angular/forms": "^4.0.1",
+    "@angular/http": "^4.0.1",
+    "@angular/platform-browser": "^4.0.1",
+    "@angular/platform-browser-dynamic": "^4.0.1",
+    "@angular/router": "^4.0.1",
+    "ng2-bootstrap": "^1.6.2",
+    "bootstrap": "^4.0.0-alpha.6",
+    "core-js": "^2.4.1",
+    "font-awesome": "^4.7.0",
+    "reflect-metadata": "^0.1.10",
+    "rxjs": "^5.2.1-smooth",
+    "zone.js": "^0.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.11",
+    "typescript": "^2.2.2",
+    "tslib": "^1.6.0",
+    "systemjs": "^0.20.11",
+    "webhost-server-spa": "^0.0.5",
+    "webhost": "^0.0.19",
+    "node-sass": "^4.5.2"
+  }
+}
