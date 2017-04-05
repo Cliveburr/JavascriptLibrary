@@ -9,9 +9,9 @@
         "program.js": true,
         "program.d.ts": true,
         "program.js.map": true,
-        "src/**/*.js": true,
+        "src/**/*.js": false,
         "src/**/*.d.ts": true,
-        "src/**/*.js.map": true
+        "src/**/*.js.map": false
     },
     //"typescript.tsdk": "C:/Users/amanzoli/AppData/Roaming/npm/node_modules/typescript/lib",
     "html.suggest.html5": true

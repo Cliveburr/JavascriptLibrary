@@ -12,5 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "webhost": "0.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.10"
   }
 }
