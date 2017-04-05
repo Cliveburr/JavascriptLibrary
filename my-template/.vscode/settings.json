@@ -1,0 +1,12 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "explorer.openEditors.visible": 0,
+    "typescript.referencesCodeLens.enabled": true,
+     "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.DS_Store": true,
+        "app/**/*.js": true,
+        "app/**/*.js.map": true
+    }
+}
