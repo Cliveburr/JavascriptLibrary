@@ -1,0 +1,39 @@
+{
+  "name": "angular5-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "serve": "webhost-spa . 1338",
+    "clean": "rm -rf dist/aot",
+    "ngc": "ngc -p dist/tsconfig-aot.json",
+    "rollup": "rollup -c dist/rollup.config.js",
+    "convert-es5": "tsc --target es5 --allowJs dist/aot/bundle.es6.js --out dist/aot/bundle.es5.js",
+    "minify": "uglifyjs dist/aot/bundle.es5.js --compress --mangle --output dist/aot/bundle.es5.min.js",
+    "build_prod": "npm run build && npm run rollup && npm run convert-es5 && npm run minify",
+    "serve-dist": "webhost-spa . 1338 index-dist.html"
+  },
+  "author": "Adilson Manzoli <clivedurr@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@angular/common": "^5.2.3",
+    "@angular/compiler": "^5.2.3",
+    "@angular/compiler-cli": "^5.2.3",
+    "@angular/core": "^5.2.3",
+    "@angular/platform-browser": "^5.2.3",
+    "@angular/platform-browser-dynamic": "^5.2.3",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^5.5.6",
+    "rxjs-es": "^5.0.0-beta.12"
+  },
+  "devDependencies": {
+    "@types/node": "^9.4.0",
+    "typescript": "^2.7.1",
+    "systemjs": "^0.20.19",
+    "webhost-server-spa": "^0.0.9",
+    "rollup": "^0.55.3",
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "uglify-es": "^3.3.9"
+  }
+}

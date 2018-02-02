@@ -195,3 +195,14 @@ WebSocket/**/*.xproj.user
 WebSocket/**/project.lock.json
 WebSocket/**/bin
 WebSocket/**/obj
+
+
+# =========================
+# Ignores angular.template
+# =========================
+
+angular-template/app/**/*.js
+angular-template/app/**/*.d.ts
+angular-template/app/**/*.js.map
+angular-template/node_modules
+angular-template/dist/aot
