@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
+    "target": "es2017",
+    "module": "es2015",
     "declaration": false,
-    "removeComments": true,
+    "removeComments": false,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
     "sourceMap": true,
     "pretty": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "allowJs": true,
-    "noImplicitAny": false,
+    "allowJs": false,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
     "noFallthroughCasesInSwitch": true,
@@ -19,8 +19,5 @@
     "types": [
         "node"
     ]
-  },
-  "include": [
-    "src"
-  ]
+  }
 }

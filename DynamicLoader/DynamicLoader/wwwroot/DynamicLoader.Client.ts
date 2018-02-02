@@ -53,22 +53,22 @@ module DynamicLoader {
 
     function innerGetScript(url: string, callBack: IAjaxCallBack): void {
         let script: any = findScript(url);
-        let vurl = url + '?v=' + ritem.toString();
+        let vurl = url; // + '?v=' + ritem.toString();
         ritem++;
 
-        if (script) {
-            script.src = vurl;
+        //if (script) {
+        //    script.src = vurl;
 
-            ajax(vurl, '', 'GET', [{
-                header: 'Content-type', value: 'text/javascript'
-            }], (success, data) => {
-                if (success) {
-                    eval(data);
-                }
-                callBack(success, null);
-            });
-        }
-        else {
+        //    ajax(vurl, '', 'GET', [{
+        //        header: 'Content-type', value: 'text/javascript'
+        //    }], (success, data) => {
+        //        if (success) {
+        //            eval(data);
+        //        }
+        //        callBack(success, null);
+        //    });
+        //}
+        //else {
             script = document.createElement("script");
             script.src = vurl;
             //script.async = true;
@@ -91,8 +91,8 @@ module DynamicLoader {
                 callBack(false, 'Error loading script: ' + url);
             };
 
-            document.head.appendChild(script);
-        }
+            document.head.appendChild(script).parentNode.removeChild(script);;
+        //}
     }
 
     function findScript(url: string): HTMLScriptElement {

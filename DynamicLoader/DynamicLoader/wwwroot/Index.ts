@@ -80,6 +80,7 @@ document.onreadystatechange = function () {
         //DynamicTag.renderHtml(document.body, '<div>testando 2</div>');
         //DynamicTag.renderUrl(document.body, '/Sample.html', '/SampleScript.js');
         DynamicLoader.getStyle('/SampleStyle.css');
+        DynamicLoader.getScript('/SampleScript.js');
 
         DynamicTag.setTagProvider(new tagProvider());
 

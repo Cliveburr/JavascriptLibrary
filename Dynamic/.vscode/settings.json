@@ -1,16 +1,19 @@
 // Place your settings in this file to overwrite default and user settings.
 {
+    "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.mouseWheelZoom": true,
     "explorer.openEditors.visible": 0,
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
         "**/.DS_Store": true,
-        "**/node_modules": true,
+        "**/node_modules": false,
         "**/bower_components": true,
-        "**/typings": true,
         "src/**/*.js": true,
         "src/**/*.d.ts": true,
-        "src/**/*.js.map": true
+        "src/**/*.js.map": true,
+        "wwwroot/**/*.js": true,
+        "wwwroot/**/*.d.ts": true,
+        "wwwroot/**/*.js.map": true
     }
 }

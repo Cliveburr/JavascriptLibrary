@@ -11,9 +11,13 @@ input {
 }
 
 .ter {
-    background-color:aqua
+    background-color:black
 }
 
 .bt {
     /*background-color: antiquewhite;*/
+}
+h1 {
+    background-color: aqua;
+    font-family: 'Bell MT';
 }

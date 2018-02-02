@@ -150,7 +150,7 @@ module internal {
         }
 
         public configureServices(configure: (services: IConfigureServices) => void): void {
-            configure({
+            configure(<any>{
                 httpServer: this,
                 add: (services) => this.services_add(services),
                 addSingleton: (name, service) => this.add_directly(name, service, ServicesType.Singleton),

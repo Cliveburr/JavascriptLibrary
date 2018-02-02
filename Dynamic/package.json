@@ -5,9 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build-src": "tsc",
+    "build-www": "tsc -p wwwroot",
+    "build": "npm run build-src | npm run build-www"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^9.3.0",
+    "typescript": "^2.6.2",
+    "webhost": "^0.0.23",
+    "webhost-websocket": "^0.0.4"
+  }
 }

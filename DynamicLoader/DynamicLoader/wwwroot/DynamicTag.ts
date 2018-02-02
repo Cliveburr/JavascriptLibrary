@@ -201,6 +201,10 @@ module DynamicTag {
             if (!pa) //TODO: need to remove this!!
                 return;
 
+            if (this._ctr) {
+                delete this._ctr;
+            }
+
             let ns = render(data);
 
             this.onRender(ns, (node) => {
