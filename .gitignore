@@ -160,11 +160,10 @@ LearningES6/**/typings
 # Ignores LinearCollider
 # =========================
 
-LinearCollider/LinearCollider/bin
-LinearCollider/LinearCollider/obj
-LinearCollider/LinearCollider/**/*.js
-LinearCollider/LinearCollider/**/*.js.map
-/*.js
+LinearCollider/**/bin
+LinearCollider/**/obj
+LinearCollider**/*.js
+LinearCollider**/*.js.map
 
 # =========================
 # Ignores Watcher

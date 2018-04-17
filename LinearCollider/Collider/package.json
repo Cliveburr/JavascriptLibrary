@@ -1,0 +1,19 @@
+{
+  "name": "collider",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "webhost-spa . 1338"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/node": "^9.4.0",
+    "typescript": "^2.7.1",
+    "webhost-server-spa": "^0.0.9"
+  }
+}

@@ -8,6 +8,6 @@
     "email": ""
   },
   "dependencies": {
-    "webhost": "0.0.15"
+    "webhost": "0.0.23"
   }
 }

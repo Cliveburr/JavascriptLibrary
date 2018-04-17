@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "declaration": false,
+      "removeComments": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true,
+      "pretty": true,
+      "allowUnreachableCode": false,
+      "allowUnusedLabels": false,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitUseStrict": false,
+      "noFallthroughCasesInSwitch": true,
+      "watch": true,
+      "types": [
+        "node"
+      ]
+    },
+    "compileOnSave": false,
+}
