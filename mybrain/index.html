@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>My Brain</title>
+    <link href="./src/styes/index.css" rel="stylesheet" type="text/css">
+    <script>require('./dist/index.js')</script>
+  </head>
+  <body class="container">
+      <div id="leftEntries" class="row">
+          <div class="entry parent-entry"></div>
+          <div class="entry parent-entry"></div>
+          <div class="entry parent-entry"></div>
+          <div class="entry parent-entry"></div>
+      </div>
+      <div class="row grow1">
+        <div id="topEntries" class="column">
+            <div class="entry parent-entry"></div>
+            <div class="entry parent-entry"></div>
+        </div>
+        <div id="mainEntry" class="column grow1">
+            <div class="entry main-entry grow1"></div>
+        </div>
+        <div id="bottomEntries" class="column">
+            <div class="entry parent-entry"></div>
+            <div class="entry parent-entry"></div>
+        </div>
+      </div>
+      <div if="rightEntries" class="row">
+          <div class="entry parent-entry"></div>
+          <div class="entry parent-entry"></div>
+          <div class="entry parent-entry"></div>
+          <div class="entry parent-entry"></div>
+      </div>
+  </body>
+</html>

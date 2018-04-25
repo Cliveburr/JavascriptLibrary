@@ -1,0 +1,17 @@
+{
+  "name": "mybrain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "build": "tsc",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^1.8.4",
+    "typescript": "^2.8.3"
+  }
+}

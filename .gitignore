@@ -205,3 +205,12 @@ angular-template/app/**/*.d.ts
 angular-template/app/**/*.js.map
 angular-template/node_modules
 angular-template/dist/aot
+
+
+# =========================
+# Ignores mybrain
+# =========================
+
+mybrain/dist
+mybrain/node_modules
+mybrain/package-lock.json
