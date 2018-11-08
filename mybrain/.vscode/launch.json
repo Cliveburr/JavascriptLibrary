@@ -23,6 +23,10 @@
             "webRoot": "${workspaceFolder}",
             "timeout": 30000,
             "sourceMaps": true,
+            "trace": "verbose",
+            "sourceMapPathOverrides": {
+                "webpack:///*": "${workspaceRoot}/*"
+            }
         }
     ],
     "compounds": [

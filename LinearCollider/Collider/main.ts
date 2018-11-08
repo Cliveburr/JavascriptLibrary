@@ -1,6 +1,6 @@
 import * as Math2D from './math2d';
 import { QTField, TheObject } from './field';
-import { QuadTreeObject, QuadTreeGrid } from './quadtree';
+//import { QuadTreeObject, QuadTreeGrid } from './quadtree';
 
 export class Program {
     public static field: QTField;
@@ -66,16 +66,16 @@ export class Program {
             window.document.body.appendChild(Program.el);
         }
 
-        let id1 = new TheObject(10, 10, 10, 10, `rgba(0, 0, 0, 0.3)`, 'a');
-        id1.velocity = { x: 5, y: 5 };
-        Program.field.insert(id1);
-        Program.field.startMove(id1);
+        // let id1 = new TheObject(10, 10, 10, 10, `rgba(0, 0, 0, 0.3)`, 'a');
+        // id1.velocity = { x: 5, y: 5 };
+        // Program.field.insert(id1);
+        // Program.field.startMove(id1);
 
 
-        let id2 = new TheObject(50, 10, 10, 10, `rgba(255, 0, 0, 0.3)`, 'b');
+        //let id2 = new TheObject(50, 10, 10, 10, `rgba(255, 0, 0, 0.3)`, 'b');
         //id2.direction = true;
         //id2.speed = 10;
-        Program.field.insert(id2);
+        //Program.field.insert(id2);
 
         Program.field.start();
         if (Program.isPaint) {
@@ -86,16 +86,17 @@ export class Program {
     public static onmousedown(ev: MouseEvent): void {
         let y = ev.clientY - (ev.clientY - ev.offsetY), x = ev.clientX - (ev.clientX - ev.offsetX);
 
-        let objs = Program.field.quadTree.getObjects({ x, y, width: 1, height: 1 });
-        if (objs.length > 0) {
-            objs.each(obj => Program.field.remove(obj));
-        }
-        else {
-            let newObj = new TheObject(x, y, Program.rnd(5, 50), Program.rnd(5, 50), Program.randomColor(), Program.rndLetter());
+        // let objs = Program.field.quadTree.getObjects({ x, y, width: 1, height: 1 });
+        // if (objs.length > 0) {
+        //     objs.each(obj => Program.field.remove(obj));
+        // }
+        // else {
+            let newObj = new TheObject(x, y, 2, 2, Program.randomColor(), Program.rndLetter());
+            //let newObj = new TheObject(x, y, Program.rnd(5, 50), Program.rnd(5, 50), Program.randomColor(), Program.rndLetter());
             newObj.velocity = { x: Program.rnd(-30, 30), y: Program.rnd(-30, 30) };
             Program.field.insert(newObj);
-            Program.field.startMove(newObj);
-        }
+            //Program.field.startMove(newObj);
+        //}
     }
 
     public static randomColor(): string {
@@ -120,28 +121,38 @@ export class Program {
         ctx.fillRect(0, 0, Program.el.width, Program.el.height);
 
         if (Program.drawGrids) {
-            Program.drawGrid(ctx, Program.field.quadTree.root);
+            Program.drawLinks(ctx);
         }
 
-        Program.field.quadTree.objs.each(obj => {
+        for (let obj of Program.field.control.objs) {
             let tobj = obj as TheObject;
             ctx.fillStyle = tobj.color;
-            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
-            ctx.strokeText(tobj.letter, tobj.x, tobj.y + 8)
-        });
+            ctx.fillRect(obj.x, obj.y, 2, 2);
+            //ctx.strokeText(tobj.letter, tobj.x, tobj.y + 8)
+        }
 
         Program.ctx.drawImage(ctx.canvas, 0, 0, Program.el.width, Program.el.height);
         Program.drawfps();
         window.requestAnimationFrame(Program.paint);
     }
 
-    public static drawGrid(ctx: CanvasRenderingContext2D, grid: QuadTreeGrid): void {
-        ctx.strokeStyle = 'rgb(0,0,0)';
-        ctx.strokeRect(grid.x, grid.y, grid.width, grid.height);
-        if (grid.subs) {
-            grid.subs.each(sub => {
-                Program.drawGrid(ctx, sub);
-            });
+    // public static drawGrid(ctx: CanvasRenderingContext2D, grid: QuadTreeGrid): void {
+    //     ctx.strokeStyle = 'rgb(0,0,0)';
+    //     ctx.strokeRect(grid.x, grid.y, grid.width, grid.height);
+    //     if (grid.subs) {
+    //         grid.subs.each(sub => {
+    //             Program.drawGrid(ctx, sub);
+    //         });
+    //     }
+    // }
+
+    public static drawLinks(ctx: CanvasRenderingContext2D): void {
+        ctx.strokeStyle = 'rgb(100,100,100)';
+        for (let link of Program.field.control.allLinks) {
+            ctx.beginPath();
+            ctx.moveTo(link.downObj.x, link.downObj.y);
+            ctx.lineTo(link.upObj.x, link.upObj.y);
+            ctx.stroke();
         }
     }
 

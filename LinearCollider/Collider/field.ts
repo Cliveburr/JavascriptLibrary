@@ -1,5 +1,6 @@
 import * as Math2D from './math2d';
-import { QuadTreeObject, QuadTree } from "./quadtree";
+import { LinearObject, LinearControl } from './linearcontrol';
+//import { QuadTreeObject, QuadTree } from "./quadtree";
 
 export enum QTFieldActionType {
     Insert,
@@ -9,11 +10,11 @@ export enum QTFieldActionType {
 
 export class QTFieldAction {
     public type: QTFieldActionType;
-    public obj: QuadTreeObject;
+    public obj: LinearObject; //QuadTreeObject;
     public persist: boolean;
 }
 
-export class TheObject extends QuadTreeObject {
+export class TheObject extends LinearObject { //QuadTreeObject {
 
     public velocity: Math2D.IVector;
 
@@ -25,12 +26,12 @@ export class TheObject extends QuadTreeObject {
         public color: string,
         public letter: string
     ) {
-        super(x, y, width, height);
+        super(x, y);
     }
 }
 
 export class QTField {
-    public quadTree: QuadTree;
+    public control: LinearControl; //QuadTree;
     public running: boolean;
     public ticksPerSecond: number;
 
@@ -40,7 +41,7 @@ export class QTField {
     private actions: Array<QTFieldAction>;
 
     constructor(x: number, y: number, width: number, height: number) {
-        this.quadTree = new QuadTree(x, y, width, height);
+        this.control = new LinearControl(x, y, width, height);
         this.actions = [];
     }
 
@@ -89,7 +90,7 @@ export class QTField {
             setTimeout(this.tick.bind(this), 1);
     }
 
-    public insert(obj: QuadTreeObject): void {
+    public insert(obj: LinearObject): void {
         this.actions.push({
             type: QTFieldActionType.Insert,
             obj: obj,
@@ -97,7 +98,7 @@ export class QTField {
         });
     }
 
-    public remove(obj: QuadTreeObject): void {
+    public remove(obj: LinearObject): void {
         this.actions.push({
             type: QTFieldActionType.Remove,
             obj: obj,
@@ -105,7 +106,7 @@ export class QTField {
         });
     }
 
-    public startMove(obj: QuadTreeObject): void {
+    public startMove(obj: LinearObject): void {
         this.actions.push({
             type: QTFieldActionType.Move,
             obj: obj,
@@ -126,32 +127,32 @@ export class QTField {
     }
 
     private doInsert(action: QTFieldAction): void {
-        this.quadTree.insert(action.obj);
+        this.control.insert(action.obj);
     }
 
     private doRemove(action: QTFieldAction): void {
-        this.quadTree.remove(action.obj);
-        this.actions = this.actions.filter(a => a.obj !== action.obj);
+        //this.control.remove(action.obj);
+        //this.actions = this.actions.filter(a => a.obj !== action.obj);
     }
 
     private doMove(action: QTFieldAction, diff: number): void {
-        let obj = action.obj as TheObject;
+        // let obj = action.obj as TheObject;
 
-        let newPos = {
-            x: obj.x + (obj.velocity.x * diff / 1000),
-            y: obj.y + (obj.velocity.y * diff / 1000),
-            width: action.obj.width,
-            height: action.obj.height
-        };
+        // let newPos = {
+        //     x: obj.x + (obj.velocity.x * diff / 1000),
+        //     y: obj.y + (obj.velocity.y * diff / 1000),
+        //     width: action.obj.width,
+        //     height: action.obj.height
+        // };
 
-        let cols = this.quadTree.getObjects(newPos);
+        // let cols = this.quadTree.getObjects(newPos);
 
-        if (cols.length > 1) {
-            console.log('colide');
-            obj.velocity.x *= -1;
-            obj.velocity.y *= -1;
-        }
+        // if (cols.length > 1) {
+        //     console.log('colide');
+        //     obj.velocity.x *= -1;
+        //     obj.velocity.y *= -1;
+        // }
 
-        this.quadTree.changePosition(obj, newPos);
+        // this.quadTree.changePosition(obj, newPos);
     }
 }

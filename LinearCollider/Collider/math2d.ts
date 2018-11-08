@@ -4,6 +4,12 @@ export interface IVector {
     y: number;
 }
 
+
+export interface IPoint {
+    x: number;
+    y: number;
+}
+
 export interface IRectangle {
     x: number;
     y: number;
