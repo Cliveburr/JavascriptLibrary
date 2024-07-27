@@ -1,0 +1,24 @@
+{
+    "projects": {
+        "framework-server": {
+            "root": "./framework/server",
+            "build": "tsc"
+        },
+        "framework-client": {
+            "root": "./framework/client",
+            "build": "tsc"
+        },
+        "web": {
+            "root": "./web",
+            "build": "tsc",
+            "run": "main/main"
+        }
+    },
+    "server": {
+        "projects": {
+            "web": {
+                "clientWatch": "html"
+            }
+        }
+    }
+}

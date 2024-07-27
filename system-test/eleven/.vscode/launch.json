@@ -1,0 +1,51 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Project Install",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/framework/tool/bin/main.js",
+            "args": [
+                "install",
+                "../../../project-full.json"
+            ],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Project Clean",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/framework/tool/bin/main.js",
+            "args": [
+                "clean",
+                "../../../project-full.json"
+            ],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Project Server",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/framework/tool/bin/main.js",
+            "args": [
+                "server",
+                "../../../project-full.json"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/bin/**/*.js",
+                "!**/node_modules/**"
+            ]
+        }
+    ]
+}

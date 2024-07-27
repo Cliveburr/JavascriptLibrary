@@ -1,0 +1,21 @@
+{
+    "name": "eleven-framework-server",
+    "version": "0.0.1",
+    "description": "",
+    "main": "bin/index.js",
+    "types": "src/index.ts",
+    "scripts": {
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "tslib": "^2.6.0",
+      "ws": "^8.13.0"
+    },
+    "devDependencies": {
+      "@types/node": "^20.3.3",
+      "@types/ws": "^8.5.5",
+      "typescript": "^5.1.6"
+    }
+}

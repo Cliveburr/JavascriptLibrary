@@ -1,0 +1,21 @@
+{
+    "name": "eleven-tool",
+    "version": "0.0.1",
+    "description": "",
+    "main": "bin/index.js",
+    "types": "src/index.ts",
+    "scripts": {
+      "start": "tsc --watch",
+      "build": "tsc"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "tslib": "^2.6.0"
+    },
+    "devDependencies": {
+      "@types/node": "^20.3.3",
+      "typescript": "^5.1.6"
+    }
+}
