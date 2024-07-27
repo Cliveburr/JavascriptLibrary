@@ -1,0 +1,31 @@
+<s-container [title]="'Relação de fora de ' + model.name">
+    <s-buttons #buttons>
+        <s-button isBack></s-button>
+        <s-button color="primary" icon="save" text="Salvar" (event)="saveRelationOut()"></s-button>
+    </s-buttons>
+    <div class="row justify-content-center">
+        <div class="col-6 form-row">
+
+            <s-text-input [(ngModel)]="model.relation.name" class="col-12"
+                label="Nome completo"
+                prependIcon="user"
+                [formGroup]="formGroup"
+                [validators]="['required']">
+            </s-text-input>
+
+            <s-text-input [(ngModel)]="model.relation.email" class="col-12"
+                label="Endereço de Email"
+                prependIcon="envelope"
+                [formGroup]="formGroup"
+                [validators]="['required']">
+            </s-text-input>
+
+            <s-select-input [(ngModel)]="model.relation.active" class="col-12"
+                prependIcon="user"
+                [options]="activeOptions"
+                [formGroup]="formGroup">
+            </s-select-input>
+
+        </div>
+    </div>
+</s-container>

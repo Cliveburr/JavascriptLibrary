@@ -1,0 +1,33 @@
+{
+    "name": "@seven/webapi",
+    "version": "1.0.0",
+    "description": "webapi project",
+    "main": "bin/src/index.js",
+    "types": "src/index.ts",
+    "scripts": {
+        "start": "node --inspect actions.js server",
+        "clean": "node actions.js clean",
+        "build": "node actions.js build",
+        "ainstall": "node actions.js install",
+        "webui": "node actions.js webui",
+        "webapi": "node actions.js webapi"
+    },
+    "keywords": [],
+    "author": "Adilson Manzoli Junior",
+    "license": "ISC",
+    "repository": {},
+    "dependencies": {
+        "ws": "^7.4.4",
+        "providerjs": "file:../../../libs/providerjs-0.0.13-19.tgz",
+        "webhost": "file:../../../libs/webhost-0.1.2-26.tgz",
+        "@seven/framework": "file:../../modules/framework",
+        "@seven/core": "file:../../modules/core",
+        "@seven/app": "file:../../modules/app",
+        "@seven/commission-control": "file:../../apps/commission-control"
+    },
+    "devDependencies": {
+        "@types/node": "^14.11.1",
+        "@types/ws": "^7.2.5",
+        "typescript": "^4.0.2"
+    }
+}

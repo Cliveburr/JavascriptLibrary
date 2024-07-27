@@ -1,0 +1,70 @@
+<div class="d-flex">
+    <button *ngIf="meta.onAddItem" type="button" class="btn btn-primary btn-circle-sm mr-2"
+        [disabled]="!value"
+        (click)="add_click()">
+        <i class="fa fa-plus-circle"></i>
+    </button>
+    <s-validators *ngIf="inValidator.hasValidators" [control]="inValidator"></s-validators>
+</div>
+<div class="d-flex row mb-3">
+    <div *ngFor="let item of viewItems" class="col-{{meta.cardSize || 6}}">
+        <div class="card mt-3 {{item.selectStyle}}">
+            <div [ngSwitch]="item.viewStyle" class="card-body d-flex">
+                <ng-container *ngSwitchCase="'inline'">
+                    <div class="mr-1 d-flex flex-column justify-content-center">
+                        <span class="badge badge-pill badge-success pointer" (click)="conclude_click()"><span class="fa fa-save"></span></span>
+                    </div>
+                    <div class="flex-fill">
+                        <ng-container *ngTemplateOutlet="editView; context: { item: item.item.value }"></ng-container>
+                    </div>
+                    <div *ngIf="status == 2" class="ml-1 d-flex flex-column justify-content-center">
+                        <span class="badge badge-pill badge-danger pointer" (click)="canceladd_click()"><span class="fa fa-ban"></span></span>
+                    </div>
+                </ng-container>
+                <ng-container *ngSwitchCase="'modal'">
+                    <div *ngIf="meta.onEditItem && !meta.hideEditButton" class="mr-1 d-flex flex-column justify-content-center">
+                        <span class="badge badge-pill badge-primary ml-auto pointer"><span class="fa fa-edit"></span></span>
+                    </div>
+                    <div class="flex-fill">
+                        <ng-container *ngTemplateOutlet="cardView; context: { item: item.item.value }"></ng-container>
+                    </div>
+                    <div *ngIf="!meta.hideExcludeButton"class="ml-1 d-flex flex-column justify-content-center">
+                        <span class="badge badge-pill badge-danger ml-auto pointer float-right"><span class="fa fa-times"></span></span>
+                    </div>
+                    <div class="modal" tabindex="-1" bsModal #autoShownModal="bs-modal" [config]="{ show: true, ignoreBackdropClick: true }">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">{{meta.modalEditTitle}}</h5>
+                              <button *ngIf="status == 2 || meta.showCancelOnEdit" type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="canceladd_click()">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                                <ng-container *ngTemplateOutlet="editView; context: { item: item.item.value }"></ng-container>
+                            </div>
+                            <div class="modal-footer">
+                              <button *ngIf="status == 2 || meta.showCancelOnEdit" type="button" class="btn btn-secondary" data-dismiss="modal" (click)="canceladd_click()">Cancelar</button>
+                              <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="conclude_click()">Concluir</button>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </ng-container>
+                <ng-container *ngSwitchCase="'normal'">
+                    <div *ngIf="meta.onEditItem && !meta.hideEditButton" class="mr-1 d-flex flex-column justify-content-center">
+                        <span class="badge badge-pill badge-primary ml-auto pointer" (click)="edit_click(item.item)"><span class="fa fa-edit"></span></span>
+                    </div>
+                    <div class="flex-fill"
+                        [ngClass]="{ 'pointer': meta.selectMode }"
+                        (click)="select_click(item.item)">
+                        <ng-container *ngTemplateOutlet="cardView; context: { item: item.item.value }"></ng-container>
+                    </div>
+                    <div *ngIf="!meta.hideExcludeButton"class="ml-1 d-flex flex-column justify-content-center">
+                        <span class="badge badge-pill badge-danger ml-auto pointer float-right" (click)="exclude_click(item.item)"><span class="fa fa-times"></span></span>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>

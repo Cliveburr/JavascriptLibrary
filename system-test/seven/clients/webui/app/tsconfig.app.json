@@ -1,0 +1,22 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+/*
+  Caso der erro de compilação adicionar nos files
+  "../../webshared/src/index.ts"
+*/
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "files": [
+    "main/main.ts",
+    "main/polyfills.ts"
+  ],
+  "include": [
+    "**/*.d.ts"
+  ],
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  }
+}

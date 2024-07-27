@@ -1,0 +1,3 @@
+<ng-container *ngIf="control.formControl.invalid && (control.formControl.dirty || control.formControl.touched)">
+    <small *ngFor="let msg of control.getErrosMessage()" class="form-text text-danger">{{msg}}</small>
+</ng-container>

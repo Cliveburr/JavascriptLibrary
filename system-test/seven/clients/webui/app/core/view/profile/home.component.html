@@ -1,0 +1,20 @@
+<s-container [title]="model.name">
+    <s-buttons>
+        <s-button isBack></s-button>
+        <s-button color="primary" icon="user-circle" router="/:profile/profile" text="Profile" mrauto></s-button>
+        <s-button color="primary" (event)="test()" text="test"></s-button>
+        <s-button permissions="core.home"></s-button>
+    </s-buttons>
+    <div class="d-flex mt-3">
+        <!-- <div *ngFor="let item of inItems" class="col-{{inMeta.cardSize || 6}}">
+            <div class="card mt-3">
+                <ng-container *ngTemplateOutlet="cardView; context: { item: item }"></ng-container>
+            </div>
+        </div> -->
+        <div class="card">
+            <div class="card-body">
+              Seja bem vindo ao Seven.
+            </div>
+          </div>
+    </div>
+</s-container>

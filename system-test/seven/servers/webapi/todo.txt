@@ -1,0 +1,40 @@
+
+<done> - mudar o location path para ser uma classe injetada pelo host
+<done> - mudar o EventHandlerInterception para ser aplicavel na classe toda
+<done> - mudar o BusinessEvent para setar data
+<done> - adicionar o businessevent:is como condição no host do websocket para invocar o metodo
+
+- criar o LocationBusiness que não vai ter o interception
+
+
+
+
+
+
+{
+    "base": {
+        "user": null,
+        "password": null,
+        "url": "localhost:27017",
+        "options": {
+            "useUnifiedTopology": true
+        }
+    },
+    "core": {
+        "extends": "base",
+        "database": "Seven"
+    },
+    "app": {
+        "extends": "base",
+        "database": "Seven"
+    },
+    "commission-control": {
+        "user": null,
+        "password": null,
+        "url": "localhost:27017",
+        "options": {
+            "useUnifiedTopology": true
+        },
+        "database": "SevenComm"
+    }
+}

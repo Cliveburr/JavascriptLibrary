@@ -1,0 +1,26 @@
+<ng-container [ngSwitch]="type">
+
+    <ng-container *ngSwitchCase="0">
+        <div class="row">
+            <ng-content *ngTemplateOutlet="content"></ng-content>
+        </div>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="1">
+        <div class="mt-3 card">
+            <div class="card-header pointer" (click)="toggleCollapsed()">
+                <strong>
+                    <span class="fa fa-filter text-muted"></span>
+                    {{title}}
+                </strong>
+            </div>
+            <div class="card-body" [collapse]="!collapsed">
+                <div class="container row">
+                    <ng-content *ngTemplateOutlet="content"></ng-content>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+</ng-container>
+<ng-template #content><ng-content></ng-content></ng-template>

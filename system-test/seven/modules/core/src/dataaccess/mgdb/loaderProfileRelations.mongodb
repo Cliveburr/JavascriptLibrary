@@ -1,0 +1,46 @@
+
+use('Seven');
+
+const profileId = ObjectId("60721c0203f9e0246c4574a6")
+
+const aggregation = [
+    {
+        "$match": {
+            "profileId": profileId,
+            "state": { "$in": [1, 2, 3] }
+        }
+    },
+    {
+        "$lookup": {
+            "from": "Profile",
+            "localField": "realProfileId",
+            "foreignField": "_id",
+            "as": "profile"
+        }
+    },
+    {
+        "$set": {
+            "profile": {
+                "$cond": {
+                    "if": {
+                        "$eq": [ "$type", 0 ]
+                    },
+                    "then": { "$arrayElemAt": [ "$profile", 0 ] },
+                    "else": "$outProfile"
+                }
+            }
+        }
+    },
+    {
+        "$project": {
+            "type": 1,
+            "state": 1,
+            "realProfileId": "$profile._id",
+            "name": "$profile.name",
+            "email": "$profile.email",
+            "portrait": "$profile.portrait"
+        }
+    }
+];
+
+db.Relation.aggregate(aggregation);

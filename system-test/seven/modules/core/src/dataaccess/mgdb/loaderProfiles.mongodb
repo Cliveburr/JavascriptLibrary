@@ -1,0 +1,45 @@
+
+use('Seven');
+
+const profileId = ObjectId("60721c0203f9e0246c4574a6")
+
+const startPipeline = [
+    {
+        "$match": {
+            "_id": { "$ne": profileId }
+        }
+    },
+    { "$lookup": {
+        "from": "Relation",
+        "localField": "_id",
+        "foreignField": "realProfileId",
+        "as": "relation"
+    } }
+];
+
+const endPipeline = [
+    {
+        "$project": {
+            "name": 1,
+            "portrait": 1,
+            "relation": {
+                "$anyElementTrue": {
+                    "$filter": {
+                        "input": "$relation",
+                        "as": "relation",
+                        "cond": {
+                            "$and": [
+                                { "$eq": [ "$$relation.profileId", profileId ] },
+                                { "$not": { "$eq": [ "$$relation.state", 4 ] } }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+];
+
+const aggregation = [].concat(startPipeline).concat(endPipeline);
+
+db.Profile.aggregate(aggregation);

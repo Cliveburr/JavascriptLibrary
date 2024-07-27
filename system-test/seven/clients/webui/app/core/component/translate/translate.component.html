@@ -1,0 +1,28 @@
+<!-- <button type="button" class="btn btn-link" (click)="showEditor()">{{ 'EDITOR_SHOW' | translate }}</button>
+
+<static-modal #editorModal [title]="'MODAL_TITLE' | translate">
+    <div modal-body>
+        <card cardTitle="Condensed Table" cardClass="with-scroll table-panel">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{{ 'TABLE_NAME' | translate }}</th>
+                        <th>{{ 'TABLE_VALUE' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let edit of edits">
+                        <td>{{edit.name}}</td>
+                        <td>
+                            <input type="text" class="form-control" [(ngModel)]="edit.value" [placeholder]="'TABLE_PLACEHOLDER' | translate">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </card>
+    </div>
+    <div modal-footer>
+        <button type="button" class="btn" (click)="save()">{{ '@TEXT.SAVE' | translate }}</button>
+        <button type="button" class="btn" (click)="editorModal.hide()">{{ '@TEXT.CLOSE' | translate }}</button>
+    </div>
+</static-modal> -->

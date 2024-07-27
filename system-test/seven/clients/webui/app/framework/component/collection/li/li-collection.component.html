@@ -1,0 +1,16 @@
+<ul class="list-group">
+    <li *ngIf="inItems.length == 0 && showNoItem" class="list-group-item">
+        Nenhum item
+    </li>
+    <li *ngFor="let item of inItems" class="list-group-item"
+        [ngClass]="{
+            'active': item === selected,
+            'pointer': selectable
+        }"
+        (click)="selectItem(item)">
+            <ng-container *ngTemplateOutlet="liView; context: { item: item }"></ng-container>
+    </li>
+    <li *ngIf="inHasMore" class="list-group-item text-center">
+        <button type="button" class="btn btn-primary btn-sm" (click)="loadMore()">Carregar Mais</button>
+    </li>
+</ul>

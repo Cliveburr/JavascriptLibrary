@@ -1,0 +1,22 @@
+{
+    "base": {
+        "user": null,
+        "password": null,
+        "url": "localhost:27017",
+        "options": {
+            "useUnifiedTopology": true
+        }
+    },
+    "core": {
+        "extends": "base",
+        "database": "Seven"
+    },
+    "app": {
+        "extends": "base",
+        "database": "Seven"
+    },
+    "commission-control": {
+        "extends": "base",
+        "database": "SevenComm"
+    }
+}

@@ -1,0 +1,19 @@
+<ng-container [ngSwitch]="type">
+    <div *ngSwitchCase="'text'">
+        <div class="form-group">
+            <input type="text" class="form-control"
+                id="{{id}}"
+                [placeholder]="placeholder"
+                [(ngModel)]="loader.value"
+                (keydown)="filterOnChange()">
+        </div>
+    </div>
+    <div *ngSwitchCase="'select'">
+        <s-select-input
+            [options]="options!"
+            [(ngModel)]="loader.value"
+            [placeholder]="placeholder"
+            (onSelect)="raiseFilter()">
+        </s-select-input>
+    </div>
+</ng-container>

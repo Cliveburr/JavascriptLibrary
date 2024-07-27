@@ -1,0 +1,35 @@
+<s-container [title]="'Profile de ' + model.name">
+    <s-buttons>
+        <s-button isBack></s-button>
+        <s-button color="primary" icon="network-wired" router="/:profile/relations" text="Relações"></s-button>
+        <s-button color="primary" icon="users" router="/:profile/groups" text="Grupos" mrauto></s-button>
+        <s-button permissions="core.home"></s-button>
+    </s-buttons>
+    <div class="row justify-content-center mt-4">
+        <div class="col-6 form-row">
+            <div class="col-2 center-middle">
+                <s-portrait [model]="model.portrait" (click)="portrait_click()"></s-portrait>
+                <!-- <s-portrait-modal-input #portraitModal [meta]="meta.portraitModal"></s-portrait-modal-input> -->
+            </div>
+            <s-text-input [(ngModel)]="model.nickName" class="col-6"
+                label="Apelido"
+                prependIcon="user"
+                readonly>
+            </s-text-input>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-4">
+        <div class="col-6 form-row">
+            <s-text-input [(ngModel)]="model.name" class="col-12"
+                label="Nome"
+                prependIcon="user"
+                readonly>
+            </s-text-input>
+            <s-text-input [(ngModel)]="model.email" class="col-12"
+                label="Email"
+                prependIcon="envelope"
+                readonly>
+        </s-text-input>
+        </div>
+    </div>
+</s-container>

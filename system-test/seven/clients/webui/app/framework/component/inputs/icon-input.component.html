@@ -1,0 +1,34 @@
+<label *ngIf="meta.label" for="{{meta.id}}">{{meta.label}}</label>
+<div class="input-group">
+    <div *ngIf='meta.prependIcon' class="input-group-prepend">
+        <span class="input-group-text bg-white px-4 border-right-0">
+            <i class="fa {{meta.prependIcon}}"></i>
+        </span>
+    </div>
+    <!-- <select *ngIf="!meta.readonly" class="form-control bg-white"
+      [attr.id]="meta.id"
+      [ngClass]='{
+        "border-left-0": meta.prependIcon,
+        "is-invalid": inValidator.isInvalidAndUntouched,
+        "is-valid": inValidator.isValidAndUntouched
+      }'
+      [formControl]="inValidator.formControl"
+      (change)="select_onChange($event)">
+      <option *ngFor="let op of meta.options" [ngValue]="op.value">
+        {{ op.display }}
+      </option>
+    </select> -->
+    <!-- <div *ngIf="meta.readonly" class="form-control">
+      {{getDisplayOfValue()}}
+    </div> -->
+    <div class="dropdown btn-group form-control center-middle" dropdown>
+        <div class="fa fa-{{value}} pointer" dropdownToggle></div>
+        <div class="dropdown-menu overflow" *dropdownMenu>
+            <div class="d-flex flex-wrap overflow-auto h60">
+                <div *ngFor="let icon of icons" class="m-2 fa fa-2x fa-{{icon}} pointer"
+                    (click)="option_click(icon)"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<s-validators *ngIf="inValidator.hasValidators" [control]="inValidator"></s-validators>

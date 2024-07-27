@@ -1,0 +1,14 @@
+<ng-container [ngSwitch]="model.type">
+    <div *ngSwitchCase="0" class="border border-{{model.twoLetter?.borderColor}} bg-{{model.twoLetter?.backColor}} twoLetter"
+        [ngClass]="{
+            'btn': isBtn
+        }">
+        <span class="font-weight-bold text-{{model.twoLetter?.foreColor}}">{{model.twoLetter?.twoLetter}}</span>
+    </div>
+    <div *ngSwitchCase="1" class="border border-{{model.icon?.borderColor}} bg-{{model.icon?.backColor}} icon"
+        [ngClass]="{
+            'btn': isBtn
+        }">
+        <i class="fa fa-{{model.icon?.icon}} text-{{model.icon?.foreColor}}"></i>
+    </div>
+</ng-container>

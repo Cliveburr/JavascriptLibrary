@@ -1,0 +1,10 @@
+<div class="d-flex row mt-1">
+    <div *ngFor="let item of inItems" class="col-{{size}}">
+        <div class="card mt-3">
+            <ng-container *ngTemplateOutlet="cardView; context: { item: item }"></ng-container>
+        </div>
+    </div>
+</div>
+<div *ngIf="inHasMore" class="mt-3 text-center">
+    <button type="button" class="btn btn-primary btn-sm" (click)="loadMore()">Carregar Mais</button>
+</div>

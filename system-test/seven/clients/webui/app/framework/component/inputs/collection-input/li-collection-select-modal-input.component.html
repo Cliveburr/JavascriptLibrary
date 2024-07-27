@@ -1,0 +1,27 @@
+<div class="d-flex">
+    <button *ngIf="inMeta.onAddItem" type="button" class="btn btn-primary btn-circle-sm mr-2"
+        [disabled]="!value"
+        (click)="add_click()">
+        <i class="fa fa-plus-circle"></i>
+    </button>
+    <s-validators *ngIf="inValidator.hasValidators" [control]="inValidator"></s-validators>
+</div>
+<ul class="list-group mt-3">
+    <li *ngFor="let item of getItemsToShow()" class="list-group-item"
+        [ngClass]="{ 'active': item === inSelected }">
+        <div class="d-flex">
+            <div class="mr-1 d-flex flex-column justify-content-center">
+                <span *ngIf="inMeta.onEditItem" class="badge badge-pill badge-primary ml-auto pointer" (click)="edit_click(item)"><span class="fa fa-edit"></span></span>
+            </div>
+            <div class="flex-fill"
+                [ngClass]="{ 'pointer': inMeta.selectMode }"
+                (click)="select_click(item)">
+                <ng-container *ngTemplateOutlet="listView; context: { item: item.value }"></ng-container>
+            </div>
+            <div class="ml-1 d-flex flex-column justify-content-center">
+                <span class="badge badge-pill badge-danger ml-auto pointer float-right" (click)="exclude_click(item)"><span class="fa fa-times"></span></span>
+            </div>
+        </div>
+    </li>
+</ul>
+<s-li-collection-modal-input #modal [meta]="inMeta.modal"></s-li-collection-modal-input>

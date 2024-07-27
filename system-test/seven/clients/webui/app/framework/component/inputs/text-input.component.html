@@ -1,0 +1,15 @@
+<label *ngIf="label" for="{{id}}">{{label}}</label>
+<span *ngIf='prependIcon' class="fa fa-{{prependIcon}} text-muted left-icon"></span>
+<input class="form-control bg-white" autocomplete="off"
+    [attr.type]="type"
+    [attr.id]="id"
+    [ngClass]='{
+        "is-invalid": inValidator.isInvalidAndUntouched,
+        "is-valid": inValidator.isValidAndUntouched
+    }'
+    [attr.placeholder]="placeholder"
+    [formControl]="inValidator.formControl"
+    [readonly]="readonly"
+    (keyup)="onKeyUp()"
+    (keydown)="onKeyDown($event)" />
+<s-validators *ngIf="inValidator.hasValidators" [control]="inValidator"></s-validators>

@@ -1,0 +1,72 @@
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-6 form-row">
+
+            <s-text-input [(ngModel)]="model.nickName" class="col-6 mb-4"
+                placeholder="Apelido"
+                prependIcon="user"
+                [formGroup]="formGroup"
+                [validators]="['required', nickNameKey]">
+            </s-text-input>
+
+            <s-text-input [(ngModel)]="model.fullName" class="col-12 mb-4"
+                placeholder="Nome completo"
+                prependIcon="user"
+                [formGroup]="formGroup"
+                [validators]="['required']">
+            </s-text-input>
+
+            <s-text-input [(ngModel)]="model.email" class="col-12 mb-4"
+                type="email"
+                placeholder="Endereço de Email"
+                prependIcon="envelope"
+                [formGroup]="formGroup"
+                [validators]="['required', 'email']">
+            </s-text-input>
+
+            <s-text-input [(ngModel)]="model.password" class="col-6 mb-4"
+                type="password"
+                placeholder="Senha"
+                prependIcon="lock"
+                [formGroup]="formGroup"
+                [validators]="['required', passwordComplex]">
+            </s-text-input>
+
+            <s-text-input [(ngModel)]="confirmPassword" class="col-6 mb-4"
+                type="password"
+                placeholder="Confirma a senha"
+                prependIcon="lock"
+                [formGroup]="formGroup"
+                [validators]="[passowrdEqual]">
+            </s-text-input>
+
+            <div class="form-group col-lg-12 mb-0">
+                <a class="btn btn-primary btn-block py-2" (click)="registerAccount()">
+                    <span class="font-weight-bold">Create your account</span>
+                </a>
+            </div>
+
+            <div class="form-group col-lg-12 mx-auto d-flex align-items-center my-4">
+                <div class="border-bottom w-100 ml-5"></div>
+                <span class="px-2 small text-muted font-weight-bold text-muted">OR</span>
+                <div class="border-bottom w-100 mr-5"></div>
+            </div>
+
+            <div class="form-group col-lg-12">
+                <a href="#" class="btn btn-primary btn-block py-2 btn-facebook">
+                    <i class="fa fa-facebook-f mr-2"></i>
+                    <span class="font-weight-bold">Continue with Facebook</span>
+                </a>
+                <a href="#" class="btn btn-primary btn-block py-2 btn-twitter">
+                    <i class="fa fa-twitter mr-2"></i>
+                    <span class="font-weight-bold">Continue with Twitter</span>
+                </a>
+            </div>
+
+            <div class="text-center w-100">
+                <p class="text-muted font-weight-bold">Already Registered? <a routerLink="/login" class="text-primary ml-2">Login</a></p>
+            </div>
+        </div>
+    </div>
+</div>

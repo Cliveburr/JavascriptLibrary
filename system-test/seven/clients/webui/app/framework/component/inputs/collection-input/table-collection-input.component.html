@@ -1,0 +1,39 @@
+<button *ngIf="this.innerData.onAddItem" type="button" class="btn btn-primary btn-circle-sm" (click)="add_click()">
+    <i class="fa fa-plus-circle"></i>
+</button>
+<small *ngIf="formControl.invalid && (formControl.dirty || formControl.touched)" class="form-text text-danger">Complete a edição!</small>
+<table class="table table-sm table-hover mt-3">
+    <thead>
+        <tr>
+            <th class="edit-col text-center">Editar</th>
+            <th *ngFor="let col of innerData.columns" [attr.class]="col.class">
+                {{col.header}}
+            </th>
+            <th class="remove-col text-center">Excluir</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of getItemsToShow()">
+            <ng-container *ngIf="!item.openEditor">
+                <td class="text-center verti-col">
+                    <span class="badge badge-pill badge-primary ml-auto pointer" (click)="edit_click(item)"><span class="fa fa-edit"></span></span>
+                </td>
+                <td *ngFor="let col of innerData.columns" [attr.class]="col.class">{{getFormattedDisplay(col, item.value[col.property].value)}}</td>
+                <td class="text-center verti-col">
+                    <span class="badge badge-pill badge-danger ml-auto pointer" (click)="exclude_click(item)"><span class="fa fa-times"></span></span>
+                </td>
+            </ng-container>
+            <ng-container *ngIf="item.openEditor">
+                <td class="text-center verti-col">
+                    <span class="badge badge-pill badge-success ml-auto pointer" (click)="conclude_click()"><span class="fa fa-save"></span></span>
+                </td>
+                <td [attr.colspan]="innerData.columns.length + ((status == 1) ? 1 : 0)">
+                    <ng-container *ngTemplateOutlet="editView; context: { item: item.value }"></ng-container>
+                </td>
+                <td *ngIf="status == 2" class="text-center verti-col">
+                    <span class="badge badge-pill badge-danger ml-auto pointer" (click)="canceladd_click()"><span class="fa fa-ban"></span></span>
+                </td>
+            </ng-container>
+        </tr>
+    </tbody>
+</table>

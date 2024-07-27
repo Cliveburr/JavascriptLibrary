@@ -1,0 +1,10 @@
+<button type="button" class="btn btn-{{color}} mr-2"
+    [disabled]="disabled"
+    (click)="button_click()"
+    [tooltip]="tooltip!" [isDisabled]="!!tooltip"
+    [ngClass]="{
+        'active': active
+    }">
+    <i *ngIf="icon" class="fa fa-{{icon}}" [style.margin-right]="text ? '4px' : '0'"></i>
+    <span *ngIf="text">{{text}}</span>
+</button>

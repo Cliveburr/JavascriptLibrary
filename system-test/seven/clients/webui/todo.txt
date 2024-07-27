@@ -1,0 +1,74 @@
+
+<done> - finalizar a me-relation e profiles, mudando para card o profiles
+
+<done> - criar e adptar as rotas de acesso como
+    {nickName}\{action}
+    {nickName}\{app}\{action}
+
+{nickName} = profile home
+{nickName}\profile = profile details
+
+
+<done> - ajustar o app comm para a nova rota
+
+- criar o sistema de grupos
+
+- pensar numa forma mais eficiente de manter o contexto do profile/app sendo visitado
+    - sistema de cache resolve o manter o contexto
+
+- criar o sistema de permissões
+
+- finalizar o app comm
+
+
+- a tela de relações não bate com o nickName visitando
+- a tela de sales não com o nickName visitando
+
+
+
+colocar a coluna Profile.nickName como indexada e não permitir duplicatas
+
+
+
+token
+    actions = enum
+
+group
+    profileId
+    name
+    active
+    members
+        type = isRelation, isGroup
+        relationId
+        groupId
+
+profile-perms
+    profileId
+    targetProfileId
+    token
+    perms
+    relactionActors
+        relationId
+        index
+        perms
+    groupActors
+        groupId
+        index
+        perms
+
+app-perms
+    profileId
+    targetAppInstanceId
+    token
+    perms
+    actors
+        type = isRelation, isGroup
+        relationId
+        groupId
+        index
+        perms
+
+
+- adicionar margin-top como opção no input li
+- melhorar o style do li selecionado
+- criar um component para exibir os portrait

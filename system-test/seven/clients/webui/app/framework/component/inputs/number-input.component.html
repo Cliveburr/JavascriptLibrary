@@ -1,0 +1,23 @@
+<label *ngIf="inMeta.label" for="{{inMeta.id}}">{{inMeta.label}}</label>
+<div class="input-group">
+    <div *ngIf='inMeta.prependIcon' class="input-group-prepend">
+        <span class="input-group-text bg-white px-4 border-right-0">
+            <i class="fa {{inMeta.prependIcon}}"></i>
+        </span>
+    </div>
+    <input class="form-control bg-white" autocomplete="off"
+        [attr.type]="inMeta.type"
+        [attr.id]="inMeta.id"
+        [attr.placeholder]="inMeta.placeholder"
+        [ngClass]='{
+            "border-left-0": inMeta.prependIcon,
+            "is-invalid": inValidator.isInvalidAndUntouched,
+            "is-valid": inValidator.isValidAndUntouched
+        }'
+        [formControl]="inValidator.formControl"
+        [readonly]="inMeta.readonly"
+        (keyup)="onKeyUp()"
+        currencyMask 
+        [options]="maskOptions"/>
+</div>
+<s-validators *ngIf="inValidator.hasValidators" [control]="inValidator"></s-validators>

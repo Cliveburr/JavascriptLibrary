@@ -1,0 +1,19 @@
+<ng-template #modalBody>
+    <s-filters #filters [direct]="directFilters">
+        <s-filter type="text" placeholder="Nome" code="name" size="12"></s-filter>
+    </s-filters>
+    <s-li-collection #members [items]="groupService.loaderProfileGroups.bind(groupService)" showNoItem
+        [liView]="liView"
+        [filters]="filters" >
+        <ng-template #liView let-item="item">
+            <div class="row pointer" (click)="onselect(item)">
+                <div class="col-2">
+                    <s-portrait [model]="item.portrait"></s-portrait>
+                </div>
+                <div class="col-10 align-self-center">
+                    {{item.name}}
+                </div>
+            </div>
+        </ng-template>
+    </s-li-collection>
+</ng-template>

@@ -1,0 +1,3 @@
+<div class="container col-xs-11 col-sm-4">
+    <alert *ngFor="let msg of messages" class="fade show" [type]="msg.typeText" [dismissible]="true" [dismissOnTimeout]="msg.getTimeout" (onClosed)="alert_onClosed(msg)"><span [innerHtml]="msg.htmlText"></span></alert>
+</div>

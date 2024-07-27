@@ -1,0 +1,71 @@
+<table class="table table-bordered table-striped table-sm table-light table-hover mt-3">
+    <thead class="thead-light">
+        <tr>
+            <th class="sel-head text-center" (click)="selAllClick()">
+                <span class="far" [ngClass]="{'fa-check-square': inSelAll, 'fa-square': !inSelAll}"></span>
+            </th>
+            <th *ngFor="let col of cols">
+                <div (click)="changeOrder(col)">
+                    <span *ngIf="col.property == inOrder?.property" class="pointer fa"
+                        [ngClass]="{'fa-sort-down': inOrder?.asc, 'fa-sort-up': !inOrder?.asc}">&nbsp;</span>
+                    <span *ngIf="col.order && col.property != inOrder?.property" class="pointer fa fa-sort">&nbsp;</span>
+                    <span [ngClass]="{'pointer': col.order}">{{col.header}}</span>
+                </div>
+            </th>
+        </tr>
+    </thead>
+  <tbody>
+      <tr *ngFor="let item of inItems" [ngClass]="{'table-info': item.sel}">
+          <td class="pointer text-center" (click)="selRowClick($event, item)" onselectstart="return false;">
+              <span class="far" [ngClass]="{'fa-check-square': item.sel, 'fa-square': !item.sel}"></span>
+          </td>
+          <td *ngFor="let text of item.colsTexts">{{text}}</td>
+      </tr>
+  </tbody>
+</table>
+<div class="row">
+    <nav class="col-md-8">
+        <ul class="pagination" [ngSwitch]="true">
+            <ng-container *ngSwitchCase="inTotalPages == 0">
+                <li class="page-item active pointer">
+                    <a class="page-link" (click)="refPage(0)">0</a>
+                </li>
+            </ng-container>
+            <ng-container *ngSwitchCase="inTotalPages < 7">
+                <li *ngIf="inTotalPages > 1" [ngClass]="{'disabled': inPage==0}" class="page-item pointer">
+                    <a class="page-link" (click)="refPage(inPage - 1)">Prev</a>
+                </li>
+                <li class="page-item pointer" *ngFor="let num of genArray(0, inTotalPages)" [ngClass]="{'active': inPage==num}">
+                    <a class="page-link" (click)="refPage(num)">{{num + 1}}</a>
+                </li>
+                <li *ngIf="inTotalPages > 1" [ngClass]="{'disabled': inPage==inTotalPages - 1}" class="page-item pointer">
+                    <a class="page-link" (click)="refPage(inPage + 1)">Next</a>
+                </li>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+                <li [ngClass]="{'disabled': inPage==0}" class="page-item pointer">
+                    <a class="page-link" (click)="refPage(0)">First</a>
+                </li>
+                <li [ngClass]="{'disabled': inPage==0}" class="page-item pointer">
+                    <a class="page-link" (click)="refPage(inPage - 1)">Prev</a>
+                </li>
+                <li class="page-item pointer" *ngFor="let num of genArray(inPage - 2, inPage + 3, inTotalPages)" [ngClass]="{'active': inPage==num}">
+                    <a class="page-link" (click)="refPage(num)">{{num + 1}}</a>
+                </li>
+                <li [ngClass]="{'disabled': inPage==inTotalPages - 1}" class="page-item pointer">
+                    <a class="page-link" (click)="refPage(inPage + 1)">Next</a>
+                </li>
+                <li [ngClass]="{'disabled': inPage==inTotalPages - 1}" class="page-item pointer">
+                    <a class="page-link" (click)="refPage(inTotalPages - 1)">Last</a>
+                </li>
+            </ng-container>
+        </ul>
+    </nav>
+    <nav class="col-md-4">
+        <ul class="pagination justify-content-end">
+            <li class="page-item pointer" *ngFor="let num of [5,15,25,50]" [ngClass]="{'active': inPageLimit==num}">
+                <a class="page-link" (click)="refLimit(num)">{{num}}</a>
+            </li>
+        </ul>
+    </nav>
+</div>

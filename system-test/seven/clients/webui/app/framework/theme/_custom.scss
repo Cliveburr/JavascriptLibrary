@@ -1,0 +1,159 @@
+
+s-button:last-child button {
+    margin-right: 0 !important;
+}
+
+.sel-head {
+    width: 32px !important;
+    cursor: pointer;
+}
+
+.has-left-icon .form-control {
+    padding-left: 2.375rem;
+}
+
+.has-left-icon .left-icon {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: calc(1.5em + 0.75rem + 2px);
+    line-height: 1.5;
+    text-align: center;
+    padding-top: 0.9rem
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.btn-circle {
+    width: 45px;
+    height: 45px;
+    //line-height: 45px;
+    //text-align: center;
+    //padding: 0;
+    border-radius: 50% !important;
+}
+
+.btn-circle i {
+    position: relative;
+    top: -1px;
+}
+
+.btn-circle-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 50% !important;
+    
+    i {
+        position: relative;
+        top: -2px;
+        left: -4px;
+    }
+}
+
+.btn-circle-lg {
+    width: 55px;
+    height: 55px;
+    line-height: 55px;
+    font-size: 1.1rem;
+}
+
+.btn-circle-xl {
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    font-size: 1.3rem;
+}
+
+.center-middle {
+    display : flex;
+    align-items : center;
+    justify-content: center;
+}
+
+
+
+.d-grid {
+    display: grid;
+}
+
+
+.w100 {
+    width: 100%;
+}
+
+.h70 {
+    max-height: 70vh;
+}
+
+.h60 {
+    max-height: 60vh;
+}
+
+.overflow {
+    overflow-y: initial !important;
+
+    .overflow-auto {
+        overflow-y: auto;    
+    }
+}
+
+// .border-md {
+//     border-width: 2px;
+// }
+
+.btn-facebook {
+    background: #405D9D;
+    border: none;
+}
+
+.btn-facebook:hover, .btn-facebook:focus {
+    background: #314879;
+}
+
+.btn-twitter {
+    background: #42AEEC;
+    border: none;
+}
+
+.btn-twitter:hover, .btn-twitter:focus {
+    background: #1799e4;
+}
+
+
+
+html,body {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.maincontainer {
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.form-control:not(select) {
+    padding: 1.5rem 0.5rem;
+}
+
+select.form-control {
+    height: 52px;
+    padding-left: 0.5rem;
+}
+
+.form-control::placeholder {
+    color: #ccc;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+.form-control:focus {
+    box-shadow: none;
+}

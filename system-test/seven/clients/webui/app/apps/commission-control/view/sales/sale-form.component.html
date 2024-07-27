@@ -1,0 +1,46 @@
+<div class="container mt-4">
+    <h2 class="my-3 border-bottom border-secondary">Cadastrar Venda</h2>
+    <button type="button" class="btn btn-primary mr-2" (click)="back_click()">
+        <i class="fas fa-shopping-cart"></i>&nbsp;Voltar
+    </button>
+    <button type="button" class="btn btn-success mr-2" (click)="save_onclick()">
+        <i class="fas fa-save"></i>&nbsp;Save
+    </button>
+    <s-card header="Venda" class="mt-3">
+        <div class="form-row">
+            <s-text-input [(ngModel)]="model.alias" [meta]="meta.alias"></s-text-input>
+            <s-number-input [(ngModel)]="model.total" [meta]="meta.value"></s-number-input>
+            <s-datetime-input [(ngModel)]="model.date" [meta]="meta.data"></s-datetime-input>
+        </div>
+    </s-card>
+    <s-card header="Comissões" class="mt-3">
+        <div class="row">
+            <div class="col-6 border-right border-gray">
+                <s-li-collection-select-modal-input [(ngModel)]="model.commissioned" [meta]="meta.commissioned" (selected)="setlectComissioned($event)"
+                    [listView]="commissionedList">
+                    <ng-template #commissionedList let-item="item">
+                        {{item.relation.name}}
+                    </ng-template>
+                </s-li-collection-select-modal-input>
+            </div>
+            <div class="col-6">
+                <s-li-collection-input [(ngModel)]="commissionsSelected" [meta]="meta.commissions"
+                    [listView]="commissionsList" [editView]="commissionsView">
+                    <ng-template #commissionsList let-item="item">
+                        <div class="row">
+                            <div class="col-4">{{item.date | sFormat:'date'}}</div>
+                            <div class="col-4 text-right">{{item.value | sFormat:'money'}}</div>
+                            <div class="col-4">{{item.status | sFormat:meta.commissionsMeta.status }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template #commissionsView let-item="item">
+                        <div class="form-row">
+                            <s-number-input [(ngModel)]="item.value" [meta]="meta.commissionsMeta.value"></s-number-input>
+                            <s-datetime-input [(ngModel)]="item.date" [meta]="meta.commissionsMeta.date"></s-datetime-input>
+                        </div>
+                    </ng-template>
+                </s-li-collection-input>
+            </div>
+        </div>
+    </s-card>
+</div>

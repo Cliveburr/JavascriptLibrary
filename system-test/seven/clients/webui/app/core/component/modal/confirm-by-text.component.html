@@ -1,0 +1,18 @@
+<ng-template #modalBody>
+    <div class="row">
+        <div class="col-12">
+            {{message}}
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-6">
+            Entre com a mensage para confirmar:
+        </div>
+        <div class="col-6">
+            <input type="text" class="form-control" [(ngModel)]="textEntered" (keyup)="onKeyUp()" />
+        </div>
+    </div>
+</ng-template>
+<ng-template #modalFooter>
+    <button type="button" class="btn btn-danger" (click)="btn_confirm()" [disabled]="btnConfirmDisabled">Confirmar</button>
+</ng-template>

@@ -1,0 +1,45 @@
+<s-container [title]="'Relações de ' + model.name">
+    <s-buttons #buttons>
+        <s-button isBack></s-button>
+        <s-button isRefresh></s-button>
+        <s-button color="primary" icon="network-wired" text="Criar Relação de Fora" router=":profile/relation/create" mrauto></s-button>
+        <s-button permissions="core.relations"></s-button>
+    </s-buttons>
+    <s-filters #filters card title='Filtrar'>
+        <s-filter type="text" placeholder="Nome" code="name"></s-filter>
+        <s-filter type="select" placeholder="Situação" [options]="stateFilter" code="state"></s-filter>
+        <s-filter type="text" placeholder="Email" code="email"></s-filter>
+    </s-filters>
+    <s-card-collection #cards [cardView]="appsView" [items]="relationService.loaderProfileRelations.bind(relationService)"
+        [buttons]="buttons"
+        [filters]="filters">
+        <ng-template #appsView let-item="item">
+            <div class="card-body">
+                <div class="row no-gutters">
+                    <div class="col-2">
+                        <s-portrait [model]="item.portrait"></s-portrait>
+                    </div>
+                    <div class="col-8">
+                        {{item.name}}
+                        <br />
+                        <span class="fs-6">{{item.email}}</span>
+                    </div>
+                    <div *ngIf="model.canEditRelations" class="col-2 text-right">
+                        <ng-container [ngSwitch]="getItemActionType(item)">
+                            <div *ngSwitchCase="0" class="btn-group">
+                                <button class="btn btn-success" (click)="accept_click(item)">
+                                    <i class="far fa-thumbs-up"></i>
+                                </button>
+                                <button class="btn btn-danger" (click)="cancel_click(item)">
+                                    <i class="far fa-thumbs-down"></i>
+                                </button>
+                            </div>
+                            <s-button *ngSwitchCase="1" color="danger" icon="ban" (event)="cancel_click(item)"></s-button>
+                            <s-button *ngSwitchCase="2" color="primary" icon="edit" [router]="'/:profile/relation/' + item._id"></s-button>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </s-card-collection>
+</s-container>

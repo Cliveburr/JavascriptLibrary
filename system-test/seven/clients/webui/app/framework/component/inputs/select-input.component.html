@@ -1,0 +1,19 @@
+<label *ngIf="label" for="{{id}}">{{label}}</label>
+<span *ngIf='prependIcon' class="fa fa-{{prependIcon}} text-muted left-icon"></span>
+<select *ngIf="!readonly" class="form-control bg-white"
+  [attr.placeholder]="placeholder"
+  [attr.id]="id"
+  [ngClass]='{
+    "is-invalid": inValidator.isInvalidAndUntouched,
+    "is-valid": inValidator.isValidAndUntouched
+  }'
+  [formControl]="inValidator.formControl"
+  (change)="select_onChange($event)">
+  <option *ngFor="let op of options" [ngValue]="op.value">
+    {{ op.display }}
+  </option>
+</select>
+<div *ngIf="readonly" class="form-control">
+  {{getDisplayOfValue()}}
+</div>
+<s-validators *ngIf="inValidator.hasValidators" [control]="inValidator"></s-validators>

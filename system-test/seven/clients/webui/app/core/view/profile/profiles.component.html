@@ -1,0 +1,36 @@
+<s-container title="Profiles">
+    <s-buttons #buttons>
+        <s-button isBack></s-button>
+        <s-button isRefresh></s-button>
+        <!-- <s-button color="primary" icon="network-wired" text="Solicitar Relação" (event)="requestRelation([])"></s-button>
+        <s-button color="primary" icon="users" text="Aceitar Relação" (event)="acceptRelation([])"></s-button>
+        <s-button color="primary" icon="users" text="Cancel Relação" (event)="cancelRelation([])"></s-button> -->
+    </s-buttons>
+    <s-filters #filters card title='Filtrar'>
+        <s-filter type="text" placeholder="Nome" code="name"></s-filter>
+    </s-filters>
+    <!-- <s-table-collection #table [items]="profileService.loaderProfiles.bind(profileService)"
+        [buttons]="buttons"
+        [filters]="filters">
+        <s-table-column header="Nome" property="name" order></s-table-column>
+        <s-table-column header="Relação" property="relation" [enum]="relationState"></s-table-column>
+    </s-table-collection> -->
+    <s-card-collection #cards [items]="profileService.loaderProfiles.bind(profileService)" [cardView]="profileView"
+        [buttons]="buttons" [filters]="filters">
+        <ng-template #profileView let-item="item">
+            <div class="card-body">
+                <div class="row no-gutters">
+                    <div class="col-2">
+                        <s-portrait [model]="item.portrait" isBtn (click)="profileNav(item)"></s-portrait>
+                    </div>
+                    <div class="col-9 align-self-center">
+                        {{item.name}}
+                    </div>
+                    <div *ngIf="!item.relation" class="col-1">
+                        <s-button color="primary" icon="network-wired" tooltip="Solicitar Relação" (event)="requestRelation(item)"></s-button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </s-card-collection>
+</s-container>
