@@ -1,0 +1,9 @@
+@import "../framework/scss/themes/blue.scss";
+@import "../framework/scss/colors.scss";
+
+:root {
+    --navbar-color: #{$navbar-color};
+    --navbar-backcolor: #{$navbar-backcolor};
+    --navbar-color-hover: #{$navbar-color-hover};
+    --navbar-background-color-hover: #{$navbar-background-color-hover};
+}

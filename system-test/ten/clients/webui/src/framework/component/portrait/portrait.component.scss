@@ -1,0 +1,45 @@
+
+:host {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border-width: 1px;
+    border-style: solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    font-weight: 700;
+    font-size: 1.3rem;
+    user-select: none;
+
+    &.md {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+
+        img {
+            max-width: 60px;
+            max-height: 60px;
+        }
+    }
+    &.lg {
+        width: 90px;
+        height: 90px;
+        font-size: 3rem;
+
+        img {
+            max-width: 90px;
+            max-height: 90px;
+        }
+    }
+
+    img {
+        display: block;
+        max-width: 45px;
+        max-height: 45px;
+        width: auto;
+        height: auto;
+        border-radius: 50%;
+    }
+}

@@ -1,0 +1,27 @@
+<s-container [title]="'Grupos de ' + model.name">
+    <s-buttons #buttons>
+        <s-button isBack></s-button>
+        <s-button isRefresh></s-button>
+        <s-button color="primary" icon="users" text="Criar Grupo" router=":profile/group/create" mrauto></s-button>
+        <s-button permissions="core.groups"></s-button>
+    </s-buttons>
+    <s-filters #filters card title='Filtrar'>
+        <s-filter type="text" placeholder="Nome" code="name"></s-filter>
+    </s-filters>
+    <s-card-collection #cards [cardView]="groupsView" [items]="groupService.loaderProfileGroups.bind(groupService)"
+        [buttons]="buttons"
+        [filters]="filters">
+        <ng-template #groupsView let-item="item">
+            <div class="card-body">
+                <div class="row ">
+                    <div class="col-2">
+                        <s-portrait [model]="item.portrait" isBtn (click)="groupNav(item._id)"></s-portrait>
+                    </div>
+                    <div class="col-10 align-self-center">
+                        {{item.name}}
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </s-card-collection>
+</s-container>

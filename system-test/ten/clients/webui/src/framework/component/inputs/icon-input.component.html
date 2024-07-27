@@ -1,0 +1,9 @@
+<label *ngIf="label">{{label}}</label>
+<div t-drop t-drop-click class="input">
+    <span *ngIf='prependIcon' class="{{validateColor}}" [icon]="prependIcon"></span>
+    <div class="icon" class="fa fa-{{value}}"></div>
+    <div t-drop-body>
+        <div *ngFor="let icon of icons" class="fa fa-{{icon}}"
+            (click)="value = icon"></div>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+<div navbar></div>
+<div class="main">
+    <router-outlet></router-outlet>
+    <div *ngIf="loading.onChange | async" class="loader">
+        <div class="fa-10x loading">
+            <i class="fas fa-pulse fa-spinner"></i>
+        </div>
+    </div>
+</div>
+<t-notify></t-notify>
+<t-modal></t-modal>

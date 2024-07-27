@@ -1,0 +1,1 @@
+node  ./framework/business/tool/action.js clean ../../../ten-project-full.json

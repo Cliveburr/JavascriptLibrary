@@ -1,0 +1,11 @@
+<div class="header">
+    <h5>{{title}}</h5>
+    <span class="close fa fa-times" (click)="cancel()"></span>
+</div>
+<div class="body">
+    <t-portrait-input [(ngModel)]="value"></t-portrait-input>
+</div>
+<div class="footer">
+    <t-button color="primary" text="Confirmar" (click)="confirm()"></t-button>
+    <t-button color="info" text="Cancelar" (click)="cancel()"></t-button>
+</div>

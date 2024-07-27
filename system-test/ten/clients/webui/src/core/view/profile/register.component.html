@@ -1,0 +1,62 @@
+
+<t-validator class="center-middle">
+    <t-card class="w30" header="Criar conta">
+
+        <t-text-input class="field"
+            [(ngModel)]="model.nickName"
+            placeholder="Apelido"
+            prependIcon="user"
+            [validators]="['required', nickNameKey]">
+        </t-text-input>
+
+        <t-text-input class="field"
+            [(ngModel)]="model.fullName"
+            placeholder="Nome completo"
+            prependIcon="user"
+            [validators]="['required']">
+        </t-text-input>
+
+        <t-text-input class="field"
+            [(ngModel)]="model.email"
+            type="email"
+            placeholder="Endereço de Email"
+            prependIcon="envelope"
+            [validators]="['required', 'email']">
+        </t-text-input>
+
+        <t-text-input class="field"
+            [(ngModel)]="model.password"
+            type="password"
+            placeholder="Senha"
+            prependIcon="lock"
+            [validators]="['required', passwordComplex]">
+        </t-text-input>
+
+        <t-text-input class="field"
+            [(ngModel)]="confirmPassword"
+            type="password"
+            placeholder="Confirma a senha"
+            prependIcon="lock"
+            [validators]="[passowrdEqual]">
+        </t-text-input>
+
+        <t-button class="w50 center"
+            text="Criar sua conta"
+            color="primary"
+            (click)="registerAccount()"
+            clickInvalidMsg="Precisa preencher todos campos para criar a conta!">
+        </t-button>
+
+        <div class="div-line"></div>
+
+        <span style="font-size: 2rem; display: flex; align-content: center; justify-content: center;">
+            <i class="fab fa-facebook" style="margin: 0 10px; color: #3b5998"></i>
+            <i class="fab fa-twitter" style="margin: 0 10px; color: #1DA1F2"></i>
+        </span>
+
+        <div class="text-center">
+            <p>Já tem conta? <a routerLink="/login" class="text-primary">Login</a></p>
+        </div>
+
+    </t-card>
+</t-validator>

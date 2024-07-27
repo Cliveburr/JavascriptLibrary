@@ -1,0 +1,140 @@
+import { Component, ViewChild } from '@angular/core';
+import { ActivatedRoute, Route } from '@angular/router';
+import { ICollectionItem, ICardCollectionInput, ITextInput, PortraitModel, IPortrait, IPortraitModalInput, PortraitType, GroupListModel } from '@seven/webshared';
+import { CardCollectionInputComponent, clone, GenericResolver, IGenericResolverData, PortraitModalInputComponent } from 'app/framework';
+import { GroupService } from 'app/core/service';
+import { FormGroup } from '@angular/forms';
+// import { GenericResolver, IGenericResolverData } from 'app/framework';
+
+export interface GroupsMeta {
+    groups: ICardCollectionInput<GroupListModel>;
+    groupMeta: {
+        name: ITextInput
+    }
+    portrait: IPortrait;
+    portraitModal: IPortraitModalInput;
+}
+
+@Component({
+    templateUrl: './groups.component.html'
+})
+export class GroupsComponent {
+
+    @ViewChild('portraitModal') public portraitModal: PortraitModalInputComponent;
+    @ViewChild('card') public card: CardCollectionInputComponent<GroupListModel>;
+    public model: ICollectionItem<GroupListModel>[];
+    public meta: GroupsMeta;
+    public nickName: string;
+    public loggedName: string;
+    private formGroup: FormGroup;
+
+    public constructor(
+        private groupService: GroupService,
+        route: ActivatedRoute
+    ) {
+        this.formGroup = new FormGroup({});
+        const groupsGroup = new FormGroup({});
+
+        this.meta = {
+            groups: {
+                onAddItem: this.groups_addItem.bind(this),
+                doneAddItem: this.groups_doneAddItem.bind(this),
+                onEditItem: () => {},
+                hideEditButton: true,
+                editMode: 'modal',
+                modalEditTitle: 'Editar Grupo',
+                hideExcludeButton: true,
+                showCancelOnEdit: true,
+                selectMode: true,
+                selectStyle: 'border-primary',
+                cardSize: 12,
+                //itemStyle: 'mt-3'
+                formGroup: this.formGroup,
+                editGroup: groupsGroup,
+                // validators: [ 'collectionRequiredAny' ]
+            },
+            groupMeta: {
+                name: {
+                    label: 'Nome',
+                    placeholder: 'Grupo nome',
+                    class: 'col-6',
+                    formGroup: groupsGroup,
+                    validators: [ 'required' ]
+                }
+            },
+            portrait: {
+                class: 'btn'
+            },
+            portraitModal: {
+
+            }
+        }
+        this.model = route.snapshot.data.resolved;
+        this.loggedName = groupService.base.profile!.name;
+        this.nickName = route.snapshot.params['nickName'];
+    }
+
+    private groups_addItem(): GroupListModel {
+        return {
+            _id: <any>undefined,
+            name: '',
+            portrait: {
+                type: PortraitType.TwoLetter,
+                twoLetter: {
+                    twoLetter: 'GP',
+                    backColor: 'light',
+                    borderColor: 'primary',
+                    foreColor: 'dark'
+                }
+            }
+        }
+    }
+
+    private async groups_doneAddItem(group: GroupListModel): Promise<void> {
+
+        await this.groupService.base.loading.withPromise(
+            this.groupService.call.create(this.nickName, group)
+        );
+    }
+
+    public async edit_click(group: GroupListModel): Promise<void> {
+        
+        const result = await this.card.showEdit(group);
+        if (result) {
+            await this.groupService.base.loading.withPromise(
+                this.groupService.call.update(group)
+            );
+        }
+    }
+
+    public async portrait_click(group: GroupListModel): Promise<void> {
+        const cloned = clone(group.portrait);
+        const result = await this.portraitModal.show(cloned!);
+        if (result) {
+            group.portrait = result;
+            
+            await this.groupService.base.loading.withPromise(
+                this.groupService.call.update(group)
+            );
+        }
+    }
+
+    public exclude_click(item: GroupListModel): void {
+
+    }
+}
+
+export const GroupsPath = <Route>{
+    path: ':nickName/groups',
+    component: GroupsComponent,
+    resolve: { resolved: GenericResolver },
+    data: <IGenericResolverData>{
+        params: ['nickName'],
+        services: [GroupService],
+        getMethod: data => {
+            const nickName = data.params[0];
+            const groupService = data.services[0] as GroupService;
+            return groupService.call.groupsList(nickName);
+        }
+    }
+}

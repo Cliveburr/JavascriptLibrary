@@ -1,0 +1,8 @@
+<span *ngIf="inValue.type == 0"
+    class="font-weight-bold text-{{inValue.twoLetter?.foreColor}}">
+    {{inValue.twoLetter?.twoLetter}}
+</span>
+<i *ngIf="inValue.type == 1"
+    class="fa fa-{{inValue.icon?.icon}} text-{{inValue.icon?.foreColor}}">
+</i>
+<img *ngIf="inValue.type == 2" [src]="inValue.image">

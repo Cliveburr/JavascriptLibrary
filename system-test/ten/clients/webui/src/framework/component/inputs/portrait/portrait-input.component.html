@@ -1,0 +1,78 @@
+<div class="d-flex" style="min-height: 220px;">
+    <div class="w30 center-middle">
+        <t-portrait class="lg"
+            [value]="value">
+        </t-portrait>
+    </div>
+    <t-tab #tab (onSelected)="tab_selected($event)">
+        <tab header="Letras">
+            <div *ngIf="value && value.twoLetter">
+                <t-text-input class="field mt3"
+                    [(ngModel)]="value.twoLetter.twoLetter"
+                    prependIcon="fab-amilia">
+                </t-text-input>
+                <t-color-input class="field"
+                    [(ngModel)]="value.twoLetter.foreColor"
+                    prependIcon="fab-amilia">
+                </t-color-input>
+                <t-color-input class="field"
+                    [(ngModel)]="value.twoLetter.backColor"
+                    prependIcon="fill-drip">
+                </t-color-input>
+                <t-color-input class="field"
+                    [(ngModel)]="value.twoLetter.borderColor"
+                    prependIcon="grip-lines">
+                </t-color-input>
+            </div>
+        </tab>
+        <tab header="Icone">
+            <div *ngIf="value && value.icon">
+                <t-icon-input class="field mt3"
+                    [(ngModel)]="value.icon.icon"
+                    prependIcon="fab-amilia">
+                </t-icon-input>
+                <t-color-input class="field"
+                    [(ngModel)]="value.icon.foreColor"
+                    prependIcon="fab-amilia">
+                </t-color-input>
+                <t-color-input class="field"
+                    [(ngModel)]="value.icon.backColor"
+                    prependIcon="fill-drip">
+                </t-color-input>
+                <t-color-input class="field"
+                    [(ngModel)]="value.icon.borderColor"
+                    prependIcon="grip-lines">
+                </t-color-input>
+            </div>
+        </tab>
+        <tab header="Imagem">
+            <div *ngIf="value && value.image">
+                <t-file-input class="field mt3"
+                    type="dataURL"
+                    [(ngModel)]="value.image"
+                    prependIcon="fab-amilia">
+                </t-file-input>
+            </div>
+        </tab>
+    </t-tab>
+<!--
+<tabset class="col-9" [justified]="true">
+    <tab heading="Duas Letras" (selectTab)="tab_selected(0)" [active]="tabActive == 0">
+        <div *ngIf="twoLetter" class="container form-row mt-4">
+            <s-text-input [(ngModel)]="twoLetter.twoLetter" [meta]="meta.twoLetter!"></s-text-input>
+            <s-color-input [(ngModel)]="twoLetter.backColor" [meta]="meta.backColor"></s-color-input>
+            <s-color-input [(ngModel)]="twoLetter.foreColor" [meta]="meta.foreColor"></s-color-input>
+            <s-color-input [(ngModel)]="twoLetter.borderColor" [meta]="meta.borderColor"></s-color-input>
+        </div>
+    </tab>
+    <tab heading="Icone" (selectTab)="tab_selected(1)" [active]="tabActive == 1">
+        <div *ngIf="icon" class="container form-row mt-4">
+            <s-icon-input [(ngModel)]="icon.icon" [meta]="meta.icon!"></s-icon-input>
+            <s-color-input [(ngModel)]="icon.backColor" [meta]="meta.backColor"></s-color-input>
+            <s-color-input [(ngModel)]="icon.foreColor" [meta]="meta.foreColor"></s-color-input>
+            <s-color-input [(ngModel)]="icon.borderColor" [meta]="meta.borderColor"></s-color-input>
+        </div>
+    </tab>
+</tabset>
+-->
+</div>

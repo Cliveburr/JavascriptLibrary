@@ -1,0 +1,84 @@
+
+@import "control";
+@import "index";
+@import "layout/layout";
+@import "navbar";
+@import "drop";
+@import "colors";
+
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+blockquote, body, dd, dl, dt, fieldset, figure, h1, h2, h3, h4, h5, h6, hr, html, iframe, legend, li, ol, p, pre, textarea, ul {
+    margin: 0;
+    padding: 0;
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.center-middle {
+    flex-grow: 1;
+    display : flex;
+    flex-direction: column;
+    align-items : center;
+    justify-content: center;
+}
+
+.div-line {
+    text-align: center;
+    margin: 1rem 0;
+    border: 0;
+    background-image: linear-gradient(to left, #f0f0f0, #8c8b8b, #f0f0f0);
+    height: 1px;
+
+    &:after {
+        content: '§';
+        display: inline-block;
+        position: relative;
+        top: -11px;
+        background-color: #fff;
+        color: #8c8b8b;
+        transform: rotate(90deg);
+    }
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.form-divider {
+    display: block;
+    color: $text-color;
+    border-bottom: 1px solid $text-color;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.collapsed {
+    display: none !important;
+}
+
+.small {
+    font-size: small;
+}

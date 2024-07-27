@@ -1,0 +1,53 @@
+
+
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.input {
+    display: flex;
+    height: 2rem;
+    cursor: pointer;
+    border: 0.8px solid var(--normal);
+    border-radius: 0.2em;
+
+    color: var(--text-color);
+
+    & span {
+        width: 2.5rem;
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+    }
+
+    & .color {
+        flex-grow: 1;
+        background-clip: content-box;
+        padding: 0.4rem;
+        padding-left: 0;
+    }
+
+    & [t-drop-body] {
+        width: 100%;
+
+        & div {
+            height: 2rem;
+            padding: 0.2rem 0.4rem;
+            background-clip: content-box;
+
+            &:hover {
+                border-color: var(--normal-hover);
+                border: 0.8px solid var(--normal);
+                border-radius: 0.2em;
+            }
+        }
+    }
+}
+
+label {
+    color: var(--label);
+    font-size: 1rem;
+    font-weight: 700;
+    padding-bottom: 0.125rem;
+}

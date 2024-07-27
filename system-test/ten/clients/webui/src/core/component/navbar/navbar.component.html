@@ -1,0 +1,25 @@
+<div class="navbar">
+    <a routerLink="/">
+        Ten Wave
+    </a>
+    <div>
+        <a t-routeLink="/[session]">Home</a>
+        <a routerLink="/profiles">Profiles</a>
+        <a routerLink="/">Desktop</a>
+        <a routerLink="/">Apps</a>
+    </div>
+    <div t-drop="down right">
+        <t-portrait class="pointer" t-drop-click
+            [value]="model.portrait">
+        </t-portrait>
+        <div t-drop-body>
+            <a class="item">Portuguese (Brazil)</a>
+            <a class="item">English (United States)</a>
+            <a class="item">Editar Traduções</a>
+            <hr class="divider">
+            <a *ngIf="!isLogged" class="item" routerLink="/login">Entrar</a>
+            <a *ngIf="!isLogged" class="item" routerLink="/register">Registrar</a>
+            <a *ngIf="isLogged" class="item" (click)="logoff()">Sair</a>
+        </div>
+    </div>
+</div>

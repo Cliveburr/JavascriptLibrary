@@ -1,0 +1,43 @@
+
+<t-validator class="center-middle">
+    <t-card class="w30" header="Entrar">
+
+        <t-text-input class="field" required
+            [(ngModel)]="model.login"
+            placeholder="Apelido ou Email"
+            prependIcon="user">
+        </t-text-input>
+
+        <t-text-input class="field" required
+            [(ngModel)]="model.password"
+            type="password"
+            placeholder="Senha"
+            prependIcon="lock"
+            (onEnter)="loginBtn.doclick()">
+        </t-text-input>
+
+        <t-check-input class="field"
+            [(ngModel)]="rememberMe"
+            placeholder="Lembrar-me">
+        </t-check-input>
+
+        <t-button #loginBtn class="w50 center"
+            text="Entrar"
+            color="primary"
+            (clickValid)="login()"
+            clickInvalidMsg="Precisa preencher todos campos para logar!">
+        </t-button>
+
+        <div class="div-line"></div>
+
+        <span style="font-size: 2rem; display: flex; align-content: center; justify-content: center;">
+            <i class="fab fa-facebook" style="margin: 0 10px; color: #3b5998"></i>
+            <i class="fab fa-twitter" style="margin: 0 10px; color: #1DA1F2"></i>
+        </span>
+
+        <div class="text-center">
+            <p>Não é registrado? <a routerLink="/register" class="text-primary">Crie sua conta</a></p>
+        </div>
+
+    </t-card>
+</t-validator>

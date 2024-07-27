@@ -1,0 +1,6 @@
+<div *ngFor="let msg of messages"
+    class="notify {{msg.type}}"
+    (onClosed)="closedMsg(msg)">
+    <span [innerHtml]="msg.content"></span>
+    <span class="fa fa-times" (click)="closedMsg(msg)"></span>
+</div>

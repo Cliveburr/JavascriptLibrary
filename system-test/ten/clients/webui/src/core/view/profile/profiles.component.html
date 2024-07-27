@@ -1,0 +1,25 @@
+<t-container title="Profiles">
+    <t-buttons #buttons>
+        <t-button isBack></t-button>
+        <t-button isRefresh></t-button>
+    </t-buttons>
+    <t-filters #filters card title='Filtrar'>
+        <t-filter class="w40" type="text" placeholder="Nome" code="0"></t-filter>
+    </t-filters>
+    <t-view-collection
+        [buttons]="buttons"
+        [filters]="filters"
+        [loader]="profileService.loaderProfiles"
+        [view]="profileView">
+        <ng-template #profileView let-item="item">
+            <t-card noheader class="mr3" bodyClass="d-flex row">
+                <t-portrait class="mr3"
+                    [value]="item.portrait">
+                </t-portrait>
+                <span class="align-center">
+                    {{item.name}}
+                </span>
+            </t-card>
+        </ng-template>
+    </t-view-collection>
+</t-container>

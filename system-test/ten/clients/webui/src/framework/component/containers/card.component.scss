@@ -1,0 +1,25 @@
+
+:host {
+    display: block;
+    background-color: var(--card-background-color);
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 12%);
+
+    & > div {
+        border: 1px solid rgba(0,0,0,.125);
+        padding: 0.75rem;
+        border-width: 0 0 1px;
+
+        &:last-child {
+            border-bottom-width: 0;
+        }
+    }
+}
+
+.header {
+    padding: 0.5rem 1rem !important;
+    margin-bottom: 0;
+    background-color: rgba(0,0,0,.03);
+    font-weight: 600;
+    font-size: 1.2rem;
+}

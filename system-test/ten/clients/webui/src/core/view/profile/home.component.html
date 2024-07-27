@@ -1,0 +1,17 @@
+<t-container [title]="sessionProfileName">
+    <t-buttons>
+        <t-button isBack></t-button>
+        <t-button color="primary" rightIcon="user-circle" router="/:profile/profile" text="Profile" mrauto></t-button>
+        <t-button *ngIf="model.canSecurity" security="core.home"></t-button>
+    </t-buttons>
+    <div class="d-flex mt">
+        <!-- <div *ngFor="let item of inItems" class="col-{{inMeta.cardSize || 6}}">
+            <div class="card mt-3">
+                <ng-container *ngTemplateOutlet="cardView; context: { item: item }"></ng-container>
+            </div>
+        </div> -->
+        <t-card noheader>
+            Seja bem vindo ao Seven.
+        </t-card>
+    </div>
+</t-container>

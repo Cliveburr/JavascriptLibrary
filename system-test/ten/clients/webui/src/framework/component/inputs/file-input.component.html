@@ -1,0 +1,6 @@
+<label *ngIf="label">{{label}}</label>
+<div class="input" (click)="fileInput.click()">
+    <span *ngIf='prependIcon' class="{{validateColor}}" [icon]="prependIcon"></span>
+    <input #fileInput type="file" (change)="inputOnChange($event);" />
+    <span class="text">Escolher arquivo</span>
+</div>

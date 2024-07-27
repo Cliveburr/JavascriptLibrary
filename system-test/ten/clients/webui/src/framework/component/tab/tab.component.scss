@@ -1,0 +1,32 @@
+
+.tabs {
+
+    > ul {
+        border-bottom-color: #dbdbdb;
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        display: flex;
+
+        > li {
+            border-bottom-color: #dbdbdb;
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            color: #4a4a4a;
+            display: flex;
+            margin-bottom: -1px;
+            padding: 0.5em 1em;
+            cursor: pointer;
+
+            &.active {
+                border-bottom-color: #485fc7;
+                color: #485fc7;
+            }
+        }
+    }
+}
+
+.body {
+    ::ng-deep > tab:not(.active) {
+       display: none; 
+    }
+}

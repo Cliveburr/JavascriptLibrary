@@ -1,0 +1,3 @@
+<ng-container *ngIf="validator?.control?.invalid && (validator?.control?.dirty || validator?.control?.touched)">
+    <small *ngFor="let msg of validator?.getErrosMessage()">{{msg}}</small>
+</ng-container>

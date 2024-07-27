@@ -1,0 +1,24 @@
+{
+  "name": "core_business",
+  "version": "0.0.1",
+  "description": "",
+  "main": "bin/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "providerjs": "file:../../../libs/providerjs-0.0.13-20.tgz",
+    "@ten/framework_business": "file:../../framework/business",
+    "@ten/framework_interface": "file:../../framework/interface",
+    "@ten/core_interface": "file:../interface",
+    "uuid": "^8.3.2",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@types/uuid": "^8.0.1"
+  }
+}

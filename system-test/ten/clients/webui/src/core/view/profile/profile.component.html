@@ -1,0 +1,37 @@
+<t-container [title]="'Profile de ' + model.name">
+    <t-buttons>
+        <t-button isBack></t-button>
+        <t-button color="primary" rightIcon="network-wired" router="/:profile/relations" text="Relações"></t-button>
+        <t-button color="primary" rightIcon="users" router="/:profile/groups" text="Grupos" mrauto></t-button>
+        <t-button permissions="core.home"></t-button>
+    </t-buttons>
+    <div class="d-flex mt">
+        <div class="w30">
+            <t-portrait class="m-auto lg pointer"
+                [value]="model.portrait"
+                (click)="portrait_click()">
+            </t-portrait>
+        </div>
+        <div class="flex-grow1">
+            <span class="form-divider">Dados</span>
+            <t-text-input class="field"
+                [(ngModel)]="model.nickName"
+                label="Apelido"
+                prependIcon="user"
+                readonly>
+            </t-text-input>
+            <t-text-input class="field"
+                [(ngModel)]="model.name"
+                label="Nome"
+                prependIcon="user"
+                readonly>
+            </t-text-input>
+            <t-text-input class="field"
+                [(ngModel)]="model.email"
+                label="Email"
+                prependIcon="envelope"
+                readonly>
+            </t-text-input>
+        </div>
+    </div>
+</t-container>

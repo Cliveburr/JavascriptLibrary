@@ -1,0 +1,46 @@
+
+$height: 3.5rem;
+
+.navbar {
+    display: flex;
+    height: $height;
+    background-color: var(--navbar-backcolor);
+}
+
+@mixin base-menu {
+    color: var(--navbar-color);
+    font-size: 1.2rem;
+    line-height: $height;
+    text-decoration: none;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.navbar > :nth-child(1) {
+    @include base-menu;
+    font-size: 2.2rem;
+    margin-left: 2rem;
+}
+
+.navbar > :nth-child(2) {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+
+    a {
+        @include base-menu;
+        width: 6rem;
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+    a:hover {
+        color: var(--navbar-color-hover);
+        background-color: var(--navbar-background-color-hover);
+    }
+}
+
+.navbar > :nth-child(3) {
+    margin: auto 1rem auto auto;
+    display: flex;
+    align-items: center;
+}

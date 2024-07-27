@@ -1,0 +1,8 @@
+<div class="{{bodyClass}} mt">
+    <div *ngFor="let item of items">
+        <ng-container *ngTemplateOutlet="view; context: { item: item }"></ng-container>
+    </div>
+</div>
+<div *ngIf="hasMore" class="mt text-center">
+    <button type="button" class="btn btn-primary btn-sm" (click)="loadMore()">Carregar Mais</button>
+</div>

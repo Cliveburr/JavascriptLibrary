@@ -1,0 +1,44 @@
+<div class="container mt-4">
+    <div class="row mt-4">
+        Fazer o <a routerLink="/login">&nbsp;login</a>
+    </div>
+    <div class="row mt-4">
+        Criar um <a routerLink="/register">&nbsp;register</a>
+    </div>
+    <!-- <button (click)="test_click()">test</button> -->
+    <div t-drop class="w20">
+        <t-button t-drop-click
+            text="drop"
+            color="primary"
+            dropIcon>
+        </t-button>
+        <ul t-drop-body>
+            <li class="header">Some header</li>
+            <li class="item">Action</li>
+            <li class="item">Another action</li>
+            <li class="item" t-drop="right" t-drop-click>
+                <span t-drop-icon>More actions</span>
+                <ul t-drop-body>
+                    <li class="item">One option</li>
+                    <li class="item">Another option</li>
+                </ul>
+            </li>
+            <li class="divider"></li>
+            <li class="item" t-drop="right" t-drop-click>
+                <span t-drop-icon>Other actions</span>
+                <ul t-drop-body>
+                    <li class="item">Three option</li>
+                    <li class="item">Go option</li>
+                </ul>
+            </li>
+            <li class="divider"></li>
+            <li class="item">Something else here</li>
+        </ul>
+    </div>
+    <div (click)="changeStyle('dark')">
+        black
+    </div>
+    <div (click)="changeStyle('blue')">
+        blue
+    </div>
+</div>

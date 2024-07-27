@@ -1,0 +1,24 @@
+<div class="header">
+    <h5>Selecionar Profile</h5>
+    <span class="close fa fa-times" (click)="cancel()"></span>
+</div>
+<div class="body">
+    <t-filters #filters>
+        <t-filter class="w100" type="text" placeholder="Nome" code="0"></t-filter>
+    </t-filters>
+    <t-view-collection singleColumn
+        [filters]="filters"
+        [loader]="api"
+        [view]="profileView">
+        <ng-template #profileView let-item="item">
+            <t-card noheader class="pointer" bodyClass="d-flex gap" (click)="select(item)">
+                <t-portrait
+                    [value]="item.portrait">
+                </t-portrait>
+                <span class="align-center">
+                    {{item.name}}
+                </span>
+            </t-card>
+        </ng-template>
+    </t-view-collection>
+</div>

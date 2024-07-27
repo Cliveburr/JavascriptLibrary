@@ -1,0 +1,1 @@
+node  ./framework/business/tool/action.js install ../../../ten-project-full.json

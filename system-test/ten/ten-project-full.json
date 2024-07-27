@@ -1,0 +1,28 @@
+{
+    "projects": {
+        "webui": {
+            "type": "angular",
+            "root": "./clients/webui"
+        },
+        "coreapi": {
+            "type": "api",
+            "root": "./core/api"
+        },
+        "corebusiness": {
+            "type": "library",
+            "root": "./core/business"
+        },
+        "coreinterface": {
+            "type": "library",
+            "root": "./core/interface"
+        },
+        "frameworkbusiness": {
+            "type": "library",
+            "root": "./framework/business"
+        },
+        "frameworkinterface": {
+            "type": "library",
+            "root": "./framework/interface"
+        }
+    }
+}

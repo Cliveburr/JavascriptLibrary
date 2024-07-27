@@ -1,0 +1,112 @@
+
+$main-background-color: #FAFAFA !default;
+
+$text-color: #616161 !default;
+
+$navbar-color: #FFFFFF !default;
+$navbar-backcolor: #424242 !default;
+$navbar-color-hover: #FFFFFF !default;
+$navbar-background-color-hover: #757575 !default;
+
+$card-background-color: #FFFFFF !default;
+
+$placeholder: #9E9E9E !default;
+
+$label: #727272 !default;
+
+$normal: rgb(158, 158, 158) !default;
+$normal-hover: #afafaf !default;
+$normal-active: #303fce85 !default;
+$normal-text: $text-color !default;
+$normal-shadow: rgba(158, 158, 158, 0.25) !default;
+
+$success: rgb(72, 199, 142) !default;
+$success-hover: hsl(153, 62%, 30%) !default;
+$success-active: hsla(153, 53%, 53%, 0.557) !default;
+$success-text: #fff !default;
+$success-shadow: rgba(72, 199, 142, 0.25) !default;
+
+$invalid: rgb(241, 70, 104) !default;
+$invalid-hover: rgb(197, 54, 82) !default;
+$invalid-active: rgba(241, 70, 104, 0.557) !default;
+$invalid-text: rgb(255, 255, 255) !default;
+$invalid-shadow: rgba(241, 70, 104, 0.25) !default;
+
+$danger: $invalid;
+$danger-hover: $invalid-hover;
+$danger-active: $invalid-active;
+$danger-text: $invalid-text;
+$danger-shadow: $invalid-shadow;
+
+$warning: rgb(255, 193, 7) !default;
+$warning-hover: rgb(199, 150, 5) !default;
+$warning-active: rgba(255, 193, 7, 0.557) !default;
+$warning-text: rgb(255, 255, 255) !default;
+$warning-shadow: rgba(255, 193, 7, 0.25) !default;
+
+$primary: rgba(0, 209, 178, 0.8) !default;
+$primary-hover: rgba(0, 209, 178, 1) !default;
+$primary-text: #fff !default;
+$primary-active: rgba(30, 189, 165, 0.8) !default;
+$primary-shadow: rgba(0, 209, 178, 0.25) !default;
+
+$secondary: rgba(141, 110, 99, 0.8) !default;
+$secondary-hover: rgba(141, 110, 99, 1) !default;
+$secondary-text: #fff !default;
+$secondary-active: rgb(136, 95, 80) !default;
+$secondary-shadow: rgba(141, 110, 99, 0.25) !default;
+
+$light: rgb(248,249,250) !default;
+$light-hover: rgb(248,249,250) !default;
+
+$info: rgba(32, 156, 238, 0.8) !default;
+$info-hover: rgba(32, 156, 238, 1) !default;
+$info-text: #fff !default;
+$info-active: rgb(45, 135, 195) !default;
+$info-shadow: rgba(32, 156, 238, 0.25) !default;
+
+.text-success {
+    color: var(--success)
+}
+.bg-success {
+    background-color: var(--success);
+}
+.border-success {
+    border-color: var(--success);
+}
+.text-danger {
+    color: var(--invalid)
+}
+.bg-danger {
+    background-color: var(--invalid);
+}
+.border-danger {
+    border-color: var(--danger);
+}
+.text-primary {
+    color: var(--primary)
+}
+.bg-primary {
+    background-color: var(--primary);
+}
+.border-danger {
+    border-color: var(--danger);
+}
+.text-secondary {
+    color: var(--secondary)
+}
+.bg-secondary {
+    background-color: var(--secondary);
+}
+.border-secondary {
+    border-color: var(--secondary);
+}
+.text-light {
+    color: var(--light)
+}
+.bg-light {
+    background-color: var(--light);
+}
+.border-light {
+    border-color: var(--light);
+}

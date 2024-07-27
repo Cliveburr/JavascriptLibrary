@@ -1,0 +1,24 @@
+<label *ngIf="label">{{label}}</label>
+<div class="input">
+    <span *ngIf='prependIcon' class="{{prependIcon}} {{validateColor}}"></span>
+    <input
+        [ngClass]="{
+            'preicon': prependIcon,
+            'validateIcon': validateIcon
+        }"
+        spellcheck="false"
+        autocomplete="nope"
+        [attr.type]="type"
+        [attr.id]="id"
+        [attr.placeholder]="placeholder"
+        [formControl]="control"
+        [readonly]="readonly"
+        (keyup)="onKeyUp()"
+        (keydown)="onKeyDown($event)"
+        (focus)="onFocus()"
+        (blur)="onBlur()" />
+    <span *ngIf='validateIcon' class="fa fa-{{validateIcon}} {{validateColor}}" style="right: 0;"></span>
+</div>
+<t-validator-msg class="{{validateColor}}"
+    [validator]="validator">
+</t-validator-msg>

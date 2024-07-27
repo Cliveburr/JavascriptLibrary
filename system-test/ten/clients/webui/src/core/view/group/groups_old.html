@@ -1,0 +1,50 @@
+<div class="container mt-4">
+    <h2 class="my-3 border-bottom border-secondary">Grupos de {{loggedName}}</h2>
+    <div class="row">
+        <div class="col-6 border-right border-gray">
+            <s-card-collection-input #card [(ngModel)]="model" [meta]="meta.groups"
+                [cardView]="groupsList" [editView]="groupsView">
+                <ng-template #groupsList let-item="item">
+                    <div class="row no-gutters">
+                        <div class="col-2">
+                            <div class="dropdown" dropdown>
+                                <s-portrait [(ngModel)]="item.portrait" [meta]="meta.portrait" dropdownToggle
+                                    (click)="$event.stopPropagation()"></s-portrait>
+                                <div class="dropdown-menu" *dropdownMenu>
+                                    <a type="button" class="dropdown-item"
+                                        (click)="edit_click(item)">
+                                        <span class="fa fa-user mr-2" ></span>
+                                        Editar o grupo
+                                    </a>
+                                    <a type="button" class="dropdown-item"
+                                        (click)="portrait_click(item)">
+                                        <span class="fa fa-portrait mr-2" ></span>
+                                        Trocar o retrato
+                                    </a>
+                                    <a type="button" class="dropdown-item text-danger"
+                                        (click)="exclude_click(item)">
+                                        <span class="fa fa-ban mr-2" ></span>
+                                        Excluir
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-10 align-self-center">
+                            {{item.name}}
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #groupsView let-item="item">
+                    <div class="form-row">
+                        <s-text-input [(ngModel)]="item.name" [meta]="meta.groupMeta.name"></s-text-input>
+                        <!-- <s-datetime-input [(ngModel)]="item.date" [meta]="meta.commissionsMeta.date"></s-datetime-input> -->
+                    </div>
+                </ng-template>
+            </s-card-collection-input>
+        </div>
+        <div class="col-6">
+
+        </div>
+    </div>
+</div>
+<s-portrait-modal-input #portraitModal [meta]="meta.portraitModal"></s-portrait-modal-input>

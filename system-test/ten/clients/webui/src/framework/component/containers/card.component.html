@@ -1,0 +1,42 @@
+<ng-template #bodyC><ng-content></ng-content></ng-template>
+<ng-template #headerC><ng-content select="[header]"></ng-content></ng-template>
+<ng-template #blockC><ng-content select="[block]"></ng-content></ng-template>
+<ng-container [ngSwitch]="inType">
+
+    <ng-container *ngSwitchCase="0" class="card">
+        <div class="header">
+            <ng-container *ngTemplateOutlet="headerC"></ng-container>
+        </div>
+        <div [attr.class]="bodyClass">
+            <ng-container *ngTemplateOutlet="blockC"></ng-container>
+        </div>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="1" class="card">
+        <div *ngIf="!noheader" class="header">
+            <strong>{{header}}</strong>
+        </div>
+        <div [attr.class]="bodyClass">
+            <ng-container *ngTemplateOutlet="bodyC"></ng-container>
+        </div>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="2" class="card">
+        <div class="header pointer" (click)="toggleCollapsed()">
+            <ng-container *ngTemplateOutlet="headerC"></ng-container>
+        </div>
+        <div [attr.class]="bodyClass" [collapse]="!inCollapsed">
+            <ng-container *ngTemplateOutlet="blockC"></ng-container>
+        </div>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="3" class="card">
+        <div *ngIf="!noheader" class="header pointer" (click)="toggleCollapsed()">
+            <strong>{{header}}</strong>
+        </div>
+        <div [attr.class]="bodyClass" [collapse]="!inCollapsed">
+            <ng-container *ngTemplateOutlet="bodyC"></ng-container>
+        </div>
+    </ng-container>
+
+</ng-container>

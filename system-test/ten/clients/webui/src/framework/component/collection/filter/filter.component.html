@@ -1,0 +1,16 @@
+<ng-container [ngSwitch]="type">
+    <t-text-input *ngSwitchCase="'text'"
+        [placeholder]="placeholder"
+        [(ngModel)]="loader.value"
+        (onEnter)="raiseonchange()"
+        (onkeydelay)="raiseonchange()">
+    </t-text-input>
+    <!-- <div *ngSwitchCase="'select'">
+        <s-select-input
+            [options]="options!"
+            [(ngModel)]="loader.value"
+            [placeholder]="placeholder"
+            (onSelect)="raiseFilter()">
+        </s-select-input>
+    </div> -->
+</ng-container>

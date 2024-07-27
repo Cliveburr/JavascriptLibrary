@@ -1,0 +1,105 @@
+
+
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.input {
+    display: flex;
+    height: 2rem;
+    cursor: pointer;
+    border: 0.8px solid var(--normal);
+    border-radius: 0.2em;
+
+    color: var(--text-color);
+
+    & span {
+        width: 2.5rem;
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+    }
+
+    input {
+        display: none;
+    }
+
+    .text {
+        flex-grow: 1;
+        background-clip: content-box;
+        padding: 0.4rem;
+        padding-left: 0;
+        text-align: center;
+
+        &:focus-visible {
+            box-shadow: 0 0 2px 0.125em var(--normal-active);
+        }
+
+        &:hover {
+            border-color: var(--normal-hover);
+        }
+
+        &::placeholder {
+            color: var(--placeholder);
+        }
+
+        &.preicon {
+            padding-left: 2.5rem;
+        }
+
+        &.validateIcon {
+            padding-right: 2.5rem;
+        }
+
+        &.ng-valid:not(.ng-pristine) {
+            border-color: var(--success);
+
+            &:focus-visible {
+                box-shadow: 0 0 2px 0.125em var(--success-active);
+            }
+        
+            &:hover {
+                border-color: var(--success-hover);
+            }
+        }
+
+        &.ng-invalid.ng-touched {
+            border-color: var(--invalid);
+
+            &:focus-visible {
+                box-shadow: 0 0 2px 0.125em var(--invalid-active);
+            }
+        
+            &:hover {
+                border-color: var(--invalid-hover);
+            }
+        }
+        &.ng-invalid.ng-dirty {
+            border-color: var(--invalid);
+
+            &:focus-visible {
+                box-shadow: 0 0 2px 0.125em var(--invalid-active);
+            }
+        
+            &:hover {
+                border-color: var(--invalid-hover);
+            }
+        }
+    }
+}
+
+label {
+    color: var(--label);
+    font-size: 1rem;
+    font-weight: 700;
+    padding-bottom: 0.125rem;
+}
+
+.success {
+    color: var(--success);
+}
+
+.invalid {
+    color: var(--invalid);
+}

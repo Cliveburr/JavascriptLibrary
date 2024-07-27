@@ -1,0 +1,68 @@
+@import "../framework/scss/colors.scss";
+
+:root {
+    --text-color: #{$text-color};
+
+    --main-background-color: #{$main-background-color};
+
+    --navbar-color: #{$navbar-color};
+    --navbar-backcolor: #{$navbar-backcolor};
+    --navbar-color-hover: #{$navbar-color-hover};
+    --navbar-background-color-hover: #{$navbar-background-color-hover};
+
+    --card-background-color: #{$card-background-color};
+
+    --placeholder: #{$placeholder};
+
+    --label: #{$label};
+    
+    --normal: #{$normal};
+    --normal-hover: #{$normal-hover};
+    --normal-active: #{$normal-active};
+    --normal-text: #{$normal-text};
+    --normal-shadow: #{$normal-shadow};
+    
+    --success: #{$success};
+    --success-hover: #{$success-hover};
+    --success-active: #{$success-active};
+    --success-text: #{$success-text};
+    --success-shadow: #{$success-shadow};
+    
+    --invalid: #{$invalid};
+    --invalid-hover: #{$invalid-hover};
+    --invalid-active: #{$invalid-active};
+    --invalid-text: #{$invalid-text};
+    --invalid-shadow: #{$invalid-shadow};
+
+    --danger: #{$danger};
+    --danger-hover: #{$danger-hover};
+    --danger-active: #{$danger-active};
+    --danger-text: #{$danger-text};
+    --danger-shadow: #{$danger-shadow};
+
+    --warning: #{$warning};
+    --warning-hover: #{$warning-hover};
+    --warning-active: #{$warning-active};
+    --warning-text: #{$warning-text};
+    --warning-shadow: #{$warning-shadow};
+
+    --primary: #{$primary};
+    --primary-hover: #{$primary-hover};
+    --primary-active: #{$primary-active};
+    --primary-text: #{$primary-text};
+    --primary-shadow: #{$primary-shadow};
+
+    --secondary: #{$secondary};
+    --secondary-hover: #{$secondary-hover};
+    --secondary-active: #{$secondary-active};
+    --secondary-text: #{$secondary-text};
+    --secondary-shadow: #{$secondary-shadow};
+    
+    --light: #{$light};
+
+    --info: #{$info};
+    --info-hover: #{$info-hover};
+    --info-active: #{$info-active};
+    --info-text: #{$info-text};
+    --info-shadow: #{$info-shadow};
+}

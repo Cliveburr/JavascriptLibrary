@@ -1,0 +1,9 @@
+<button class="{{color}}"
+    (click)="doclick()">
+    <!-- [ngClass]="{
+        'active': active
+    }"> -->
+    <span *ngIf="leftIcon" class="leftIcon" [icon]="leftIcon"></span>
+    <span *ngIf="text" class="text">{{text}}</span>
+    <span *ngIf="rightIcon" class="rightIcon" [icon]="rightIcon"></span>
+</button>

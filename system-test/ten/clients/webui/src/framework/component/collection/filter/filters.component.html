@@ -1,0 +1,24 @@
+<ng-container [ngSwitch]="type">
+
+    <ng-container *ngSwitchCase="0">
+        <div class="block">
+            <ng-content *ngTemplateOutlet="content"></ng-content>
+        </div>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="1">
+        <t-card class="mt" collapsable>
+            <div class="pointer" header>
+                <strong>
+                    <span class="fa fa-filter text-muted"></span>
+                    {{title}}
+                </strong>
+            </div>
+            <div block class="block">
+                <ng-content *ngTemplateOutlet="content"></ng-content>
+            </div>
+        </t-card>
+    </ng-container>
+
+</ng-container>
+<ng-template #content><ng-content></ng-content></ng-template>

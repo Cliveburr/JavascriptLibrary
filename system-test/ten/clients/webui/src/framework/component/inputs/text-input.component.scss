@@ -1,0 +1,124 @@
+
+
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.input {
+    display: block;
+    height: 2rem;
+    
+    box-sizing: border-box;
+    clear: both;
+    position: relative;
+    text-align: inherit;
+    
+    padding: 0;
+    margin: 0;
+    
+    color: var(--text-color);
+
+    & span {
+        width: 2.5rem;
+        height: 100%;
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+
+        pointer-events: none;
+        position: absolute;
+        z-index: 4;
+    }
+
+    & input {
+        align-items: center;
+        display: inline-flex;
+        justify-content: flex-start;
+
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        border: 0.8px solid var(--normal);
+        border-radius: 0.2em;
+        outline: none;
+
+        box-sizing: border-box;
+        padding: 1.25px;
+
+        padding-top: 1px;
+        padding-bottom: 1px;
+        padding-left: 2px;
+        padding-right: 2px;
+
+        &:focus-visible {
+            box-shadow: 0 0 2px 0.125em var(--normal-active);
+        }
+
+        &:hover {
+            border-color: var(--normal-hover);
+        }
+
+        &::placeholder {
+            color: var(--placeholder);
+        }
+
+        &.preicon {
+            padding-left: 2.5rem;
+        }
+
+        &.validateIcon {
+            padding-right: 2.5rem;
+        }
+
+        &.ng-valid:not(.ng-pristine) {
+            border-color: var(--success);
+
+            &:focus-visible {
+                box-shadow: 0 0 2px 0.125em var(--success-active);
+            }
+        
+            &:hover {
+                border-color: var(--success-hover);
+            }
+        }
+
+        &.ng-invalid.ng-touched {
+            border-color: var(--invalid);
+
+            &:focus-visible {
+                box-shadow: 0 0 2px 0.125em var(--invalid-active);
+            }
+        
+            &:hover {
+                border-color: var(--invalid-hover);
+            }
+        }
+        &.ng-invalid.ng-dirty {
+            border-color: var(--invalid);
+
+            &:focus-visible {
+                box-shadow: 0 0 2px 0.125em var(--invalid-active);
+            }
+        
+            &:hover {
+                border-color: var(--invalid-hover);
+            }
+        }
+    }
+}
+
+label {
+    color: var(--label);
+    font-size: 1rem;
+    font-weight: 700;
+    padding-bottom: 0.125rem;
+}
+
+.success {
+    color: var(--success);
+}
+
+.invalid {
+    color: var(--invalid);
+}
