@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "typescript",
+			"tsconfig": "tool/tsconfig.json",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/tool"
+			},
+			"group": "build",
+			"label": "tsc: build - tool"
+		},
+		{
+			"type": "typescript",
+			"tsconfig": "web/tsconfig.json",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/web"
+			},
+			"group": "build",
+			"label": "tsc: build - web"
+		}
+	]
+}
