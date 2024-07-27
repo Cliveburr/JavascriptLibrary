@@ -1,0 +1,16 @@
+{
+    "projects": {
+        "web": {
+            "root": "./web",
+            "build": "tsc",
+            "run": "main/main"
+        }
+    },
+    "server": {
+        "projects": {
+            "web": {
+                "clientWatch": "html"
+            }
+        }
+    }
+}

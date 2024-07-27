@@ -1,0 +1,21 @@
+{
+    "name": "tool",
+    "version": "0.0.1",
+    "description": "",
+    "main": "bin/index.js",
+    "types": "src/index.ts",
+    "scripts": {
+        "start": "tsc --watch"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "providerjs": "file:../../libs/providerjs-0.0.13-19.tgz",
+        "webhost": "file:../../libs/webhost-0.1.2-27.tgz"
+    },
+    "devDependencies": {
+        "@types/node": "^16.11.6",
+        "typescript": "^4.4.4"
+    }
+}
