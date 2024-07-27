@@ -1,0 +1,23 @@
+<!-- <h1 [esse-attr]="{sera}" (click)="onclick()" disabled>header index</h1> -->
+<h1>header index</h1>
+<br />
+<a href='home'>clica home</a>
+<a href='view'>clica view</a>
+<br /><br />
+<route-outlet></route-outlet>
+<br /><br />
+<input [value]="umcontent" />
+<br /><br />
+<div>text: {{umcontent}}</div>
+<br /><br />
+<!-- <s-container *sFor="let item of somelist">
+    {{item}}
+</s-container> -->
+<ul>
+    <sfor [forvalue]="somelist" [item]="lvalue">
+        <li>
+            {{lvalue}}
+        </li>
+    </sfor>
+</ul>
+<h2>bottom index</h2>

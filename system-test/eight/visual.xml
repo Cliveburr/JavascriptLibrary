@@ -1,0 +1,50 @@
+<body id="b-0">
+	<header id="0-1"></header>
+	<abstract id="0-2">
+		<button id="2-3" />
+		<button id="2-4" />
+		<abstract id="2-5">
+			<button id="5-6" />
+		</abstract>
+	</abstract>
+	<footer id="0-7"></footer>
+</body>
+
+<body id="b-0">
+	<header id="0-1"></header>
+	<button id="2-3" />
+	<button id="2-4" />
+	<button id="5-6" />
+	<footer id="0-7"></footer>
+</body>
+
+<body id="b-0">
+	<header id="0-1"></header>
+	<novo0></novo0>
+	<button id="2-3" />
+	<button id="2-4" />
+	<button id="5-6" />
+	<novo1></novo1>
+	<footer id="0-7"></footer>
+</body>
+
+{ code: Routes },
+{ code: IndexView, childs: [ 
+	{ tag: 'header' },
+	{ childs: [
+		{ tag: 'a', content: 'home' },
+		{ tag: 'a', content: 'view' },
+		{ childs: [
+			{ tag: 'button', content: 'push' },
+			{ tag: 'button', content: 'shift' },
+		] }
+	] },
+	{ tag: 'br' },
+	{ code: RouteOutLet, childs: [
+		{ code: Home, content: 'um conteudo' }
+	] },
+	{ tag: 'br' },
+	{ tag: 'ul' },
+	{ tag: 'footer' },
+] },
+{ code: Routes },
