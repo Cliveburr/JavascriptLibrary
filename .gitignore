@@ -214,3 +214,6 @@ angular-template/dist/aot
 mybrain/dist
 mybrain/node_modules
 mybrain/package-lock.json
+
+
+.next/
