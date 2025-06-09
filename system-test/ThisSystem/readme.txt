@@ -5,3 +5,10 @@ System - executor e carrega os resources
 Package - nivel de projeto
     Resources - elementos
 
+
+site
+    parent?
+    childs?
+    watchers
+
+

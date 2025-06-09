@@ -16,3 +16,8 @@ import('./second.js')
 // import('./second.js')
 //     .then(b => b.someValue);
 
+
+export class App {
+
+
+}
