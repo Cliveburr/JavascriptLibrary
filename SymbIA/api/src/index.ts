@@ -3,11 +3,13 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { LLMManager } from './services/llm.service';
 
 dotenv.config();
 
 const app = express();
 const PORT: number = parseInt(process.env.PORT || '3002', 10);
+const llmManager = new LLMManager();
 
 // Middlewares de segurança e logging
 app.use(helmet());
@@ -26,14 +28,6 @@ interface ApiResponse<T = any> {
   timestamp?: string;
   uptime?: number;
   path?: string;
-}
-
-// Interface para itens de dados
-interface DataItem {
-  id: number;
-  name: string;
-  description: string;
-  createdAt?: string;
 }
 
 // Rotas
@@ -55,46 +49,64 @@ app.get('/api/health', (req: Request, res: Response): void => {
   res.json(response);
 });
 
-// Exemplo de rota para dados
-app.get('/api/data', (req: Request, res: Response): void => {
-  const sampleData: DataItem[] = [
-    { id: 1, name: 'Item 1', description: 'First item' },
-    { id: 2, name: 'Item 2', description: 'Second item' },
-    { id: 3, name: 'Item 3', description: 'Third item' }
-  ];
-  
-  const response: ApiResponse<DataItem[]> = {
-    message: 'Data endpoint',
-    data: sampleData
-  };
-  res.json(response);
+// Chat streaming endpoint
+app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { message, model = 'llama3.2:latest' } = req.body;
+    
+    if (!message) {
+      res.status(400).json({ error: 'Message is required' });
+      return;
+    }
+
+    const provider = await llmManager.getAvailableProvider();
+    if (!provider) {
+      res.status(503).json({ error: 'No LLM provider available' });
+      return;
+    }    // Set up server-sent events
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Cache-Control',
+    });    try {
+      for await (const chunk of provider.generateResponse(message, model)) {
+        console.log('Server yielding chunk:', JSON.stringify(chunk)); // Debug log
+        const data = JSON.stringify({ content: chunk });
+        res.write(`data: ${data}\n\n`);
+      }
+      
+      // Send end signal
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();} catch (error) {
+      console.error('Streaming error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorData = JSON.stringify({ error: errorMessage });
+      res.write(`data: ${errorData}\n\n`);
+      res.end();
+    }
+  } catch (error) {
+    console.error('Chat endpoint error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-// Rota para criar novo item
-app.post('/api/data', (req: Request, res: Response): void => {
-  const { name, description }: { name?: string; description?: string } = req.body;
-  
-  if (!name || !description) {
-    const errorResponse: ApiResponse = {
-      error: 'Name and description are required'
-    };
-    res.status(400).json(errorResponse);
-    return;
+// Get available models
+app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const provider = await llmManager.getAvailableProvider();
+    if (!provider) {
+      res.status(503).json({ error: 'No LLM provider available' });
+      return;
+    }
+
+    const models = await provider.getAvailableModels();
+    res.json({ models });
+  } catch (error) {
+    console.error('Models endpoint error:', error);
+    res.status(500).json({ error: 'Failed to get models' });
   }
-
-  // Simulação de criação de item
-  const newItem: DataItem = {
-    id: Math.floor(Math.random() * 1000),
-    name,
-    description,
-    createdAt: new Date().toISOString()
-  };
-
-  const response: ApiResponse<DataItem> = {
-    message: 'Item created successfully',
-    data: newItem
-  };
-  res.status(201).json(response);
 });
 
 // Middleware de tratamento de erros
