@@ -2,11 +2,29 @@ import { QdrantClient } from '@qdrant/js-client-rest';
 import { QdrantConfig, ContextSource, EmbeddingItem } from '../interfaces/llm.interface';
 import { VectorStorageProvider } from '../interfaces/vector-storage.interface';
 
+/**
+ * Implementação do provedor de armazenamento vetorial usando Qdrant
+ */
 export class QdrantProvider implements VectorStorageProvider {
+  /**
+   * Cliente para comunicação com o servidor Qdrant
+   */
   private client: QdrantClient | null = null;
+  
+  /**
+   * Configuração de conexão e coleção do Qdrant
+   */
   private config: QdrantConfig;
+  
+  /**
+   * Flag que indica se a coleção foi inicializada
+   */
   private isInitialized: boolean = false;
 
+  /**
+   * Cria uma nova instância do provedor Qdrant
+   * @param config Configuração opcional para sobrescrever os valores padrão
+   */
   constructor(config?: Partial<QdrantConfig>) {
     this.config = {
       host: config?.host || 'localhost',
@@ -69,6 +87,7 @@ export class QdrantProvider implements VectorStorageProvider {
 
   /**
    * Verifica se o Qdrant está disponível
+   * @returns Promessa que resolve para um booleano indicando disponibilidade
    */
   async isAvailable(): Promise<boolean> {
     if (!this.client) return false;
@@ -84,6 +103,10 @@ export class QdrantProvider implements VectorStorageProvider {
 
   /**
    * Busca contexto relevante no banco vetorial
+   * @param embedding Vetor de embedding para busca de similaridade
+   * @param limit Número máximo de resultados a retornar
+   * @param threshold Limiar mínimo de similaridade (entre 0 e 1)
+   * @returns Promessa que resolve para um array de fontes de contexto similares
    */
   async searchContext(embedding: number[], limit: number = 5, threshold: number = 0.7): Promise<ContextSource[]> {
     if (!this.client || !this.isInitialized) {
@@ -127,6 +150,9 @@ export class QdrantProvider implements VectorStorageProvider {
 
   /**
    * Armazena um embedding com contexto no banco vetorial
+   * @param embeddingItem Item de embedding a ser armazenado
+   * @param metadata Metadados adicionais para associar ao embedding
+   * @returns Promessa que resolve quando o armazenamento é concluído
    */
   async storeEmbedding(embeddingItem: EmbeddingItem, metadata?: Record<string, any>): Promise<void> {
     if (!this.client || !this.isInitialized) {
@@ -157,7 +183,10 @@ export class QdrantProvider implements VectorStorageProvider {
   }
 
   /**
-   * Armazena múltiplos embeddings
+   * Armazena múltiplos embeddings no banco vetorial de uma só vez
+   * @param embeddingItems Array de itens de embedding a serem armazenados
+   * @param metadata Metadados adicionais para associar aos embeddings
+   * @returns Promessa que resolve quando o armazenamento é concluído
    */
   async storeEmbeddings(embeddingItems: EmbeddingItem[], metadata?: Record<string, any>): Promise<void> {
     if (!this.client || !this.isInitialized) {

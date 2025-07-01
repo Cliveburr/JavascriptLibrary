@@ -36,7 +36,7 @@ function App() {
         },
         body: JSON.stringify({
           message: input,
-          model: 'llama3.2:latest'
+          model: 'llama3:8b'
         })
       })
 

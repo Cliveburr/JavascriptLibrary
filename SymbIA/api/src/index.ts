@@ -22,13 +22,44 @@ app.use(express.urlencoded({ extended: true }));
 
 // Interface para respostas padronizadas
 interface ApiResponse<T = any> {
+  /**
+   * Mensagem descritiva da resposta
+   */
   message?: string;
+
+  /**
+   * Dados retornados pela API
+   */
   data?: T;
+
+  /**
+   * Mensagem de erro quando ocorre uma falha
+   */
   error?: string;
+
+  /**
+   * Estado atual da API (OK, ERROR, etc)
+   */
   status?: string;
+
+  /**
+   * Versão da API
+   */
   version?: string;
+
+  /**
+   * Data e hora da resposta
+   */
   timestamp?: string;
+
+  /**
+   * Tempo de execução do servidor em segundos
+   */
   uptime?: number;
+
+  /**
+   * Caminho da rota acessada
+   */
   path?: string;
 }
 
@@ -54,7 +85,7 @@ app.get('/api/health', (req: Request, res: Response): void => {
 // Chat streaming endpoint
 app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { message, model = 'llama3.2:latest' } = req.body;
+    const { message, model = 'llama3:8b' } = req.body;
     
     if (!message) {
       res.status(400).json({ error: 'Message is required' });

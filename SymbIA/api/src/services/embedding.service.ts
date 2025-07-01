@@ -1,11 +1,20 @@
 import { LLMManager } from './llm.service';
 import { EmbeddingItem } from '../interfaces/llm.interface';
 
+/**
+ * Serviço responsável pela geração de embeddings vetoriais a partir de textos
+ */
 export class EmbeddingService {
+  /**
+   * Cria uma nova instância do serviço de embeddings
+   * @param llmManager Gerenciador de LLM para gerar embeddings
+   */
   constructor(private llmManager: LLMManager) {}
 
   /**
    * Gera embedding para um item usando o modelo LLM local
+   * @param content Texto para o qual se deseja gerar o embedding
+   * @returns Promessa que resolve para um vetor de números representando o embedding
    */
   async generateEmbedding(content: string): Promise<number[]> {
     console.log('🔢 Generating embedding for content:', content.substring(0, 100) + '...');
@@ -36,6 +45,8 @@ export class EmbeddingService {
 
   /**
    * Gera embeddings para múltiplos itens
+   * @param items Array de textos para os quais se deseja gerar embeddings
+   * @returns Promessa que resolve para um array de itens de embedding
    */
   async generateEmbeddings(items: string[]): Promise<EmbeddingItem[]> {
     console.log(`🔢 Generating embeddings for ${items.length} items`);
@@ -64,6 +75,8 @@ export class EmbeddingService {
 
   /**
    * Constrói o prompt para gerar embedding usando LLM
+   * @param content Texto para o qual se deseja gerar embedding
+   * @returns Prompt formatado para enviar ao LLM
    */
   private buildEmbeddingPrompt(content: string): string {
     return `Você é um sistema que converte texto em representação numérica (embedding).
@@ -82,6 +95,8 @@ EMBEDDING (array de 128 números):`;
 
   /**
    * Extrai o array de embedding da resposta do LLM
+   * @param response Resposta do LLM contendo o embedding em formato JSON
+   * @returns Array de números representando o embedding
    */
   private parseEmbeddingResponse(response: string): number[] {
     try {
@@ -114,6 +129,8 @@ EMBEDDING (array de 128 números):`;
 
   /**
    * Gera embedding de fallback baseado em características do texto
+   * @param content Texto para o qual se deseja gerar embedding de fallback
+   * @returns Array de números representando o embedding
    */
   private generateFallbackEmbedding(content: string): number[] {
     console.log('🔄 Generating fallback embedding');
@@ -146,6 +163,9 @@ EMBEDDING (array de 128 números):`;
 
   /**
    * Calcula similaridade coseno entre dois embeddings
+   * @param embedding1 Primeiro vetor de embedding
+   * @param embedding2 Segundo vetor de embedding
+   * @returns Valor de similaridade entre 0 (nenhuma) e 1 (idênticos)
    */
   calculateCosineSimilarity(embedding1: number[], embedding2: number[]): number {
     if (embedding1.length !== embedding2.length) {

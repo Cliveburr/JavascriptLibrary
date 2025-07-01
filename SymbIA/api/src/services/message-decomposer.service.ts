@@ -6,10 +6,24 @@ import { VectorStorageService } from './vector-storage.service';
 import { QdrantProvider } from '../providers/qdrant.provider';
 import { ExecutionPlannerService } from './execution-planner.service';
 
+/**
+ * Serviço principal para decomposição e processamento de mensagens do usuário
+ */
 export class MessageDecomposer {
+  /**
+   * Serviço para enriquecimento de contexto com embeddings vetoriais
+   */
   private contextEnrichmentService: ContextEnrichmentService;
+  
+  /**
+   * Serviço para planejamento de execução baseado nas decomposições
+   */
   private executionPlannerService: ExecutionPlannerService;
 
+  /**
+   * Cria uma nova instância do decompositor de mensagens
+   * @param llmManager Gerenciador de LLM para processamento de texto
+   */
   constructor(
     private llmManager: LLMManager
   ) {
@@ -25,6 +39,8 @@ export class MessageDecomposer {
   
   /**
    * Decompõe uma mensagem do usuário em intenções, contextos e ações usando LLM
+   * @param message Mensagem do usuário a ser decomposta
+   * @returns Promessa que resolve para a decomposição estruturada da mensagem
    */
   public async decomposeMessage(message: string): Promise<MessageDecomposition> {
     console.log('🧠 Starting LLM decomposition for message:', message.substring(0, 100) + '...');
@@ -73,6 +89,8 @@ export class MessageDecomposer {
 
   /**
    * Constrói o prompt para o LLM decompor a mensagem
+   * @param message Mensagem do usuário a ser decomposta
+   * @returns Prompt formatado para enviar ao LLM
    */
   private buildDecompositionPrompt(message: string): string {
     return `Você é um agente que deve decompor uma mensagem em itens independentes para processamento automático.
@@ -127,6 +145,8 @@ JSON:
 
   /**
    * Processa a resposta do LLM e converte para string[]
+   * @param llmResponse Resposta do LLM contendo os itens decompostos
+   * @returns Array de strings com os itens decompostos
    */
   private processLLMResponse(llmResponse: any): string[] {
     console.log('🔍 Processing LLM response:', JSON.stringify(llmResponse, null, 2));
@@ -165,6 +185,8 @@ JSON:
 
   /**
    * Pipeline completo: Decompõe mensagem e enriquece com contexto vetorial
+   * @param message Mensagem do usuário a ser processada
+   * @returns Promessa que resolve para a decomposição enriquecida com contexto
    */
   public async decomposeAndEnrichMessage(message: string): Promise<EnrichedDecomposition> {
     console.log('🧠 Starting complete pipeline: decomposition + context enrichment');
@@ -186,6 +208,8 @@ JSON:
 
   /**
    * Pipeline completo até etapa 4: Decomposição, enriquecimento e planejamento de execução
+   * @param message Mensagem do usuário a ser processada
+   * @returns Promessa que resolve para um objeto contendo a decomposição enriquecida e o plano de execução
    */
   public async decomposeEnrichAndPlan(message: string): Promise<{
     enrichedDecomposition: EnrichedDecomposition;
@@ -213,6 +237,9 @@ JSON:
   
   /**
    * Busca contexto para um texto específico
+   * @param text Texto para o qual se deseja buscar contexto
+   * @param limit Número máximo de resultados a retornar
+   * @returns Promessa que resolve para um array de fontes de contexto relacionadas
    */
   public async searchContextForText(text: string, limit: number = 5): Promise<any[]> {
     return await this.contextEnrichmentService.searchContextForText(text, limit);
@@ -220,6 +247,7 @@ JSON:
 
   /**
    * Obtém estatísticas do cache de embeddings
+   * @returns Objeto com tamanho do cache e lista de IDs armazenados
    */
   public getCacheStats(): { size: number; items: string[] } {
     return this.contextEnrichmentService.getCacheStats();
@@ -234,6 +262,7 @@ JSON:
 
   /**
    * Log detalhado dos resultados do enriquecimento
+   * @param enrichedDecomposition Decomposição enriquecida a ser logada
    */
   private logEnrichmentResults(enrichedDecomposition: EnrichedDecomposition): void {
     console.log('\n📊 ENRICHMENT RESULTS:');
@@ -258,6 +287,7 @@ JSON:
   
   /**
    * Log detalhado do plano de execução
+   * @param executionPlan Plano de execução a ser logado
    */
   private logExecutionPlan(executionPlan: ExecutionPlan): void {
     console.log('\n📊 EXECUTION PLAN:');

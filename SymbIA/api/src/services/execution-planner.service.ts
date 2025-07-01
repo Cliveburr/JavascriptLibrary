@@ -1,13 +1,22 @@
 import { ExecutionPlan, ExecutionPlanAction, EnrichedDecomposition, LLMProvider } from '../interfaces/llm.interface';
 import { LLMManager } from './llm.service';
 
+/**
+ * Serviço responsável por criar planos de execução para mensagens decompostas
+ */
 export class ExecutionPlannerService {
+  /**
+   * Cria uma nova instância do serviço de planejamento de execução
+   * @param llmManager Gerenciador de LLM para geração de planos
+   */
   constructor(
     private llmManager: LLMManager
   ) {}
   
   /**
    * Cria um plano de execução a partir de uma decomposição enriquecida
+   * @param enrichedDecomposition Decomposição enriquecida com contexto
+   * @returns Promessa que resolve para um plano de execução
    */
   public async createExecutionPlan(enrichedDecomposition: EnrichedDecomposition): Promise<ExecutionPlan> {
     console.log('🧩 Starting execution plan creation');
@@ -79,6 +88,8 @@ export class ExecutionPlannerService {
 
   /**
    * Constrói o prompt para o LLM criar um plano de execução
+   * @param enrichedDecomposition Decomposição enriquecida com contexto
+   * @returns Prompt formatado para enviar ao LLM
    */
   private buildExecutionPlanPrompt(enrichedDecomposition: EnrichedDecomposition): string {
     // Preparar itens decompostos com contexto
@@ -142,6 +153,9 @@ PLANO DE EXECUÇÃO:
 
   /**
    * Processa a resposta do LLM para o plano de execução
+   * @param llmResponse Resposta do LLM contendo as ações do plano
+   * @param enrichedDecomposition Decomposição enriquecida com contexto
+   * @returns Array de ações do plano de execução
    */
   private processLLMPlanResponse(llmResponse: any, enrichedDecomposition: EnrichedDecomposition): ExecutionPlanAction[] {
     console.log('🔍 Processing LLM plan response');
@@ -202,6 +216,8 @@ PLANO DE EXECUÇÃO:
   
   /**
    * Cria um plano sequencial simples como fallback
+   * @param enrichedDecomposition Decomposição enriquecida com contexto
+   * @returns Array de ações do plano de execução
    */
   private createFallbackSequentialPlan(enrichedDecomposition: EnrichedDecomposition): ExecutionPlanAction[] {
     console.log('📝 Creating fallback sequential plan');

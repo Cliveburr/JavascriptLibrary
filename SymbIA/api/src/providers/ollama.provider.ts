@@ -1,7 +1,13 @@
 import { Ollama } from 'ollama';
 import { LLMProvider } from '../interfaces/llm.interface';
 
+/**
+ * Implementação do provedor LLM usando Ollama para executar modelos localmente
+ */
 export class OllamaProvider implements LLMProvider {
+  /**
+   * Cliente Ollama para comunicação com a API
+   */
   private ollama: Ollama;
 
   constructor() {
@@ -10,7 +16,13 @@ export class OllamaProvider implements LLMProvider {
     });
   }
 
-  async *generateResponse(message: string, model: string = 'llama3.2:latest'): AsyncIterable<string> {
+  /**
+   * Gera resposta em streaming a partir de uma mensagem
+   * @param message Mensagem para a qual se deseja gerar resposta
+   * @param model Modelo a ser usado, com padrão llama3:8b
+   * @returns Iterador assíncrono que emite partes da resposta
+   */
+  async *generateResponse(message: string, model: string = 'llama3:8b'): AsyncIterable<string> {
     try {
       const response = await this.ollama.chat({
         model: model,
@@ -34,7 +46,13 @@ export class OllamaProvider implements LLMProvider {
     }
   }
 
-  async generateSingleResponse(message: string, model: string = 'llama3.2:latest'): Promise<string> {
+  /**
+   * Gera resposta completa (não em streaming) para uma mensagem
+   * @param message Mensagem para a qual se deseja gerar resposta
+   * @param model Modelo a ser usado, com padrão llama3:8b
+   * @returns Promessa que resolve para a resposta completa
+   */
+  async generateSingleResponse(message: string, model: string = 'llama3:8b'): Promise<string> {
     try {
       const response = await this.ollama.chat({
         model: model,
@@ -52,6 +70,10 @@ export class OllamaProvider implements LLMProvider {
     }
   }
 
+  /**
+   * Verifica se o Ollama está disponível e respondendo
+   * @returns Promessa que resolve para um booleano indicando disponibilidade
+   */
   async isAvailable(): Promise<boolean> {
     try {
       await this.ollama.list();
@@ -62,6 +84,10 @@ export class OllamaProvider implements LLMProvider {
     }
   }
 
+  /**
+   * Obtém lista de modelos disponíveis no Ollama
+   * @returns Promessa que resolve para um array de strings com os nomes dos modelos
+   */
   async getAvailableModels(): Promise<string[]> {
     try {
       const response = await this.ollama.list();

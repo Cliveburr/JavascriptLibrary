@@ -2,9 +2,20 @@ import { MessageDecomposition, VectorSearchResult, EnrichedDecomposition, Embedd
 import { EmbeddingService } from './embedding.service';
 import { VectorStorageService } from './vector-storage.service';
 
+/**
+ * Serviço responsável por enriquecer decomposições de mensagens com contexto vetorial
+ */
 export class ContextEnrichmentService {
+  /**
+   * Cache local de embeddings para evitar recálculos
+   */
   private embeddingCache: Map<string, EmbeddingItem> = new Map();
 
+  /**
+   * Cria uma nova instância do serviço de enriquecimento de contexto
+   * @param embeddingService Serviço para geração de embeddings
+   * @param vectorStorageService Serviço para armazenamento e busca vetorial
+   */
   constructor(
     private embeddingService: EmbeddingService,
     private vectorStorageService: VectorStorageService
@@ -13,6 +24,9 @@ export class ContextEnrichmentService {
     this.initializeVectorStorage();
   }
 
+  /**
+   * Inicializa o serviço de armazenamento vetorial
+   */
   private async initializeVectorStorage(): Promise<void> {
     try {
       await this.vectorStorageService.initialize();
@@ -23,6 +37,8 @@ export class ContextEnrichmentService {
 
   /**
    * Etapa 2: Enriquecer decomposição com embeddings e busca de contexto
+   * @param decomposition Decomposição da mensagem a ser enriquecida
+   * @returns Promessa que resolve para a decomposição enriquecida com contexto
    */
   async enrichDecomposition(decomposition: MessageDecomposition): Promise<EnrichedDecomposition> {
     console.log(`🔮 Starting context enrichment for ${decomposition.decomposedItems.length} items`);
@@ -82,6 +98,8 @@ export class ContextEnrichmentService {
 
   /**
    * Busca contexto relevante para um embedding
+   * @param embeddingItem Item de embedding para buscar contexto relacionado
+   * @returns Promessa que resolve para um array de fontes de contexto relacionadas
    */
   private async searchRelevantContext(embeddingItem: EmbeddingItem): Promise<Array<any>> {
     console.log(`🔍 Searching context for: ${embeddingItem.content.substring(0, 50)}...`);
@@ -126,6 +144,8 @@ export class ContextEnrichmentService {
 
   /**
    * Armazena novos embeddings no serviço de armazenamento vetorial para uso futuro
+   * @param embeddingItems Itens de embedding a serem armazenados
+   * @returns Promessa que resolve quando o armazenamento é concluído
    */
   private async storeNewEmbeddings(embeddingItems: EmbeddingItem[]): Promise<void> {
     try {
@@ -152,6 +172,7 @@ export class ContextEnrichmentService {
 
   /**
    * Gera um ID de sessão para agrupar embeddings relacionados
+   * @returns String única representando o ID da sessão
    */
   private generateSessionId(): string {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -159,6 +180,9 @@ export class ContextEnrichmentService {
 
   /**
    * Busca contexto para um texto específico (útil para testes)
+   * @param text Texto para o qual se deseja buscar contexto
+   * @param limit Número máximo de resultados a retornar
+   * @returns Promessa que resolve para um array de fontes de contexto relacionadas
    */
   async searchContextForText(text: string, limit: number = 5): Promise<any[]> {
     try {
@@ -185,6 +209,7 @@ export class ContextEnrichmentService {
 
   /**
    * Obtém estatísticas do cache
+   * @returns Objeto com tamanho do cache e lista de IDs armazenados
    */
   getCacheStats(): { size: number; items: string[] } {
     return {

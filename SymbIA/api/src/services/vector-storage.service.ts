@@ -1,16 +1,32 @@
 import { ContextSource, EmbeddingItem } from '../interfaces/llm.interface';
 import { VectorStorageProvider } from '../interfaces/vector-storage.interface';
 
+/**
+ * Serviço para gerenciar o armazenamento e busca de embeddings vetoriais
+ * com suporte a fallback local quando o provedor externo não está disponível
+ */
 export class VectorStorageService {
+  /**
+   * Provedor de armazenamento vetorial (ex: Qdrant)
+   */
   private provider: VectorStorageProvider;
+  
+  /**
+   * Cache local de embeddings para busca em caso de falha do provedor
+   */
   private localEmbeddings: EmbeddingItem[] = [];
 
+  /**
+   * Cria uma nova instância do serviço de armazenamento vetorial
+   * @param provider Provedor de armazenamento vetorial a ser utilizado
+   */
   constructor(provider: VectorStorageProvider) {
     this.provider = provider;
   }
 
   /**
    * Inicializa o serviço de armazenamento vetorial
+   * @returns Promessa que resolve quando a inicialização é concluída
    */
   async initialize(): Promise<void> {
     try {
@@ -22,6 +38,7 @@ export class VectorStorageService {
 
   /**
    * Verifica se o serviço de armazenamento vetorial está disponível
+   * @returns Promessa que resolve para um booleano indicando disponibilidade
    */
   async isAvailable(): Promise<boolean> {
     try {
@@ -34,6 +51,10 @@ export class VectorStorageService {
 
   /**
    * Busca contexto relevante no banco vetorial
+   * @param embedding Vetor de embedding para busca de similaridade
+   * @param limit Número máximo de resultados a retornar
+   * @param threshold Limiar mínimo de similaridade (entre 0 e 1)
+   * @returns Promessa que resolve para um array de fontes de contexto similares
    */
   async searchContext(embedding: number[], limit: number = 5, threshold: number = 0.7): Promise<ContextSource[]> {
     try {
@@ -54,6 +75,9 @@ export class VectorStorageService {
 
   /**
    * Armazena um embedding com contexto
+   * @param embeddingItem Item de embedding a ser armazenado
+   * @param metadata Metadados adicionais para associar ao embedding
+   * @returns Promessa que resolve quando o armazenamento é concluído
    */
   async storeEmbedding(embeddingItem: EmbeddingItem, metadata?: Record<string, any>): Promise<void> {
     try {
@@ -74,6 +98,9 @@ export class VectorStorageService {
 
   /**
    * Armazena múltiplos embeddings
+   * @param embeddingItems Array de itens de embedding a serem armazenados
+   * @param metadata Metadados adicionais para associar aos embeddings
+   * @returns Promessa que resolve quando o armazenamento é concluído
    */
   async storeEmbeddings(embeddingItems: EmbeddingItem[], metadata?: Record<string, any>): Promise<void> {
     try {
@@ -94,6 +121,11 @@ export class VectorStorageService {
 
   /**
    * Busca por similaridade usando fallback local (quando o provider não está disponível)
+   * @param targetEmbedding Embedding alvo para busca de similaridade
+   * @param embeddingItems Lista de embeddings armazenados localmente
+   * @param limit Número máximo de resultados a retornar
+   * @param threshold Limiar mínimo de similaridade (entre 0 e 1)
+   * @returns Promessa que resolve para um array de fontes de contexto similares
    */
   private async searchContextFallback(
     targetEmbedding: number[], 
@@ -122,6 +154,9 @@ export class VectorStorageService {
 
   /**
    * Calcula similaridade coseno entre dois embeddings
+   * @param embedding1 Primeiro vetor de embedding
+   * @param embedding2 Segundo vetor de embedding
+   * @returns Valor de similaridade entre 0 (nenhuma) e 1 (idênticos)
    */
   private calculateCosineSimilarity(embedding1: number[], embedding2: number[]): number {
     if (embedding1.length !== embedding2.length) {
