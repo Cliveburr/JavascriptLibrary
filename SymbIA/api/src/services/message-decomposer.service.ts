@@ -1,12 +1,19 @@
-import { DecomposedItem, MessageDecomposition, LLMProvider } from '../interfaces/llm.interface';
-import { v4 as uuidv4 } from 'uuid';
+import { MessageDecomposition, EnrichedDecomposition, LLMProvider } from '../interfaces/llm.interface';
 import { LLMManager } from './llm.service';
+import { ContextEnrichmentService } from './context-enrichment.service';
+import { EmbeddingService } from './embedding.service';
+import { QdrantService } from './qdrant.service';
 
 export class MessageDecomposer {
+  private contextEnrichmentService: ContextEnrichmentService;
 
   constructor(
     private llmManager: LLMManager
   ) {
+    // Inicializar serviços de enriquecimento de contexto
+    const embeddingService = new EmbeddingService(this.llmManager);
+    const qdrantService = new QdrantService(); // Usar configuração padrão
+    this.contextEnrichmentService = new ContextEnrichmentService(embeddingService, qdrantService);
   }
   
   /**
@@ -100,18 +107,18 @@ Agora analise a MENSAGEM REAL abaixo:
 MENSAGEM:
 """${message}"""
 
-Retorne apenas uma lista JSON de strings:
+OUTPUT: Retorne apenas uma lista JSON de strings:
 ["item1", "item2", "item3"]
 
 JSON:`;
   }
 
   /**
-   * Processa a resposta do LLM e converte para DecomposedItem[]
+   * Processa a resposta do LLM e converte para string[]
    */
-  private processLLMResponse(llmResponse: any): DecomposedItem[] {
+  private processLLMResponse(llmResponse: any): string[] {
     console.log('🔍 Processing LLM response:', JSON.stringify(llmResponse, null, 2));
-    const items: DecomposedItem[] = [];
+    const items: string[] = [];
     
     if (Array.isArray(llmResponse)) {
       console.log(`📝 Found ${llmResponse.length} items in response array`);
@@ -119,13 +126,7 @@ JSON:`;
         console.log(`Processing item ${index}:`, content);
         if (typeof content === 'string' && content.trim().length > 0) {
           const cleanContent = content.trim();
-          items.push({
-            id: uuidv4(),
-            type: 'context', // Tipo padrão já que removemos a categorização
-            content: cleanContent,
-            priority: 3, // Prioridade padrão
-            dependencies: undefined
-          });
+          items.push(cleanContent);
         } else {
           console.log(`⚠️ Skipping invalid item ${index}: not a valid string`);
         }
@@ -137,24 +138,12 @@ JSON:`;
         console.log('🔄 Attempting fallback to old format...');
         llmResponse.items.forEach((item: any, index: number) => {
           if (item.content && typeof item.content === 'string') {
-            items.push({
-              id: uuidv4(),
-              type: 'context',
-              content: item.content.trim(),
-              priority: 3,
-              dependencies: undefined
-            });
+            items.push(item.content.trim());
           }
         });
       } else if (typeof llmResponse === 'string') {
         console.log('🔄 Attempting to process single string...');
-        items.push({
-          id: uuidv4(),
-          type: 'context',
-          content: llmResponse.trim(),
-          priority: 3,
-          dependencies: undefined
-        });
+        items.push(llmResponse.trim());
       }
     }
     
@@ -163,19 +152,68 @@ JSON:`;
   }
 
   /**
-   * Valida e normaliza o tipo do item
+   * Pipeline completo: Decompõe mensagem e enriquece com contexto vetorial
    */
-  private validateItemType(type: string): DecomposedItem['type'] {
-    const validTypes: DecomposedItem['type'][] = ['instruction', 'action', 'question', 'intention', 'context'];
-    const normalizedType = type.toLowerCase() as DecomposedItem['type'];
-    return validTypes.includes(normalizedType) ? normalizedType : 'context';
+  public async decomposeAndEnrichMessage(message: string): Promise<EnrichedDecomposition> {
+    console.log('🧠 Starting complete pipeline: decomposition + context enrichment');
+    
+    // Etapa 1: Decomposição da mensagem
+    const decomposition = await this.decomposeMessage(message);
+    console.log(`✅ Decomposition completed with ${decomposition.decomposedItems.length} items`);
+    
+    // Etapa 2: Enriquecimento com embeddings e busca vetorial
+    console.log('🔮 Starting context enrichment...');
+    const enrichedDecomposition = await this.contextEnrichmentService.enrichDecomposition(decomposition);
+    console.log(`✅ Context enrichment completed with ${enrichedDecomposition.enrichedItems.length} enriched items`);
+    
+    // Log do resultado final
+    this.logEnrichmentResults(enrichedDecomposition);
+    
+    return enrichedDecomposition;
   }
 
   /**
-   * Valida e normaliza a prioridade
+   * Busca contexto para um texto específico
    */
-  private validatePriority(priority: any): number {
-    const num = parseInt(priority);
-    return (num >= 1 && num <= 5) ? num : 3;
+  public async searchContextForText(text: string, limit: number = 5): Promise<any[]> {
+    return await this.contextEnrichmentService.searchContextForText(text, limit);
+  }
+
+  /**
+   * Obtém estatísticas do cache de embeddings
+   */
+  public getCacheStats(): { size: number; items: string[] } {
+    return this.contextEnrichmentService.getCacheStats();
+  }
+
+  /**
+   * Limpa o cache de embeddings
+   */
+  public clearCache(): void {
+    this.contextEnrichmentService.clearCache();
+  }
+
+  /**
+   * Log detalhado dos resultados do enriquecimento
+   */
+  private logEnrichmentResults(enrichedDecomposition: EnrichedDecomposition): void {
+    console.log('\n📊 ENRICHMENT RESULTS:');
+    console.log(`Original message: ${enrichedDecomposition.originalMessage}`);
+    console.log(`Total items: ${enrichedDecomposition.enrichedItems.length}`);
+    
+    enrichedDecomposition.enrichedItems.forEach((enrichedItem, index) => {
+      console.log(`\n--- Item ${index + 1} ---`);
+      console.log(`Content: ${enrichedItem.item}`);
+      console.log(`Embedding dimensions: ${enrichedItem.embedding.length}`);
+      console.log(`Related context sources: ${enrichedItem.relatedContext.length}`);
+      
+      if (enrichedItem.relatedContext.length > 0) {
+        console.log('Context sources:');
+        enrichedItem.relatedContext.forEach((context, ctxIndex) => {
+          console.log(`  ${ctxIndex + 1}. [Score: ${context.score?.toFixed(3)}] ${context.content.substring(0, 100)}...`);
+        });
+      }
+    });
+    console.log('\n');
   }
 }

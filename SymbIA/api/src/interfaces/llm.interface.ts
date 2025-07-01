@@ -16,17 +16,9 @@ export interface StreamResponse {
 // Interface para decomposição de mensagens
 export interface MessageDecomposition {
   originalMessage: string;
-  decomposedItems: DecomposedItem[];
+  decomposedItems: string[];
   timestamp: string;
   totalItems: number;
-}
-
-export interface DecomposedItem {
-  id: string;
-  type: 'intention' | 'context' | 'action' | 'question' | 'instruction';
-  content: string;
-  priority: number; // 1-5, sendo 5 a maior prioridade
-  dependencies?: string[]; // IDs de outros itens que este depende
 }
 
 // Interface para pipeline de raciocínio
@@ -44,4 +36,37 @@ export interface AgentResponse {
   pipeline: ReasoningPipeline[];
   finalResponse: string;
   summary: string;
+}
+
+// Interface para embeddings e busca vetorial
+export interface EmbeddingItem {
+  id: string;
+  content: string;
+  embedding: number[];
+  contextSources?: ContextSource[];
+}
+
+export interface ContextSource {
+  id: string;
+  content: string;
+  score: number;
+  metadata?: Record<string, any>;
+}
+
+export interface VectorSearchResult {
+  item: string;
+  embedding: number[];
+  relatedContext: ContextSource[];
+}
+
+export interface EnrichedDecomposition extends MessageDecomposition {
+  enrichedItems: VectorSearchResult[];
+}
+
+// Interface para configuração do Qdrant
+export interface QdrantConfig {
+  host: string;
+  port: number;
+  apiKey?: string;
+  collectionName: string;
 }

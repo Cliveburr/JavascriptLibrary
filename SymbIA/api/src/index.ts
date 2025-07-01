@@ -126,6 +126,72 @@ app.post('/api/decompose', async (req: Request, res: Response): Promise<void> =>
   }
 });
 
+// Endpoint para decomposição enriquecida com embeddings e contexto vetorial
+app.post('/api/decompose/enriched', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { message } = req.body;
+    
+    if (!message || typeof message !== 'string') {
+      res.status(400).json({ 
+        error: 'Message is required and must be a string' 
+      });
+      return;
+    }
+    
+    console.log('🚀 Starting enriched decomposition pipeline...');
+    const enrichedDecomposition = await messageDecomposer.decomposeAndEnrichMessage(message);
+    
+    const response: ApiResponse = {
+      message: 'Message decomposed and enriched successfully',
+      data: enrichedDecomposition,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Enriched decompose endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Failed to decompose and enrich message',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Endpoint para buscar contexto de um texto específico
+app.post('/api/context/search', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { text, limit = 5 } = req.body;
+    
+    if (!text || typeof text !== 'string') {
+      res.status(400).json({ 
+        error: 'Text is required and must be a string' 
+      });
+      return;
+    }
+    
+    const contextSources = await messageDecomposer.searchContextForText(text, limit);
+    
+    const response: ApiResponse = {
+      message: 'Context search completed successfully',
+      data: {
+        query: text,
+        limit: limit,
+        results: contextSources,
+        count: contextSources.length
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Context search endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Failed to search context',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Get available models
 app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -140,6 +206,47 @@ app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Models endpoint error:', error);
     res.status(500).json({ error: 'Failed to get models' });
+  }
+});
+
+// Endpoint para obter estatísticas do cache
+app.get('/api/cache/stats', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const cacheStats = messageDecomposer.getCacheStats();
+    
+    const response: ApiResponse = {
+      message: 'Cache statistics retrieved successfully',
+      data: cacheStats,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Cache stats endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Failed to get cache statistics',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Endpoint para limpar o cache
+app.post('/api/cache/clear', async (req: Request, res: Response): Promise<void> => {
+  try {
+    messageDecomposer.clearCache();
+    
+    const response: ApiResponse = {
+      message: 'Cache cleared successfully',
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Cache clear endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Failed to clear cache',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
@@ -170,7 +277,11 @@ app.listen(PORT, () => {
   console.log(`   GET  /api/data`);
   console.log(`   POST /api/data`);
   console.log(`   POST /api/decompose`);
+  console.log(`   POST /api/decompose/enriched`);
+  console.log(`   POST /api/context/search`);
   console.log(`   GET  /api/models`);
+  console.log(`   GET  /api/cache/stats`);
+  console.log(`   POST /api/cache/clear`);
 });
 
 export default app;
