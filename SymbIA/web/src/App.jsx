@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
+import MessageDecomposer from './components/MessageDecomposer'
 import './App.css'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [currentView, setCurrentView] = useState('chat') // 'chat' ou 'decomposer'
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -117,6 +119,10 @@ function App() {
     }
   }
 
+  const toggleView = () => {
+    setCurrentView(prev => prev === 'chat' ? 'decomposer' : 'chat')
+  }
+
   return (
     <div className="hero is-fullheight is-dark">
       <div className="hero-head">
@@ -124,6 +130,11 @@ function App() {
           <div className="navbar-brand">
             <div className="navbar-item">
               <h1 className="title is-4 has-text-white">SymbIA Chat</h1>
+            </div>
+            <div className="navbar-item">
+              <button className="button is-light" onClick={toggleView}>
+                {currentView === 'chat' ? 'View Decomposer' : 'Back to Chat'}
+              </button>
             </div>
           </div>
         </nav>
@@ -134,20 +145,26 @@ function App() {
           <div className="columns is-centered">
             <div className="column is-8">
               <div className="box has-background-dark has-text-white" style={{ height: '60vh', overflowY: 'auto' }}>
-                {messages.map((message, index) => (
-                  <div key={index} className={`mb-4 ${message.role === 'user' ? 'has-text-right' : 'has-text-left'}`}>
-                    <div className={`notification ${message.role === 'user' ? 'is-primary' : 'is-grey-dark'} is-inline-block`} 
-                         style={{ maxWidth: '70%', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
-                      {message.content}
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="has-text-left mb-4">
-                    <div className="notification is-grey-dark is-inline-block" style={{ maxWidth: '70%' }}>
-                      <span className="has-text-weight-semibold">Thinking...</span>
-                    </div>
-                  </div>
+                {currentView === 'chat' ? (
+                  <>
+                    {messages.map((message, index) => (
+                      <div key={index} className={`mb-4 ${message.role === 'user' ? 'has-text-right' : 'has-text-left'}`}>
+                        <div className={`notification ${message.role === 'user' ? 'is-primary' : 'is-grey-dark'} is-inline-block`} 
+                             style={{ maxWidth: '70%', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
+                          {message.content}
+                        </div>
+                      </div>
+                    ))}
+                    {isLoading && (
+                      <div className="has-text-left mb-4">
+                        <div className="notification is-grey-dark is-inline-block" style={{ maxWidth: '70%' }}>
+                          <span className="has-text-weight-semibold">Thinking...</span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <MessageDecomposer />
                 )}
                 <div ref={messagesEndRef} />
               </div>
@@ -156,39 +173,41 @@ function App() {
         </div>
       </div>
 
-      <div className="hero-foot">
-        <div className="container is-fluid">
-          <div className="columns is-centered">
-            <div className="column is-8">
-              <div className="field has-addons">
-                <div className="control is-expanded">
-                  <textarea
-                    ref={textareaRef}
-                    className="textarea has-background-grey-darker has-text-white"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type your message here..."
-                    disabled={isLoading}
-                    rows={2}
-                    style={{ resize: 'none' }}
-                  />
-                </div>
-                <div className="control">
-                  <button 
-                    className={`button is-primary ${isLoading ? 'is-loading' : ''}`}
-                    onClick={sendMessage} 
-                    disabled={isLoading || !input.trim()}
-                    style={{ height: '100%' }}
-                  >
-                    Send
-                  </button>
+      {currentView === 'chat' && (
+        <div className="hero-foot">
+          <div className="container is-fluid">
+            <div className="columns is-centered">
+              <div className="column is-8">
+                <div className="field has-addons">
+                  <div className="control is-expanded">
+                    <textarea
+                      ref={textareaRef}
+                      className="textarea has-background-grey-darker has-text-white"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Type your message here..."
+                      disabled={isLoading}
+                      rows={2}
+                      style={{ resize: 'none' }}
+                    />
+                  </div>
+                  <div className="control">
+                    <button 
+                      className={`button is-primary ${isLoading ? 'is-loading' : ''}`}
+                      onClick={sendMessage} 
+                      disabled={isLoading || !input.trim()}
+                      style={{ height: '100%' }}
+                    >
+                      Send
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

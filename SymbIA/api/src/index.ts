@@ -4,12 +4,14 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { LLMManager } from './services/llm.service';
+import { MessageDecomposer } from './services/message-decomposer.service';
 
 dotenv.config();
 
 const app = express();
 const PORT: number = parseInt(process.env.PORT || '3002', 10);
 const llmManager = new LLMManager();
+const messageDecomposer = new MessageDecomposer(llmManager);
 
 // Middlewares de segurança e logging
 app.use(helmet());
@@ -97,6 +99,33 @@ app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> 
   }
 });
 
+// Endpoint para decomposição de mensagens
+app.post('/api/decompose', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { message } = req.body;
+    
+    if (!message || typeof message !== 'string') {
+      res.status(400).json({ 
+        error: 'Message is required and must be a string' 
+      });
+      return;
+    }
+    
+    const decomposition = await messageDecomposer.decomposeMessage(message);
+    
+    const response: ApiResponse = {
+      message: 'Message decomposed successfully',
+      data: decomposition,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Decompose endpoint error:', error);
+    res.status(500).json({ error: 'Failed to decompose message' });
+  }
+});
+
 // Get available models
 app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -140,6 +169,8 @@ app.listen(PORT, () => {
   console.log(`   GET  /api/health`);
   console.log(`   GET  /api/data`);
   console.log(`   POST /api/data`);
+  console.log(`   POST /api/decompose`);
+  console.log(`   GET  /api/models`);
 });
 
 export default app;

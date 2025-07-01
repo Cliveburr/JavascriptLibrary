@@ -34,6 +34,24 @@ export class OllamaProvider implements LLMProvider {
     }
   }
 
+  async generateSingleResponse(message: string, model: string = 'llama3.2:latest'): Promise<string> {
+    try {
+      const response = await this.ollama.chat({
+        model: model,
+        messages: [{ role: 'user', content: message }],
+        stream: false,
+        options: {
+          temperature: 0.1 // Lower temperature for more consistent structured output
+        }
+      });
+
+      return response.message?.content || '';
+    } catch (error) {
+      console.error('Ollama single response error:', error);
+      throw new Error(`Ollama single response failed: ${error}`);
+    }
+  }
+
   async isAvailable(): Promise<boolean> {
     try {
       await this.ollama.list();
