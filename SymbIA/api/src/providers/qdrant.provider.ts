@@ -1,7 +1,8 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { QdrantConfig, ContextSource, EmbeddingItem } from '../interfaces/llm.interface';
+import { VectorStorageProvider } from '../interfaces/vector-storage.interface';
 
-export class QdrantService {
+export class QdrantProvider implements VectorStorageProvider {
   private client: QdrantClient | null = null;
   private config: QdrantConfig;
   private isInitialized: boolean = false;
@@ -186,58 +187,5 @@ export class QdrantService {
     } catch (error) {
       console.error('❌ Failed to store embeddings:', error);
     }
-  }
-
-  /**
-   * Busca por similaridade usando fallback local (quando Qdrant não está disponível)
-   */
-  async searchContextFallback(
-    targetEmbedding: number[], 
-    embeddingItems: EmbeddingItem[], 
-    limit: number = 5, 
-    threshold: number = 0.7
-  ): Promise<ContextSource[]> {
-    console.log('🔄 Using fallback similarity search');
-    
-    const similarities = embeddingItems.map(item => ({
-      item,
-      similarity: this.calculateCosineSimilarity(targetEmbedding, item.embedding)
-    }));
-
-    return similarities
-      .filter(s => s.similarity >= threshold)
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, limit)
-      .map(s => ({
-        id: s.item.id,
-        content: s.item.content,
-        score: s.similarity,
-        metadata: { fallback: true }
-      }));
-  }
-
-  /**
-   * Calcula similaridade coseno entre dois embeddings
-   */
-  private calculateCosineSimilarity(embedding1: number[], embedding2: number[]): number {
-    if (embedding1.length !== embedding2.length) {
-      return 0;
-    }
-
-    let dotProduct = 0;
-    let norm1 = 0;
-    let norm2 = 0;
-
-    for (let i = 0; i < embedding1.length; i++) {
-      dotProduct += embedding1[i] * embedding2[i];
-      norm1 += embedding1[i] * embedding1[i];
-      norm2 += embedding2[i] * embedding2[i];
-    }
-
-    if (norm1 === 0 || norm2 === 0) {
-      return 0;
-    }
-
-    return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
   }
 }

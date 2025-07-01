@@ -2,7 +2,8 @@ import { MessageDecomposition, EnrichedDecomposition, LLMProvider } from '../int
 import { LLMManager } from './llm.service';
 import { ContextEnrichmentService } from './context-enrichment.service';
 import { EmbeddingService } from './embedding.service';
-import { QdrantService } from './qdrant.service';
+import { VectorStorageService } from './vector-storage.service';
+import { QdrantProvider } from '../providers/qdrant.provider';
 
 export class MessageDecomposer {
   private contextEnrichmentService: ContextEnrichmentService;
@@ -12,8 +13,9 @@ export class MessageDecomposer {
   ) {
     // Inicializar serviços de enriquecimento de contexto
     const embeddingService = new EmbeddingService(this.llmManager);
-    const qdrantService = new QdrantService(); // Usar configuração padrão
-    this.contextEnrichmentService = new ContextEnrichmentService(embeddingService, qdrantService);
+    const qdrantProvider = new QdrantProvider(); // Usar configuração padrão
+    const vectorStorageService = new VectorStorageService(qdrantProvider);
+    this.contextEnrichmentService = new ContextEnrichmentService(embeddingService, vectorStorageService);
   }
   
   /**

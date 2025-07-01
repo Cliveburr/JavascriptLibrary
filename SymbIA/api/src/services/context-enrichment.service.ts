@@ -1,23 +1,23 @@
 import { MessageDecomposition, VectorSearchResult, EnrichedDecomposition, EmbeddingItem } from '../interfaces/llm.interface';
 import { EmbeddingService } from './embedding.service';
-import { QdrantService } from './qdrant.service';
+import { VectorStorageService } from './vector-storage.service';
 
 export class ContextEnrichmentService {
   private embeddingCache: Map<string, EmbeddingItem> = new Map();
 
   constructor(
     private embeddingService: EmbeddingService,
-    private qdrantService: QdrantService
+    private vectorStorageService: VectorStorageService
   ) {
-    // Inicializar Qdrant
-    this.initializeQdrant();
+    // Inicializar serviço de armazenamento vetorial
+    this.initializeVectorStorage();
   }
 
-  private async initializeQdrant(): Promise<void> {
+  private async initializeVectorStorage(): Promise<void> {
     try {
-      await this.qdrantService.initializeCollection();
+      await this.vectorStorageService.initialize();
     } catch (error) {
-      console.warn('⚠️ Failed to initialize Qdrant, continuing with fallback search');
+      console.warn('⚠️ Failed to initialize vector storage, continuing with fallback search');
     }
   }
 
@@ -87,19 +87,19 @@ export class ContextEnrichmentService {
     console.log(`🔍 Searching context for: ${embeddingItem.content.substring(0, 50)}...`);
     
     try {
-      // Primeiro tentar buscar no Qdrant
-      const qdrantAvailable = await this.qdrantService.isAvailable();
+      // Buscar contexto usando o serviço de armazenamento vetorial
+      const storageAvailable = await this.vectorStorageService.isAvailable();
       
-      if (qdrantAvailable) {
-        console.log('🗄️ Using Qdrant for context search');
-        const contextSources = await this.qdrantService.searchContext(
+      if (storageAvailable) {
+        console.log('🗄️ Using vector storage for context search');
+        const contextSources = await this.vectorStorageService.searchContext(
           embeddingItem.embedding, 
           5, // limite
           0.7 // threshold de similaridade
         );
         
         if (contextSources.length > 0) {
-          console.log(`✅ Found ${contextSources.length} context sources in Qdrant`);
+          console.log(`✅ Found ${contextSources.length} context sources in vector storage`);
           return contextSources;
         }
       }
@@ -109,9 +109,8 @@ export class ContextEnrichmentService {
       const cachedEmbeddings = Array.from(this.embeddingCache.values())
         .filter(cached => cached.id !== embeddingItem.id); // Excluir o próprio item
       
-      const fallbackContext = await this.qdrantService.searchContextFallback(
+      const fallbackContext = await this.vectorStorageService.searchContext(
         embeddingItem.embedding,
-        cachedEmbeddings,
         3, // limite menor para fallback
         0.6 // threshold menor para fallback
       );
@@ -126,19 +125,19 @@ export class ContextEnrichmentService {
   }
 
   /**
-   * Armazena novos embeddings no Qdrant para uso futuro
+   * Armazena novos embeddings no serviço de armazenamento vetorial para uso futuro
    */
   private async storeNewEmbeddings(embeddingItems: EmbeddingItem[]): Promise<void> {
     try {
-      const qdrantAvailable = await this.qdrantService.isAvailable();
-      if (!qdrantAvailable) {
-        console.log('⚠️ Qdrant not available, skipping storage');
+      const storageAvailable = await this.vectorStorageService.isAvailable();
+      if (!storageAvailable) {
+        console.log('⚠️ Vector storage not available, skipping storage');
         return;
       }
 
-      console.log(`💾 Storing ${embeddingItems.length} new embeddings in Qdrant`);
+      console.log(`💾 Storing ${embeddingItems.length} new embeddings in vector storage`);
       
-      await this.qdrantService.storeEmbeddings(embeddingItems, {
+      await this.vectorStorageService.storeEmbeddings(embeddingItems, {
         source: 'message_decomposition',
         timestamp: new Date().toISOString(),
         session_id: this.generateSessionId()
@@ -168,16 +167,8 @@ export class ContextEnrichmentService {
       // Gerar embedding para o texto
       const embedding = await this.embeddingService.generateEmbedding(text);
       
-      // Buscar contexto relevante
-      const qdrantAvailable = await this.qdrantService.isAvailable();
-      
-      if (qdrantAvailable) {
-        return await this.qdrantService.searchContext(embedding, limit, 0.7);
-      } else {
-        // Fallback para cache local
-        const cachedEmbeddings = Array.from(this.embeddingCache.values());
-        return await this.qdrantService.searchContextFallback(embedding, cachedEmbeddings, limit, 0.6);
-      }
+      // Buscar contexto relevante usando o serviço de armazenamento vetorial
+      return await this.vectorStorageService.searchContext(embedding, limit, 0.7);
     } catch (error) {
       console.error('❌ Failed to search context for text:', error);
       return [];
