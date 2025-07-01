@@ -97,4 +97,41 @@ export class OllamaProvider implements LLMProvider {
       return [];
     }
   }
+
+  /**
+   * Gera embeddings para uma lista de textos usando o modelo nomic-embed-text
+   * @param texts Lista de textos para os quais se deseja gerar embeddings
+   * @param model Modelo a ser usado para embeddings (padrão: nomic-embed-text)
+   * @returns Promessa que resolve para um array de arrays de números representando os embeddings
+   */
+  async generateEmbeddings(texts: string[], model: string = 'nomic-embed-text'): Promise<number[][]> {
+    try {
+      // Verifica se o modelo de embedding existe
+      const models = await this.getAvailableModels();
+      if (!models.includes(model)) {
+        console.warn(`Model ${model} not found. You may need to pull it with 'ollama pull ${model}'`);
+      }
+
+      // Gera embeddings para cada texto
+      const embeddings: number[][] = [];
+      
+      for (const text of texts) {
+        const response = await this.ollama.embeddings({
+          model: model,
+          prompt: text
+        });
+        
+        if (response.embedding && Array.isArray(response.embedding)) {
+          embeddings.push(response.embedding);
+        } else {
+          throw new Error('Invalid embedding response format');
+        }
+      }
+      
+      return embeddings;
+    } catch (error) {
+      console.error('Ollama embeddings error:', error);
+      throw new Error(`Failed to generate embeddings: ${error}`);
+    }
+  }
 }

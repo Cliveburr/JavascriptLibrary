@@ -12,7 +12,7 @@ export class EmbeddingService {
   constructor(private llmManager: LLMManager) {}
 
   /**
-   * Gera embedding para um item usando o modelo LLM local
+   * Gera embedding para um item usando o modelo nomic-embed-text
    * @param content Texto para o qual se deseja gerar o embedding
    * @returns Promessa que resolve para um vetor de números representando o embedding
    */
@@ -25,17 +25,16 @@ export class EmbeddingService {
     }
 
     try {
-      // Usar o LLM para gerar uma representação numérica do texto
-      // Este é um approach simplificado - normalmente usaríamos modelos específicos para embeddings
-      const embeddingPrompt = this.buildEmbeddingPrompt(content);
+      // Usar o modelo nomic-embed-text para gerar embedding
+      const embeddings = await provider.generateEmbeddings([content], 'nomic-embed-text');
       
-      const response = await provider.generateSingleResponse(embeddingPrompt);
-      
-      // Extrair o array de números da resposta
-      const embedding = this.parseEmbeddingResponse(response);
-      
-      console.log(`✅ Generated embedding with ${embedding.length} dimensions`);
-      return embedding;
+      if (embeddings && embeddings.length > 0) {
+        const embedding = this.normalizeEmbeddingSize(embeddings[0]);
+        console.log(`✅ Generated embedding with ${embedding.length} dimensions using nomic-embed-text model`);
+        return embedding;
+      } else {
+        throw new Error('Failed to generate embedding with nomic-embed-text');
+      }
     } catch (error) {
       console.error('❌ Failed to generate embedding:', error);
       // Fallback: gerar embedding baseado em hash do conteúdo
@@ -44,28 +43,64 @@ export class EmbeddingService {
   }
 
   /**
-   * Gera embeddings para múltiplos itens
+   * Gera embeddings para múltiplos itens usando processamento em lote com nomic-embed-text
    * @param items Array de textos para os quais se deseja gerar embeddings
    * @returns Promessa que resolve para um array de itens de embedding
    */
   async generateEmbeddings(items: string[]): Promise<EmbeddingItem[]> {
-    console.log(`🔢 Generating embeddings for ${items.length} items`);
+    console.log(`🔢 Generating embeddings for ${items.length} items using nomic-embed-text model`);
     
     const embeddingItems: EmbeddingItem[] = [];
+    const provider = await this.llmManager.getAvailableProvider();
     
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      try {
-        const embedding = await this.generateEmbedding(item);
-        embeddingItems.push({
-          id: `item_${i}`,
-          content: item,
-          embedding: embedding,
-          contextSources: []
-        });
-      } catch (error) {
-        console.error(`❌ Failed to generate embedding for item ${i}:`, error);
-        // Continuar com os próximos itens mesmo se um falhar
+    if (!provider) {
+      throw new Error('No LLM provider available for embedding generation');
+    }
+    
+    try {
+      // Processamento em lote para todos os itens de uma vez
+      const embeddings = await provider.generateEmbeddings(items, 'nomic-embed-text');
+      
+      // Criar objetos de embedding para cada item
+      for (let i = 0; i < items.length; i++) {
+        if (embeddings[i]) {
+          embeddingItems.push({
+            id: `item_${i}`,
+            content: items[i],
+            embedding: this.normalizeEmbeddingSize(embeddings[i]),
+            contextSources: []
+          });
+        } else {
+          // Fallback para itens que falharam no processamento em lote
+          try {
+            const fallbackEmbedding = await this.generateFallbackEmbedding(items[i]);
+            embeddingItems.push({
+              id: `item_${i}`,
+              content: items[i],
+              embedding: fallbackEmbedding,
+              contextSources: []
+            });
+          } catch (error) {
+            console.error(`❌ Failed to generate fallback embedding for item ${i}:`, error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Failed to generate embeddings in batch:', error);
+      
+      // Fallback para processamento individual se o processamento em lote falhar
+      for (let i = 0; i < items.length; i++) {
+        try {
+          const fallbackEmbedding = await this.generateFallbackEmbedding(items[i]);
+          embeddingItems.push({
+            id: `item_${i}`,
+            content: items[i],
+            embedding: fallbackEmbedding,
+            contextSources: []
+          });
+        } catch (innerError) {
+          console.error(`❌ Failed to generate fallback embedding for item ${i}:`, innerError);
+        }
       }
     }
     
@@ -74,56 +109,23 @@ export class EmbeddingService {
   }
 
   /**
-   * Constrói o prompt para gerar embedding usando LLM
-   * @param content Texto para o qual se deseja gerar embedding
-   * @returns Prompt formatado para enviar ao LLM
+   * Normaliza um vetor de embedding para ter exatamente 128 dimensões
+   * @param embedding Vetor de embedding original
+   * @returns Vetor de embedding normalizado com 128 dimensões
    */
-  private buildEmbeddingPrompt(content: string): string {
-    return `Você é um sistema que converte texto em representação numérica (embedding).
-
-INSTRUÇÕES:
-- Analise o texto fornecido semanticamente
-- Gere exatamente 128 números decimais entre -1 e 1
-- Cada número deve representar uma dimensão semântica do texto
-- Retorne apenas o array JSON de números, sem explicações
-
-TEXTO:
-"""${content}"""
-
-EMBEDDING (array de 128 números):`;
-  }
-
-  /**
-   * Extrai o array de embedding da resposta do LLM
-   * @param response Resposta do LLM contendo o embedding em formato JSON
-   * @returns Array de números representando o embedding
-   */
-  private parseEmbeddingResponse(response: string): number[] {
-    try {
-      // Tentar encontrar array JSON na resposta
-      const jsonMatch = response.match(/\[[\d\s.,-]+\]/);
-      if (jsonMatch) {
-        const embedding = JSON.parse(jsonMatch[0]);
-        if (Array.isArray(embedding) && embedding.every(n => typeof n === 'number')) {
-          // Garantir que temos exatamente 128 dimensões
-          if (embedding.length === 128) {
-            return embedding;
-          } else if (embedding.length > 128) {
-            return embedding.slice(0, 128);
-          } else {
-            // Preencher com zeros se necessário
-            const padded = [...embedding];
-            while (padded.length < 128) {
-              padded.push(0);
-            }
-            return padded;
-          }
-        }
+  private normalizeEmbeddingSize(embedding: number[]): number[] {
+    // Garantir que temos exatamente 128 dimensões
+    if (embedding.length === 128) {
+      return embedding;
+    } else if (embedding.length > 128) {
+      return embedding.slice(0, 128);
+    } else {
+      // Preencher com zeros se necessário
+      const padded = [...embedding];
+      while (padded.length < 128) {
+        padded.push(0);
       }
-      throw new Error('No valid embedding array found in response');
-    } catch (error) {
-      console.warn('⚠️ Failed to parse embedding from LLM response, using fallback');
-      return this.generateFallbackEmbedding(response);
+      return padded;
     }
   }
 

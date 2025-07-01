@@ -15,6 +15,14 @@ export interface LLMProvider {
    * @returns Uma promessa que resolve para a resposta completa em forma de string
    */
   generateSingleResponse(message: string, model?: string): Promise<string>;
+  
+  /**
+   * Gera embeddings para uma lista de textos usando um modelo específico de embeddings
+   * @param texts Lista de textos para os quais se deseja gerar embeddings
+   * @param model Modelo opcional a ser usado para gerar embeddings (padrão: nomic-embed-text)
+   * @returns Uma promessa que resolve para um array de arrays de números representando os embeddings
+   */
+  generateEmbeddings(texts: string[], model?: string): Promise<number[][]>;
 
   /**
    * Verifica se o provedor de LLM está disponível para uso
