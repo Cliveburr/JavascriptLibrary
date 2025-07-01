@@ -19,13 +19,20 @@ services:
               count: all
               capabilities: [gpu]
     restart: unless-stopped
-    networks:
-      - ollama-network
+  qdrant:
+    image: qdrant/qdrant:gpu-nvidia-latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__GPU__INDEXING=true
 
 volumes:
   ollama_data:
     driver: local
+  qdrant_data:
+    driver: local
 
-networks:
-  ollama-network:
-    driver: bridge

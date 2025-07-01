@@ -63,14 +63,18 @@ app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> 
     if (!provider) {
       res.status(503).json({ error: 'No LLM provider available' });
       return;
-    }    // Set up server-sent events
+    }
+
+    // Set up server-sent events
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Cache-Control',
-    });    try {
+    });
+
+    try {
       for await (const chunk of provider.generateResponse(message, model)) {
         console.log('Server yielding chunk:', JSON.stringify(chunk)); // Debug log
         const data = JSON.stringify({ content: chunk });
@@ -79,7 +83,8 @@ app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> 
       
       // Send end signal
       res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-      res.end();} catch (error) {
+      res.end();
+    } catch (error) {
       console.error('Streaming error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorData = JSON.stringify({ error: errorMessage });

@@ -16,6 +16,11 @@ export class OllamaProvider implements LLMProvider {
         model: model,
         messages: [{ role: 'user', content: message }],
         stream: true,
+        tools: [
+        ],
+        options: {
+          temperature: 0.2
+        }
       });
 
       for await (const chunk of response) {

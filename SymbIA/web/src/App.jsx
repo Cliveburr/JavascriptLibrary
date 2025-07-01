@@ -118,42 +118,76 @@ function App() {
   }
 
   return (
-    <div className="chat-container">
-      <header className="chat-header">
-        <h1>SymbIA Chat</h1>
-      </header>
+    <div className="hero is-fullheight is-dark">
+      <div className="hero-head">
+        <nav className="navbar is-dark">
+          <div className="navbar-brand">
+            <div className="navbar-item">
+              <h1 className="title is-4 has-text-white">SymbIA Chat</h1>
+            </div>
+          </div>
+        </nav>
+      </div>
       
-      <div className="messages-container">
-        {messages.map((message, index) => (
-          <div key={index} className={`message ${message.role}`}>
-            <div className="message-content">
-              {message.content}
+      <div className="hero-body">
+        <div className="container is-fluid">
+          <div className="columns is-centered">
+            <div className="column is-8">
+              <div className="box has-background-dark has-text-white" style={{ height: '60vh', overflowY: 'auto' }}>
+                {messages.map((message, index) => (
+                  <div key={index} className={`mb-4 ${message.role === 'user' ? 'has-text-right' : 'has-text-left'}`}>
+                    <div className={`notification ${message.role === 'user' ? 'is-primary' : 'is-grey-dark'} is-inline-block`} 
+                         style={{ maxWidth: '70%', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
+                      {message.content}
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="has-text-left mb-4">
+                    <div className="notification is-grey-dark is-inline-block" style={{ maxWidth: '70%' }}>
+                      <span className="has-text-weight-semibold">Thinking...</span>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
           </div>
-        ))}
-        {isLoading && (
-          <div className="message assistant">
-            <div className="message-content typing">
-              Thinking...
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      <div className="input-container">
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Type your message here..."
-          disabled={isLoading}
-          rows={1}
-        />
-        <button onClick={sendMessage} disabled={isLoading || !input.trim()}>
-          Send
-        </button>
+      <div className="hero-foot">
+        <div className="container is-fluid">
+          <div className="columns is-centered">
+            <div className="column is-8">
+              <div className="field has-addons">
+                <div className="control is-expanded">
+                  <textarea
+                    ref={textareaRef}
+                    className="textarea has-background-grey-darker has-text-white"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type your message here..."
+                    disabled={isLoading}
+                    rows={2}
+                    style={{ resize: 'none' }}
+                  />
+                </div>
+                <div className="control">
+                  <button 
+                    className={`button is-primary ${isLoading ? 'is-loading' : ''}`}
+                    onClick={sendMessage} 
+                    disabled={isLoading || !input.trim()}
+                    style={{ height: '100%' }}
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
