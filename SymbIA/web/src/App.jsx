@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import MessageDecomposer from './components/MessageDecomposer'
+import ExecutionPlanner from './components/ExecutionPlanner'
 import './App.css'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [currentView, setCurrentView] = useState('chat') // 'chat' ou 'decomposer'
+  const [currentView, setCurrentView] = useState('chat') // 'chat', 'decomposer' ou 'planner'
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -119,8 +120,8 @@ function App() {
     }
   }
 
-  const toggleView = () => {
-    setCurrentView(prev => prev === 'chat' ? 'decomposer' : 'chat')
+  const setView = (view) => {
+    setCurrentView(view)
   }
 
   return (
@@ -132,9 +133,26 @@ function App() {
               <h1 className="title is-4 has-text-white">SymbIA Chat</h1>
             </div>
             <div className="navbar-item">
-              <button className="button is-light" onClick={toggleView}>
-                {currentView === 'chat' ? 'View Decomposer' : 'Back to Chat'}
-              </button>
+              <div className="buttons">
+                <button 
+                  className={`button ${currentView === 'chat' ? 'is-primary' : 'is-light'}`} 
+                  onClick={() => setView('chat')}
+                >
+                  Chat
+                </button>
+                <button 
+                  className={`button ${currentView === 'decomposer' ? 'is-primary' : 'is-light'}`} 
+                  onClick={() => setView('decomposer')}
+                >
+                  Decomposer
+                </button>
+                <button 
+                  className={`button ${currentView === 'planner' ? 'is-primary' : 'is-light'}`} 
+                  onClick={() => setView('planner')}
+                >
+                  Planner
+                </button>
+              </div>
             </div>
           </div>
         </nav>
@@ -163,8 +181,10 @@ function App() {
                       </div>
                     )}
                   </>
-                ) : (
+                ) : currentView === 'decomposer' ? (
                   <MessageDecomposer />
+                ) : (
+                  <ExecutionPlanner />
                 )}
                 <div ref={messagesEndRef} />
               </div>

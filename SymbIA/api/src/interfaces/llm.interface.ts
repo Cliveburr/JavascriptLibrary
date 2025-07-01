@@ -31,9 +31,28 @@ export interface ReasoningPipeline {
   timestamp: string;
 }
 
+// Interface para planejamento de execução
+export interface ExecutionPlanAction {
+  stepNumber: number;
+  actionName: string;
+  actionDescription: string;
+  itemIndex: number; // Referência ao índice do item na decomposição original
+  justification: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+}
+
+export interface ExecutionPlan {
+  originalMessage: string;
+  decomposition: MessageDecomposition;
+  enrichedDecomposition?: EnrichedDecomposition;
+  actions: ExecutionPlanAction[];
+  timestamp: string;
+}
+
 export interface AgentResponse {
   decomposition: MessageDecomposition;
   pipeline: ReasoningPipeline[];
+  executionPlan?: ExecutionPlan;
   finalResponse: string;
   summary: string;
 }

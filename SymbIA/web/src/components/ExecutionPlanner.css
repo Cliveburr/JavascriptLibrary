@@ -1,0 +1,251 @@
+.execution-planner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.planner-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.planner-header h2 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.planner-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.input-section {
+  margin-bottom: 20px;
+}
+
+.message-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.plan-button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3949ab, #5c6bc0);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.plan-button:hover {
+  background: linear-gradient(135deg, #303f9f, #3f51b5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.plan-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.error-message {
+  padding: 10px;
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+  color: #b71c1c;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.execution-plan-results {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.results-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.original-message {
+  background-color: #f0f8ff;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.original-message h4 {
+  margin-top: 0;
+  color: #333;
+}
+
+.original-message p {
+  margin-bottom: 0;
+  color: #444;
+}
+
+.plan-actions {
+  margin-bottom: 20px;
+}
+
+.plan-actions h4 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.plan-action {
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.action-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.step-number {
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 50px;
+  color: white;
+  font-size: 14px;
+}
+
+.action-name {
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: auto;
+  color: #333;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.action-description {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 16px;
+}
+
+.action-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.item-reference {
+  color: #333;
+  padding: 6px 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.action-justification {
+  color: #555;
+  padding: 6px 10px;
+  background-color: #f3f6f9;
+  border-radius: 4px;
+}
+
+.next-steps {
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 20px;
+}
+
+.next-steps h4 {
+  margin-top: 0;
+  color: #333;
+}
+
+.next-steps ol {
+  padding-left: 25px;
+  margin-bottom: 0;
+}
+
+.next-steps li {
+  margin-bottom: 8px;
+  color: #555;
+  position: relative;
+}
+
+.next-steps li.completed {
+  color: #2e7d32;
+}
+
+.llm-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 15px;
+}
+
+.ai-badge {
+  background: linear-gradient(135deg, #5c6bc0, #3949ab);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.llm-indicator small {
+  color: #666;
+  font-size: 11px;
+}
+
+@media (max-width: 768px) {
+  .action-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .action-details {
+    flex-direction: column;
+  }
+}

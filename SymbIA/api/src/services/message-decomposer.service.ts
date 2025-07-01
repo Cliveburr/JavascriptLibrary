@@ -1,12 +1,14 @@
-import { MessageDecomposition, EnrichedDecomposition, LLMProvider } from '../interfaces/llm.interface';
+import { MessageDecomposition, EnrichedDecomposition, LLMProvider, ExecutionPlan } from '../interfaces/llm.interface';
 import { LLMManager } from './llm.service';
 import { ContextEnrichmentService } from './context-enrichment.service';
 import { EmbeddingService } from './embedding.service';
 import { VectorStorageService } from './vector-storage.service';
 import { QdrantProvider } from '../providers/qdrant.provider';
+import { ExecutionPlannerService } from './execution-planner.service';
 
 export class MessageDecomposer {
   private contextEnrichmentService: ContextEnrichmentService;
+  private executionPlannerService: ExecutionPlannerService;
 
   constructor(
     private llmManager: LLMManager
@@ -16,6 +18,9 @@ export class MessageDecomposer {
     const qdrantProvider = new QdrantProvider(); // Usar configuração padrão
     const vectorStorageService = new VectorStorageService(qdrantProvider);
     this.contextEnrichmentService = new ContextEnrichmentService(embeddingService, vectorStorageService);
+    
+    // Inicializar serviço de planejamento de execução
+    this.executionPlannerService = new ExecutionPlannerService(this.llmManager);
   }
   
   /**
@@ -70,18 +75,17 @@ export class MessageDecomposer {
    * Constrói o prompt para o LLM decompor a mensagem
    */
   private buildDecompositionPrompt(message: string): string {
-    return `Você é um agente que deve decompor uma mensagem em itens independentes para posterior processamento.
+    return `Você é um agente que deve decompor uma mensagem em itens independentes para processamento automático.
 
 INSTRUÇÕES:
-- Para cada item, isole uma ação clara (verbo + alvo).
-- Separe informações contextuais relevantes como itens separados, quando necessário.
-- Não repita partes entre itens.
-- Mantenha os itens autônomos e claros para serem executados individualmente.
+- Cada item deve representar uma ação ou um contexto específico.
+- Itens devem ser claros, objetivos e autônomos.
+- Use frases curtas com verbo no infinitivo ou estrutura direta de comando.
+- Não repita trechos entre itens.
+- Formato estritamente em JSON.
 
-IMPORTANTE:
-Os exemplos abaixo são apenas ilustrações. A mensagem real vem depois.
+EXEMPLOS (ilustrativos, não relacionados à mensagem real):
 
-EXEMPLO:
 Entrada: "agende para desligar as luzes daqui 10min"  
 Saída:
 [
@@ -102,17 +106,23 @@ Saída:
   "gerar gráfico de acessos semanais",
   "enviar gráfico por email"
 ]
+---
+Entrada: "salve o numero 1234 para sempre que eu quizer chamar o jozelito"  
+Saída:
+[
+  "salvar o numero 1234 para chamar o jozelito"
+]
 --- fim dos exemplos ---
 
-Agora analise a MENSAGEM REAL abaixo:
+Agora analise a seguinte MENSAGEM REAL:
 
-MENSAGEM:
 """${message}"""
 
-OUTPUT: Retorne apenas uma lista JSON de strings:
-["item1", "item2", "item3"]
+FORMATO ESTRITO:
+Retorne apenas a lista JSON de strings, iniciando com \`[\` e sem nenhuma explicação.
 
-JSON:`;
+JSON:
+[`;
   }
 
   /**
@@ -175,6 +185,33 @@ JSON:`;
   }
 
   /**
+   * Pipeline completo até etapa 4: Decomposição, enriquecimento e planejamento de execução
+   */
+  public async decomposeEnrichAndPlan(message: string): Promise<{
+    enrichedDecomposition: EnrichedDecomposition;
+    executionPlan: ExecutionPlan;
+  }> {
+    console.log('🧠 Starting complete pipeline including execution planning');
+    
+    // Etapa 1-2: Decomposição da mensagem e enriquecimento com contexto
+    const enrichedDecomposition = await this.decomposeAndEnrichMessage(message);
+    console.log(`✅ Decomposition and enrichment completed with ${enrichedDecomposition.enrichedItems.length} items`);
+    
+    // Etapa 3: Criar plano de execução
+    console.log('📋 Starting execution planning...');
+    const executionPlan = await this.executionPlannerService.createExecutionPlan(enrichedDecomposition);
+    console.log(`✅ Execution planning completed with ${executionPlan.actions.length} actions`);
+    
+    // Log do resultado final
+    this.logExecutionPlan(executionPlan);
+    
+    return {
+      enrichedDecomposition,
+      executionPlan
+    };
+  }
+  
+  /**
    * Busca contexto para um texto específico
    */
   public async searchContextForText(text: string, limit: number = 5): Promise<any[]> {
@@ -215,6 +252,26 @@ JSON:`;
           console.log(`  ${ctxIndex + 1}. [Score: ${context.score?.toFixed(3)}] ${context.content.substring(0, 100)}...`);
         });
       }
+    });
+    console.log('\n');
+  }
+  
+  /**
+   * Log detalhado do plano de execução
+   */
+  private logExecutionPlan(executionPlan: ExecutionPlan): void {
+    console.log('\n📊 EXECUTION PLAN:');
+    console.log(`Original message: ${executionPlan.originalMessage}`);
+    console.log(`Total actions: ${executionPlan.actions.length}`);
+    console.log(`Timestamp: ${executionPlan.timestamp}`);
+    
+    executionPlan.actions.forEach((action) => {
+      console.log(`\n--- Step ${action.stepNumber} ---`);
+      console.log(`Action: ${action.actionName}`);
+      console.log(`Description: ${action.actionDescription}`);
+      console.log(`Related to item: ${action.itemIndex}`);
+      console.log(`Justification: ${action.justification}`);
+      console.log(`Status: ${action.status}`);
     });
     console.log('\n');
   }

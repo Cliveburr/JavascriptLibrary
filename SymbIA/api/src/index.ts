@@ -157,6 +157,40 @@ app.post('/api/decompose/enriched', async (req: Request, res: Response): Promise
   }
 });
 
+// Endpoint para decomposição, enriquecimento e criação de plano de execução
+app.post('/api/decompose/plan', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { message } = req.body;
+    
+    if (!message || typeof message !== 'string') {
+      res.status(400).json({ 
+        error: 'Message is required and must be a string' 
+      });
+      return;
+    }
+    
+    console.log('🚀 Starting full pipeline with execution planning...');
+    const result = await messageDecomposer.decomposeEnrichAndPlan(message);
+    
+    const response: ApiResponse = {
+      message: 'Message processed and execution plan created successfully',
+      data: {
+        enrichedDecomposition: result.enrichedDecomposition,
+        executionPlan: result.executionPlan
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Execution planning endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Failed to create execution plan',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Endpoint para buscar contexto de um texto específico
 app.post('/api/context/search', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -278,6 +312,7 @@ app.listen(PORT, () => {
   console.log(`   POST /api/data`);
   console.log(`   POST /api/decompose`);
   console.log(`   POST /api/decompose/enriched`);
+  console.log(`   POST /api/decompose/plan`);
   console.log(`   POST /api/context/search`);
   console.log(`   GET  /api/models`);
   console.log(`   GET  /api/cache/stats`);
