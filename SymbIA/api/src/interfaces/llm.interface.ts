@@ -289,3 +289,157 @@ export interface QdrantConfig {
    */
   collectionName: string;
 }
+
+// Interfaces para execução de planos
+export interface ExecutionResult {
+  /**
+   * Número do passo executado
+   */
+  stepNumber: number;
+
+  /**
+   * Nome da ação executada
+   */
+  actionName: string;
+
+  /**
+   * Resultado da execução da ação
+   */
+  result: any;
+
+  /**
+   * Status da execução
+   */
+  status: 'success' | 'failed' | 'skipped';
+
+  /**
+   * Mensagem explicativa do resultado
+   */
+  message: string;
+
+  /**
+   * Tempo de execução em milissegundos
+   */
+  executionTime: number;
+
+  /**
+   * Data e hora da execução
+   */
+  timestamp: string;
+
+  /**
+   * Erro ocorrido durante a execução (se houver)
+   */
+  error?: string;
+}
+
+export interface ExecutionSummary {
+  /**
+   * Número total de passos executados
+   */
+  totalSteps: number;
+
+  /**
+   * Número de passos executados com sucesso
+   */
+  successfulSteps: number;
+
+  /**
+   * Número de passos que falharam
+   */
+  failedSteps: number;
+
+  /**
+   * Número de passos que foram pulados
+   */
+  skippedSteps: number;
+
+  /**
+   * Tempo total de execução em milissegundos
+   */
+  totalExecutionTime: number;
+
+  /**
+   * Resumo das ações executadas
+   */
+  actionsExecuted: string[];
+
+  /**
+   * Principais resultados obtidos
+   */
+  keyResults: string[];
+
+  /**
+   * Erros encontrados durante a execução
+   */
+  errors: string[];
+
+  /**
+   * Informações de contexto para próxima iteração
+   */
+  contextForNextIteration: string;
+}
+
+export interface ExecutionReport {
+  /**
+   * Plano original que foi executado
+   */
+  originalPlan: ExecutionPlan;
+
+  /**
+   * Resultados detalhados de cada passo
+   */
+  stepResults: ExecutionResult[];
+
+  /**
+   * Resumo da execução
+   */
+  summary: ExecutionSummary;
+
+  /**
+   * Resposta final para o usuário
+   */
+  finalResponse: string;
+
+  /**
+   * Indica se foi necessário replanejamento
+   */
+  wasReplanned: boolean;
+
+  /**
+   * Novo plano criado durante replanejamento (se aplicável)
+   */
+  replanedPlan?: ExecutionPlan;
+
+  /**
+   * Data e hora de início da execução
+   */
+  startTime: string;
+
+  /**
+   * Data e hora de fim da execução
+   */
+  endTime: string;
+}
+
+export interface ReplanningRequest {
+  /**
+   * Plano original
+   */
+  originalPlan: ExecutionPlan;
+
+  /**
+   * Resultados executados até agora
+   */
+  executedResults: ExecutionResult[];
+
+  /**
+   * Motivo do replanejamento
+   */
+  reason: string;
+
+  /**
+   * Contexto adicional para o replanejamento
+   */
+  additionalContext: string;
+}

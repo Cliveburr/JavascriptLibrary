@@ -2,13 +2,15 @@ import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import MessageDecomposer from './components/MessageDecomposer'
 import ExecutionPlanner from './components/ExecutionPlanner'
+import PipelineExecutor from './components/PipelineExecutor'
 import './App.css'
+import './utilities.css'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [currentView, setCurrentView] = useState('chat') // 'chat', 'decomposer' ou 'planner'
+  const [currentView, setCurrentView] = useState('chat') // 'chat', 'decomposer', 'planner' ou 'executor'
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -125,33 +127,60 @@ function App() {
   }
 
   return (
-    <div className="hero is-fullheight is-dark">
+    <div className="hero is-fullheight">
       <div className="hero-head">
-        <nav className="navbar is-dark">
+        <nav className="navbar is-transparent glass">
           <div className="navbar-brand">
             <div className="navbar-item">
-              <h1 className="title is-4 has-text-white">SymbIA Chat</h1>
+              <h1 className="title is-4 has-text-primary">
+                <span className="icon is-medium mr-2">
+                  <i className="fas fa-brain"></i>
+                </span>
+                SymbIA Intelligence Platform
+              </h1>
             </div>
-            <div className="navbar-item">
-              <div className="buttons">
-                <button 
-                  className={`button ${currentView === 'chat' ? 'is-primary' : 'is-light'}`} 
-                  onClick={() => setView('chat')}
-                >
-                  Chat
-                </button>
-                <button 
-                  className={`button ${currentView === 'decomposer' ? 'is-primary' : 'is-light'}`} 
-                  onClick={() => setView('decomposer')}
-                >
-                  Decomposer
-                </button>
-                <button 
-                  className={`button ${currentView === 'planner' ? 'is-primary' : 'is-light'}`} 
-                  onClick={() => setView('planner')}
-                >
-                  Planner
-                </button>
+          </div>
+          <div className="navbar-menu">
+            <div className="navbar-end">
+              <div className="navbar-item">
+                <div className="buttons">
+                  <button 
+                    className={`button ${currentView === 'chat' ? 'is-primary' : 'is-light'} fade-in`} 
+                    onClick={() => setView('chat')}
+                  >
+                    <span className="icon">
+                      <i className="fas fa-comments"></i>
+                    </span>
+                    <span>Chat</span>
+                  </button>
+                  <button 
+                    className={`button ${currentView === 'decomposer' ? 'is-primary' : 'is-light'} fade-in`} 
+                    onClick={() => setView('decomposer')}
+                  >
+                    <span className="icon">
+                      <i className="fas fa-puzzle-piece"></i>
+                    </span>
+                    <span>Decomposer</span>
+                  </button>
+                  <button 
+                    className={`button ${currentView === 'planner' ? 'is-primary' : 'is-light'} fade-in`} 
+                    onClick={() => setView('planner')}
+                  >
+                    <span className="icon">
+                      <i className="fas fa-project-diagram"></i>
+                    </span>
+                    <span>Planner</span>
+                  </button>
+                  <button 
+                    className={`button ${currentView === 'executor' ? 'is-primary' : 'is-light'} fade-in`} 
+                    onClick={() => setView('executor')}
+                  >
+                    <span className="icon">
+                      <i className="fas fa-rocket"></i>
+                    </span>
+                    <span>Executor</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -161,30 +190,57 @@ function App() {
       <div className="hero-body">
         <div className="container is-fluid">
           <div className="columns is-centered">
-            <div className="column is-8">
-              <div className="box has-background-dark has-text-white" style={{ height: '60vh', overflowY: 'auto' }}>
+            <div className="column is-10-desktop is-12-tablet">
+              <div className="box glass" style={{ height: '70vh', overflowY: 'auto' }}>
                 {currentView === 'chat' ? (
-                  <>
+                  <div className="chat-container">
                     {messages.map((message, index) => (
-                      <div key={index} className={`mb-4 ${message.role === 'user' ? 'has-text-right' : 'has-text-left'}`}>
-                        <div className={`notification ${message.role === 'user' ? 'is-primary' : 'is-grey-dark'} is-inline-block`} 
-                             style={{ maxWidth: '70%', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
-                          {message.content}
+                      <div key={index} className={`mb-4 ${message.role === 'user' ? 'has-text-right' : 'has-text-left'} slide-up`}>
+                        <div className={`notification ${message.role === 'user' ? 'is-primary' : 'is-light'} is-inline-block`} 
+                             style={{ maxWidth: '75%', wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
+                          <div className="media">
+                            <div className="media-left">
+                              <figure className="image is-32x32">
+                                <span className="icon is-medium">
+                                  <i className={`fas ${message.role === 'user' ? 'fa-user' : 'fa-robot'}`}></i>
+                                </span>
+                              </figure>
+                            </div>
+                            <div className="media-content">
+                              {message.content}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
                     {isLoading && (
                       <div className="has-text-left mb-4">
-                        <div className="notification is-grey-dark is-inline-block" style={{ maxWidth: '70%' }}>
-                          <span className="has-text-weight-semibold">Thinking...</span>
+                        <div className="notification is-light is-inline-block pulse" style={{ maxWidth: '75%' }}>
+                          <div className="media">
+                            <div className="media-left">
+                              <figure className="image is-32x32">
+                                <span className="icon is-medium">
+                                  <i className="fas fa-robot"></i>
+                                </span>
+                              </figure>
+                            </div>
+                            <div className="media-content">
+                              <span className="icon is-small">
+                                <i className="fas fa-spinner fa-pulse"></i>
+                              </span>
+                              <span className="has-text-weight-semibold ml-2">Thinking...</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
-                  </>
+                  </div>
                 ) : currentView === 'decomposer' ? (
                   <MessageDecomposer />
-                ) : (
+                ) : currentView === 'planner' ? (
                   <ExecutionPlanner />
+                ) : (
+                  <PipelineExecutor />
                 )}
                 <div ref={messagesEndRef} />
               </div>
@@ -197,30 +253,35 @@ function App() {
         <div className="hero-foot">
           <div className="container is-fluid">
             <div className="columns is-centered">
-              <div className="column is-8">
-                <div className="field has-addons">
-                  <div className="control is-expanded">
-                    <textarea
-                      ref={textareaRef}
-                      className="textarea has-background-grey-darker has-text-white"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Type your message here..."
-                      disabled={isLoading}
-                      rows={2}
-                      style={{ resize: 'none' }}
-                    />
-                  </div>
-                  <div className="control">
-                    <button 
-                      className={`button is-primary ${isLoading ? 'is-loading' : ''}`}
-                      onClick={sendMessage} 
-                      disabled={isLoading || !input.trim()}
-                      style={{ height: '100%' }}
-                    >
-                      Send
-                    </button>
+              <div className="column is-10-desktop is-12-tablet">
+                <div className="box glass">
+                  <div className="field has-addons">
+                    <div className="control is-expanded">
+                      <textarea
+                        ref={textareaRef}
+                        className="textarea"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
+                        disabled={isLoading}
+                        rows={3}
+                        style={{ resize: 'vertical', minHeight: '80px' }}
+                      />
+                    </div>
+                    <div className="control">
+                      <button 
+                        className={`button is-primary is-large ${isLoading ? 'is-loading' : ''}`}
+                        onClick={sendMessage} 
+                        disabled={isLoading || !input.trim()}
+                        style={{ height: '100%', minHeight: '80px' }}
+                      >
+                        <span className="icon">
+                          <i className="fas fa-paper-plane"></i>
+                        </span>
+                        <span>Send</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

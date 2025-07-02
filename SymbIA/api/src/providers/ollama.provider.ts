@@ -26,7 +26,12 @@ export class OllamaProvider implements LLMProvider {
     try {
       const response = await this.ollama.chat({
         model: model,
-        messages: [{ role: 'user', content: message }],
+        messages: [
+          {
+            role: 'user',
+            content: message
+          }
+        ],
         stream: true,
         tools: [
         ],
