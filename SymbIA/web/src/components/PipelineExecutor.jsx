@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './PipelineExecutor.css';
 
 const PipelineExecutor = () => {
   const [message, setMessage] = useState('');
@@ -48,16 +47,16 @@ const PipelineExecutor = () => {
     return `${(ms / 1000).toFixed(1)}s`;
   };
 
-  const getStatusColor = (status) => {
+  const getStatusBadge = (status) => {
     switch (status) {
       case 'success':
-        return '#4CAF50';
+        return <span className="tag is-success">✅ Sucesso</span>;
       case 'failed':
-        return '#f44336';
+        return <span className="tag is-danger">❌ Falha</span>;
       case 'completed':
-        return '#2196F3';
+        return <span className="tag is-info">✅ Concluído</span>;
       default:
-        return '#757575';
+        return <span className="tag is-light">⏳ Processando</span>;
     }
   };
 
@@ -71,240 +70,367 @@ const PipelineExecutor = () => {
   };
 
   return (
-    <div className="container">
-      <section className="section">
-        <h2 className="title is-3 pipeline-executor">🎯 Pipeline Executor - Etapa 5</h2>
-        <div className="notification is-light">
-          Execute o pipeline completo: decomposição, enriquecimento, planejamento e execução passo a passo.
+    <div className="has-text-white">
+      {/* Header Section */}
+      <div className="mb-6">
+        <h2 className="title is-3 has-text-white mb-3">
+          <span className="icon is-large mr-3">
+            <i className="fas fa-rocket has-text-success"></i>
+          </span>
+          Pipeline Executor SymbIA
+        </h2>
+        <div className="notification is-success is-light">
+          <p className="has-text-dark">
+            <strong>Etapa 5:</strong> Execute o pipeline completo: decomposição, enriquecimento, 
+            planejamento e execução passo a passo.
+          </p>
         </div>
+      </div>
 
-        <div className="box">
-          <div className="field">
-            <label className="label">Mensagem</label>
-            <div className="control">
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Digite sua mensagem aqui para executar o pipeline completo..."
-                className="textarea message-input"
-                rows={4}
-                disabled={isExecuting}
-              />
-            </div>
+      {/* Input Section */}
+      <div className="box has-background-grey-dark mb-6">
+        <div className="field">
+          <label className="label has-text-white">Mensagem para Execução Completa</label>
+          <div className="control">
+            <textarea
+              className="textarea has-background-grey-darker has-text-white is-large"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Digite sua mensagem aqui para executar o pipeline completo..."
+              rows={4}
+              disabled={isExecuting}
+              style={{ border: '1px solid hsl(0, 0%, 48%)', borderRadius: '8px' }}
+            />
+          </div>
+        </div>
+        
+        <div className="field has-text-centered">
+          <div className="control">
+            <button 
+              className={`button is-success is-medium is-fullwidth ${isExecuting ? 'is-loading' : ''}`}
+              onClick={executePipeline}
+              disabled={isExecuting || !message.trim()}
+            >
+              <span className="icon">
+                <i className="fas fa-rocket"></i>
+              </span>
+              <span>{isExecuting ? 'Executando Pipeline...' : 'Executar Pipeline Completo'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="notification is-danger mb-6">
+          <button className="delete" onClick={() => setError('')}></button>
+          <strong>Erro:</strong> {error}
+        </div>
+      )}
+
+      {/* Results Section */}
+      {result && (
+        <div className="box has-background-grey-dark">
+          <div className="mb-6">
+            <h3 className="title is-3 has-text-success">
+              <span className="icon mr-2">
+                <i className="fas fa-check-circle"></i>
+              </span>
+              Resultado da Execução
+            </h3>
           </div>
           
-          <div className="field">
-            <div className="control">
-              <button 
-                onClick={executePipeline}
-                disabled={isExecuting || !message.trim()}
-                className="button is-primary is-fullwidth execute-button"
-              >
-                {isExecuting ? '🔄 Executando Pipeline...' : '🚀 Executar Pipeline Completo'}
-              </button>
+          {/* Execution Summary */}
+          <div className="card has-background-grey-darker mb-6">
+            <div className="card-header">
+              <p className="card-header-title has-text-white">
+                <span className="icon mr-2">
+                  <i className="fas fa-chart-bar"></i>
+                </span>
+                Resumo da Execução
+              </p>
             </div>
-          </div>
-        </div>
-
-        {error && (
-          <div className="message is-danger">
-            <div className="message-header">
-              <p>❌ Erro</p>
-            </div>
-            <div className="message-body">
-              {error}
-            </div>
-          </div>
-        )}
-
-        {result && (
-          <div className="box">
-            <h3 className="title is-4 has-text-success">✅ Resultado da Execução</h3>
-            
-            {/* Resumo da Execução */}
-            <div className="box has-background-light">
-              <h4 className="title is-5">📊 Resumo da Execução</h4>
-              <div className="summary-stats mb-4">
-                <div className="stat box">
-                  <span className="stat-label has-text-grey">Total de Passos:</span>
-                  <span className="stat-value has-text-dark">{result.data.executionReport.summary.totalSteps}</span>
+            <div className="card-content">
+              <div className="columns is-multiline">
+                <div className="column is-3">
+                  <div className="has-text-centered">
+                    <div className="title is-4 has-text-info">{result.data.executionReport.summary.totalSteps}</div>
+                    <div className="subtitle is-6 has-text-grey-light">Total de Passos</div>
+                  </div>
                 </div>
-                <div className="stat box">
-                  <span className="stat-label has-text-grey">Sucessos:</span>
-                  <span className="stat-value has-text-success">
-                    {result.data.executionReport.summary.successfulSteps}
-                  </span>
+                <div className="column is-3">
+                  <div className="has-text-centered">
+                    <div className="title is-4 has-text-success">{result.data.executionReport.summary.successfulSteps}</div>
+                    <div className="subtitle is-6 has-text-grey-light">Sucessos</div>
+                  </div>
                 </div>
-                <div className="stat box">
-                  <span className="stat-label has-text-grey">Falhas:</span>
-                  <span className="stat-value has-text-danger">
-                    {result.data.executionReport.summary.failedSteps}
-                  </span>
+                <div className="column is-3">
+                  <div className="has-text-centered">
+                    <div className="title is-4 has-text-danger">{result.data.executionReport.summary.failedSteps}</div>
+                    <div className="subtitle is-6 has-text-grey-light">Falhas</div>
+                  </div>
                 </div>
-                <div className="stat box">
-                  <span className="stat-label has-text-grey">Tempo Total:</span>
-                  <span className="stat-value has-text-dark">
-                    {formatExecutionTime(result.data.executionReport.summary.totalExecutionTime)}
-                  </span>
+                <div className="column is-3">
+                  <div className="has-text-centered">
+                    <div className="title is-4 has-text-warning">{formatExecutionTime(result.data.executionReport.summary.totalExecutionTime)}</div>
+                    <div className="subtitle is-6 has-text-grey-light">Tempo Total</div>
+                  </div>
                 </div>
               </div>
               
               {result.data.executionReport.wasReplanned && (
                 <div className="notification is-warning">
-                  🔄 <strong>Replanejamento Executado:</strong> O plano foi ajustado durante a execução
+                  <span className="icon mr-2">
+                    <i className="fas fa-sync-alt"></i>
+                  </span>
+                  <strong>Replanejamento Executado:</strong> O plano foi ajustado durante a execução
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Resposta Final */}
-            <div className="box has-background-success-light">
-              <h4 className="title is-5 has-text-success">💬 Resposta Final</h4>
-              <div className="box content">
-                {(() => {
-                  const finalResponse = result.data?.executionReport?.finalResponse;
-                if (!finalResponse || finalResponse.trim().length === 0) {
-                  return (
-                    <div className="has-text-grey" style={{ fontStyle: 'italic' }}>
-                      Aguardando resposta final... Se esta mensagem persistir, pode ser que o serviço esteja processando ou tenha encontrado dificuldades.
-                    </div>
-                  );
-                }
-                return formatText(finalResponse);
-              })()}
+          {/* Final Response */}
+          <div className="card has-background-success-dark mb-6">
+            <div className="card-header">
+              <p className="card-header-title has-text-white">
+                <span className="icon mr-2">
+                  <i className="fas fa-comment-dots"></i>
+                </span>
+                Resposta Final
+              </p>
+            </div>
+            <div className="card-content">
+              <div className="box has-background-white">
+                <div className="content has-text-dark">
+                  {(() => {
+                    const finalResponse = result.data?.executionReport?.finalResponse;
+                    if (!finalResponse || finalResponse.trim().length === 0) {
+                      return (
+                        <div className="has-text-grey has-text-centered" style={{ fontStyle: 'italic' }}>
+                          <span className="icon mr-2">
+                            <i className="fas fa-hourglass-half"></i>
+                          </span>
+                          Aguardando resposta final...
+                        </div>
+                      );
+                    }
+                    return formatText(finalResponse);
+                  })()}
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Detalhes dos Passos */}
-            <div className="mb-5">
-              <h4 className="title is-5">🔍 Detalhes da Execução</h4>
-              <div>
-                {result.data?.executionReport?.stepResults?.length > 0 ? (
-                  result.data.executionReport.stepResults.map((step, index) => (
-                    <div key={index} className="box has-background-light mb-3">
-                      <div className="step-header">
-                        <span 
-                          className="step-status"
-                          style={{ color: getStatusColor(step.status) }}
-                        >
-                          {step.status === 'success' ? '✅' : '❌'}
-                        </span>
-                        <span className="step-name has-text-weight-semibold">
-                          {step.stepNumber}. {step.actionName}
-                        </span>
-                        <span className="step-time tag is-light">
-                          {formatExecutionTime(step.executionTime || 0)}
-                        </span>
-                      </div>
-                      
-                      {/* Sempre mostrar a seção de resultado */}
-                      <div className="box has-background-success-light mt-3">
-                        <strong>Resultado:</strong>
-                        <div className="result-content">
-                          {step.result ? (
-                            typeof step.result === 'string' 
-                              ? (step.result.length > 0 
-                                  ? formatText(step.result.substring(0, 500) + (step.result.length > 500 ? '...' : ''))
-                                  : <em className="has-text-grey">Resultado vazio</em>
-                                )
-                              : <pre>{JSON.stringify(step.result, null, 2)}</pre>
-                          ) : (
-                            <em className="has-text-grey">
-                              {step.status === 'success' 
-                                ? 'Passo executado com sucesso, mas sem resultado detalhado'
-                                : 'Nenhum resultado disponível'
-                              }
-                            </em>
-                          )}
+          {/* Step Details */}
+          <div className="mb-6">
+            <h4 className="title is-4 has-text-white mb-4">
+              <span className="icon mr-2">
+                <i className="fas fa-list-ol"></i>
+              </span>
+              Detalhes da Execução
+            </h4>
+            
+            {result.data?.executionReport?.stepResults?.length > 0 ? (
+              result.data.executionReport.stepResults.map((step, index) => (
+                <div key={index} className="card has-background-grey-darker mb-4">
+                  <div className="card-header">
+                    <div className="card-header-title">
+                      <div className="level is-mobile" style={{ width: '100%' }}>
+                        <div className="level-left">
+                          <div className="level-item">
+                            {getStatusBadge(step.status)}
+                            <span className="title is-6 has-text-white ml-3">
+                              {step.stepNumber}. {step.actionName}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="level-right">
+                          <div className="level-item">
+                            <span className="tag is-info">
+                              <span className="icon is-small mr-1">
+                                <i className="fas fa-clock"></i>
+                              </span>
+                              {formatExecutionTime(step.executionTime || 0)}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      
-                      {step.error && (
-                        <div className="box has-background-danger-light mt-3">
-                          <strong className="has-text-danger">Erro:</strong> <span className="has-text-danger">{step.error}</span>
-                        </div>
-                      )}
                     </div>
-                  ))
-                ) : (
-                  <div className="notification is-light has-text-centered">
-                    <p className="has-text-grey" style={{ fontStyle: 'italic' }}>Nenhum passo de execução encontrado.</p>
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Principais Resultados */}
-            {result.data?.executionReport?.summary?.keyResults?.length > 0 && (
-              <div className="mb-5">
-                <h4 className="title is-5 has-text-success">🎯 Principais Resultados</h4>
-                <div className="box has-background-light">
-                  <ul className="content">
-                    {result.data.executionReport.summary.keyResults.map((keyResult, index) => (
-                      <li key={index} className="pb-2">{keyResult}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {/* Erros Encontrados */}
-            {result.data?.executionReport?.summary?.errors?.length > 0 && (
-              <div className="mb-5">
-                <h4 className="title is-5 has-text-danger">⚠️ Erros Encontrados</h4>
-                <div className="box has-background-light">
-                  <ul className="content">
-                    {result.data.executionReport.summary.errors.map((error, index) => (
-                      <li key={index} className="has-text-danger pb-2">{error}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {/* Contexto para Próxima Iteração */}
-            <div className="box has-background-info-light mb-5">
-              <h4 className="title is-5 has-text-info">🔄 Contexto para Próxima Iteração</h4>
-              <p className="content">{result.data?.executionReport?.summary?.contextForNextIteration || 'Contexto não disponível'}</p>
-            </div>
-
-            {/* Dados Técnicos */}
-            <details className="box">
-              <summary className="title is-6 has-text-grey" style={{ cursor: 'pointer' }}>🔧 Dados Técnicos</summary>
-              <div className="content mt-4">
-                <h5 className="subtitle is-6 has-text-grey">Decomposição Original:</h5>
-                <div className="box has-background-light">
-                  <ul>
-                    {result.data?.enrichedDecomposition?.decomposedItems?.length > 0 ? (
-                      result.data.enrichedDecomposition.decomposedItems.map((item, index) => (
-                        <li key={index} className="pb-2">{item}</li>
-                      ))
-                    ) : (
-                      <li>Nenhum item de decomposição disponível</li>
+                  <div className="card-content">
+                    {/* Result */}
+                    <div className="notification is-success is-light mb-3">
+                      <h6 className="title is-6 has-text-dark mb-2">
+                        <span className="icon is-small mr-1">
+                          <i className="fas fa-check-circle"></i>
+                        </span>
+                        Resultado
+                      </h6>
+                      <div className="content has-text-dark">
+                        {step.result ? (
+                          typeof step.result === 'string' 
+                            ? (step.result.length > 0 
+                                ? formatText(step.result.substring(0, 500) + (step.result.length > 500 ? '...' : ''))
+                                : <em>Resultado vazio</em>
+                              )
+                            : <pre className="has-background-grey-lighter p-3" style={{ borderRadius: '4px' }}>
+                                {JSON.stringify(step.result, null, 2)}
+                              </pre>
+                        ) : (
+                          <em>
+                            {step.status === 'success' 
+                              ? 'Passo executado com sucesso, mas sem resultado detalhado'
+                              : 'Nenhum resultado disponível'
+                            }
+                          </em>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Error */}
+                    {step.error && (
+                      <div className="notification is-danger is-light">
+                        <h6 className="title is-6 has-text-dark mb-2">
+                          <span className="icon is-small mr-1">
+                            <i className="fas fa-exclamation-triangle"></i>
+                          </span>
+                          Erro
+                        </h6>
+                        <p className="has-text-dark">{step.error}</p>
+                      </div>
                     )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="notification is-light has-text-centered">
+                <p className="has-text-grey" style={{ fontStyle: 'italic' }}>
+                  <span className="icon mr-2">
+                    <i className="fas fa-info-circle"></i>
+                  </span>
+                  Nenhum passo de execução encontrado.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Key Results */}
+          {result.data?.executionReport?.summary?.keyResults?.length > 0 && (
+            <div className="card has-background-success-dark mb-6">
+              <div className="card-header">
+                <p className="card-header-title has-text-white">
+                  <span className="icon mr-2">
+                    <i className="fas fa-trophy"></i>
+                  </span>
+                  Principais Resultados
+                </p>
+              </div>
+              <div className="card-content">
+                <div className="content has-text-white">
+                  <ul>
+                    {result.data.executionReport.summary.keyResults.map((keyResult, index) => (
+                      <li key={index} className="mb-2">{keyResult}</li>
+                    ))}
                   </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Errors Found */}
+          {result.data?.executionReport?.summary?.errors?.length > 0 && (
+            <div className="card has-background-danger-dark mb-6">
+              <div className="card-header">
+                <p className="card-header-title has-text-white">
+                  <span className="icon mr-2">
+                    <i className="fas fa-exclamation-triangle"></i>
+                  </span>
+                  Erros Encontrados
+                </p>
+              </div>
+              <div className="card-content">
+                <div className="content has-text-white">
+                  <ul>
+                    {result.data.executionReport.summary.errors.map((error, index) => (
+                      <li key={index} className="mb-2">{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Context for Next Iteration */}
+          <div className="card has-background-info-dark mb-6">
+            <div className="card-header">
+              <p className="card-header-title has-text-white">
+                <span className="icon mr-2">
+                  <i className="fas fa-sync-alt"></i>
+                </span>
+                Contexto para Próxima Iteração
+              </p>
+            </div>
+            <div className="card-content">
+              <div className="content has-text-white">
+                <p>{result.data?.executionReport?.summary?.contextForNextIteration || 'Contexto não disponível'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Technical Data */}
+          <details className="card has-background-grey-darker">
+            <summary className="card-header" style={{ cursor: 'pointer' }}>
+              <p className="card-header-title has-text-white">
+                <span className="icon mr-2">
+                  <i className="fas fa-cogs"></i>
+                </span>
+                Dados Técnicos
+              </p>
+            </summary>
+            <div className="card-content">
+              <div className="content has-text-white">
+                {/* Original Decomposition */}
+                <div className="mb-5">
+                  <h5 className="title is-5 has-text-white">Decomposição Original</h5>
+                  <div className="box has-background-grey">
+                    <ul className="has-text-white">
+                      {result.data?.enrichedDecomposition?.decomposedItems?.length > 0 ? (
+                        result.data.enrichedDecomposition.decomposedItems.map((item, index) => (
+                          <li key={index} className="mb-2">{item}</li>
+                        ))
+                      ) : (
+                        <li>Nenhum item de decomposição disponível</li>
+                      )}
+                    </ul>
+                  </div>
                 </div>
                 
-                <h5 className="subtitle is-6 has-text-grey">Plano de Execução:</h5>
-                <div className="box has-background-light">
-                  <ul>
-                    {result.data?.executionPlan?.actions?.length > 0 ? (
-                      result.data.executionPlan.actions.map((action, index) => (
-                        <li key={index} className="pb-3">
-                          <strong>{action.actionName}:</strong> {action.actionDescription}
-                          <br />
-                          <em className="has-text-grey is-size-7">Justificativa: {action.justification}</em>
-                        </li>
-                      ))
-                    ) : (
-                      <li>Nenhuma ação do plano disponível</li>
-                    )}
-                  </ul>
+                {/* Execution Plan */}
+                <div>
+                  <h5 className="title is-5 has-text-white">Plano de Execução</h5>
+                  <div className="box has-background-grey">
+                    <ul className="has-text-white">
+                      {result.data?.executionPlan?.actions?.length > 0 ? (
+                        result.data.executionPlan.actions.map((action, index) => (
+                          <li key={index} className="mb-4">
+                            <strong>{action.actionName}:</strong> {action.actionDescription}
+                            <br />
+                            <em className="has-text-grey-light is-size-7">
+                              Justificativa: {action.justification}
+                            </em>
+                          </li>
+                        ))
+                      ) : (
+                        <li>Nenhuma ação do plano disponível</li>
+                      )}
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </details>
-          </div>
-        )}
-      </section>
+            </div>
+          </details>
+        </div>
+      )}
     </div>
   );
 };
