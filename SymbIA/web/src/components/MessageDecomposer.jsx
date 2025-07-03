@@ -7,11 +7,11 @@ function MessageDecomposer() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEnriching, setIsEnriching] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('simple'); // 'simple' ou 'enriched'
+  const [activeTab, setActiveTab] = useState('simple'); // 'simple' or 'enriched'
 
   const decomposeMessage = async () => {
     if (!message.trim()) {
-      setError('Por favor, digite uma mensagem para decompor');
+      setError('Please enter a message to decompose');
       return;
     }
 
@@ -37,7 +37,7 @@ function MessageDecomposer() {
       setDecomposition(data.data);
       setActiveTab('simple');
     } catch (err) {
-      setError(`Erro ao decompor mensagem: ${err.message}`);
+      setError(`Error decomposing message: ${err.message}`);
       console.error('Decompose error:', err);
     } finally {
       setIsLoading(false);
@@ -46,7 +46,7 @@ function MessageDecomposer() {
 
   const decomposeEnrichedMessage = async () => {
     if (!message.trim()) {
-      setError('Por favor, digite uma mensagem para decompor');
+      setError('Please enter a message to decompose');
       return;
     }
 
@@ -72,7 +72,7 @@ function MessageDecomposer() {
       setEnrichedDecomposition(data.data);
       setActiveTab('enriched');
     } catch (err) {
-      setError(`Erro ao decompor mensagem enriquecida: ${err.message}`);
+      setError(`Error decomposing enriched message: ${err.message}`);
       console.error('Enriched decompose error:', err);
     } finally {
       setIsEnriching(false);
@@ -87,12 +87,12 @@ function MessageDecomposer() {
           <span className="icon is-large mr-3">
             <i className="fas fa-brain has-text-primary"></i>
           </span>
-          Decompositor Inteligente SymbIA
+          SymbIA Intelligent Decomposer
         </h2>
         <div className="notification is-info is-light">
           <p className="has-text-dark">
-            <strong>Etapa 2:</strong> Digite uma mensagem e veja como a IA a decompõe em componentes isolados e específicos, 
-            agora com embeddings e busca de contexto vetorial.
+            <strong>Step 2:</strong> Type a message and see how AI decomposes it into isolated and specific components, 
+            now with embeddings and vector context search.
           </p>
         </div>
       </div>
@@ -100,13 +100,13 @@ function MessageDecomposer() {
       {/* Input Section */}
       <div className="box has-background-grey-dark mb-6">
         <div className="field">
-          <label className="label has-text-white">Mensagem para Decomposição</label>
+          <label className="label has-text-white">Message for Decomposition</label>
           <div className="control">
             <textarea
               className="textarea has-background-grey-darker has-text-white is-large"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Digite sua mensagem aqui... Ex: 'agende para desligar as luzes daqui 10min' ou 'crie um sistema de busca com embeddings'"
+              placeholder="Type your message here... Ex: 'schedule to turn off the lights in 10min' or 'create a search system with embeddings'"
               rows={4}
               style={{ border: '1px solid hsl(0, 0%, 48%)', borderRadius: '8px' }}
             />
@@ -123,7 +123,7 @@ function MessageDecomposer() {
               <span className="icon">
                 <i className="fas fa-brain"></i>
               </span>
-              <span>{isLoading ? 'Decompondo...' : 'Decomposição Simples'}</span>
+              <span>{isLoading ? 'Decomposing...' : 'Simple Decomposition'}</span>
             </button>
           </div>
           
@@ -136,7 +136,7 @@ function MessageDecomposer() {
               <span className="icon">
                 <i className="fas fa-magic"></i>
               </span>
-              <span>{isEnriching ? 'Enriquecendo...' : 'Decomposição + Embeddings'}</span>
+              <span>{isEnriching ? 'Enriching...' : 'Decomposition + Embeddings'}</span>
             </button>
           </div>
         </div>
@@ -146,7 +146,7 @@ function MessageDecomposer() {
       {error && (
         <div className="notification is-danger mb-6">
           <button className="delete" onClick={() => setError('')}></button>
-          <strong>Erro:</strong> {error}
+          <strong>Error:</strong> {error}
         </div>
       )}
 
@@ -162,7 +162,7 @@ function MessageDecomposer() {
                     <span className="icon is-small">
                       <i className="fas fa-brain"></i>
                     </span>
-                    <span>Decomposição Simples</span>
+                    <span>Simple Decomposition</span>
                   </a>
                 </li>
               )}
@@ -172,7 +172,7 @@ function MessageDecomposer() {
                     <span className="icon is-small">
                       <i className="fas fa-magic"></i>
                     </span>
-                    <span>Decomposição Enriquecida</span>
+                    <span>Enriched Decomposition</span>
                   </a>
                 </li>
               )}
@@ -187,7 +187,7 @@ function MessageDecomposer() {
                 <div className="level-left">
                   <div className="level-item">
                     <div className="tags has-addons">
-                      <span className="tag is-dark">Total de itens</span>
+                      <span className="tag is-dark">Total items</span>
                       <span className="tag is-primary">{decomposition.totalItems}</span>
                     </div>
                   </div>
@@ -195,7 +195,7 @@ function MessageDecomposer() {
                 <div className="level-right">
                   <div className="level-item">
                     <div className="tags has-addons">
-                      <span className="tag is-dark">Processado em</span>
+                      <span className="tag is-dark">Processed at</span>
                       <span className="tag is-info">{new Date(decomposition.timestamp).toLocaleString()}</span>
                     </div>
                   </div>
@@ -209,7 +209,7 @@ function MessageDecomposer() {
                     <span className="icon mr-2">
                       <i className="fas fa-file-alt"></i>
                     </span>
-                    Mensagem Original
+                    Original Message
                   </p>
                 </div>
                 <div className="card-content">
@@ -225,7 +225,7 @@ function MessageDecomposer() {
                   <span className="icon mr-2">
                     <i className="fas fa-puzzle-piece"></i>
                   </span>
-                  Componentes Decompostos
+                  Decomposed Components
                 </h4>
                 
                 <div className="columns is-multiline">
@@ -267,7 +267,7 @@ function MessageDecomposer() {
                 <div className="level-left">
                   <div className="level-item">
                     <div className="tags has-addons">
-                      <span className="tag is-dark">Itens enriquecidos</span>
+                      <span className="tag is-dark">Enriched items</span>
                       <span className="tag is-danger">{enrichedDecomposition.enrichedItems?.length || 0}</span>
                     </div>
                   </div>
@@ -275,7 +275,7 @@ function MessageDecomposer() {
                 <div className="level-right">
                   <div className="level-item">
                     <div className="tags has-addons">
-                      <span className="tag is-dark">Processado em</span>
+                      <span className="tag is-dark">Processed at</span>
                       <span className="tag is-info">{new Date(enrichedDecomposition.timestamp).toLocaleString()}</span>
                     </div>
                   </div>
@@ -289,7 +289,7 @@ function MessageDecomposer() {
                     <span className="icon mr-2">
                       <i className="fas fa-file-alt"></i>
                     </span>
-                    Mensagem Original
+                    Original Message
                   </p>
                 </div>
                 <div className="card-content">
@@ -305,7 +305,7 @@ function MessageDecomposer() {
                   <span className="icon mr-2">
                     <i className="fas fa-magic"></i>
                   </span>
-                  Componentes Enriquecidos com Contexto
+                  Enriched Components with Context
                 </h4>
                 
                 {enrichedDecomposition.enrichedItems?.map((enrichedItem, index) => (
@@ -334,7 +334,7 @@ function MessageDecomposer() {
                     </div>
                     <div className="card-content">
                       <div className="content has-text-white mb-4">
-                        <strong className="has-text-primary">Conteúdo:</strong>
+                        <strong className="has-text-primary">Content:</strong>
                         <p className="mt-2">{enrichedItem.item}</p>
                       </div>
 
@@ -345,7 +345,7 @@ function MessageDecomposer() {
                             <span className="icon mr-2">
                               <i className="fas fa-book"></i>
                             </span>
-                            Contexto Relacionado ({enrichedItem.relatedContext.length})
+                            Related Context ({enrichedItem.relatedContext.length})
                           </h5>
                           
                           {enrichedItem.relatedContext.map((context, ctxIndex) => (
@@ -365,7 +365,7 @@ function MessageDecomposer() {
                                         <span className="icon is-small mr-1">
                                           <i className="fas fa-sync-alt"></i>
                                         </span>
-                                        Busca local
+                                        Local search
                                       </span>
                                     </div>
                                   </div>
@@ -393,7 +393,7 @@ function MessageDecomposer() {
                 <span className="icon mr-2">
                   <i className="fas fa-rocket"></i>
                 </span>
-                Pipeline de Raciocínio Estruturado
+                Structured Reasoning Pipeline
               </p>
             </div>
             <div className="card-content">
@@ -411,7 +411,7 @@ function MessageDecomposer() {
                   </div>
                   <div className="level-right">
                     <div className="level-item">
-                      <small className="has-text-dark">Análise semântica com embeddings e busca vetorial</small>
+                      <small className="has-text-dark">Semantic analysis with embeddings and vector search</small>
                     </div>
                   </div>
                 </div>
@@ -420,42 +420,42 @@ function MessageDecomposer() {
               <div className="content has-text-white">
                 <ol className="is-size-6">
                   <li className={`mb-3 ${decomposition || enrichedDecomposition ? 'has-text-success' : 'has-text-grey-light'}`}>
-                    <strong>Decomposição Inteligente</strong> - 
+                    <strong>Intelligent Decomposition</strong> - 
                     {decomposition || enrichedDecomposition ? (
                       <span className="tag is-success ml-2">
-                        ✅ Analisado e decomposto em {(decomposition?.totalItems || enrichedDecomposition?.enrichedItems?.length || 0)} itens
+                        ✅ Analyzed and decomposed into {(decomposition?.totalItems || enrichedDecomposition?.enrichedItems?.length || 0)} items
                       </span>
                     ) : (
-                      <span className="tag is-warning ml-2">⏳ Aguardando análise</span>
+                      <span className="tag is-warning ml-2">⏳ Awaiting analysis</span>
                     )}
                   </li>
                   <li className={`mb-3 ${enrichedDecomposition ? 'has-text-success' : 'has-text-grey-light'}`}>
-                    <strong>Gerar embeddings</strong> - 
+                    <strong>Generate embeddings</strong> - 
                     {enrichedDecomposition ? (
-                      <span className="tag is-success ml-2">✅ Embeddings gerados para todos os itens</span>
+                      <span className="tag is-success ml-2">✅ Embeddings generated for all items</span>
                     ) : (
-                      <span className="tag is-warning ml-2">⏳ Para cada item decomposto</span>
+                      <span className="tag is-warning ml-2">⏳ For each decomposed item</span>
                     )}
                   </li>
                   <li className={`mb-3 ${enrichedDecomposition ? 'has-text-success' : 'has-text-grey-light'}`}>
-                    <strong>Buscar contexto no Qdrant</strong> - 
+                    <strong>Search context in Qdrant</strong> - 
                     {enrichedDecomposition ? (
-                      <span className="tag is-success ml-2">✅ Contexto recuperado usando similaridade vetorial</span>
+                      <span className="tag is-success ml-2">✅ Context retrieved using vector similarity</span>
                     ) : (
-                      <span className="tag is-warning ml-2">⏳ Usando similaridade vetorial</span>
+                      <span className="tag is-warning ml-2">⏳ Using vector similarity</span>
                     )}
                   </li>
                   <li className="mb-3 has-text-grey-light">
-                    <strong>Criar plano de ações</strong> - 
-                    <span className="tag is-warning ml-2">⏳ Baseado no contexto encontrado</span>
+                    <strong>Create action plan</strong> - 
+                    <span className="tag is-warning ml-2">⏳ Based on found context</span>
                   </li>
                   <li className="mb-3 has-text-grey-light">
-                    <strong>Executar plano</strong> - 
-                    <span className="tag is-warning ml-2">⏳ Etapa por etapa</span>
+                    <strong>Execute plan</strong> - 
+                    <span className="tag is-warning ml-2">⏳ Step by step</span>
                   </li>
                   <li className="mb-3 has-text-grey-light">
-                    <strong>Gerar resposta final</strong> - 
-                    <span className="tag is-warning ml-2">⏳ Com resumo para memória</span>
+                    <strong>Generate final response</strong> - 
+                    <span className="tag is-warning ml-2">⏳ With summary for memory</span>
                   </li>
                 </ol>
               </div>

@@ -11,12 +11,12 @@ import { LLMManager } from './llm.service';
 import { ExecutionPlannerService } from './execution-planner.service';
 
 /**
- * Serviço responsável por executar planos de execução passo a passo
+ * Service responsible for executing execution plans step by step
  */
 export class PlanExecutorService {
   /**
-   * Cria uma nova instância do serviço de execução de planos
-   * @param llmManager Gerenciador de LLM para geração de respostas
+   * Creates a new instance of the plan execution service
+   * @param llmManager LLM manager for response generation
    */
   constructor(
     private llmManager: LLMManager,
@@ -24,9 +24,9 @@ export class PlanExecutorService {
   ) {}
 
   /**
-   * Executa um plano de execução completo
-   * @param plan Plano de execução a ser executado
-   * @returns Relatório completo da execução
+   * Executes a complete execution plan
+   * @param plan Execution plan to be executed
+   * @returns Complete execution report
    */
   public async executePlan(plan: ExecutionPlan): Promise<ExecutionReport> {
     console.log('🎯 Starting plan execution');
@@ -36,21 +36,21 @@ export class PlanExecutorService {
     let replanedPlan: ExecutionPlan | undefined;
 
     try {
-      // Executar cada passo do plano
+      // Execute each step of the plan
       for (let i = 0; i < plan.actions.length; i++) {
         const action = plan.actions[i];
         console.log(`🔄 Executing step ${action.stepNumber}: ${action.actionName}`);
 
-        // Atualizar status da ação para "in_progress"
+        // Update action status to "in_progress"
         action.status = 'in_progress';
 
         const stepResult = await this.executeStep(action, plan);
         stepResults.push(stepResult);
 
-        // Atualizar status da ação baseado no resultado
+        // Update action status based on result
         action.status = stepResult.status === 'success' ? 'completed' : 'failed';
 
-        // Avaliar se é necessário replanejamento
+        // Evaluate if replanning is necessary
         const shouldReplan = await this.evaluateNeedForReplanning(stepResult, plan, stepResults);
         
         if (shouldReplan.needsReplanning) {
@@ -65,7 +65,7 @@ export class PlanExecutorService {
               additionalContext: shouldReplan.context
             });
 
-            // Continuar execução com o novo plano
+            // Continue execution with the new plan
             const remainingSteps = replanedPlan.actions.slice(stepResults.length);
             for (const newAction of remainingSteps) {
               console.log(`🔄 Executing replanned step ${newAction.stepNumber}: ${newAction.actionName}`);
@@ -92,7 +92,7 @@ export class PlanExecutorService {
           }
         }
 
-        // Se o passo falhou e não foi possível replanejar, continuar com próximo passo
+        // If step failed and replanning was not possible, continue with next step
         if (stepResult.status === 'failed' && !wasReplanned) {
           console.warn(`⚠️ Step ${action.stepNumber} failed, continuing with next step`);
         }
@@ -135,10 +135,10 @@ export class PlanExecutorService {
   }
 
   /**
-   * Executa um único passo do plano
-   * @param action Ação a ser executada
-   * @param plan Plano completo para contexto
-   * @returns Resultado da execução do passo
+   * Executes a single step of the plan
+   * @param action Action to be executed
+   * @param plan Complete plan for context
+   * @returns Result of step execution
    */
   private async executeStep(action: ExecutionPlanAction, plan: ExecutionPlan): Promise<ExecutionResult> {
     const startTime = Date.now();
@@ -147,16 +147,16 @@ export class PlanExecutorService {
     try {
       console.log(`⚡ Executing action: ${action.actionName}`);
       
-      // Obter provedor LLM
+      // Get LLM provider
       const provider = await this.llmManager.getAvailableProvider();
       if (!provider) {
         throw new Error('No LLM provider available');
       }
 
-      // Construir prompt para execução da ação
+      // Build prompt for action execution
       const executionPrompt = this.buildExecutionPrompt(action, plan);
       
-      // Executar a ação usando o LLM
+      // Execute action using LLM
       const result = await Promise.race([
         provider.generateSingleResponse(executionPrompt),
         new Promise<string>((_, reject) => 

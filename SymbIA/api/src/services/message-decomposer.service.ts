@@ -7,40 +7,40 @@ import { QdrantProvider } from '../providers/qdrant.provider';
 import { ExecutionPlannerService } from './execution-planner.service';
 
 /**
- * Serviço principal para decomposição e processamento de mensagens do usuário
+ * Main service for decomposition and processing of user messages
  */
 export class MessageDecomposer {
   /**
-   * Serviço para enriquecimento de contexto com embeddings vetoriais
+   * Service for context enrichment with vector embeddings
    */
   private contextEnrichmentService: ContextEnrichmentService;
   
   /**
-   * Serviço para planejamento de execução baseado nas decomposições
+   * Service for execution planning based on decompositions
    */
   private executionPlannerService: ExecutionPlannerService;
 
   /**
-   * Cria uma nova instância do decompositor de mensagens
-   * @param llmManager Gerenciador de LLM para processamento de texto
+   * Creates a new instance of the message decomposer
+   * @param llmManager LLM manager for text processing
    */
   constructor(
     private llmManager: LLMManager
   ) {
-    // Inicializar serviços de enriquecimento de contexto
+    // Initialize context enrichment services
     const embeddingService = new EmbeddingService(this.llmManager);
-    const qdrantProvider = new QdrantProvider(); // Usar configuração padrão
+    const qdrantProvider = new QdrantProvider(); // Use default configuration
     const vectorStorageService = new VectorStorageService(qdrantProvider);
     this.contextEnrichmentService = new ContextEnrichmentService(embeddingService, vectorStorageService);
     
-    // Inicializar serviço de planejamento de execução
+    // Initialize execution planning service
     this.executionPlannerService = new ExecutionPlannerService(this.llmManager);
   }
   
   /**
-   * Decompõe uma mensagem do usuário em intenções, contextos e ações usando LLM
-   * @param message Mensagem do usuário a ser decomposta
-   * @returns Promessa que resolve para a decomposição estruturada da mensagem
+   * Decomposes a user message into intentions, contexts and actions using LLM
+   * @param message User message to be decomposed
+   * @returns Promise that resolves to the structured decomposition of the message
    */
   public async decomposeMessage(message: string): Promise<MessageDecomposition> {
     console.log('🧠 Starting LLM decomposition for message:', message.substring(0, 100) + '...');

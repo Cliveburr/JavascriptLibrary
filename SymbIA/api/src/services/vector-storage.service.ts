@@ -2,31 +2,31 @@ import { ContextSource, EmbeddingItem } from '../interfaces/llm.interface';
 import { VectorStorageProvider } from '../interfaces/vector-storage.interface';
 
 /**
- * Serviço para gerenciar o armazenamento e busca de embeddings vetoriais
- * com suporte a fallback local quando o provedor externo não está disponível
+ * Service to manage storage and search of vector embeddings
+ * with support for local fallback when external provider is not available
  */
 export class VectorStorageService {
   /**
-   * Provedor de armazenamento vetorial (ex: Qdrant)
+   * Vector storage provider (e.g., Qdrant)
    */
   private provider: VectorStorageProvider;
   
   /**
-   * Cache local de embeddings para busca em caso de falha do provedor
+   * Local embeddings cache for search in case of provider failure
    */
   private localEmbeddings: EmbeddingItem[] = [];
 
   /**
-   * Cria uma nova instância do serviço de armazenamento vetorial
-   * @param provider Provedor de armazenamento vetorial a ser utilizado
+   * Creates a new instance of the vector storage service
+   * @param provider Vector storage provider to be used
    */
   constructor(provider: VectorStorageProvider) {
     this.provider = provider;
   }
 
   /**
-   * Inicializa o serviço de armazenamento vetorial
-   * @returns Promessa que resolve quando a inicialização é concluída
+   * Initializes the vector storage service
+   * @returns Promise that resolves when initialization is complete
    */
   async initialize(): Promise<void> {
     try {
@@ -37,8 +37,8 @@ export class VectorStorageService {
   }
 
   /**
-   * Verifica se o serviço de armazenamento vetorial está disponível
-   * @returns Promessa que resolve para um booleano indicando disponibilidade
+   * Checks if the vector storage service is available
+   * @returns Promise that resolves to a boolean indicating availability
    */
   async isAvailable(): Promise<boolean> {
     try {
@@ -50,21 +50,21 @@ export class VectorStorageService {
   }
 
   /**
-   * Busca contexto relevante no banco vetorial
-   * @param embedding Vetor de embedding para busca de similaridade
-   * @param limit Número máximo de resultados a retornar
-   * @param threshold Limiar mínimo de similaridade (entre 0 e 1)
-   * @returns Promessa que resolve para um array de fontes de contexto similares
+   * Search for relevant context in the vector database
+   * @param embedding Embedding vector for similarity search
+   * @param limit Maximum number of results to return
+   * @param threshold Minimum similarity threshold (between 0 and 1)
+   * @returns Promise that resolves to an array of similar context sources
    */
   async searchContext(embedding: number[], limit: number = 5, threshold: number = 0.7): Promise<ContextSource[]> {
     try {
-      // Tenta buscar no provider
+      // Try to search in the provider
       const isAvailable = await this.isAvailable();
       if (isAvailable) {
         return await this.provider.searchContext(embedding, limit, threshold);
       }
       
-      // Se não estiver disponível, usa o fallback local
+      // If not available, use local fallback
       console.log('🔄 Provider not available, using fallback search');
       return this.searchContextFallback(embedding, this.localEmbeddings, limit, threshold);
     } catch (error) {
@@ -74,17 +74,17 @@ export class VectorStorageService {
   }
 
   /**
-   * Armazena um embedding com contexto
-   * @param embeddingItem Item de embedding a ser armazenado
-   * @param metadata Metadados adicionais para associar ao embedding
-   * @returns Promessa que resolve quando o armazenamento é concluído
+   * Store an embedding with context
+   * @param embeddingItem Embedding item to be stored
+   * @param metadata Additional metadata to associate with the embedding
+   * @returns Promise that resolves when storage is complete
    */
   async storeEmbedding(embeddingItem: EmbeddingItem, metadata?: Record<string, any>): Promise<void> {
     try {
-      // Armazena localmente para fallback
+      // Store locally for fallback
       this.localEmbeddings.push(embeddingItem);
       
-      // Tenta armazenar no provider
+      // Try to store in the provider
       const isAvailable = await this.isAvailable();
       if (isAvailable) {
         await this.provider.storeEmbedding(embeddingItem, metadata);
@@ -97,17 +97,17 @@ export class VectorStorageService {
   }
 
   /**
-   * Armazena múltiplos embeddings
-   * @param embeddingItems Array de itens de embedding a serem armazenados
-   * @param metadata Metadados adicionais para associar aos embeddings
-   * @returns Promessa que resolve quando o armazenamento é concluído
+   * Store multiple embeddings
+   * @param embeddingItems Array of embedding items to be stored
+   * @param metadata Additional metadata to associate with the embeddings
+   * @returns Promise that resolves when storage is complete
    */
   async storeEmbeddings(embeddingItems: EmbeddingItem[], metadata?: Record<string, any>): Promise<void> {
     try {
-      // Armazena localmente para fallback
+      // Store locally for fallback
       this.localEmbeddings.push(...embeddingItems);
       
-      // Tenta armazenar no provider
+      // Try to store in the provider
       const isAvailable = await this.isAvailable();
       if (isAvailable) {
         await this.provider.storeEmbeddings(embeddingItems, metadata);
@@ -120,12 +120,12 @@ export class VectorStorageService {
   }
 
   /**
-   * Busca por similaridade usando fallback local (quando o provider não está disponível)
-   * @param targetEmbedding Embedding alvo para busca de similaridade
-   * @param embeddingItems Lista de embeddings armazenados localmente
-   * @param limit Número máximo de resultados a retornar
-   * @param threshold Limiar mínimo de similaridade (entre 0 e 1)
-   * @returns Promessa que resolve para um array de fontes de contexto similares
+   * Search for similarity using local fallback (when provider is not available)
+   * @param targetEmbedding Target embedding for similarity search
+   * @param embeddingItems List of locally stored embeddings
+   * @param limit Maximum number of results to return
+   * @param threshold Minimum similarity threshold (between 0 and 1)
+   * @returns Promise that resolves to an array of similar context sources
    */
   private async searchContextFallback(
     targetEmbedding: number[], 
@@ -153,10 +153,10 @@ export class VectorStorageService {
   }
 
   /**
-   * Calcula similaridade coseno entre dois embeddings
-   * @param embedding1 Primeiro vetor de embedding
-   * @param embedding2 Segundo vetor de embedding
-   * @returns Valor de similaridade entre 0 (nenhuma) e 1 (idênticos)
+   * Calculate cosine similarity between two embeddings
+   * @param embedding1 First embedding vector
+   * @param embedding2 Second embedding vector
+   * @returns Similarity value between 0 (none) and 1 (identical)
    */
   private calculateCosineSimilarity(embedding1: number[], embedding2: number[]): number {
     if (embedding1.length !== embedding2.length) {

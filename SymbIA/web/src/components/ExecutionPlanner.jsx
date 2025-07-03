@@ -9,7 +9,7 @@ function ExecutionPlanner() {
 
   const createExecutionPlan = async () => {
     if (!message.trim()) {
-      setError('Por favor, digite uma mensagem para processar');
+      setError('Please enter a message to process');
       return;
     }
 
@@ -35,7 +35,7 @@ function ExecutionPlanner() {
       setEnrichedDecomposition(data.data.enrichedDecomposition);
       setExecutionPlan(data.data.executionPlan);
     } catch (err) {
-      setError(`Erro ao criar plano de execução: ${err.message}`);
+      setError(`Error creating execution plan: ${err.message}`);
       console.error('Execution plan error:', err);
     } finally {
       setIsLoading(false);
@@ -44,10 +44,10 @@ function ExecutionPlanner() {
 
   const getStatusBadge = (status) => {
     const statusInfo = {
-      'pending': { class: 'is-warning', label: 'Pendente' },
-      'in_progress': { class: 'is-info', label: 'Em Progresso' },
-      'completed': { class: 'is-success', label: 'Concluído' },
-      'failed': { class: 'is-danger', label: 'Falhou' },
+      'pending': { class: 'is-warning', label: 'Pending' },
+      'in_progress': { class: 'is-info', label: 'In Progress' },
+      'completed': { class: 'is-success', label: 'Completed' },
+      'failed': { class: 'is-danger', label: 'Failed' },
     };
     
     const info = statusInfo[status] || statusInfo['pending'];
@@ -67,12 +67,12 @@ function ExecutionPlanner() {
           <span className="icon is-large mr-3">
             <i className="fas fa-project-diagram has-text-info"></i>
           </span>
-          Planejador de Execução SymbIA
+          SymbIA Execution Planner
         </h2>
         <div className="notification is-info is-light">
           <p className="has-text-dark">
-            <strong>Etapa 4:</strong> Digite uma mensagem e veja como a IA cria um plano de execução ordenado 
-            com base nos itens decompostos e no contexto recuperado.
+            <strong>Step 4:</strong> Enter a message and see how AI creates an ordered execution plan 
+            based on decomposed items and retrieved context.
           </p>
         </div>
       </div>
@@ -80,13 +80,13 @@ function ExecutionPlanner() {
       {/* Input Section */}
       <div className="box has-background-grey-dark mb-6">
         <div className="field">
-          <label className="label has-text-white">Mensagem para Planejamento</label>
+          <label className="label has-text-white">Message for Planning</label>
           <div className="control">
             <textarea
               className="textarea has-background-grey-darker has-text-white is-large"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Digite sua mensagem aqui... Ex: 'Crie um relatório de vendas dos últimos 3 meses e envie para a diretoria' ou 'Automatize o processo de backup e retenção de arquivos'"
+              placeholder="Enter your message here... Ex: 'Create a sales report for the last 3 months and send to management' or 'Automate the backup and file retention process'"
               rows={4}
               style={{ border: '1px solid hsl(0, 0%, 48%)', borderRadius: '8px' }}
             />
@@ -103,7 +103,7 @@ function ExecutionPlanner() {
               <span className="icon">
                 <i className="fas fa-project-diagram"></i>
               </span>
-              <span>{isLoading ? 'Planejando...' : 'Criar Plano de Execução'}</span>
+              <span>{isLoading ? 'Planning...' : 'Create Execution Plan'}</span>
             </button>
           </div>
         </div>
@@ -113,7 +113,7 @@ function ExecutionPlanner() {
       {error && (
         <div className="notification is-danger mb-6">
           <button className="delete" onClick={() => setError('')}></button>
-          <strong>Erro:</strong> {error}
+          <strong>Error:</strong> {error}
         </div>
       )}
 
@@ -125,7 +125,7 @@ function ExecutionPlanner() {
               <span className="icon mr-2">
                 <i className="fas fa-clipboard-list"></i>
               </span>
-              Plano de Execução
+              Execution Plan
             </h3>
           </div>
 
@@ -135,8 +135,7 @@ function ExecutionPlanner() {
               <p className="card-header-title has-text-white">
                 <span className="icon mr-2">
                   <i className="fas fa-file-alt"></i>
-                </span>
-                Mensagem Original
+                </span>                    Original Message
               </p>
             </div>
             <div className="card-content">
@@ -152,7 +151,7 @@ function ExecutionPlanner() {
               <span className="icon mr-2">
                 <i className="fas fa-tasks"></i>
               </span>
-              Ações Planejadas ({executionPlan.actions.length})
+              Planned Actions ({executionPlan.actions.length})
             </h4>
             
             <div className="timeline">
@@ -170,7 +169,7 @@ function ExecutionPlanner() {
                               (action.stepNumber - 1) % 6 === 3 ? 'is-danger' :
                               (action.stepNumber - 1) % 6 === 4 ? 'is-primary' : 'is-link'
                             }`}>
-                              Passo {action.stepNumber}
+                              Step {action.stepNumber}
                             </span>
                             <span className="title is-6 has-text-white">{action.actionName}</span>
                           </div>
@@ -195,12 +194,12 @@ function ExecutionPlanner() {
                             <span className="icon is-small mr-1">
                               <i className="fas fa-link"></i>
                             </span>
-                            Item Relacionado
+                            Related Item
                           </h6>
                           <div className="tags has-addons">
                             <span className="tag is-dark">#{action.itemIndex + 1}</span>
                             <span className="tag is-info">
-                              {enrichedDecomposition?.decomposedItems[action.itemIndex]?.substring(0, 50) || 'Item não encontrado'}
+                              {enrichedDecomposition?.decomposedItems[action.itemIndex]?.substring(0, 50) || 'Item not found'}
                               {(enrichedDecomposition?.decomposedItems[action.itemIndex]?.length || 0) > 50 ? '...' : ''}
                             </span>
                           </div>
@@ -212,7 +211,7 @@ function ExecutionPlanner() {
                           <span className="icon is-small mr-1">
                             <i className="fas fa-lightbulb"></i>
                           </span>
-                          Justificativa
+                          Justification
                         </h6>
                         <p className="has-text-white-ter is-size-6">{action.justification}</p>
                       </div>
@@ -230,7 +229,7 @@ function ExecutionPlanner() {
                 <span className="icon mr-2">
                   <i className="fas fa-rocket"></i>
                 </span>
-                Pipeline de Raciocínio Estruturado
+                Structured Reasoning Pipeline
               </p>
             </div>
             <div className="card-content">
@@ -248,7 +247,7 @@ function ExecutionPlanner() {
                   </div>
                   <div className="level-right">
                     <div className="level-item">
-                      <small className="has-text-dark">Análise semântica com embeddings, busca vetorial e planejamento inteligente</small>
+                      <small className="has-text-dark">Semantic analysis with embeddings, vector search and intelligent planning</small>
                     </div>
                   </div>
                 </div>
@@ -259,28 +258,28 @@ function ExecutionPlanner() {
                   <li className="mb-3 has-text-success">
                     <strong>Decomposição Inteligente</strong> - 
                     <span className="tag is-success ml-2">
-                      ✅ Analisado e decomposto em {enrichedDecomposition?.enrichedItems?.length || 0} itens
+                      ✅ Analyzed and decomposed into {enrichedDecomposition?.enrichedItems?.length || 0} items
                     </span>
                   </li>
                   <li className="mb-3 has-text-success">
-                    <strong>Gerar embeddings</strong> - 
-                    <span className="tag is-success ml-2">✅ Embeddings gerados para todos os itens</span>
+                    <strong>Generate embeddings</strong> - 
+                    <span className="tag is-success ml-2">✅ Embeddings generated for all items</span>
                   </li>
                   <li className="mb-3 has-text-success">
-                    <strong>Buscar contexto no Qdrant</strong> - 
-                    <span className="tag is-success ml-2">✅ Contexto recuperado usando similaridade vetorial</span>
+                    <strong>Search context in Qdrant</strong> - 
+                    <span className="tag is-success ml-2">✅ Context retrieved using vector similarity</span>
                   </li>
                   <li className="mb-3 has-text-success">
-                    <strong>Criar plano de ações</strong> - 
-                    <span className="tag is-success ml-2">✅ Plano com {executionPlan.actions.length} ações criado</span>
+                    <strong>Create action plan</strong> - 
+                    <span className="tag is-success ml-2">✅ Plan with {executionPlan.actions.length} actions created</span>
                   </li>
                   <li className="mb-3 has-text-grey-light">
-                    <strong>Executar plano</strong> - 
-                    <span className="tag is-warning ml-2">⏳ Etapa por etapa</span>
+                    <strong>Execute plan</strong> - 
+                    <span className="tag is-warning ml-2">⏳ Step by step</span>
                   </li>
                   <li className="mb-3 has-text-grey-light">
-                    <strong>Gerar resposta final</strong> - 
-                    <span className="tag is-warning ml-2">⏳ Com resumo para memória</span>
+                    <strong>Generate final response</strong> - 
+                    <span className="tag is-warning ml-2">⏳ With summary for memory</span>
                   </li>
                 </ol>
               </div>

@@ -7,7 +7,7 @@ function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [currentView, setCurrentView] = useState('chat') // 'chat', 'decomposer', 'planner' ou 'executor'
+  const [currentView, setCurrentView] = useState('chat') // 'chat', 'decomposer', 'planner' or 'executor'
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 

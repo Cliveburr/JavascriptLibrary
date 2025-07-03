@@ -8,7 +8,7 @@ const PipelineExecutor = () => {
 
   const executePipeline = async () => {
     if (!message.trim()) {
-      setError('Por favor, digite uma mensagem para executar o pipeline');
+      setError('Please enter a message to execute the pipeline');
       return;
     }
 
@@ -35,7 +35,7 @@ const PipelineExecutor = () => {
       console.log('Step results:', data.data?.executionReport?.stepResults); // Debug step results
       setResult(data);
     } catch (err) {
-      setError(err.message || 'Erro ao executar o pipeline');
+      setError(err.message || 'Error executing pipeline');
       console.error('Pipeline execution error:', err);
     } finally {
       setIsExecuting(false);
@@ -50,13 +50,13 @@ const PipelineExecutor = () => {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'success':
-        return <span className="tag is-success">✅ Sucesso</span>;
+        return <span className="tag is-success">✅ Success</span>;
       case 'failed':
-        return <span className="tag is-danger">❌ Falha</span>;
+        return <span className="tag is-danger">❌ Failed</span>;
       case 'completed':
-        return <span className="tag is-info">✅ Concluído</span>;
+        return <span className="tag is-info">✅ Completed</span>;
       default:
-        return <span className="tag is-light">⏳ Processando</span>;
+        return <span className="tag is-light">⏳ Processing</span>;
     }
   };
 
@@ -81,8 +81,8 @@ const PipelineExecutor = () => {
         </h2>
         <div className="notification is-success is-light">
           <p className="has-text-dark">
-            <strong>Etapa 5:</strong> Execute o pipeline completo: decomposição, enriquecimento, 
-            planejamento e execução passo a passo.
+            <strong>Step 5:</strong> Execute the complete pipeline: decomposition, enrichment, 
+            planning and step-by-step execution.
           </p>
         </div>
       </div>
@@ -90,13 +90,13 @@ const PipelineExecutor = () => {
       {/* Input Section */}
       <div className="box has-background-grey-dark mb-6">
         <div className="field">
-          <label className="label has-text-white">Mensagem para Execução Completa</label>
+          <label className="label has-text-white">Message for Complete Execution</label>
           <div className="control">
             <textarea
               className="textarea has-background-grey-darker has-text-white is-large"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Digite sua mensagem aqui para executar o pipeline completo..."
+              placeholder="Enter your message here to execute the complete pipeline..."
               rows={4}
               disabled={isExecuting}
               style={{ border: '1px solid hsl(0, 0%, 48%)', borderRadius: '8px' }}
@@ -114,7 +114,7 @@ const PipelineExecutor = () => {
               <span className="icon">
                 <i className="fas fa-rocket"></i>
               </span>
-              <span>{isExecuting ? 'Executando Pipeline...' : 'Executar Pipeline Completo'}</span>
+              <span>{isExecuting ? 'Executing Pipeline...' : 'Execute Complete Pipeline'}</span>
             </button>
           </div>
         </div>
@@ -124,7 +124,7 @@ const PipelineExecutor = () => {
       {error && (
         <div className="notification is-danger mb-6">
           <button className="delete" onClick={() => setError('')}></button>
-          <strong>Erro:</strong> {error}
+          <strong>Error:</strong> {error}
         </div>
       )}
 
@@ -136,7 +136,7 @@ const PipelineExecutor = () => {
               <span className="icon mr-2">
                 <i className="fas fa-check-circle"></i>
               </span>
-              Resultado da Execução
+              Execution Result
             </h3>
           </div>
           
@@ -147,7 +147,7 @@ const PipelineExecutor = () => {
                 <span className="icon mr-2">
                   <i className="fas fa-chart-bar"></i>
                 </span>
-                Resumo da Execução
+                Execution Summary
               </p>
             </div>
             <div className="card-content">
@@ -155,25 +155,25 @@ const PipelineExecutor = () => {
                 <div className="column is-3">
                   <div className="has-text-centered">
                     <div className="title is-4 has-text-info">{result.data.executionReport.summary.totalSteps}</div>
-                    <div className="subtitle is-6 has-text-grey-light">Total de Passos</div>
+                    <div className="subtitle is-6 has-text-grey-light">Total Steps</div>
                   </div>
                 </div>
                 <div className="column is-3">
                   <div className="has-text-centered">
                     <div className="title is-4 has-text-success">{result.data.executionReport.summary.successfulSteps}</div>
-                    <div className="subtitle is-6 has-text-grey-light">Sucessos</div>
+                    <div className="subtitle is-6 has-text-grey-light">Successes</div>
                   </div>
                 </div>
                 <div className="column is-3">
                   <div className="has-text-centered">
                     <div className="title is-4 has-text-danger">{result.data.executionReport.summary.failedSteps}</div>
-                    <div className="subtitle is-6 has-text-grey-light">Falhas</div>
+                    <div className="subtitle is-6 has-text-grey-light">Failures</div>
                   </div>
                 </div>
                 <div className="column is-3">
                   <div className="has-text-centered">
                     <div className="title is-4 has-text-warning">{formatExecutionTime(result.data.executionReport.summary.totalExecutionTime)}</div>
-                    <div className="subtitle is-6 has-text-grey-light">Tempo Total</div>
+                    <div className="subtitle is-6 has-text-grey-light">Total Time</div>
                   </div>
                 </div>
               </div>
@@ -183,7 +183,7 @@ const PipelineExecutor = () => {
                   <span className="icon mr-2">
                     <i className="fas fa-sync-alt"></i>
                   </span>
-                  <strong>Replanejamento Executado:</strong> O plano foi ajustado durante a execução
+                  <strong>Replanning Executed:</strong> The plan was adjusted during execution
                 </div>
               )}
             </div>
@@ -195,8 +195,7 @@ const PipelineExecutor = () => {
               <p className="card-header-title has-text-white">
                 <span className="icon mr-2">
                   <i className="fas fa-comment-dots"></i>
-                </span>
-                Resposta Final
+                </span>                    Final Response
               </p>
             </div>
             <div className="card-content">
@@ -210,7 +209,7 @@ const PipelineExecutor = () => {
                           <span className="icon mr-2">
                             <i className="fas fa-hourglass-half"></i>
                           </span>
-                          Aguardando resposta final...
+                          Awaiting final response...
                         </div>
                       );
                     }
@@ -227,7 +226,7 @@ const PipelineExecutor = () => {
               <span className="icon mr-2">
                 <i className="fas fa-list-ol"></i>
               </span>
-              Detalhes da Execução
+              Execution Details
             </h4>
             
             {result.data?.executionReport?.stepResults?.length > 0 ? (
@@ -264,14 +263,14 @@ const PipelineExecutor = () => {
                         <span className="icon is-small mr-1">
                           <i className="fas fa-check-circle"></i>
                         </span>
-                        Resultado
+                        Result
                       </h6>
                       <div className="content has-text-dark">
                         {step.result ? (
                           typeof step.result === 'string' 
                             ? (step.result.length > 0 
                                 ? formatText(step.result.substring(0, 500) + (step.result.length > 500 ? '...' : ''))
-                                : <em>Resultado vazio</em>
+                                : <em>Empty result</em>
                               )
                             : <pre className="has-background-grey-lighter p-3" style={{ borderRadius: '4px' }}>
                                 {JSON.stringify(step.result, null, 2)}
@@ -279,8 +278,8 @@ const PipelineExecutor = () => {
                         ) : (
                           <em>
                             {step.status === 'success' 
-                              ? 'Passo executado com sucesso, mas sem resultado detalhado'
-                              : 'Nenhum resultado disponível'
+                              ? 'Step executed successfully, but no detailed result'
+                              : 'No result available'
                             }
                           </em>
                         )}
@@ -294,7 +293,7 @@ const PipelineExecutor = () => {
                           <span className="icon is-small mr-1">
                             <i className="fas fa-exclamation-triangle"></i>
                           </span>
-                          Erro
+                          Error
                         </h6>
                         <p className="has-text-dark">{step.error}</p>
                       </div>
@@ -308,7 +307,7 @@ const PipelineExecutor = () => {
                   <span className="icon mr-2">
                     <i className="fas fa-info-circle"></i>
                   </span>
-                  Nenhum passo de execução encontrado.
+                  No execution steps found.
                 </p>
               </div>
             )}
@@ -322,7 +321,7 @@ const PipelineExecutor = () => {
                   <span className="icon mr-2">
                     <i className="fas fa-trophy"></i>
                   </span>
-                  Principais Resultados
+                  Key Results
                 </p>
               </div>
               <div className="card-content">
@@ -345,7 +344,7 @@ const PipelineExecutor = () => {
                   <span className="icon mr-2">
                     <i className="fas fa-exclamation-triangle"></i>
                   </span>
-                  Erros Encontrados
+                  Errors Found
                 </p>
               </div>
               <div className="card-content">
@@ -367,12 +366,12 @@ const PipelineExecutor = () => {
                 <span className="icon mr-2">
                   <i className="fas fa-sync-alt"></i>
                 </span>
-                Contexto para Próxima Iteração
+                Context for Next Iteration
               </p>
             </div>
             <div className="card-content">
               <div className="content has-text-white">
-                <p>{result.data?.executionReport?.summary?.contextForNextIteration || 'Contexto não disponível'}</p>
+                <p>{result.data?.executionReport?.summary?.contextForNextIteration || 'Context not available'}</p>
               </div>
             </div>
           </div>
@@ -384,14 +383,14 @@ const PipelineExecutor = () => {
                 <span className="icon mr-2">
                   <i className="fas fa-cogs"></i>
                 </span>
-                Dados Técnicos
+                Technical Data
               </p>
             </summary>
             <div className="card-content">
               <div className="content has-text-white">
                 {/* Original Decomposition */}
                 <div className="mb-5">
-                  <h5 className="title is-5 has-text-white">Decomposição Original</h5>
+                  <h5 className="title is-5 has-text-white">Original Decomposition</h5>
                   <div className="box has-background-grey">
                     <ul className="has-text-white">
                       {result.data?.enrichedDecomposition?.decomposedItems?.length > 0 ? (
@@ -399,7 +398,7 @@ const PipelineExecutor = () => {
                           <li key={index} className="mb-2">{item}</li>
                         ))
                       ) : (
-                        <li>Nenhum item de decomposição disponível</li>
+                        <li>No decomposition items available</li>
                       )}
                     </ul>
                   </div>
@@ -407,7 +406,7 @@ const PipelineExecutor = () => {
                 
                 {/* Execution Plan */}
                 <div>
-                  <h5 className="title is-5 has-text-white">Plano de Execução</h5>
+                  <h5 className="title is-5 has-text-white">Execution Plan</h5>
                   <div className="box has-background-grey">
                     <ul className="has-text-white">
                       {result.data?.executionPlan?.actions?.length > 0 ? (
@@ -416,12 +415,12 @@ const PipelineExecutor = () => {
                             <strong>{action.actionName}:</strong> {action.actionDescription}
                             <br />
                             <em className="has-text-grey-light is-size-7">
-                              Justificativa: {action.justification}
+                              Justification: {action.justification}
                             </em>
                           </li>
                         ))
                       ) : (
-                        <li>Nenhuma ação do plano disponível</li>
+                        <li>No plan actions available</li>
                       )}
                     </ul>
                   </div>
