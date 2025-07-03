@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from 'react'
 import MessageDecomposer from './components/MessageDecomposer'
 import ExecutionPlanner from './components/ExecutionPlanner'
 import PipelineExecutor from './components/PipelineExecutor'
+import ThoughtCycleTester from './components/ThoughtCycleTester'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [currentView, setCurrentView] = useState('chat') // 'chat', 'decomposer', 'planner' or 'executor'
+  const [currentView, setCurrentView] = useState('chat') // 'chat', 'decomposer', 'planner', 'executor' or 'thoughtCycle'
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -192,6 +193,18 @@ function App() {
                   <span>Pipeline Executor</span>
                 </a>
               </li>
+              <li>
+                <a 
+                  className={`${currentView === 'thoughtCycle' ? 'is-active has-background-primary has-text-white' : 'has-text-grey-light'} has-text-weight-medium`}
+                  onClick={() => setView('thoughtCycle')}
+                  style={{ borderRadius: '8px', marginBottom: '4px' }}
+                >
+                  <span className="icon">
+                    <i className="fas fa-brain"></i>
+                  </span>
+                  <span>Thought Cycle</span>
+                </a>
+              </li>
             </ul>
           </aside>
 
@@ -218,12 +231,14 @@ function App() {
                 <h2 className="title is-5 has-text-white mb-1">
                   {currentView === 'chat' ? 'Chat Assistant' : 
                    currentView === 'decomposer' ? 'Message Decomposer' :
-                   currentView === 'planner' ? 'Execution Planner' : 'Pipeline Executor'}
+                   currentView === 'planner' ? 'Execution Planner' : 
+                   currentView === 'executor' ? 'Pipeline Executor' : 'Thought Cycle Tester'}
                 </h2>
                 <p className="subtitle is-6 has-text-grey-light mb-0">
                   {currentView === 'chat' ? 'Interact with AI assistant' : 
                    currentView === 'decomposer' ? 'Break down complex messages' :
-                   currentView === 'planner' ? 'Plan execution strategies' : 'Execute AI pipelines'}
+                   currentView === 'planner' ? 'Plan execution strategies' : 
+                   currentView === 'executor' ? 'Execute AI pipelines' : 'Test thought cycle with memory saving'}
                 </p>
               </div>
               <div className="buttons">
@@ -350,6 +365,8 @@ function App() {
                     <MessageDecomposer />
                   ) : currentView === 'planner' ? (
                     <ExecutionPlanner />
+                  ) : currentView === 'thoughtCycle' ? (
+                    <ThoughtCycleTester />
                   ) : (
                     <PipelineExecutor />
                   )}

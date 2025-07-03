@@ -7,6 +7,7 @@ import { LLMManager } from './services/llm.service';
 import { MessageDecomposer } from './services/message-decomposer.service';
 import { ExecutionPlannerService } from './services/execution-planner.service';
 import { PlanExecutorService } from './services/plan-executor.service';
+import { ThoughtCycleService } from './services/thought-cycle.service';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const llmManager = new LLMManager();
 const messageDecomposer = new MessageDecomposer(llmManager);
 const executionPlanner = new ExecutionPlannerService(llmManager);
 const planExecutor = new PlanExecutorService(llmManager, executionPlanner);
+const thoughtCycleService = new ThoughtCycleService(llmManager);
 
 // Middlewares de segurança e logging
 app.use(helmet());
@@ -395,6 +397,53 @@ app.post('/api/execute/plan', async (req: Request, res: Response): Promise<void>
   }
 });
 
+// Endpoint para executar um ciclo de pensamento completo
+app.post('/api/thought/cycle', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { originalMessage, previousMessages = [], executedActions = [] } = req.body;
+    
+    if (!originalMessage || typeof originalMessage !== 'string') {
+      res.status(400).json({ 
+        error: 'Original message is required and must be a string' 
+      });
+      return;
+    }
+    
+    console.log('🧠 Starting thought cycle...');
+    
+    // Create thought cycle context
+    const ctx = {
+      originalMessage,
+      previousMessages: Array.isArray(previousMessages) ? previousMessages : [],
+      executedActions: Array.isArray(executedActions) ? executedActions : []
+    };
+    
+    const result = await thoughtCycleService.startCycle(ctx);
+    console.log('✅ Thought cycle completed');
+    
+    const response: ApiResponse = {
+      message: 'Thought cycle executed successfully',
+      data: {
+        result,
+        context: {
+          originalMessage: ctx.originalMessage,
+          totalPreviousMessages: ctx.previousMessages.length,
+          totalExecutedActions: ctx.executedActions.length
+        }
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Thought cycle endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Failed to execute thought cycle',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Middleware de tratamento de erros
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
@@ -430,6 +479,7 @@ app.listen(PORT, () => {
   console.log(`   POST /api/cache/clear`);
   console.log(`   POST /api/pipeline/execute`);
   console.log(`   POST /api/execute/plan`);
+  console.log(`   POST /api/thought/cycle`);
 });
 
 export default app;

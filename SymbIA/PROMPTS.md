@@ -66,7 +66,10 @@ Read the backend in api/ folder and the client ui in web/ folder to follow the s
 
 ## Prompt 4 – Save Memory
 
-Create a new function `saveMemory(ctx, data)`:
+Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
+
+Create a new function `saveMemory(ctx, data) in thought-cycle.service.ts`:
 
 - This function stores new memory items based on context
 - It should:
@@ -85,7 +88,7 @@ Create a new function `saveMemory(ctx, data)`:
 
 ## Prompt 5 – Edit Memory
 
-Create a function `editMemory(ctx, data)`:
+Create a function `editMemory(ctx, data) in thought-cycle.service.ts`:
 
 - This function updates existing memory items
 - Steps:
@@ -100,7 +103,7 @@ Create a function `editMemory(ctx, data)`:
 
 ## Prompt 6 – Delete Memory
 
-Create a function `deleteMemory(ctx, data)`:
+Create a function `deleteMemory(ctx, data) in thought-cycle.service.ts`:
 
 - This function removes memory items from storage
 - Steps:
@@ -118,7 +121,7 @@ Create a function `deleteMemory(ctx, data)`:
 
 ## Prompt 7 – Search Memory
 
-Create a function `searchMemory(ctx, data)`:
+Create a function `searchMemory(ctx, data) in thought-cycle.service.ts`:
 
 - This function performs a memory lookup using a context query
 - Steps:
