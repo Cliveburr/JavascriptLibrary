@@ -5,6 +5,7 @@
 ## Prompt 1 – Create Cycle Core
 
 Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
 
 Create a new file called `thoughtCycle.js`. In this file:
 
