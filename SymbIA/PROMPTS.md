@@ -88,6 +88,9 @@ Create a new function `saveMemory(ctx, data) in thought-cycle.service.ts`:
 
 ## Prompt 5 – Edit Memory
 
+Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
+
 Create a function `editMemory(ctx, data) in thought-cycle.service.ts`:
 
 - This function updates existing memory items
@@ -102,6 +105,9 @@ Create a function `editMemory(ctx, data) in thought-cycle.service.ts`:
 ---
 
 ## Prompt 6 – Delete Memory
+
+Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
 
 Create a function `deleteMemory(ctx, data) in thought-cycle.service.ts`:
 
@@ -121,6 +127,9 @@ Create a function `deleteMemory(ctx, data) in thought-cycle.service.ts`:
 
 ## Prompt 7 – Search Memory
 
+Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
+
 Create a function `searchMemory(ctx, data) in thought-cycle.service.ts`:
 
 - This function performs a memory lookup using a context query
@@ -136,6 +145,9 @@ Create a function `searchMemory(ctx, data) in thought-cycle.service.ts`:
 ---
 
 ## Prompt 8 – Add CLI Entry
+
+Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
 
 Modify your main entrypoint file, such as `index.js`:
 

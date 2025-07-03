@@ -463,23 +463,85 @@ app.use((req: Request, res: Response): void => {
   res.status(404).json(notFoundResponse);
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📝 API endpoints:`);
-  console.log(`   GET  /`);
-  console.log(`   GET  /api/health`);
-  console.log(`   GET  /api/data`);
-  console.log(`   POST /api/data`);
-  console.log(`   POST /api/decompose`);
-  console.log(`   POST /api/decompose/enriched`);
-  console.log(`   POST /api/decompose/plan`);
-  console.log(`   POST /api/context/search`);
-  console.log(`   GET  /api/models`);
-  console.log(`   GET  /api/cache/stats`);
-  console.log(`   POST /api/cache/clear`);
-  console.log(`   POST /api/pipeline/execute`);
-  console.log(`   POST /api/execute/plan`);
-  console.log(`   POST /api/thought/cycle`);
-});
+/**
+ * CLI function to test the thought cycle with initial context
+ */
+async function runCLI() {
+  console.log('🧠 SymbIA CLI - Starting Thought Cycle Test');
+  console.log('=' .repeat(50));
+  
+  const ctx = {
+    originalMessage: "Help me summarize my notes",
+    previousMessages: ["Hi", "What can I help you with?"],
+    executedActions: []
+  };
+  
+  try {
+    console.log('📝 Initial Context:');
+    console.log(`   Original Message: "${ctx.originalMessage}"`);
+    console.log(`   Previous Messages: [${ctx.previousMessages.map(m => `"${m}"`).join(', ')}]`);
+    console.log(`   Executed Actions: ${ctx.executedActions.length}`);
+    console.log('');
+    
+    const result = await thoughtCycleService.startCycle(ctx);
+    
+    console.log('');
+    console.log('🎯 Final Output:');
+    console.log(result);
+    console.log('');
+    console.log('📊 Final Context State:');
+    console.log(`   Total Executed Actions: ${ctx.executedActions.length}`);
+    console.log('=' .repeat(50));
+    
+  } catch (error) {
+    console.error('❌ CLI Error:', error);
+  }
+}
+
+// Check if this is being run directly (CLI mode) or as a module (server mode)
+const isDirectRun = require.main === module;
+
+if (isDirectRun) {
+  // Check for CLI flag
+  const args = process.argv.slice(2);
+  if (args.includes('--cli') || args.includes('-c')) {
+    runCLI().then(() => {
+      console.log('CLI execution completed');
+      process.exit(0);
+    }).catch((error) => {
+      console.error('CLI execution failed:', error);
+      process.exit(1);
+    });
+  } else {
+    // Start the server normally
+    startServer();
+  }
+} else {
+  // When imported as a module, just export the app
+  startServer();
+}
+
+function startServer() {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📝 API endpoints:`);
+    console.log(`   GET  /`);
+    console.log(`   GET  /api/health`);
+    console.log(`   GET  /api/data`);
+    console.log(`   POST /api/data`);
+    console.log(`   POST /api/decompose`);
+    console.log(`   POST /api/decompose/enriched`);
+    console.log(`   POST /api/decompose/plan`);
+    console.log(`   POST /api/context/search`);
+    console.log(`   GET  /api/models`);
+    console.log(`   GET  /api/cache/stats`);
+    console.log(`   POST /api/cache/clear`);
+    console.log(`   POST /api/pipeline/execute`);
+    console.log(`   POST /api/execute/plan`);
+    console.log(`   POST /api/thought/cycle`);
+    console.log('');
+    console.log('💡 To run CLI mode: npm run dev -- --cli');
+  });
+}
 
 export default app;
