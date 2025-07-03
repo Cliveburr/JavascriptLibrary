@@ -52,4 +52,9 @@ export interface ActionResult {
    * Timestamp when the action was executed
    */
   timestamp: Date;
+
+  /**
+   * Additional data associated with the action
+   */
+  data?: any;
 }

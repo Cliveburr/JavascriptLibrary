@@ -2,6 +2,19 @@ import { ThoughtCycleContext, ActionDecision } from '@/interfaces/throuht-cycle'
 import { LLMManager } from './llm.service';
 
 /**
+ * Possible action values for the thought cycle
+ */
+export const ACTIONS = {
+  SAVE_MEMORY: 'saveMemory',
+  EDIT_MEMORY: 'editMemory',
+  DELETE_MEMORY: 'deleteMemory',
+  SEARCH_MEMORY: 'searchMemory',
+  FINALIZE: 'finalize'
+} as const;
+
+export type ActionType = typeof ACTIONS[keyof typeof ACTIONS];
+
+/**
  * Service for managing the thought cycle execution
  */
 export class ThoughtCycleService {
@@ -34,11 +47,12 @@ export class ThoughtCycleService {
       ctx.executedActions.push({
         action: decision.action,
         result,
-        timestamp: new Date()
+        timestamp: new Date(),
+        data: decision.data
       });
       
       // Check if we should finalize the cycle
-      if (decision.action === 'finalize') {
+      if (decision.action === ACTIONS.FINALIZE) {
         done = true;
       }
     }
@@ -53,8 +67,32 @@ export class ThoughtCycleService {
    * @returns Promise that resolves to an action decision
    */
   async decideNextAction(ctx: ThoughtCycleContext): Promise<ActionDecision> {
-    // This is a stub implementation - will be enhanced with actual LLM integration
-    console.log('@Display: Analyzing context and deciding next action...');
+    console.log('@Display: Thinking...');
+    
+    // Combine the data from ctx into a structured JSON with metadata
+    const structuredInput = {
+      originalMessage: ctx.originalMessage,
+      previousMessages: ctx.previousMessages,
+      executedActions: ctx.executedActions.map(action => ({
+        action: action.action,
+        timestamp: action.timestamp,
+        hasResult: !!action.result
+      })),
+      contextMetadata: {
+        totalPreviousMessages: ctx.previousMessages.length,
+        totalExecutedActions: ctx.executedActions.length,
+        lastActionType: ctx.executedActions.length > 0 ? 
+          ctx.executedActions[ctx.executedActions.length - 1].action : null,
+        analysisTimestamp: new Date().toISOString()
+      },
+      availableActions: Object.values(ACTIONS)
+    };
+    
+    console.log('@Display: Analyzing context:', {
+      messageLength: ctx.originalMessage.length,
+      previousCount: ctx.previousMessages.length,
+      actionsExecuted: ctx.executedActions.length
+    });
     
     const provider = await this.llmManager.getAvailableProvider();
     
@@ -71,13 +109,38 @@ export class ThoughtCycleService {
 
       // Parse LLM response to extract action decision
       const decision = this.parseActionDecision(response);
-      console.log(`@Display: Decided on action: ${decision.action}`);
       
-      return decision;
+      // Validate the decision structure
+      if (!decision || typeof decision.action !== 'string') {
+        console.log('@Display: Invalid LLM response, using fallback decision');
+        return this.getFallbackAction(ctx);
+      }
+      
+      // Ensure action is valid
+      if (!Object.values(ACTIONS).includes(decision.action as ActionType)) {
+        console.log(`@Display: Invalid action "${decision.action}", defaulting to finalize`);
+        return { 
+          action: ACTIONS.FINALIZE, 
+          data: { reason: `Invalid action provided: ${decision.action}` } 
+        };
+      }
+      
+      console.log(`@Display: Decision made - Action: ${decision.action}`);
+      
+      return {
+        action: decision.action,
+        data: decision.data || {}
+      };
     } catch (error) {
-      console.error('Error deciding next action:', error);
+      console.error('@Display: Error in decision making:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      return { action: 'finalize', data: { reason: 'Error in decision making', error: errorMessage } };
+      return { 
+        action: ACTIONS.FINALIZE, 
+        data: { 
+          reason: 'Error in decision making process',
+          error: errorMessage 
+        } 
+      };
     }
   }
 
@@ -92,15 +155,15 @@ export class ThoughtCycleService {
     console.log(`@Display: Executing action: ${action}`);
     
     switch (action) {
-      case 'finalize':
+      case ACTIONS.FINALIZE:
         return this.finalizeCycle(ctx, data);
-      case 'saveMemory':
+      case ACTIONS.SAVE_MEMORY:
         return this.saveMemory(ctx, data);
-      case 'editMemory':
+      case ACTIONS.EDIT_MEMORY:
         return this.editMemory(ctx, data);
-      case 'deleteMemory':
+      case ACTIONS.DELETE_MEMORY:
         return this.deleteMemory(ctx, data);
-      case 'searchMemory':
+      case ACTIONS.SEARCH_MEMORY:
         return this.searchMemory(ctx, data);
       default:
         console.log(`@Display: Unknown action: ${action}, finalizing cycle`);
@@ -117,10 +180,30 @@ export class ThoughtCycleService {
   private async finalizeCycle(ctx: ThoughtCycleContext, result?: any): Promise<string> {
     console.log('@Display: Finalizing cycle and preparing summary...');
     
+    // Create enhanced summary input for LLM
+    const summaryInput = {
+      originalMessage: ctx.originalMessage,
+      previousMessages: ctx.previousMessages,
+      executedActions: ctx.executedActions,
+      finalResult: result,
+      cycleMetrics: {
+        totalActions: ctx.executedActions.length,
+        cycleStartTime: ctx.executedActions[0]?.timestamp,
+        cycleEndTime: new Date(),
+        actionTypes: [...new Set(ctx.executedActions.map(a => a.action))]
+      }
+    };
+    
     const provider = await this.llmManager.getAvailableProvider();
     
     if (!provider) {
-      const summary = `Cycle completed. Executed ${ctx.executedActions.length} actions.`;
+      const summary = `Thought cycle completed successfully. 
+
+Original request: "${ctx.originalMessage}"
+Actions executed: ${ctx.executedActions.length}
+- ${ctx.executedActions.map(a => a.action).join(', ')}
+
+The cycle processed the user's request and executed the necessary actions to fulfill it.`;
       console.log(`@Display: ${summary}`);
       return summary;
     }
@@ -130,7 +213,8 @@ export class ThoughtCycleService {
       const response = await provider.generateSingleResponse(summaryPrompt, 'llama3.2:3b');
 
       const summary = response.trim();
-      console.log(`@Display: ${summary}`);
+      console.log('@Display: Summary from LLM');
+      console.log(summary);
       return summary;
     } catch (error) {
       console.error('Error generating summary:', error);
@@ -281,38 +365,73 @@ Provide a concise summary of what was accomplished in this thought cycle. Keep i
    */
   private getFallbackAction(ctx: ThoughtCycleContext): ActionDecision {
     // Check if we should finalize based on executed actions or explicit request
-    const hasExecutedActions = ctx.executedActions.length > 0;
-    const shouldFinalize = hasExecutedActions || ctx.originalMessage.toLowerCase().includes('finish');
+    const hasMultipleActions = ctx.executedActions.length >= 2;
+    const shouldFinalize = hasMultipleActions || ctx.originalMessage.toLowerCase().includes('finish');
     
     if (shouldFinalize) {
       console.log('@Display: Decided to finalize the cycle (fallback)');
-      return { action: 'finalize', data: { reason: 'Cycle completion criteria met' } };
+      return { action: ACTIONS.FINALIZE, data: { reason: 'Cycle completion criteria met' } };
     }
     
-    // Example decision logic based on keywords
-    if (ctx.originalMessage.toLowerCase().includes('remember') || ctx.originalMessage.toLowerCase().includes('save')) {
+    const message = ctx.originalMessage.toLowerCase();
+    
+    // Enhanced keyword analysis with priority and tags
+    if (message.includes('remember') || message.includes('save') || message.includes('store')) {
       console.log('@Display: Decided to save memory (fallback)');
-      return { action: 'saveMemory', data: { content: ctx.originalMessage } };
+      return { 
+        action: ACTIONS.SAVE_MEMORY, 
+        data: { 
+          content: ctx.originalMessage,
+          priority: 'high',
+          tags: ['user-request', 'information-storage']
+        } 
+      };
     }
     
-    if (ctx.originalMessage.toLowerCase().includes('search') || ctx.originalMessage.toLowerCase().includes('find')) {
+    if (message.includes('search') || message.includes('find') || message.includes('recall')) {
       console.log('@Display: Decided to search memory (fallback)');
-      return { action: 'searchMemory', data: { query: ctx.originalMessage } };
+      return { 
+        action: ACTIONS.SEARCH_MEMORY, 
+        data: { 
+          query: ctx.originalMessage,
+          searchType: 'semantic',
+          maxResults: 10
+        } 
+      };
     }
     
-    if (ctx.originalMessage.toLowerCase().includes('edit') || ctx.originalMessage.toLowerCase().includes('update')) {
+    if (message.includes('edit') || message.includes('update') || message.includes('modify')) {
       console.log('@Display: Decided to edit memory (fallback)');
-      return { action: 'editMemory', data: { content: ctx.originalMessage } };
+      return { 
+        action: ACTIONS.EDIT_MEMORY, 
+        data: { 
+          query: ctx.originalMessage,
+          modificationType: 'content-update'
+        } 
+      };
     }
     
-    if (ctx.originalMessage.toLowerCase().includes('delete') || ctx.originalMessage.toLowerCase().includes('remove')) {
+    if (message.includes('delete') || message.includes('remove') || message.includes('forget')) {
       console.log('@Display: Decided to delete memory (fallback)');
-      return { action: 'deleteMemory', data: { query: ctx.originalMessage } };
+      return { 
+        action: ACTIONS.DELETE_MEMORY, 
+        data: { 
+          query: ctx.originalMessage,
+          confirmationRequired: true
+        } 
+      };
     }
     
-    // Default to finalize if no specific action is determined
-    console.log('@Display: No specific action determined, finalizing (fallback)');
-    return { action: 'finalize', data: { reason: 'No specific action required' } };
+    // Default to save memory if no specific action is determined
+    console.log('@Display: Default to save memory (fallback)');
+    return { 
+      action: ACTIONS.SAVE_MEMORY, 
+      data: { 
+        content: ctx.originalMessage,
+        priority: 'normal',
+        tags: ['general-information']
+      } 
+    };
   }
 }
 

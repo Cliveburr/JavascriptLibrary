@@ -28,6 +28,9 @@ Create a new file called `thoughtCycle.js`. In this file:
 
 ## Prompt 2 – Implement Decision Function
 
+Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
+
 Implement the function `decideNextAction(ctx)`:
 
 - This function is responsible for deciding what to do next based on the context.
@@ -48,7 +51,10 @@ Implement the function `decideNextAction(ctx)`:
 
 ## Prompt 3 – Finalize Cycle
 
-Create the function `finalizeCycle(ctx, result)`:
+Create the function `finalizeCycle(ctx, result) in thought-cycle.service.ts`:
+
+Read the file PLANNING.md to know the full changes and do the first part bellow
+Read the backend in api/ folder and the client ui in web/ folder to follow the same patterns
 
 - This function ends the current cycle by summarizing all actions taken.
 - It should:
