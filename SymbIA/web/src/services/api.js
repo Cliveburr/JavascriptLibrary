@@ -61,14 +61,6 @@ export const apiService = {
         getById: (id) => api.get(`/api/memories/${id}`),
     },
 
-
-
-    // Ciclo de pensamento
-    thoughtCycle: {
-        process: (data) => api.post('/api/thought-cycle', data),
-        getResult: (id) => api.get(`/api/thought-cycle/${id}`),
-    },
-
     // Chats
     chats: {
         getAll: () => api.get('/api/chats'),

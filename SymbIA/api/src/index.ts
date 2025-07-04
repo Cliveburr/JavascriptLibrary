@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { LLMManager } from './services/llm.service';
-import { ThoughtCycleService } from './services/thought-cycle.service';
 import { AuthService } from './services/auth.service';
 import { memoryRoutes } from './routes/memory.routes';
 import { chatRoutes } from './routes/chat.routes';
@@ -65,7 +64,6 @@ connectToMongoDB();
 const app = express();
 const PORT: number = parseInt(process.env.PORT!, 10);
 const llmManager = new LLMManager();
-const thoughtCycleService = new ThoughtCycleService(llmManager);
 const authService = new AuthService();
 
 // Middleware de autenticação JWT
@@ -408,53 +406,6 @@ app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// Endpoint para executar um ciclo de pensamento completo
-app.post('/api/thought/cycle', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { originalMessage, previousMessages = [], executedActions = [] } = req.body;
-    
-    if (!originalMessage || typeof originalMessage !== 'string') {
-      res.status(400).json({ 
-        error: 'Original message is required and must be a string' 
-      });
-      return;
-    }
-    
-    console.log('🧠 Starting thought cycle...');
-    
-    // Create thought cycle context
-    const ctx = {
-      originalMessage,
-      previousMessages: Array.isArray(previousMessages) ? previousMessages : [],
-      executedActions: Array.isArray(executedActions) ? executedActions : []
-    };
-    
-    const result = await thoughtCycleService.startCycle(ctx);
-    console.log('✅ Thought cycle completed');
-    
-    const response: ApiResponse = {
-      message: 'Thought cycle executed successfully',
-      data: {
-        result,
-        context: {
-          originalMessage: ctx.originalMessage,
-          totalPreviousMessages: ctx.previousMessages.length,
-          totalExecutedActions: ctx.executedActions.length
-        }
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Thought cycle endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to execute thought cycle',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
 // Middleware de tratamento de erros
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
@@ -474,59 +425,12 @@ app.use((req: Request, res: Response): void => {
   res.status(404).json(notFoundResponse);
 });
 
-/**
- * CLI function to test the thought cycle with initial context
- */
-async function runCLI() {
-  console.log('🧠 SymbIA CLI - Starting Thought Cycle Test');
-  console.log('=' .repeat(50));
-  
-  const ctx = {
-    originalMessage: "Help me summarize my notes",
-    previousMessages: ["Hi", "What can I help you with?"],
-    executedActions: []
-  };
-  
-  try {
-    console.log('📝 Initial Context:');
-    console.log(`   Original Message: "${ctx.originalMessage}"`);
-    console.log(`   Previous Messages: [${ctx.previousMessages.map(m => `"${m}"`).join(', ')}]`);
-    console.log(`   Executed Actions: ${ctx.executedActions.length}`);
-    console.log('');
-    
-    const result = await thoughtCycleService.startCycle(ctx);
-    
-    console.log('');
-    console.log('🎯 Final Output:');
-    console.log(result);
-    console.log('');
-    console.log('📊 Final Context State:');
-    console.log(`   Total Executed Actions: ${ctx.executedActions.length}`);
-    console.log('=' .repeat(50));
-    
-  } catch (error) {
-    console.error('❌ CLI Error:', error);
-  }
-}
-
-// Check if this is being run directly (CLI mode) or as a module (server mode)
+// Check if this is being run directly (server mode) or as a module
 const isDirectRun = require.main === module;
 
 if (isDirectRun) {
-  // Check for CLI flag
-  const args = process.argv.slice(2);
-  if (args.includes('--cli') || args.includes('-c')) {
-    runCLI().then(() => {
-      console.log('CLI execution completed');
-      process.exit(0);
-    }).catch((error) => {
-      console.error('CLI execution failed:', error);
-      process.exit(1);
-    });
-  } else {
-    // Start the server normally
-    startServer();
-  }
+  // Start the server normally
+  startServer();
 } else {
   // When imported as a module, just export the app
   startServer();
@@ -543,9 +447,8 @@ function startServer() {
     console.log(`   POST /api/auth/login`);
     console.log(`   POST /api/chat/stream`);
     console.log(`   GET  /api/models`);
-    console.log(`   POST /api/thought/cycle`);
     console.log('');
-    console.log('💡 To run CLI mode: npm run dev -- --cli');
+    console.log('💡 Server running in production mode');
   });
 }
 
