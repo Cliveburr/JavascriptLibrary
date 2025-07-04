@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import { Chat, IChat, IMessage } from '../models/chat.model';
 import { LLMManager } from '../services/llm.service';
+import { ThoughtCycleService } from '../services/thought-cycle.service';
+import { ThoughtCycleContext } from '../interfaces/throuht-cycle';
 
 const llmManager = new LLMManager();
+const thoughtCycleService = new ThoughtCycleService(llmManager);
 
 export class ChatController {
   // Listar todos os chats do usuário
@@ -131,7 +134,7 @@ export class ChatController {
     }
   }
 
-  // Stream de chat com mensagem nova
+  // Stream de chat com thought cycle
   static async streamChat(req: Request, res: Response): Promise<void> {
     try {
       const { chatId, message, isNewChat = false, model = 'llama3:8b' } = req.body;
@@ -139,12 +142,6 @@ export class ChatController {
 
       if (!message) {
         res.status(400).json({ error: 'Message is required' });
-        return;
-      }
-
-      const provider = await llmManager.getAvailableProvider();
-      if (!provider) {
-        res.status(503).json({ error: 'No LLM provider available' });
         return;
       }
 
@@ -183,19 +180,65 @@ export class ChatController {
         messages = chat.messages;
       }
 
-      // Preparar mensagens para o LLM
-      const llmMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      let assistantResponse = '';
-
       try {
-        // Stream da resposta do LLM
-        for await (const chunk of provider.generateConversationResponse(llmMessages, model)) {
-          assistantResponse += chunk;
-          res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+        // Preparar contexto para o thought cycle
+        const thoughtCycleContext: ThoughtCycleContext = {
+          originalMessage: message,
+          previousMessages: messages.slice(0, -1).map(msg => msg.content), // Excluir a última mensagem (current)
+          executedActions: []
+        };
+
+        // Função para enviar progresso via stream
+        const onProgress = (progressMessage: string) => {
+          res.write(`data: ${JSON.stringify({ 
+            type: 'progress', 
+            content: progressMessage 
+          })}\n\n`);
+        };
+
+        // Iniciar thought cycle com callback de progresso
+        let assistantResponse = '';
+        
+        // Override do startCycle para receber callback de progresso
+        await thoughtCycleService.startCycleWithProgress(thoughtCycleContext, onProgress);
+        
+        // Gerar resposta final baseada no resultado do cycle
+        const provider = await llmManager.getAvailableProvider();
+        if (provider) {
+          // Preparar mensagens para o LLM incluindo o contexto do thought cycle
+          const llmMessages = messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }));
+
+          // Adicionar contexto do thought cycle como mensagem do usuário
+          const contextMessage = {
+            role: 'user' as const,
+            content: `[SYSTEM CONTEXT] Thought cycle execution completed:
+Original message: ${thoughtCycleContext.originalMessage}
+Actions executed: ${thoughtCycleContext.executedActions.length}
+- ${thoughtCycleContext.executedActions.map(a => a.action).join(', ')}
+
+Based on this context, provide a comprehensive response to the original user message.`
+          };
+
+          const messagesWithContext = [...llmMessages, contextMessage];
+
+          // Stream da resposta do LLM
+          for await (const chunk of provider.generateConversationResponse(messagesWithContext, model)) {
+            assistantResponse += chunk;
+            res.write(`data: ${JSON.stringify({ 
+              type: 'content', 
+              content: chunk 
+            })}\n\n`);
+          }
+        } else {
+          // Fallback se não houver provider
+          assistantResponse = 'Thought cycle completed successfully. No LLM provider available for response generation.';
+          res.write(`data: ${JSON.stringify({ 
+            type: 'content', 
+            content: assistantResponse 
+          })}\n\n`);
         }
 
         // Adicionar resposta do assistente
@@ -207,7 +250,10 @@ export class ChatController {
 
         if (isNewChat) {
           // Para novo chat, precisamos gerar um título
-          res.write(`data: ${JSON.stringify({ needsTitle: true })}\n\n`);
+          res.write(`data: ${JSON.stringify({ 
+            type: 'system',
+            needsTitle: true 
+          })}\n\n`);
         } else {
           // Para chat existente, salvar a mensagem
           chat!.messages.push(assistantMessage);
@@ -215,12 +261,20 @@ export class ChatController {
         }
 
         // Send end signal
-        res.write(`data: ${JSON.stringify({ done: true, chatId: chat?._id })}\n\n`);
+        res.write(`data: ${JSON.stringify({ 
+          type: 'system',
+          done: true, 
+          chatId: chat?._id 
+        })}\n\n`);
         res.end();
+
       } catch (error) {
-        console.error('Streaming error:', error);
+        console.error('Thought cycle error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        res.write(`data: ${JSON.stringify({ error: errorMessage })}\n\n`);
+        res.write(`data: ${JSON.stringify({ 
+          type: 'error',
+          error: errorMessage 
+        })}\n\n`);
         res.end();
       }
     } catch (error) {
