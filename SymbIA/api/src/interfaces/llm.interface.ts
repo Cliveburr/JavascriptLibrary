@@ -35,6 +35,14 @@ export interface LLMProvider {
    * @returns Uma promessa que resolve para um array de strings com os nomes dos modelos
    */
   getAvailableModels(): Promise<string[]>;
+
+  /**
+   * Gera respostas de forma iterável e assíncrona a partir de múltiplas mensagens (conversação)
+   * @param messages Array de mensagens da conversação
+   * @param model Modelo opcional a ser usado para gerar a resposta
+   * @returns Um iterável assíncrono de strings contendo partes da resposta
+   */
+  generateConversationResponse(messages: Array<{role: 'user' | 'assistant', content: string}>, model?: string): AsyncIterable<string>;
 }
 
 // Base response interface for streaming

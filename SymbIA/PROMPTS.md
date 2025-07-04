@@ -192,3 +192,17 @@ Ao criar um novo usuário, crie já uma nova memoria padrão para esse usuário
 Apenas crie toda essa estrutura para criar novas memorias e deletar memorias o uso real será implementadao mais tarde
 
 leia o arquivo BULMA_INFO.md para saber como usar o bulma css
+
+---
+
+Vamos implementar primeiramente uma chat basico com a IA da tela Dashboard.jsx
+
+Ao usuário enviar uma questão, primeira passo é verificar se é uma conversa nova,
+se for conversa nova, adicione um novo item na lista do lado do Dashboard.jsx com o texto temporario "New chat..." e então efetuar a chamada ao LLM fazendo stream do retorno, ao final chame novamente o LLM pedindo ele para criar um titulo de no maximo 100 letras para essa nova conversa, então crie um novo model Chat com esse titulo, que tenha a pergunta do usuário e o retorno do LLM e salve no mongodb, por fim retorne o titulo gerado para atualizar o texto temporario
+se for uma conversa já selecionada, chame o LLM passando as mensagens passadas do usuário como role 'user' e as respostas anteriores do LLM como 'assistant', faça stream desse retorno e no final atualize o registro no mongodb
+
+Na parte visual, a cada chat é um item do menu com botão de deletar do lado direito, pode fazer igual o da "memories"
+
+basea-se no endpoint '/api/chat/stream' para já saber como fazer o stream da chamada LLM
+
+leia o arquivo BULMA_INFO.md para saber como usar o bulma css

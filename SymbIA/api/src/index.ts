@@ -11,6 +11,8 @@ import { PlanExecutorService } from './services/plan-executor.service';
 import { ThoughtCycleService } from './services/thought-cycle.service';
 import { AuthService } from './services/auth.service';
 import { memoryRoutes } from './routes/memory.routes';
+import { chatRoutes } from './routes/chat.routes';
+import './models/chat.model'; // Registrar o modelo Chat
 import jwt from 'jsonwebtoken';
 
 dotenv.config();
@@ -343,6 +345,9 @@ app.get('/api/auth/me', async (req: Request, res: Response): Promise<void> => {
 
 // Rotas de memórias (protegidas por autenticação)
 app.use('/api/memories', authenticateToken, memoryRoutes);
+
+// Rotas de chats (protegidas por autenticação)
+app.use('/api/chats', authenticateToken, chatRoutes);
 
 // Chat streaming endpoint
 app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> => {

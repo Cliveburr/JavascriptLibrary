@@ -31,9 +31,6 @@ build/
 # Optional eslint cache
 .eslintcache
 
-# Environment variables
-.env
-
 # Coverage directory used by tools like istanbul
 coverage/
 *.lcov

@@ -139,4 +139,33 @@ export class OllamaProvider implements LLMProvider {
       throw new Error(`Failed to generate embeddings: ${error}`);
     }
   }
+
+  /**
+   * Gera resposta em streaming a partir de múltiplas mensagens (conversação)
+   * @param messages Array de mensagens da conversação
+   * @param model Modelo a ser usado, com padrão llama3:8b
+   * @returns Iterador assíncrono que emite partes da resposta
+   */
+  async *generateConversationResponse(messages: Array<{role: 'user' | 'assistant', content: string}>, model: string = 'llama3:8b'): AsyncIterable<string> {
+    try {
+      const response = await this.ollama.chat({
+        model: model,
+        messages: messages,
+        stream: true,
+        tools: [],
+        options: {
+          temperature: 0.2
+        }
+      });
+
+      for await (const chunk of response) {
+        if (chunk.message?.content) {
+          yield chunk.message.content;
+        }
+      }
+    } catch (error) {
+      console.error('Ollama conversation error:', error);
+      throw new Error(`Ollama conversation generation failed: ${error}`);
+    }
+  }
 }

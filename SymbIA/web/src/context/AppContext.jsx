@@ -12,7 +12,12 @@ const actionTypes = {
     SET_MEMORIES: 'SET_MEMORIES',
     ADD_MEMORY: 'ADD_MEMORY',
     REMOVE_MEMORY: 'REMOVE_MEMORY',
-    SET_SELECTED_MEMORY: 'SET_SELECTED_MEMORY'
+    SET_SELECTED_MEMORY: 'SET_SELECTED_MEMORY',
+    SET_CHATS: 'SET_CHATS',
+    ADD_CHAT: 'ADD_CHAT',
+    UPDATE_CHAT: 'UPDATE_CHAT',
+    REMOVE_CHAT: 'REMOVE_CHAT',
+    SET_SELECTED_CHAT: 'SET_SELECTED_CHAT'
 };
 
 // Estado inicial
@@ -23,7 +28,9 @@ const initialState = {
     isAuthenticated: false,
     isInitialized: false, // Flag para indicar se a verificação inicial foi feita
     memories: [],
-    selectedMemory: null
+    selectedMemory: null,
+    chats: [],
+    selectedChat: null
 };
 
 // Reducer
@@ -102,6 +109,47 @@ const appReducer = (state, action) => {
             return {
                 ...state,
                 selectedMemory: action.payload
+            };
+        case actionTypes.SET_CHATS:
+            const validChats = Array.isArray(action.payload) 
+                ? action.payload.filter(chat => chat && chat._id) 
+                : [];
+            return {
+                ...state,
+                chats: validChats
+            };
+        case actionTypes.ADD_CHAT:
+            // Verificar se o chat é válido antes de adicionar
+            if (!action.payload || !action.payload._id) {
+                console.warn('Tentativa de adicionar chat inválido:', action.payload);
+                return state;
+            }
+            return {
+                ...state,
+                chats: [action.payload, ...state.chats]
+            };
+        case actionTypes.UPDATE_CHAT:
+            return {
+                ...state,
+                chats: state.chats.map(chat => 
+                    chat._id === action.payload._id ? action.payload : chat
+                )
+            };
+        case actionTypes.REMOVE_CHAT:
+            const updatedChats = state.chats.filter(chat => chat._id !== action.payload);
+            let newSelectedChat = state.selectedChat;
+            if (state.selectedChat && state.selectedChat._id === action.payload) {
+                newSelectedChat = null;
+            }
+            return {
+                ...state,
+                chats: updatedChats,
+                selectedChat: newSelectedChat
+            };
+        case actionTypes.SET_SELECTED_CHAT:
+            return {
+                ...state,
+                selectedChat: action.payload
             };
         default:
             return state;
@@ -259,6 +307,91 @@ export const AppProvider = ({ children }) => {
         dispatch({ type: actionTypes.SET_SELECTED_MEMORY, payload: memory });
     };
 
+    // Chat actions
+    const loadChats = async () => {
+        console.log('Loading chats...');
+        console.log('API Base URL:', import.meta.env.VITE_API_URL || 'http://localhost:3002');
+        console.log('Auth token:', localStorage.getItem('authToken') ? 'exists' : 'missing');
+        
+        try {
+            const response = await apiService.chats.getAll();
+            console.log('Chats response:', response);
+            console.log('Response data:', response.data);
+            console.log('Response status:', response.status);
+            console.log('Response data type:', typeof response.data);
+            
+            // Verificar se a resposta tem a estrutura esperada
+            let chats = [];
+            if (response.data && response.data.data) {
+                chats = Array.isArray(response.data.data) ? response.data.data : [];
+                console.log('Using response.data.data:', chats);
+            } else if (Array.isArray(response.data)) {
+                chats = response.data;
+                console.log('Using response.data diretamente:', chats);
+            }
+            
+            // Filtrar apenas chats válidos
+            const validChats = chats.filter(chat => {
+                const isValid = chat && chat._id && typeof chat._id === 'string';
+                if (!isValid) {
+                    console.warn('Chat inválido encontrado:', chat);
+                }
+                return isValid;
+            });
+            
+            console.log('Valid chats to dispatch:', validChats);
+            dispatch({ type: actionTypes.SET_CHATS, payload: validChats });
+        } catch (error) {
+            console.error('Error loading chats:', error);
+            console.error('Error details:', error.response);
+            setError('Erro ao carregar chats');
+            // Em caso de erro, garantir que chats seja um array vazio
+            dispatch({ type: actionTypes.SET_CHATS, payload: [] });
+        }
+    };
+
+    const createChat = async (title, message) => {
+        try {
+            const response = await apiService.chats.create(title, message);
+            const newChat = response.data;
+            dispatch({ type: actionTypes.ADD_CHAT, payload: newChat });
+            return newChat;
+        } catch (error) {
+            console.error('Error creating chat:', error);
+            setError('Erro ao criar chat');
+            throw error;
+        }
+    };
+
+    const updateChat = (chat) => {
+        dispatch({ type: actionTypes.UPDATE_CHAT, payload: chat });
+    };
+
+    const addChat = (chat) => {
+        dispatch({ type: actionTypes.ADD_CHAT, payload: chat });
+    };
+
+    const deleteChat = async (chatId) => {
+        try {
+            await apiService.chats.delete(chatId);
+            dispatch({ type: actionTypes.REMOVE_CHAT, payload: chatId });
+        } catch (error) {
+            console.error('Error deleting chat:', error);
+            setError('Erro ao excluir chat');
+            throw error;
+        }
+    };
+
+    const removeChat = (chatId) => {
+        // Remove chat localmente sem chamada de API (para chats temporários)
+        dispatch({ type: actionTypes.REMOVE_CHAT, payload: chatId });
+    };
+
+    const selectChat = (chat) => {
+        console.log('Context: Selecting chat:', chat);
+        dispatch({ type: actionTypes.SET_SELECTED_CHAT, payload: chat });
+    };
+
     const value = {
         ...state,
         setUser,
@@ -269,7 +402,14 @@ export const AppProvider = ({ children }) => {
         loadMemories,
         createMemory,
         deleteMemory,
-        selectMemory
+        selectMemory,
+        loadChats,
+        createChat,
+        addChat,
+        updateChat,
+        deleteChat,
+        removeChat,
+        selectChat
     };
 
     return (

@@ -84,6 +84,85 @@ export const apiService = {
         process: (data) => api.post('/api/thought-cycle', data),
         getResult: (id) => api.get(`/api/thought-cycle/${id}`),
     },
+
+    // Chats
+    chats: {
+        getAll: () => api.get('/api/chats'),
+        getById: (id) => api.get(`/api/chats/${id}`),
+        create: (title, message) => api.post('/api/chats', { title, message }),
+        addMessage: (chatId, message, role = 'user') => api.post(`/api/chats/${chatId}/messages`, { message, role }),
+        delete: (id) => api.delete(`/api/chats/${id}`),
+        generateTitle: (message, assistantResponse) => api.post('/api/chats/generate-title', { message, assistantResponse }),
+        streamChat: async function(chatId, message, isNewChat = false, onChunk, onError, onComplete) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chats/stream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({
+                        chatId,
+                        message,
+                        isNewChat
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body?.getReader();
+                const decoder = new TextDecoder();
+
+                if (!reader) {
+                    throw new Error('No reader available');
+                }
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.error) {
+                                    onError?.(data.error);
+                                    return;
+                                }
+                                
+                                if (data.content) {
+                                    onChunk?.(data.content);
+                                }
+                                
+                                if (data.done) {
+                                    onComplete?.(data);
+                                    return;
+                                }
+                                
+                                if (data.needsTitle) {
+                                    // Sinaliza que precisa gerar título
+                                    onComplete?.({ needsTitle: true, chatId: data.chatId });
+                                    return;
+                                }
+                            } catch (e) {
+                                console.error('Error parsing SSE data:', e);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Stream error:', error);
+                onError?.(error.message || 'Connection error');
+            }
+        }
+    },
 };
 
 export default api;
