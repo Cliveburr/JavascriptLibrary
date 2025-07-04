@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { LLMManager } from './services/llm.service';
-import { MessageDecomposer } from './services/message-decomposer.service';
 import { ThoughtCycleService } from './services/thought-cycle.service';
 import { AuthService } from './services/auth.service';
 import { memoryRoutes } from './routes/memory.routes';
@@ -66,7 +65,6 @@ connectToMongoDB();
 const app = express();
 const PORT: number = parseInt(process.env.PORT!, 10);
 const llmManager = new LLMManager();
-const messageDecomposer = new MessageDecomposer(llmManager);
 const thoughtCycleService = new ThoughtCycleService(llmManager);
 const authService = new AuthService();
 
@@ -393,100 +391,6 @@ app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> 
   }
 });
 
-// Endpoint para decomposição de mensagens
-app.post('/api/decompose', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { message } = req.body;
-    
-    if (!message || typeof message !== 'string') {
-      res.status(400).json({ 
-        error: 'Message is required and must be a string' 
-      });
-      return;
-    }
-    
-    const decomposition = await messageDecomposer.decomposeMessage(message);
-    
-    const response: ApiResponse = {
-      message: 'Message decomposed successfully',
-      data: decomposition,
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Decompose endpoint error:', error);
-    res.status(500).json({ error: 'Failed to decompose message' });
-  }
-});
-
-// Endpoint para decomposição enriquecida com embeddings e contexto vetorial
-app.post('/api/decompose/enriched', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { message } = req.body;
-    
-    if (!message || typeof message !== 'string') {
-      res.status(400).json({ 
-        error: 'Message is required and must be a string' 
-      });
-      return;
-    }
-    
-    console.log('🚀 Starting enriched decomposition pipeline...');
-    const enrichedDecomposition = await messageDecomposer.decomposeAndEnrichMessage(message);
-    
-    const response: ApiResponse = {
-      message: 'Message decomposed and enriched successfully',
-      data: enrichedDecomposition,
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Enriched decompose endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to decompose and enrich message',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-
-// Endpoint para buscar contexto de um texto específico
-app.post('/api/context/search', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { text, limit = 5 } = req.body;
-    
-    if (!text || typeof text !== 'string') {
-      res.status(400).json({ 
-        error: 'Text is required and must be a string' 
-      });
-      return;
-    }
-    
-    const contextSources = await messageDecomposer.searchContextForText(text, limit);
-    
-    const response: ApiResponse = {
-      message: 'Context search completed successfully',
-      data: {
-        query: text,
-        limit: limit,
-        results: contextSources,
-        count: contextSources.length
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Context search endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to search context',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
 // Get available models
 app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -503,49 +407,6 @@ app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: 'Failed to get models' });
   }
 });
-
-// Endpoint para obter estatísticas do cache
-app.get('/api/cache/stats', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const cacheStats = messageDecomposer.getCacheStats();
-    
-    const response: ApiResponse = {
-      message: 'Cache statistics retrieved successfully',
-      data: cacheStats,
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Cache stats endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to get cache statistics',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Endpoint para limpar o cache
-app.post('/api/cache/clear', async (req: Request, res: Response): Promise<void> => {
-  try {
-    messageDecomposer.clearCache();
-    
-    const response: ApiResponse = {
-      message: 'Cache cleared successfully',
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Cache clear endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to clear cache',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-
 
 // Endpoint para executar um ciclo de pensamento completo
 app.post('/api/thought/cycle', async (req: Request, res: Response): Promise<void> => {
@@ -682,11 +543,6 @@ function startServer() {
     console.log(`   POST /api/auth/login`);
     console.log(`   POST /api/chat/stream`);
     console.log(`   GET  /api/models`);
-    console.log(`   POST /api/decompose`);
-    console.log(`   POST /api/decompose/enriched`);
-    console.log(`   POST /api/context/search`);
-    console.log(`   GET  /api/cache/stats`);
-    console.log(`   POST /api/cache/clear`);
     console.log(`   POST /api/thought/cycle`);
     console.log('');
     console.log('💡 To run CLI mode: npm run dev -- --cli');

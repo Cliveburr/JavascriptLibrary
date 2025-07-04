@@ -61,11 +61,7 @@ export const apiService = {
         getById: (id) => api.get(`/api/memories/${id}`),
     },
 
-    // Decomposição de mensagens
-    messageDecomposer: {
-        decompose: (message) => api.post('/api/decompose', { message }),
-        getDecomposition: (id) => api.get(`/api/decompose/${id}`),
-    },
+
 
     // Ciclo de pensamento
     thoughtCycle: {
