@@ -8,6 +8,7 @@ import { LLMManager } from './services/llm.service';
 import { AuthService } from './services/auth.service';
 import { memoryRoutes } from './routes/memory.routes';
 import { chatRoutes } from './routes/chat.routes';
+import { authRoutes } from './routes/auth.routes';
 import './models/chat.model'; // Registrar o modelo Chat
 import jwt from 'jsonwebtoken';
 
@@ -170,224 +171,13 @@ app.get('/api/health', (req: Request, res: Response): void => {
 });
 
 // Rotas de autenticação
-app.post('/api/auth/register', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { username, password } = req.body;
-    
-    console.log('Registration attempt for username:', username);
-    console.log('MongoDB connection state:', mongoose.connection.readyState);
-    
-    // Verificar se o MongoDB está conectado
-    if (mongoose.connection.readyState !== 1) {
-      console.error('MongoDB not connected. Connection state:', mongoose.connection.readyState);
-      res.status(503).json({ 
-        error: 'Database connection unavailable',
-        details: 'Please try again later'
-      });
-      return;
-    }
-    
-    if (!username || !password) {
-      console.log('Missing username or password');
-      res.status(400).json({ 
-        error: 'Username and password are required' 
-      });
-      return;
-    }
-
-    if (username.length < 3) {
-      console.log('Username too short');
-      res.status(400).json({ 
-        error: 'Username must be at least 3 characters long' 
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      console.log('Password too short');
-      res.status(400).json({ 
-        error: 'Password must be at least 6 characters long' 
-      });
-      return;
-    }
-    
-    const newUser = await authService.register({ username, password });
-    
-    console.log('User registered successfully:', newUser.username);
-    
-    const response: ApiResponse = {
-      message: 'User registered successfully',
-      data: {
-        username: newUser.username,
-        id: newUser._id
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    res.status(201).json(response);
-  } catch (error) {
-    console.error('Register endpoint error:', error);
-    
-    // Tratar erro de usuário duplicado
-    if (error instanceof Error && error.message.includes('duplicate key error')) {
-      res.status(400).json({ 
-        error: 'Username already exists. Please choose a different username.',
-        details: 'This username is already taken'
-      });
-      return;
-    }
-    
-    // Tratar erro de validação do Mongoose
-    if (error instanceof Error && error.name === 'ValidationError') {
-      res.status(400).json({ 
-        error: 'Validation error',
-        details: error.message
-      });
-      return;
-    }
-    
-    res.status(400).json({ 
-      error: 'Failed to register user',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { username, password } = req.body;
-    
-    if (!username || !password) {
-      res.status(400).json({ 
-        error: 'Username and password are required' 
-      });
-      return;
-    }
-    
-    const result = await authService.login({ username, password });
-    
-    if (!result) {
-      res.status(401).json({ 
-        error: 'Invalid credentials' 
-      });
-      return;
-    }
-    
-    const response: ApiResponse = {
-      message: 'Login successful',
-      data: {
-        token: result.token
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Login endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to login',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Rota para obter dados do usuário autenticado
-app.get('/api/auth/me', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({ message: 'No token provided' });
-      return;
-    }
-
-    const token = authHeader.substring(7);
-    const secret = process.env.JWT_SECRET;
-    
-    if (!secret) {
-      res.status(500).json({ message: 'Server configuration error' });
-      return;
-    }
-    
-    try {
-      const decoded = jwt.verify(token, secret) as any;
-      const user = await authService.getUserById(decoded.id);
-      
-      if (!user) {
-        res.status(404).json({ message: 'User not found' });
-        return;
-      }
-
-      const responseData = {
-        success: true,
-        data: {
-          id: user._id,
-          username: user.username,
-          name: user.username // Usando username como nome por enquanto
-        }
-      };
-      res.status(200).json(responseData);
-    } catch (jwtError) {
-      res.status(401).json({ message: 'Invalid token' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Error getting user info', error });
-  }
-});
+app.use('/api/auth', authRoutes);
 
 // Rotas de memórias (protegidas por autenticação)
 app.use('/api/memories', authenticateToken, memoryRoutes);
 
 // Rotas de chats (protegidas por autenticação)
 app.use('/api/chats', authenticateToken, chatRoutes);
-
-// Chat streaming endpoint
-app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { message, model = 'llama3:8b' } = req.body;
-    
-    if (!message) {
-      res.status(400).json({ error: 'Message is required' });
-      return;
-    }
-
-    const provider = await llmManager.getAvailableProvider();
-    if (!provider) {
-      res.status(503).json({ error: 'No LLM provider available' });
-      return;
-    }
-
-    // Set up server-sent events
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control',
-    });
-
-    try {
-      for await (const chunk of provider.generateResponse(message, model)) {
-        console.log('Server yielding chunk:', JSON.stringify(chunk)); // Debug log
-        const data = JSON.stringify({ content: chunk });
-        res.write(`data: ${data}\n\n`);
-      }
-      
-      // Send end signal
-      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-      res.end();
-    } catch (error) {
-      console.error('Streaming error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const errorData = JSON.stringify({ error: errorMessage });
-      res.write(`data: ${errorData}\n\n`);
-      res.end();
-    }
-  } catch (error) {
-    console.error('Chat endpoint error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 // Get available models
 app.get('/api/models', async (req: Request, res: Response): Promise<void> => {
@@ -439,13 +229,13 @@ if (isDirectRun) {
 function startServer() {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`�️  Database: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'}`);
-    console.log(`�📝 API endpoints:`);
+    console.log(`🗄️  Database: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'}`);
+    console.log(`📝 API endpoints:`);
     console.log(`   GET  /`);
     console.log(`   GET  /api/health`);
     console.log(`   POST /api/auth/register`);
     console.log(`   POST /api/auth/login`);
-    console.log(`   POST /api/chat/stream`);
+    console.log(`   GET  /api/auth/me`);
     console.log(`   GET  /api/models`);
     console.log('');
     console.log('💡 Server running in production mode');
