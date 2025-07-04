@@ -8,7 +8,6 @@ import {
   LLMProvider 
 } from '../interfaces/llm.interface';
 import { LLMManager } from './llm.service';
-import { ExecutionPlannerService } from './execution-planner.service';
 
 /**
  * Service responsible for executing execution plans step by step
@@ -19,8 +18,7 @@ export class PlanExecutorService {
    * @param llmManager LLM manager for response generation
    */
   constructor(
-    private llmManager: LLMManager,
-    private executionPlanner: ExecutionPlannerService
+    private llmManager: LLMManager
   ) {}
 
   /**

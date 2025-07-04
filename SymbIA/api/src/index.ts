@@ -6,8 +6,6 @@ import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { LLMManager } from './services/llm.service';
 import { MessageDecomposer } from './services/message-decomposer.service';
-import { ExecutionPlannerService } from './services/execution-planner.service';
-import { PlanExecutorService } from './services/plan-executor.service';
 import { ThoughtCycleService } from './services/thought-cycle.service';
 import { AuthService } from './services/auth.service';
 import { memoryRoutes } from './routes/memory.routes';
@@ -69,8 +67,6 @@ const app = express();
 const PORT: number = parseInt(process.env.PORT!, 10);
 const llmManager = new LLMManager();
 const messageDecomposer = new MessageDecomposer(llmManager);
-const executionPlanner = new ExecutionPlannerService(llmManager);
-const planExecutor = new PlanExecutorService(llmManager, executionPlanner);
 const thoughtCycleService = new ThoughtCycleService(llmManager);
 const authService = new AuthService();
 
@@ -455,39 +451,6 @@ app.post('/api/decompose/enriched', async (req: Request, res: Response): Promise
   }
 });
 
-// Endpoint para decomposição, enriquecimento e criação de plano de execução
-app.post('/api/decompose/plan', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { message } = req.body;
-    
-    if (!message || typeof message !== 'string') {
-      res.status(400).json({ 
-        error: 'Message is required and must be a string' 
-      });
-      return;
-    }
-    
-    console.log('🚀 Starting full pipeline with execution planning...');
-    const result = await messageDecomposer.decomposeEnrichAndPlan(message);
-    
-    const response: ApiResponse = {
-      message: 'Message processed and execution plan created successfully',
-      data: {
-        enrichedDecomposition: result.enrichedDecomposition,
-        executionPlan: result.executionPlan
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Execution planning endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to create execution plan',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
 
 // Endpoint para buscar contexto de um texto específico
 app.post('/api/context/search', async (req: Request, res: Response): Promise<void> => {
@@ -582,81 +545,7 @@ app.post('/api/cache/clear', async (req: Request, res: Response): Promise<void> 
   }
 });
 
-// Endpoint para pipeline completo: decomposição, enriquecimento, planejamento e execução
-app.post('/api/pipeline/execute', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { message } = req.body;
-    
-    if (!message || typeof message !== 'string') {
-      res.status(400).json({ 
-        error: 'Message is required and must be a string' 
-      });
-      return;
-    }
-    
-    console.log('🚀 Starting complete pipeline execution...');
-    
-    // Etapa 1-4: Decomposição, enriquecimento e planejamento
-    const planResult = await messageDecomposer.decomposeEnrichAndPlan(message);
-    console.log('✅ Plan creation completed');
-    
-    // Etapa 5: Execução do plano
-    const executionReport = await planExecutor.executePlan(planResult.executionPlan);
-    console.log('✅ Plan execution completed');
-    
-    const response: ApiResponse = {
-      message: 'Complete pipeline executed successfully',
-      data: {
-        enrichedDecomposition: planResult.enrichedDecomposition,
-        executionPlan: planResult.executionPlan,
-        executionReport: executionReport
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Pipeline execution endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to execute complete pipeline',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
 
-// Endpoint para executar apenas um plano já criado
-app.post('/api/execute/plan', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { executionPlan } = req.body;
-    
-    if (!executionPlan || !executionPlan.actions || !Array.isArray(executionPlan.actions)) {
-      res.status(400).json({ 
-        error: 'Valid execution plan with actions array is required' 
-      });
-      return;
-    }
-    
-    console.log('🎯 Starting plan execution...');
-    const executionReport = await planExecutor.executePlan(executionPlan);
-    console.log('✅ Plan execution completed');
-    
-    const response: ApiResponse = {
-      message: 'Plan executed successfully',
-      data: {
-        executionReport: executionReport
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Plan execution endpoint error:', error);
-    res.status(500).json({ 
-      error: 'Failed to execute plan',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
 
 // Endpoint para executar um ciclo de pensamento completo
 app.post('/api/thought/cycle', async (req: Request, res: Response): Promise<void> => {
@@ -795,12 +684,9 @@ function startServer() {
     console.log(`   GET  /api/models`);
     console.log(`   POST /api/decompose`);
     console.log(`   POST /api/decompose/enriched`);
-    console.log(`   POST /api/decompose/plan`);
     console.log(`   POST /api/context/search`);
     console.log(`   GET  /api/cache/stats`);
     console.log(`   POST /api/cache/clear`);
-    console.log(`   POST /api/pipeline/execute`);
-    console.log(`   POST /api/execute/plan`);
     console.log(`   POST /api/thought/cycle`);
     console.log('');
     console.log('💡 To run CLI mode: npm run dev -- --cli');

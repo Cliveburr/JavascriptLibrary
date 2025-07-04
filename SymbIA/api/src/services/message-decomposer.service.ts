@@ -1,10 +1,9 @@
-import { MessageDecomposition, EnrichedDecomposition, LLMProvider, ExecutionPlan } from '../interfaces/llm.interface';
+import { MessageDecomposition, EnrichedDecomposition, LLMProvider } from '../interfaces/llm.interface';
 import { LLMManager } from './llm.service';
 import { ContextEnrichmentService } from './context-enrichment.service';
 import { EmbeddingService } from './embedding.service';
 import { VectorStorageService } from './vector-storage.service';
 import { QdrantProvider } from '../providers/qdrant.provider';
-import { ExecutionPlannerService } from './execution-planner.service';
 
 /**
  * Main service for decomposition and processing of user messages
@@ -14,11 +13,6 @@ export class MessageDecomposer {
    * Service for context enrichment with vector embeddings
    */
   private contextEnrichmentService: ContextEnrichmentService;
-  
-  /**
-   * Service for execution planning based on decompositions
-   */
-  private executionPlannerService: ExecutionPlannerService;
 
   /**
    * Creates a new instance of the message decomposer
@@ -32,9 +26,6 @@ export class MessageDecomposer {
     const qdrantProvider = new QdrantProvider(); // Use default configuration
     const vectorStorageService = new VectorStorageService(qdrantProvider);
     this.contextEnrichmentService = new ContextEnrichmentService(embeddingService, vectorStorageService);
-    
-    // Initialize execution planning service
-    this.executionPlannerService = new ExecutionPlannerService(this.llmManager);
   }
   
   /**
@@ -207,35 +198,6 @@ JSON:
   }
 
   /**
-   * Pipeline completo até etapa 4: Decomposição, enriquecimento e planejamento de execução
-   * @param message Mensagem do usuário a ser processada
-   * @returns Promessa que resolve para um objeto contendo a decomposição enriquecida e o plano de execução
-   */
-  public async decomposeEnrichAndPlan(message: string): Promise<{
-    enrichedDecomposition: EnrichedDecomposition;
-    executionPlan: ExecutionPlan;
-  }> {
-    console.log('🧠 Starting complete pipeline including execution planning');
-    
-    // Etapa 1-2: Decomposição da mensagem e enriquecimento com contexto
-    const enrichedDecomposition = await this.decomposeAndEnrichMessage(message);
-    console.log(`✅ Decomposition and enrichment completed with ${enrichedDecomposition.enrichedItems.length} items`);
-    
-    // Etapa 3: Criar plano de execução
-    console.log('📋 Starting execution planning...');
-    const executionPlan = await this.executionPlannerService.createExecutionPlan(enrichedDecomposition);
-    console.log(`✅ Execution planning completed with ${executionPlan.actions.length} actions`);
-    
-    // Log do resultado final
-    this.logExecutionPlan(executionPlan);
-    
-    return {
-      enrichedDecomposition,
-      executionPlan
-    };
-  }
-  
-  /**
    * Busca contexto para um texto específico
    * @param text Texto para o qual se deseja buscar contexto
    * @param limit Número máximo de resultados a retornar
@@ -281,27 +243,6 @@ JSON:
           console.log(`  ${ctxIndex + 1}. [Score: ${context.score?.toFixed(3)}] ${context.content.substring(0, 100)}...`);
         });
       }
-    });
-    console.log('\n');
-  }
-  
-  /**
-   * Log detalhado do plano de execução
-   * @param executionPlan Plano de execução a ser logado
-   */
-  private logExecutionPlan(executionPlan: ExecutionPlan): void {
-    console.log('\n📊 EXECUTION PLAN:');
-    console.log(`Original message: ${executionPlan.originalMessage}`);
-    console.log(`Total actions: ${executionPlan.actions.length}`);
-    console.log(`Timestamp: ${executionPlan.timestamp}`);
-    
-    executionPlan.actions.forEach((action) => {
-      console.log(`\n--- Step ${action.stepNumber} ---`);
-      console.log(`Action: ${action.actionName}`);
-      console.log(`Description: ${action.actionDescription}`);
-      console.log(`Related to item: ${action.itemIndex}`);
-      console.log(`Justification: ${action.justification}`);
-      console.log(`Status: ${action.status}`);
     });
     console.log('\n');
   }

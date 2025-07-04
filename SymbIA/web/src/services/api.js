@@ -67,18 +67,6 @@ export const apiService = {
         getDecomposition: (id) => api.get(`/api/decompose/${id}`),
     },
 
-    // Planejamento de execução
-    executionPlanner: {
-        createPlan: (message) => api.post('/api/decompose/plan', { message }),
-        getPlan: (id) => api.get(`/api/plan/${id}`),
-    },
-
-    // Executor de pipeline
-    pipelineExecutor: {
-        execute: (plan) => api.post('/api/execute', plan),
-        getStatus: (id) => api.get(`/api/execute/${id}`),
-    },
-
     // Ciclo de pensamento
     thoughtCycle: {
         process: (data) => api.post('/api/thought-cycle', data),
