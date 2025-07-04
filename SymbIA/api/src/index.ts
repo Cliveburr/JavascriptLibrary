@@ -10,6 +10,7 @@ import { ExecutionPlannerService } from './services/execution-planner.service';
 import { PlanExecutorService } from './services/plan-executor.service';
 import { ThoughtCycleService } from './services/thought-cycle.service';
 import { AuthService } from './services/auth.service';
+import { memoryRoutes } from './routes/memory.routes';
 import jwt from 'jsonwebtoken';
 
 dotenv.config();
@@ -70,6 +71,32 @@ const executionPlanner = new ExecutionPlannerService(llmManager);
 const planExecutor = new PlanExecutorService(llmManager, executionPlanner);
 const thoughtCycleService = new ThoughtCycleService(llmManager);
 const authService = new AuthService();
+
+// Middleware de autenticação JWT
+const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ message: 'No token provided' });
+    return;
+  }
+
+  const token = authHeader.substring(7);
+  const secret = process.env.JWT_SECRET;
+  
+  if (!secret) {
+    res.status(500).json({ message: 'Server configuration error' });
+    return;
+  }
+  
+  try {
+    const decoded = jwt.verify(token, secret) as any;
+    (req as any).user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
 
 // Middlewares de segurança e logging
 app.use(helmet());
@@ -281,7 +308,12 @@ app.get('/api/auth/me', async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = authHeader.substring(7);
-    const secret = process.env.JWT_SECRET!;
+    const secret = process.env.JWT_SECRET;
+    
+    if (!secret) {
+      res.status(500).json({ message: 'Server configuration error' });
+      return;
+    }
     
     try {
       const decoded = jwt.verify(token, secret) as any;
@@ -308,6 +340,9 @@ app.get('/api/auth/me', async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Error getting user info', error });
   }
 });
+
+// Rotas de memórias (protegidas por autenticação)
+app.use('/api/memories', authenticateToken, memoryRoutes);
 
 // Chat streaming endpoint
 app.post('/api/chat/stream', async (req: Request, res: Response): Promise<void> => {

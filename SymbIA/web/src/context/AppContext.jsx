@@ -8,7 +8,11 @@ const actionTypes = {
     SET_ERROR: 'SET_ERROR',
     CLEAR_ERROR: 'CLEAR_ERROR',
     LOGOUT: 'LOGOUT',
-    INIT_AUTH: 'INIT_AUTH'
+    INIT_AUTH: 'INIT_AUTH',
+    SET_MEMORIES: 'SET_MEMORIES',
+    ADD_MEMORY: 'ADD_MEMORY',
+    REMOVE_MEMORY: 'REMOVE_MEMORY',
+    SET_SELECTED_MEMORY: 'SET_SELECTED_MEMORY'
 };
 
 // Estado inicial
@@ -17,7 +21,9 @@ const initialState = {
     isLoading: true, // Inicialmente true para verificar autenticação
     error: null,
     isAuthenticated: false,
-    isInitialized: false // Flag para indicar se a verificação inicial foi feita
+    isInitialized: false, // Flag para indicar se a verificação inicial foi feita
+    memories: [],
+    selectedMemory: null
 };
 
 // Reducer
@@ -60,6 +66,42 @@ const appReducer = (state, action) => {
                 ...state,
                 isLoading: false,
                 isInitialized: true
+            };
+        case actionTypes.SET_MEMORIES:
+            const selectedMemory = action.payload.length > 0 
+                ? (state.selectedMemory ? state.selectedMemory : action.payload[0])
+                : null;
+            return {
+                ...state,
+                memories: action.payload,
+                selectedMemory
+            };
+        case actionTypes.ADD_MEMORY:
+            return {
+                ...state,
+                memories: [...state.memories, action.payload]
+            };
+        case actionTypes.REMOVE_MEMORY:
+            const updatedMemories = state.memories.filter(memory => memory._id !== action.payload);
+            let newSelectedMemory = state.selectedMemory;
+            if (state.selectedMemory && state.selectedMemory._id === action.payload) {
+                newSelectedMemory = updatedMemories.length > 0 ? updatedMemories[0] : null;
+            }
+            return {
+                ...state,
+                memories: updatedMemories,
+                selectedMemory: newSelectedMemory
+            };
+        case actionTypes.SET_SELECTED_MEMORY:
+            // Salvar no localStorage
+            if (action.payload) {
+                localStorage.setItem('selectedMemoryId', action.payload._id);
+            } else {
+                localStorage.removeItem('selectedMemoryId');
+            }
+            return {
+                ...state,
+                selectedMemory: action.payload
             };
         default:
             return state;
@@ -158,9 +200,63 @@ export const AppProvider = ({ children }) => {
     };
 
     const logout = () => {
-        // Remover token do localStorage
+        // Remover token e memória selecionada do localStorage
         localStorage.removeItem('authToken');
+        localStorage.removeItem('selectedMemoryId');
         dispatch({ type: actionTypes.LOGOUT });
+    };
+
+    // Memory actions
+    const loadMemories = async () => {
+        try {
+            const response = await apiService.memories.getAll();
+            const memories = response.data;
+            dispatch({ type: actionTypes.SET_MEMORIES, payload: memories });
+            
+            // Restaurar memória selecionada do localStorage
+            const savedMemoryId = localStorage.getItem('selectedMemoryId');
+            if (savedMemoryId && memories.length > 0) {
+                const savedMemory = memories.find(m => m._id === savedMemoryId);
+                if (savedMemory) {
+                    dispatch({ type: actionTypes.SET_SELECTED_MEMORY, payload: savedMemory });
+                }
+            }
+        } catch (error) {
+            console.error('Error loading memories:', error);
+            setError('Erro ao carregar memórias');
+        }
+    };
+
+    const createMemory = async (name) => {
+        try {
+            const response = await apiService.memories.create(name);
+            const newMemory = response.data;
+            dispatch({ type: actionTypes.ADD_MEMORY, payload: newMemory });
+            return newMemory;
+        } catch (error) {
+            console.error('Error creating memory:', error);
+            setError('Erro ao criar memória');
+            throw error;
+        }
+    };
+
+    const deleteMemory = async (memoryId) => {
+        try {
+            await apiService.memories.delete(memoryId);
+            dispatch({ type: actionTypes.REMOVE_MEMORY, payload: memoryId });
+        } catch (error) {
+            console.error('Error deleting memory:', error);
+            if (error.response?.data?.error) {
+                setError(error.response.data.error);
+            } else {
+                setError('Erro ao excluir memória');
+            }
+            throw error;
+        }
+    };
+
+    const selectMemory = (memory) => {
+        dispatch({ type: actionTypes.SET_SELECTED_MEMORY, payload: memory });
     };
 
     const value = {
@@ -169,7 +265,11 @@ export const AppProvider = ({ children }) => {
         setLoading,
         setError,
         clearError,
-        logout
+        logout,
+        loadMemories,
+        createMemory,
+        deleteMemory,
+        selectMemory
     };
 
     return (

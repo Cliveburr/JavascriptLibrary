@@ -53,6 +53,14 @@ export const apiService = {
         me: () => api.get('/api/auth/me'), // Endpoint para obter dados do usuário autenticado
     },
 
+    // Memórias
+    memories: {
+        getAll: () => api.get('/api/memories'),
+        create: (name) => api.post('/api/memories', { name }),
+        delete: (id) => api.delete(`/api/memories/${id}`),
+        getById: (id) => api.get(`/api/memories/${id}`),
+    },
+
     // Decomposição de mensagens
     messageDecomposer: {
         decompose: (message) => api.post('/api/decompose', { message }),
