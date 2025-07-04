@@ -114,7 +114,7 @@ export const apiService = {
                                 }
                                 
                                 if (data.content) {
-                                    onChunk?.(data.content);
+                                    onChunk?.(data.content, data.type);
                                 }
                                 
                                 if (data.done) {

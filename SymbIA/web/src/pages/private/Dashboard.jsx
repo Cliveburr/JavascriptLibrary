@@ -42,6 +42,7 @@ const Dashboard = () => {
     const [messages, setMessages] = useState([]);
     const [isStreaming, setIsStreaming] = useState(false);
     const [currentResponse, setCurrentResponse] = useState('');
+    const [progressMessages, setProgressMessages] = useState([]);
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
 
@@ -57,7 +58,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, currentResponse]);
+    }, [messages, currentResponse, progressMessages]);
 
     useEffect(() => {
         // Carregar memórias e chats quando o componente montar
@@ -76,6 +77,7 @@ const Dashboard = () => {
             loadChatMessages();
         } else {
             setMessages([]);
+            setProgressMessages([]);
         }
     }, [selectedChat]);
 
@@ -162,6 +164,7 @@ const Dashboard = () => {
         setMessage('');
         setIsStreaming(true);
         setCurrentResponse('');
+        setProgressMessages([]); // Limpar mensagens de progresso anteriores
 
         try {
             if (!selectedChat) {
@@ -193,10 +196,19 @@ const Dashboard = () => {
                     null,
                     userMessage,
                     true,
-                    (chunk) => {
-                        // Receber chunk da resposta
-                        assistantResponse += chunk;
-                        setCurrentResponse(assistantResponse);
+                    (chunk, type) => {
+                        if (type === 'progress') {
+                            // Adicionar mensagem de progresso isolada
+                            setProgressMessages(prev => [...prev, {
+                                id: Date.now() + Math.random(),
+                                content: chunk,
+                                timestamp: new Date()
+                            }]);
+                        } else {
+                            // Receber chunk da resposta principal
+                            assistantResponse += chunk;
+                            setCurrentResponse(assistantResponse);
+                        }
                     },
                     (error) => {
                         console.error('Stream error:', error);
@@ -240,6 +252,7 @@ const Dashboard = () => {
                                 };
                                 setMessages([newUserMessage, assistantMessage]);
                                 setCurrentResponse('');
+                                setProgressMessages([]); // Limpar mensagens de progresso
                                 
                                 // Dar foco no textarea após finalizar
                                 focusTextarea();
@@ -274,9 +287,18 @@ const Dashboard = () => {
                     chatId,
                     userMessage,
                     false,
-                    (chunk) => {
-                        assistantResponse += chunk;
-                        setCurrentResponse(assistantResponse);
+                    (chunk, type) => {
+                        if (type === 'progress') {
+                            // Adicionar mensagem de progresso isolada
+                            setProgressMessages(prev => [...prev, {
+                                id: Date.now() + Math.random(),
+                                content: chunk,
+                                timestamp: new Date()
+                            }]);
+                        } else {
+                            assistantResponse += chunk;
+                            setCurrentResponse(assistantResponse);
+                        }
                     },
                     (error) => {
                         console.error('Stream error:', error);
@@ -292,6 +314,7 @@ const Dashboard = () => {
                         };
                         setMessages(prev => [...prev, assistantMessage]);
                         setCurrentResponse('');
+                        setProgressMessages([]); // Limpar mensagens de progresso
                         setIsStreaming(false);
                         
                         // Dar foco no textarea após finalizar
@@ -316,6 +339,7 @@ const Dashboard = () => {
     const handleNewChat = () => {
         selectChat(null);
         setMessages([]);
+        setProgressMessages([]);
         setCurrentResponse('');
         
         // Dar foco no textarea
@@ -525,6 +549,37 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                     ))}
+                                    
+                                    {/* Mensagens de Progresso */}
+                                    {isStreaming && progressMessages.length > 0 && (
+                                        <div className="message is-warning">
+                                            <div className="message-header">
+                                                <p>SymbIA - Progresso</p>
+                                                <span className="icon">
+                                                    <i className="fas fa-cog fa-spin"></i>
+                                                </span>
+                                            </div>
+                                            <div className="message-body">
+                                                {progressMessages.map((progressMsg) => (
+                                                    <div 
+                                                        key={progressMsg.id} 
+                                                        className="progress-message"
+                                                        style={{ 
+                                                            marginBottom: '0.5rem',
+                                                            padding: '0.75rem'
+                                                        }}
+                                                    >
+                                                        <small className="progress-timestamp">
+                                                            {new Date(progressMsg.timestamp).toLocaleTimeString()}
+                                                        </small>
+                                                        <div className="progress-content" style={{ marginTop: '0.25rem' }}>
+                                                            {progressMsg.content}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                     
                                     {/* Resposta em tempo real */}
                                     {isStreaming && currentResponse && (

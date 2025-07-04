@@ -32,18 +32,17 @@ html, body {
 .chat-messages .message.is-primary .message-body {
   background-color: #3273dc;
   color: white;
-  border-radius: 18px 18px 4px 18px;
+  border-radius: 0 0 4px 4px;
 }
 
 .chat-messages .message.is-info .message-body {
   background-color: #f5f5f5;
   color: #363636;
-  border-radius: 18px 18px 18px 4px;
+  border-radius: 0 0 4px 4px;
 }
 
 .chat-messages .message-header {
   font-size: 0.75rem;
-  margin-bottom: 0.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -77,4 +76,44 @@ html, body {
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
+}
+
+/* Estilos para mensagens de progresso */
+.progress-message {
+  border-left: 3px solid #ffd324;
+  background: linear-gradient(135deg, #fffdf0 0%, #fff9e6 100%);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-message:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.progress-message .progress-timestamp {
+  color: #8b7355;
+  font-size: 0.75rem;
+}
+
+.progress-message .progress-content {
+  color: #5a5a5a;
+  font-weight: 500;
+}
+
+/* Animação de entrada para mensagens de progresso */
+@keyframes progressSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.progress-message {
+  animation: progressSlideIn 0.3s ease-out;
 }

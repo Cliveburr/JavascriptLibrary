@@ -20,42 +20,6 @@ export class ThoughtCycleService {
     this.llmManager = llmManager;
   }
 
-  /**
-   * Starts a new thought cycle with the given context
-   * @param ctx The context containing original message, previous messages, and executed actions
-   * @returns Promise that resolves when the cycle is complete
-   */
-  async startCycle(ctx: ThoughtCycleContext): Promise<string> {
-    console.log('@Display: Starting thought cycle...');
-    
-    let done = false;
-    
-    while (!done) {
-      console.log('@Display: Thinking...');
-      
-      // Decide next action based on current context
-      const decision = await this.decideNextAction(ctx);
-      
-      // Execute the decided action
-      const result = await this.performAction(decision.action, ctx, decision.data);
-      
-      // Add the result to executed actions
-      ctx.executedActions.push({
-        action: decision.action,
-        result,
-        timestamp: new Date(),
-        data: decision.data
-      });
-      
-      // Check if we should finalize the cycle
-      if (decision.action === ACTIONS.FINALIZE) {
-        done = true;
-      }
-    }
-    
-    console.log('@Display: Thought cycle completed.');
-    return 'Cycle completed successfully';
-  }
 
   /**
    * Starts a new thought cycle with progress callback support
@@ -64,7 +28,6 @@ export class ThoughtCycleService {
    * @returns Promise that resolves when the cycle is complete
    */
   async startCycleWithProgress(ctx: ThoughtCycleContext, onProgress?: (message: string) => void): Promise<string> {
-    onProgress?.('Starting thought cycle...');
     
     let done = false;
     
@@ -150,39 +113,6 @@ export class ThoughtCycleService {
           error: errorMessage 
         } 
       };
-    }
-  }
-
-  /**
-   * Performs the specified action with the given context and data
-   * @param action The action to perform
-   * @param ctx The current context
-   * @param data Additional data for the action
-   * @returns Promise that resolves to the action result
-   */
-  private async performAction(action: string, ctx: ThoughtCycleContext, data?: any): Promise<any> {
-    console.log(`@Display: Executing action: ${action}`);
-    
-    switch (action) {
-      case ACTIONS.FINALIZE:
-        const finalizeAction = new FinalizeAction(this.llmManager);
-        return finalizeAction.execute(ctx, data);
-      case ACTIONS.SAVE_MEMORY:
-        const saveMemoryAction = new SaveMemoryAction(this.llmManager);
-        return saveMemoryAction.execute(ctx, data);
-      case ACTIONS.EDIT_MEMORY:
-        const editMemoryAction = new EditMemoryAction(this.llmManager);
-        return editMemoryAction.execute(ctx, data);
-      case ACTIONS.DELETE_MEMORY:
-        const deleteMemoryAction = new DeleteMemoryAction(this.llmManager);
-        return deleteMemoryAction.execute(ctx, data);
-      case ACTIONS.SEARCH_MEMORY:
-        const searchMemoryAction = new SearchMemoryAction(this.llmManager);
-        return searchMemoryAction.execute(ctx, data);
-      default:
-        console.log(`@Display: Unknown action: ${action}, finalizing cycle`);
-        const fallbackAction = new FinalizeAction(this.llmManager);
-        return fallbackAction.execute(ctx, { reason: `Unknown action: ${action}` });
     }
   }
 
@@ -348,15 +278,6 @@ Your response should be valid JSON only.`;
       } 
     };
   }
-}
-
-// Export the main functions for compatibility with the planning document
-export async function startCycle(ctx: ThoughtCycleContext): Promise<string> {
-  // This function serves as a bridge to the service class
-  // In a real implementation, you would inject the LLMManager dependency
-  const llmManager = new LLMManager();
-  const thoughtCycleService = new ThoughtCycleService(llmManager);
-  return thoughtCycleService.startCycle(ctx);
 }
 
 export async function decideNextAction(ctx: ThoughtCycleContext): Promise<ActionDecision> {
