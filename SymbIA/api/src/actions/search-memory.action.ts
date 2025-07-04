@@ -25,7 +25,7 @@ export class SearchMemoryAction {
       // Step 1: Use LLM to extract search topics and key terms from current context
       onProgress?.('Extracting search topics from context...');
       const topicExtractionPrompt = this.buildSearchTopicExtractionPrompt(searchContext, ctx);
-      const topicResponse = await provider.generateSingleResponse(topicExtractionPrompt, 'llama3.2:3b');
+      const topicResponse = await provider.generateSingleResponse(topicExtractionPrompt, 'llama3:8b');
       
       // Parse extracted search terms
       const searchTerms = this.parseSearchTerms(topicResponse);
@@ -50,7 +50,7 @@ export class SearchMemoryAction {
       // Step 4: Summarize results with LLM
       onProgress?.('Summarizing search results...');
       const summaryPrompt = this.buildSearchResultsSummaryPrompt(searchContext, searchTerms, memoryItems);
-      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3.2:3b');
+      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3:8b');
       
       onProgress?.('Memory retrieved!');
       onProgress?.(`Found ${memoryItems.length} relevant memories`);

@@ -114,7 +114,7 @@ export class ThoughtCycleService {
     const prompt = this.buildActionDecisionPrompt(ctx);
     
     try {
-      const response = await provider.generateSingleResponse(prompt, 'llama3.2:3b');
+      const response = await provider.generateSingleResponse(prompt, 'llama3:8b');
 
       // Parse LLM response to extract action decision
       const decision = this.parseActionDecision(response);

@@ -24,7 +24,7 @@ export class DeleteMemoryAction {
       
       // Call LLM to determine which memory IDs to delete and why
       const deletionExtractionPrompt = this.buildMemoryDeletionExtractionPrompt(inputText);
-      const extractionResponse = await provider.generateSingleResponse(deletionExtractionPrompt, 'llama3.2:3b');
+      const extractionResponse = await provider.generateSingleResponse(deletionExtractionPrompt, 'llama3:8b');
       
       // Log the LLM response
       onProgress?.(`LLM deletion analysis response: ${extractionResponse.trim()}`);
@@ -72,7 +72,7 @@ export class DeleteMemoryAction {
       
       // Call LLM to summarize deletion
       const summaryPrompt = this.buildMemoryDeletionSummaryPrompt(deletedMemories, inputText);
-      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3.2:3b');
+      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3:8b');
       
       onProgress?.('Memory deleted!');
       onProgress?.(summaryResponse.trim());

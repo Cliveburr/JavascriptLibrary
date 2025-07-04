@@ -24,7 +24,7 @@ export class EditMemoryAction {
       
       // Call LLM to extract which memory IDs to edit and what their new contents should be
       const editExtractionPrompt = this.buildMemoryEditExtractionPrompt(inputText);
-      const extractionResponse = await provider.generateSingleResponse(editExtractionPrompt, 'llama3.2:3b');
+      const extractionResponse = await provider.generateSingleResponse(editExtractionPrompt, 'llama3:8b');
       
       // Parse extracted edit instructions
       const editInstructions = this.parseEditInstructions(extractionResponse);
@@ -49,7 +49,7 @@ export class EditMemoryAction {
       
       // Call LLM to summarize what was edited
       const summaryPrompt = this.buildMemoryEditSummaryPrompt(editedMemories, inputText);
-      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3.2:3b');
+      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3:8b');
       
       onProgress?.('Memory saved!');
       onProgress?.(summaryResponse.trim());

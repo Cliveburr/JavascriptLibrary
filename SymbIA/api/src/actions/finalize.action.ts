@@ -41,7 +41,7 @@ The cycle processed the user's request and executed the necessary actions to ful
 
     try {
       const summaryPrompt = this.buildSummaryPrompt(ctx);
-      const response = await provider.generateSingleResponse(summaryPrompt, 'llama3.2:3b');
+      const response = await provider.generateSingleResponse(summaryPrompt, 'llama3:8b');
 
       const summary = response.trim();
       onProgress?.('Summary from LLM');

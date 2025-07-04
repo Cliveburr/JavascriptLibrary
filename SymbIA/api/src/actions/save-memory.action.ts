@@ -24,7 +24,7 @@ export class SaveMemoryAction {
       
       // Call LLM to extract short, isolated memory items
       const extractionPrompt = this.buildMemoryExtractionPrompt(inputText);
-      const extractionResponse = await provider.generateSingleResponse(extractionPrompt, 'llama3.2:3b');
+      const extractionResponse = await provider.generateSingleResponse(extractionPrompt, 'llama3:8b');
       
       // Parse extracted memory items
       const memoryItems = this.parseMemoryItems(extractionResponse);
@@ -69,7 +69,7 @@ export class SaveMemoryAction {
       
       // Generate summary of the operation using LLM
       const summaryPrompt = this.buildMemorySummaryPrompt(savedMemories, inputText);
-      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3.2:3b');
+      const summaryResponse = await provider.generateSingleResponse(summaryPrompt, 'llama3:8b');
       
       onProgress?.('Memory saved!');
       onProgress?.(summaryResponse.trim());
