@@ -1,0 +1,16 @@
+/* Garantir altura completa para html, body e root */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100vh;
+}
+
+/* Altura completa para o container principal */
+.fullheight-container {
+  height: 100vh;
+  overflow: hidden;
+}

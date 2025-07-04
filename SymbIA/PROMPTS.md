@@ -162,3 +162,33 @@ Modify your main entrypoint file, such as `index.js`:
   startCycle(ctx);
   ```
 - Run this and print the final output to the console
+
+Na parte web apenas, adapte a tela Dashboard.jsx para a seguinte estrutura
+
+leia o arquivo BULMA_INFO.md para saber como usar o bulma css
+
+A tela será usada para ser o ponto principal do projeto, onde o usuário irá conversar com a IA, visualizar os diversos modais de resultados, escrever pergunta, começar novos chats, criar um novo banco de memoria
+
+- Barra latera de 245px
+  Na primeira linha do lado esquerdo um botão da mesma cor de fundo da barra lateral com o logo 36x36px e o texto "SymbIA"
+  Na segunda linha, um botão seguindo a memsa cor de fundo da barra lateral com um icone em 24x24px que no futuro vai ser a imagem do usuário, mas por enquanto apenas um icone e depois o nome do usuario, o botão no futuro vai para pagina de configurações,
+  Em baixo vai ter uma lista de opções com o titulo "Memories", do lado direito do titulo porém alinhado a direita um botão somente com icone de adicionar, e em seguida vai ter as opções que depois vamos criar
+  Em baixo outra lista no mesmo padrão da de cima com o titulo "Chats", do lado direito do titulo porém alinhado a direita um botão somente com icone de adicionar, e em seguida vai ter as chats q foram criados
+- Do lado direito da barra lateral
+  Na parte de cima todinha, com padding de pequeno tomando toda a area, vai ser a area de historico da conversa dos diversos modais resultado da conversa, e na parte inferior, um box para o usuário entrar a pergunta e apenas um botão enviar que vai mudar para pausar quando estiver sendo processada a pergunta
+
+---
+
+Na tela Dashboard.jsx tem o botão para adicionar memorias, vamos implementar isso agora
+
+Funcionamento geral das memorias, é um registro no banco mongodb para o usuário com o um nome para identificar essa memoria, mais o nome de um banco qdrant que será usado somente para essa memoria, o nome desse banco vai ser gerado misturando o username do usuário mais o id dessa memoria e é invisivel para o usuário, só fica no backend
+
+Na parte visual, a cada memoria é um item do menu com um botão de deletar do lado direito, crie um modal reutilizavel para perguntar se confirma excluir a memoria
+Uma memoria sempre deve estár selecionada
+A tela dashboard deve carregar a lista de memorias e lembrar qual memoria o usuário estava selecionada para sempre ter uma memoria selecionada
+
+Ao criar um novo usuário, crie já uma nova memoria padrão para esse usuário
+
+Apenas crie toda essa estrutura para criar novas memorias e deletar memorias o uso real será implementadao mais tarde
+
+leia o arquivo BULMA_INFO.md para saber como usar o bulma css

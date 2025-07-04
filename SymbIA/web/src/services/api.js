@@ -33,11 +33,11 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        // Tratar erros globalmente
-        if (error.response?.status === 401) {
-            // Token expirado ou inválido
+        // Tratar erros globalmente - mas não redirecionar automaticamente
+        // para evitar loops durante a verificação inicial
+        if (error.response?.status === 401 && !error.config.url.includes('/me')) {
             localStorage.removeItem('authToken');
-            window.location.href = '/login';
+            // Não redirecionar automaticamente aqui para evitar loops
         }
         return Promise.reject(error);
     }
@@ -50,6 +50,7 @@ export const apiService = {
         login: (credentials) => api.post('/api/auth/login', credentials),
         register: (userData) => api.post('/api/auth/register', userData),
         logout: () => api.post('/api/auth/logout'),
+        me: () => api.get('/api/auth/me'), // Endpoint para obter dados do usuário autenticado
     },
 
     // Decomposição de mensagens

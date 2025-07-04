@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model';
 import { IUser } from '../interfaces/user.interface';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export class AuthService {
   async register(user: IUser): Promise<IUser> {
@@ -32,5 +32,14 @@ export class AuthService {
 
     const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
     return { token };
+  }
+
+  async getUserById(userId: string): Promise<IUser | null> {
+    try {
+      const user = await User.findById(userId).select('-password');
+      return user;
+    } catch (error) {
+      return null;
+    }
   }
 }

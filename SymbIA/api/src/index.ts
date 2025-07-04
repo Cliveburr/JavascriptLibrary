@@ -10,11 +10,27 @@ import { ExecutionPlannerService } from './services/execution-planner.service';
 import { PlanExecutorService } from './services/plan-executor.service';
 import { ThoughtCycleService } from './services/thought-cycle.service';
 import { AuthService } from './services/auth.service';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
-if (!process.env.MONGODB_URI) {
-  console.error('Missing MONGODB_URI configuration!');
+// Verificar todas as variáveis de ambiente obrigatórias
+const requiredEnvVars = [
+  'MONGODB_URI',
+  'PORT', 
+  'NODE_ENV',
+  'JWT_SECRET',
+  'OLLAMA_HOST'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:');
+  missingEnvVars.forEach(envVar => {
+    console.error(`   - ${envVar}`);
+  });
+  console.error('Please check your .env file and ensure all required variables are set.');
   process.exit(1);
 }
 
@@ -47,7 +63,7 @@ const connectToMongoDB = async (): Promise<void> => {
 connectToMongoDB();
 
 const app = express();
-const PORT: number = parseInt(process.env.PORT || '3002', 10);
+const PORT: number = parseInt(process.env.PORT!, 10);
 const llmManager = new LLMManager();
 const messageDecomposer = new MessageDecomposer(llmManager);
 const executionPlanner = new ExecutionPlannerService(llmManager);
@@ -126,7 +142,7 @@ app.get('/api/health', (req: Request, res: Response): void => {
         name: mongoose.connection.name || 'symbia',
         host: mongoose.connection.host || 'localhost'
       },
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV
     }
   };
   res.json(response);
@@ -251,6 +267,45 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
       error: 'Failed to login',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
+  }
+});
+
+// Rota para obter dados do usuário autenticado
+app.get('/api/auth/me', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ message: 'No token provided' });
+      return;
+    }
+
+    const token = authHeader.substring(7);
+    const secret = process.env.JWT_SECRET!;
+    
+    try {
+      const decoded = jwt.verify(token, secret) as any;
+      const user = await authService.getUserById(decoded.id);
+      
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      const responseData = {
+        success: true,
+        data: {
+          id: user._id,
+          username: user.username,
+          name: user.username // Usando username como nome por enquanto
+        }
+      };
+      res.status(200).json(responseData);
+    } catch (jwtError) {
+      res.status(401).json({ message: 'Invalid token' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error getting user info', error });
   }
 });
 

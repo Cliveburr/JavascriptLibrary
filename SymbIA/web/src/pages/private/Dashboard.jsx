@@ -1,95 +1,110 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import ExecutionPlanner from '../../components/ExecutionPlanner';
-import MessageDecomposer from '../../components/MessageDecomposer';
-import PipelineExecutor from '../../components/PipelineExecutor';
-import ThoughtCycleTester from '../../components/ThoughtCycleTester';
 
 const Dashboard = () => {
-    const [activeTab, setActiveTab] = useState('execution-planner');
     const { user, logout } = useApp();
     const navigate = useNavigate();
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
-    const tabs = [
-        { id: 'execution-planner', label: 'Planejador de Execução', component: ExecutionPlanner },
-        { id: 'message-decomposer', label: 'Decompositor de Mensagens', component: MessageDecomposer },
-        { id: 'pipeline-executor', label: 'Executor de Pipeline', component: PipelineExecutor },
-        { id: 'thought-cycle', label: 'Testador de Ciclo de Pensamento', component: ThoughtCycleTester }
-    ];
-
-    const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component || ExecutionPlanner;
-
     return (
-        <div className="is-fullheight">
-            {/* Navbar */}
-            <nav className="navbar is-primary" role="navigation">
-                <div className="navbar-brand">
-                    <Link className="navbar-item" to="/">
-                        <strong>SymbIA</strong>
-                    </Link>
-                </div>
+        <div className="columns is-gapless fullheight-container">
+            {/* Barra Lateral */}
+            <aside 
+                className="column is-narrow is-flex is-flex-direction-column"
+                style={{ width: '245px', backgroundColor: '#f5f5f5', overflowY: 'auto', height: '100vh' }}
+            >
+                <div className="p-4 is-flex-grow-1">
+                    {/* Logo */}
+                    <a className="button is-text has-text-black is-fullwidth is-justify-content-flex-start mb-4">
+                        <span className="icon is-medium">
+                            {/* Substituir pelo seu logo de 36x36px */}
+                            <i className="fas fa-brain fa-2x"></i>
+                        </span>
+                        <span className="is-size-5 has-text-weight-bold">SymbIA</span>
+                    </a>
 
-                <div className="navbar-menu">
-                    <div className="navbar-end">
-                        <div className="navbar-item">
-                            <span className="has-text-white mr-3">
-                                Olá, {user?.name || 'Usuário'}!
-                            </span>
-                        </div>
-                        <div className="navbar-item">
-                            <div className="buttons">
-                                <button 
-                                    className="button is-light"
-                                    onClick={handleLogout}
-                                >
-                                    <span className="icon">
-                                        <i className="fas fa-sign-out-alt"></i>
-                                    </span>
-                                    <span>Sair</span>
-                                </button>
+                    {/* Perfil do Usuário */}
+                    <a className="button is-text has-text-black is-fullwidth is-justify-content-flex-start mb-5">
+                        <span className="icon">
+                            {/* Ícone do usuário 24x24px */}
+                            <i className="fas fa-user-circle fa-lg"></i>
+                        </span>
+                        <span>{user?.name || 'Usuário'}</span>
+                    </a>
+
+                    {/* Lista de Memórias */}
+                    <div className="menu">
+                        <p className="menu-label is-flex is-justify-content-space-between is-align-items-center">
+                            Memories
+                            <button className="button is-small is-text">
+                                <span className="icon">
+                                    <i className="fas fa-plus"></i>
+                                </span>
+                            </button>
+                        </p>
+                        <ul className="menu-list">
+                            {/* Adicionar itens de memória aqui */}
+                        </ul>
+                    </div>
+
+                    {/* Lista de Chats */}
+                    <div className="menu mt-4">
+                        <p className="menu-label is-flex is-justify-content-space-between is-align-items-center">
+                            Chats
+                            <button className="button is-small is-text">
+                                <span className="icon">
+                                    <i className="fas fa-plus"></i>
+                                </span>
+                            </button>
+                        </p>
+                        <ul className="menu-list">
+                            {/* Adicionar itens de chat aqui */}
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+
+            {/* Conteúdo Principal */}
+            <main className="column">
+                <div className="is-flex is-flex-direction-column" style={{ height: '100vh' }}>
+                    {/* Histórico da Conversa */}
+                    <div className="is-flex-grow-1 p-4" style={{ overflowY: 'auto' }}>
+                        {/* As mensagens da conversa irão aqui */}
+                    </div>
+
+                    {/* Área de Input */}
+                    <div className="p-4">
+                        <div className="box">
+                            <div className="field has-addons">
+                                <div className="control is-expanded">
+                                    <input 
+                                        className="input is-medium" 
+                                        type="text" 
+                                        placeholder="Digite sua pergunta..."
+                                        disabled={isProcessing}
+                                    />
+                                </div>
+                                <div className="control">
+                                    <button 
+                                        className={`button is-primary is-medium ${isProcessing ? 'is-loading' : ''}`}
+                                        onClick={() => setIsProcessing(!isProcessing)} // Lógica de exemplo
+                                    >
+                                        <span className="icon">
+                                            <i className={`fas ${isProcessing ? 'fa-pause' : 'fa-paper-plane'}`}></i>
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </nav>
-
-            {/* Hero Section */}
-            <section className="hero is-primary">
-                <div className="hero-body">
-                    <div className="container">
-                        <h1 className="title">Dashboard</h1>
-                        <h2 className="subtitle">
-                            Bem-vindo ao painel de controle do SymbIA
-                        </h2>
-                    </div>
-                </div>
-            </section>
-
-            {/* Tabs */}
-            <div className="container mt-4">
-                <div className="tabs is-boxed is-medium">
-                    <ul>
-                        {tabs.map(tab => (
-                            <li key={tab.id} className={activeTab === tab.id ? 'is-active' : ''}>
-                                <a onClick={() => setActiveTab(tab.id)}>
-                                    <span>{tab.label}</span>
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                {/* Tab Content */}
-                <div className="box">
-                    <ActiveComponent />
-                </div>
-            </div>
+            </main>
         </div>
     );
 };

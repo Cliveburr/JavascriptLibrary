@@ -33,15 +33,23 @@ function Login() {
       
       console.log('Login successful:', response.data);
       
-      // Salvar token no localStorage
+      // Salvar token no localStorage - verificar diferentes estruturas de resposta
+      let token = null;
       if (response.data.data?.token) {
-        localStorage.setItem('authToken', response.data.data.token);
+        token = response.data.data.token;
+      } else if (response.data.token) {
+        token = response.data.token;
+      }
+      
+      if (token) {
+        localStorage.setItem('authToken', token);
       }
       
       // Criar objeto de usuário
       const user = {
         username: formData.username,
-        token: response.data.data?.token
+        name: formData.username, // Usar o username como nome por enquanto
+        token: token
       };
       
       setUser(user);
