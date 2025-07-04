@@ -3,13 +3,48 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import { LLMManager } from './services/llm.service';
 import { MessageDecomposer } from './services/message-decomposer.service';
 import { ExecutionPlannerService } from './services/execution-planner.service';
 import { PlanExecutorService } from './services/plan-executor.service';
 import { ThoughtCycleService } from './services/thought-cycle.service';
+import { AuthService } from './services/auth.service';
 
 dotenv.config();
+
+if (!process.env.MONGODB_URI) {
+  console.error('Missing MONGODB_URI configuration!');
+  process.exit(1);
+}
+
+// Configuração de conexão com MongoDB
+const connectToMongoDB = async (): Promise<void> => {
+  try {
+    const mongoURI = process.env.MONGODB_URI!;
+    await mongoose.connect(mongoURI);
+    console.log('✅ Connected to MongoDB successfully');
+    
+    mongoose.connection.on('error', (error) => {
+      console.error('❌ MongoDB connection error:', error);
+    });
+    
+    mongoose.connection.on('disconnected', () => {
+      console.log('⚠️  MongoDB disconnected');
+    });
+    
+    mongoose.connection.on('reconnected', () => {
+      console.log('🔄 MongoDB reconnected');
+    });
+    
+  } catch (error) {
+    console.error('❌ Failed to connect to MongoDB:', error);
+    process.exit(1);
+  }
+};
+
+// Conectar ao MongoDB
+connectToMongoDB();
 
 const app = express();
 const PORT: number = parseInt(process.env.PORT || '3002', 10);
@@ -18,6 +53,7 @@ const messageDecomposer = new MessageDecomposer(llmManager);
 const executionPlanner = new ExecutionPlannerService(llmManager);
 const planExecutor = new PlanExecutorService(llmManager, executionPlanner);
 const thoughtCycleService = new ThoughtCycleService(llmManager);
+const authService = new AuthService();
 
 // Middlewares de segurança e logging
 app.use(helmet());
@@ -83,9 +119,139 @@ app.get('/api/health', (req: Request, res: Response): void => {
   const response: ApiResponse = {
     status: 'OK',
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    data: {
+      database: {
+        status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        name: mongoose.connection.name || 'symbia',
+        host: mongoose.connection.host || 'localhost'
+      },
+      environment: process.env.NODE_ENV || 'development'
+    }
   };
   res.json(response);
+});
+
+// Rotas de autenticação
+app.post('/api/auth/register', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, password } = req.body;
+    
+    console.log('Registration attempt for username:', username);
+    console.log('MongoDB connection state:', mongoose.connection.readyState);
+    
+    // Verificar se o MongoDB está conectado
+    if (mongoose.connection.readyState !== 1) {
+      console.error('MongoDB not connected. Connection state:', mongoose.connection.readyState);
+      res.status(503).json({ 
+        error: 'Database connection unavailable',
+        details: 'Please try again later'
+      });
+      return;
+    }
+    
+    if (!username || !password) {
+      console.log('Missing username or password');
+      res.status(400).json({ 
+        error: 'Username and password are required' 
+      });
+      return;
+    }
+
+    if (username.length < 3) {
+      console.log('Username too short');
+      res.status(400).json({ 
+        error: 'Username must be at least 3 characters long' 
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      console.log('Password too short');
+      res.status(400).json({ 
+        error: 'Password must be at least 6 characters long' 
+      });
+      return;
+    }
+    
+    const newUser = await authService.register({ username, password });
+    
+    console.log('User registered successfully:', newUser.username);
+    
+    const response: ApiResponse = {
+      message: 'User registered successfully',
+      data: {
+        username: newUser.username,
+        id: newUser._id
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    res.status(201).json(response);
+  } catch (error) {
+    console.error('Register endpoint error:', error);
+    
+    // Tratar erro de usuário duplicado
+    if (error instanceof Error && error.message.includes('duplicate key error')) {
+      res.status(400).json({ 
+        error: 'Username already exists. Please choose a different username.',
+        details: 'This username is already taken'
+      });
+      return;
+    }
+    
+    // Tratar erro de validação do Mongoose
+    if (error instanceof Error && error.name === 'ValidationError') {
+      res.status(400).json({ 
+        error: 'Validation error',
+        details: error.message
+      });
+      return;
+    }
+    
+    res.status(400).json({ 
+      error: 'Failed to register user',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      res.status(400).json({ 
+        error: 'Username and password are required' 
+      });
+      return;
+    }
+    
+    const result = await authService.login({ username, password });
+    
+    if (!result) {
+      res.status(401).json({ 
+        error: 'Invalid credentials' 
+      });
+      return;
+    }
+    
+    const response: ApiResponse = {
+      message: 'Login successful',
+      data: {
+        token: result.token
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Login endpoint error:', error);
+    res.status(500).json({ 
+      error: 'Failed to login',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 // Chat streaming endpoint
@@ -524,16 +690,18 @@ if (isDirectRun) {
 function startServer() {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📝 API endpoints:`);
+    console.log(`�️  Database: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'}`);
+    console.log(`�📝 API endpoints:`);
     console.log(`   GET  /`);
     console.log(`   GET  /api/health`);
-    console.log(`   GET  /api/data`);
-    console.log(`   POST /api/data`);
+    console.log(`   POST /api/auth/register`);
+    console.log(`   POST /api/auth/login`);
+    console.log(`   POST /api/chat/stream`);
+    console.log(`   GET  /api/models`);
     console.log(`   POST /api/decompose`);
     console.log(`   POST /api/decompose/enriched`);
     console.log(`   POST /api/decompose/plan`);
     console.log(`   POST /api/context/search`);
-    console.log(`   GET  /api/models`);
     console.log(`   GET  /api/cache/stats`);
     console.log(`   POST /api/cache/clear`);
     console.log(`   POST /api/pipeline/execute`);

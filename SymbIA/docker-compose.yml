@@ -29,10 +29,20 @@ services:
       - qdrant_data:/qdrant/storage
     environment:
       - QDRANT__GPU__INDEXING=true
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
 
 volumes:
   ollama_data:
     driver: local
   qdrant_data:
+    driver: local
+  mongodb_data:
     driver: local
 
