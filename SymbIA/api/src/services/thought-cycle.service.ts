@@ -25,11 +25,12 @@ export class ThoughtCycleService {
    * Starts a new thought cycle with progress callback support
    * @param ctx The context containing original message, previous messages, and executed actions
    * @param onProgress Callback function to receive progress updates
-   * @returns Promise that resolves when the cycle is complete
+   * @returns Promise that resolves to the final response from the finalize action
    */
   async startCycleWithProgress(ctx: ThoughtCycleContext, onProgress?: (message: string) => void): Promise<string> {
     
     let done = false;
+    let finalResult = '';
     
     while (!done) {
       onProgress?.('Thinking...');
@@ -50,12 +51,13 @@ export class ThoughtCycleService {
       
       // Check if we should finalize the cycle
       if (decision.action === ACTIONS.FINALIZE) {
+        finalResult = result; // Capture the final response from finalize action
         done = true;
       }
     }
     
     onProgress?.('Thought cycle completed.');
-    return 'Cycle completed successfully';
+    return finalResult; // Return the final response instead of a generic message
   }
 
   /**
@@ -158,26 +160,23 @@ export class ThoughtCycleService {
   private buildActionDecisionPrompt(ctx: ThoughtCycleContext): string {
     return `
 You are an AI assistant that decides the next action in a thought cycle. 
+Voce é um assistente de IA que precisa decidir qual a proxima ação a executar de modo a responder a mensagem original.
 
 Current Context:
-- Original Message: "${ctx.originalMessage}"
+- Original Message:
+"${ctx.originalMessage}"
 - Previous Messages: ${JSON.stringify(ctx.previousMessages)}
 - Executed Actions: ${JSON.stringify(ctx.executedActions.map(a => ({ action: a.action, timestamp: a.timestamp })))}
 
 Available Actions:
-- finalize: Complete the current cycle and provide a summary
-- saveMemory: Save information to long-term memory
-- editMemory: Edit existing memory entries
-- deleteMemory: Delete memory entries
-- searchMemory: Search through saved memories
+- searchMemory: Responda 'searchMemory' se voce sentir falta de alguma informação para tomar a decisão de modo seguro, lembre-se de não supor que tem conhece as coisas
+- saveMemory: Responda 'saveMemory' se decida gravar alguma informação apenas se estiver claro que usuário assim deseja na mensagem original
+- editMemory: Responda 'editMemory' se decida editar alguma memoria apenas se nas memórias abaixo conter alguma informação que usuário esteja passando diferente na mensagem original 
+- deleteMemory: Responda 'deleteMemory' se decida deletar alguma memoria apenas se voce tiver certeza abosulta que o usuário assim deseja na mensagem original
+- finalize: Responda com 'finalize' para finalizar esse ciclo se você achar que já tem informação suficiente ou se já executou tudo oque foi pedido na mensagem original, ou ainda se ficar em indeciso sobre oque fazer
 
-Based on the context, decide the next action. Respond with a JSON object containing:
-{
-  "action": "action_name",
-  "data": { /* optional additional data */ }
-}
-
-Your response should be valid JSON only.`;
+Based on the context, decide the next action.
+Your response should be just one single word of the action name.`;
   }
 
   /**

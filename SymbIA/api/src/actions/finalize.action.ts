@@ -9,64 +9,59 @@ export class FinalizeAction {
   }
 
   async execute(ctx: ThoughtCycleContext, data?: any, onProgress?: (message: string) => void): Promise<string> {
-    onProgress?.('Finalizing cycle and preparing summary...');
-    
-    // Create enhanced summary input for LLM
-    const summaryInput = {
-      originalMessage: ctx.originalMessage,
-      previousMessages: ctx.previousMessages,
-      executedActions: ctx.executedActions,
-      finalResult: data,
-      cycleMetrics: {
-        totalActions: ctx.executedActions.length,
-        cycleStartTime: ctx.executedActions[0]?.timestamp,
-        cycleEndTime: new Date(),
-        actionTypes: [...new Set(ctx.executedActions.map(a => a.action))]
-      }
-    };
+    onProgress?.('Finalizing cycle and generating response...');
     
     const provider = await this.llmManager.getAvailableProvider();
     
     if (!provider) {
-      const summary = `Thought cycle completed successfully. 
-
-Original request: "${ctx.originalMessage}"
-Actions executed: ${ctx.executedActions.length}
-- ${ctx.executedActions.map(a => a.action).join(', ')}
-
-The cycle processed the user's request and executed the necessary actions to fulfill it.`;
-      onProgress?.(summary);
-      return summary;
+      // Fallback simplificado quando não há provider disponível
+      const fallbackResponse = this.generateFallbackResponse(ctx);
+      onProgress?.(fallbackResponse);
+      return fallbackResponse;
     }
 
     try {
-      const summaryPrompt = this.buildSummaryPrompt(ctx);
-      const response = await provider.generateSingleResponse(summaryPrompt, 'llama3:8b');
+      const responsePrompt = this.buildResponsePrompt(ctx);
+      const response = await provider.generateSingleResponse(responsePrompt, 'llama3:8b');
 
-      const summary = response.trim();
-      onProgress?.('Summary from LLM');
-      onProgress?.(summary);
-      return summary;
+      const finalResponse = response.trim();
+      onProgress?.('Response generated');
+      return finalResponse;
     } catch (error) {
-      console.error('Error generating summary:', error);
-      const fallbackSummary = `Cycle completed with ${ctx.executedActions.length} actions executed.`;
-      onProgress?.(fallbackSummary);
-      return fallbackSummary;
+      console.error('Error generating final response:', error);
+      const fallbackResponse = this.generateFallbackResponse(ctx);
+      onProgress?.(fallbackResponse);
+      return fallbackResponse;
     }
   }
 
-  private buildSummaryPrompt(ctx: ThoughtCycleContext): string {
-    return `
-Summarize the following thought cycle execution:
-
-Original Message: "${ctx.originalMessage}"
-Previous Messages: ${JSON.stringify(ctx.previousMessages)}
-
-Executed Actions:
+  private buildResponsePrompt(ctx: ThoughtCycleContext): string {
+    const actionsExecuted = ctx.executedActions.length > 0 
+      ? `\nActions executed during this conversation:
 ${ctx.executedActions.map(action => 
-  `- ${action.action} at ${action.timestamp.toISOString()}: ${JSON.stringify(action.result)}`
-).join('\n')}
+  `- ${action.action}: ${JSON.stringify(action.result)}`
+).join('\n')}`
+      : '';
 
-Provide a concise summary of what was accomplished in this thought cycle. Keep it under 200 words and focus on the key outcomes.`;
+    return `You are responding to a user's message. Based on the conversation context and any actions taken, provide a direct and helpful response.
+
+Original user message: "${ctx.originalMessage}"
+
+Previous conversation context: ${ctx.previousMessages.length > 0 ? JSON.stringify(ctx.previousMessages) : 'None'}${actionsExecuted}
+
+Provide a concise, direct response to the user's original message. Focus on answering their question or addressing their request. Keep the response natural and conversational, without mentioning technical details about the system or actions executed unless directly relevant to the user's request.`;
+  }
+
+  private generateFallbackResponse(ctx: ThoughtCycleContext): string {
+    // Generate a simple but helpful fallback response
+    const hasMemoryActions = ctx.executedActions.some(action => 
+      ['saveMemory', 'searchMemory', 'editMemory', 'deleteMemory'].includes(action.action)
+    );
+
+    if (hasMemoryActions) {
+      return `I've processed your request regarding "${ctx.originalMessage}". The relevant memory operations have been completed.`;
+    }
+
+    return `I understand your request: "${ctx.originalMessage}". I've processed this and executed the necessary actions to help you.`;
   }
 }

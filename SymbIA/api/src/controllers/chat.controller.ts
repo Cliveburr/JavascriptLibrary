@@ -197,49 +197,14 @@ export class ChatController {
         };
 
         // Iniciar thought cycle com callback de progresso
-        let assistantResponse = '';
+        // A resposta final já é gerada pela ação finalize.action.ts
+        const assistantResponse = await thoughtCycleService.startCycleWithProgress(thoughtCycleContext, onProgress);
         
-        // Override do startCycle para receber callback de progresso
-        await thoughtCycleService.startCycleWithProgress(thoughtCycleContext, onProgress);
-        
-        // Gerar resposta final baseada no resultado do cycle
-        const provider = await llmManager.getAvailableProvider();
-        if (provider) {
-          // Preparar mensagens para o LLM incluindo o contexto do thought cycle
-          const llmMessages = messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }));
-
-          // Adicionar contexto do thought cycle como mensagem do usuário
-          const contextMessage = {
-            role: 'user' as const,
-            content: `[SYSTEM CONTEXT] Thought cycle execution completed:
-Original message: ${thoughtCycleContext.originalMessage}
-Actions executed: ${thoughtCycleContext.executedActions.length}
-- ${thoughtCycleContext.executedActions.map(a => a.action).join(', ')}
-
-Based on this context, provide a comprehensive response to the original user message.`
-          };
-
-          const messagesWithContext = [...llmMessages, contextMessage];
-
-          // Stream da resposta do LLM
-          for await (const chunk of provider.generateConversationResponse(messagesWithContext, model)) {
-            assistantResponse += chunk;
-            res.write(`data: ${JSON.stringify({ 
-              type: 'content', 
-              content: chunk 
-            })}\n\n`);
-          }
-        } else {
-          // Fallback se não houver provider
-          assistantResponse = 'Thought cycle completed successfully. No LLM provider available for response generation.';
-          res.write(`data: ${JSON.stringify({ 
-            type: 'content', 
-            content: assistantResponse 
-          })}\n\n`);
-        }
+        // Enviar a resposta final como conteúdo
+        res.write(`data: ${JSON.stringify({ 
+          type: 'content', 
+          content: assistantResponse 
+        })}\n\n`);
 
         // Adicionar resposta do assistente
         const assistantMessage: IMessage = {
