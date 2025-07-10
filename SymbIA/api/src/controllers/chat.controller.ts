@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Chat, IChat, IMessage } from '../models/chat.model';
 import { LLMManager } from '../services/llm.service';
-import { ThoughtCycleService } from '../services/thought-cycle.service';
+import { ThoughtCycleService } from '../services/throught-cycle/thought-cycle.service';
 import { ThoughtCycleContext } from '../interfaces/throuht-cycle';
 
 const llmManager = new LLMManager();

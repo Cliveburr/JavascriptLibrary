@@ -1,5 +1,7 @@
 import { Ollama } from 'ollama';
-import { LLMProvider } from '../interfaces/llm.interface';
+import { LLMProvider } from '../../interfaces/llm.interface';
+import { ThoughtCycleContext } from '@/interfaces/throuht-cycle';
+import { buildDecisionMessages } from './decision-prompt';
 
 /**
  * Implementação do provedor LLM usando Ollama para executar modelos localmente
@@ -9,6 +11,7 @@ export class OllamaProvider implements LLMProvider {
    * Cliente Ollama para comunicação com a API
    */
   private ollama: Ollama;
+  readonly decisionModel = 'llama3:8b';
 
   constructor() {
     this.ollama = new Ollama({
@@ -167,5 +170,21 @@ export class OllamaProvider implements LLMProvider {
       console.error('Ollama conversation error:', error);
       throw new Error(`Ollama conversation generation failed: ${error}`);
     }
+  }
+
+  async decideNextAction(ctx: ThoughtCycleContext): Promise<string> {
+    
+    const messages = buildDecisionMessages(ctx);
+
+    const response = await this.ollama.chat({
+      model: this.decisionModel,
+      messages: messages,
+      stream: false,
+      options: {
+        temperature: 0.1 // Lower temperature for more consistent structured output
+      }
+    });
+
+    return response.message.content;
   }
 }

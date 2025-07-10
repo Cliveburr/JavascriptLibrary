@@ -1,3 +1,5 @@
+import { ThoughtCycleContext } from "./throuht-cycle";
+
 // Interface for LLM providers
 export interface LLMProvider {
   /**
@@ -43,6 +45,8 @@ export interface LLMProvider {
    * @returns Um iterável assíncrono de strings contendo partes da resposta
    */
   generateConversationResponse(messages: Array<{role: 'user' | 'assistant', content: string}>, model?: string): AsyncIterable<string>;
+
+  decideNextAction(ctx: ThoughtCycleContext): Promise<string>;
 }
 
 // Base response interface for streaming

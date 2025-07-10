@@ -67,7 +67,10 @@
     },
     {
       "label": "Start Full Stack",
-      "group": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "dependsOrder": "parallel",
       "dependsOn": [
         "React Dev Server",

@@ -11,12 +11,17 @@ export interface ThoughtCycleContext {
   /**
    * Array of prior messages in the conversation
    */
-  previousMessages: string[];
+  previousMessages: ThoughtCycleMessage[];
 
   /**
    * Array of actions already performed during this cycle
    */
   executedActions: ActionResult[];
+}
+
+export interface ThoughtCycleMessage {
+  role: 'user' | 'assistant';
+  content: string;
 }
 
 /**
@@ -46,7 +51,7 @@ export interface ActionResult {
   /**
    * The result or output of the action
    */
-  result: any;
+  result: string;
 
   /**
    * Timestamp when the action was executed

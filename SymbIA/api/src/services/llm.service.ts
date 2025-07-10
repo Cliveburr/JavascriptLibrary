@@ -1,5 +1,5 @@
 import { LLMProvider } from '../interfaces/llm.interface';
-import { OllamaProvider } from '../providers/ollama.provider';
+import { OllamaProvider } from '../providers/ollama/ollama.provider';
 
 /**
  * Gerencia os diferentes provedores de LLM disponíveis na aplicação
