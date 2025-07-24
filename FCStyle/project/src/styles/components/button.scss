@@ -1,0 +1,64 @@
+// Button Variables
+:root {
+  --button-primary-bg: var(--primary-bg);
+  --button-primary-color: var(--primary-color);
+  --button-primary-border: var(--primary-border);
+  --button-primary-hover-bg: var(--primary-hover-bg);
+  --button-primary-hover-border: var(--primary-hover-border);
+  
+  --button-second-bg: var(--second-bg);
+  --button-second-color: var(--second-color);
+  --button-second-border: var(--second-border);
+  --button-second-hover-bg: var(--second-hover-bg);
+  --button-second-hover-border: var(--second-hover-border);
+  
+  --button-padding: 8px 16px;
+  --button-border-radius: 4px;
+  --button-font-size: 14px;
+  --button-font-weight: 400;
+  --button-transition: all 0.2s ease-in-out;
+}
+
+// Button Styles
+.button {
+  padding: var(--button-padding);
+  border-radius: var(--button-border-radius);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  transition: var(--button-transition);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  
+  &:focus {
+    outline: 2px solid rgba(0, 123, 255, 0.25);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  &.primary {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-color);
+    border: var(--button-primary-border);
+    
+    &:hover:not(:disabled) {
+      background-color: var(--button-primary-hover-bg);
+      border: var(--button-primary-hover-border);
+    }
+  }
+  
+  &.second {
+    background-color: var(--button-second-bg);
+    color: var(--button-second-color);
+    border: var(--button-second-border);
+    
+    &:hover:not(:disabled) {
+      background-color: var(--button-second-hover-bg);
+      border: var(--button-second-hover-border);
+    }
+  }
+}

@@ -187,4 +187,20 @@ export class OllamaProvider implements LLMProvider {
 
     return response.message.content;
   }
+
+  async finalizeNextAction(ctx: ThoughtCycleContext): Promise<string> {
+    
+    const messages = buildDecisionMessages(ctx);
+
+    const response = await this.ollama.chat({
+      model: this.decisionModel,
+      messages: messages,
+      stream: false,
+      options: {
+        temperature: 0.1 // Lower temperature for more consistent structured output
+      }
+    });
+
+    return response.message.content;
+  }
 }

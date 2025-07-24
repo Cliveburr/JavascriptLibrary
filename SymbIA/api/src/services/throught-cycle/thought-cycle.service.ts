@@ -1,15 +1,9 @@
-import { ThoughtCycleContext, ActionDecision } from '@/interfaces/throuht-cycle';
+import { ThoughtCycleContext, ACTIONS, StreamChatProgress, StreamChatProgressType } from '@/interfaces/throuht-cycle';
 import { LLMManager } from '../llm.service';
-import { 
-  FinalizeAction, 
-  SaveMemoryAction, 
-  EditMemoryAction, 
-  DeleteMemoryAction, 
-  SearchMemoryAction,
-  ACTIONS,
-  ActionType 
-} from '../../actions';
+
 import { DecisionService } from './decision.service';
+import { ActionService } from './action.service';
+import { IChat } from '@/models/chat.model';
 
 /**
  * Service for managing the thought cycle execution
@@ -17,11 +11,13 @@ import { DecisionService } from './decision.service';
 export class ThoughtCycleService {
 
   private decisionService: DecisionService;
+  private actionService: ActionService;
 
   constructor(
-    private llmManager: LLMManager
+    llmManager: LLMManager
   ) {
     this.decisionService = new DecisionService(llmManager);
+    this.actionService = new ActionService(llmManager);
   }
 
   /**
@@ -30,74 +26,53 @@ export class ThoughtCycleService {
    * @param onProgress Callback function to receive progress updates
    * @returns Promise that resolves to the final response from the finalize action
    */
-  async startCycleWithProgress(ctx: ThoughtCycleContext, onProgress?: (message: string) => void): Promise<string> {
-    
-    let done = false;
-    let finalResult = '';
-    
-    while (!done) {
-      onProgress?.('Thinking...');
-      
-      // Decide next action based on current context
-      const decision = await this.decisionService.decideNextAction(ctx);
-      
-      // Execute the decided action with progress callback
-      const result = await this.performActionWithProgress(decision.action, ctx, decision.data, onProgress);
-      
-      // Add the result to executed actions
-      ctx.executedActions.push({
-        action: decision.action,
-        result,
-        timestamp: new Date(),
-        data: decision.data
+  async runThoughtCycle(ctx: ThoughtCycleContext, onProgress: (message: StreamChatProgress) => void): Promise<void> {
+    while (true) {
+      onProgress({
+        type: StreamChatProgressType.Info,
+        data: 'Thinking...'
       });
       
+      // Decide next action based on current context
+      const action = await this.decisionService.decideNextAction(ctx);
+      
+      // Execute the decided action with progress callback
+      const result = await this.actionService.runAction(action, ctx, onProgress);
+      
+      // Add the result to executed actions
+      ctx.executedActions.push(result);
+      
       // Check if we should finalize the cycle
-      if (decision.action === ACTIONS.FINALIZE) {
-        finalResult = result; // Capture the final response from finalize action
-        done = true;
+      if (action === ACTIONS.FINALIZE || this.checkStuckCycle(ctx)) {
+        return;
       }
     }
-    
-    onProgress?.('Thought cycle completed.');
-    return finalResult; // Return the final response instead of a generic message
   }
 
-  
+  checkStuckCycle(ctx: ThoughtCycleContext): boolean {
 
-  /**
-   * Performs the specified action with the given context and data, with progress callback
-   * @param action The action to perform
-   * @param ctx The current context
-   * @param data Additional data for the action
-   * @param onProgress Callback function to receive progress updates
-   * @returns Promise that resolves to the action result
-   */
-  private async performActionWithProgress(action: string, ctx: ThoughtCycleContext, data?: any, onProgress?: (message: string) => void): Promise<any> {
-    onProgress?.(`Executing action: ${action}`);
-    
-    switch (action) {
-      case ACTIONS.FINALIZE:
-        const finalizeAction = new FinalizeAction(this.llmManager);
-        return finalizeAction.execute(ctx, data, onProgress);
-      case ACTIONS.SAVE_MEMORY:
-        const saveMemoryAction = new SaveMemoryAction(this.llmManager);
-        return saveMemoryAction.execute(ctx, data, onProgress);
-      case ACTIONS.EDIT_MEMORY:
-        const editMemoryAction = new EditMemoryAction(this.llmManager);
-        return editMemoryAction.execute(ctx, data, onProgress);
-      case ACTIONS.DELETE_MEMORY:
-        const deleteMemoryAction = new DeleteMemoryAction(this.llmManager);
-        return deleteMemoryAction.execute(ctx, data, onProgress);
-      case ACTIONS.SEARCH_MEMORY:
-        const searchMemoryAction = new SearchMemoryAction(this.llmManager);
-        return searchMemoryAction.execute(ctx, data, onProgress);
-      default:
-        onProgress?.(`Unknown action: ${action}, finalizing cycle`);
-        const fallbackAction = new FinalizeAction(this.llmManager);
-        return fallbackAction.execute(ctx, { reason: `Unknown action: ${action}` }, onProgress);
+    // Check if the last 3 actions is the same
+    if (this.checkRepeatingActions(ctx)) {
+      return true;
     }
+
+    return false;
   }
+
+  checkRepeatingActions(ctx: ThoughtCycleContext): boolean {
+    let rep = 1;
+    const count = 3;
+    const lastActionType = ctx.executedActions[ctx.executedActions.length - 1].action;
+    for (let i = ctx.executedActions.length - 2; i > ctx.executedActions.length - count; i--) {
+      if (ctx.executedActions[i].action == lastActionType) {
+        rep++;
+      } else {
+        break;
+      }
+    }
+    return rep >= count;
+  }
+
 
   // /**
   //  * Parses LLM response to extract action decision

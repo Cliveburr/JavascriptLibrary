@@ -1,0 +1,12 @@
+// Layout principal do editor
+.editor-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--fc-color-background, #f8f9fa);
+}
+
+.editor-main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}

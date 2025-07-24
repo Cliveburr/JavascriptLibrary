@@ -1,0 +1,73 @@
+// Estilos das páginas do editor
+.editor-page {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  h1 {
+    margin: 0 0 1rem 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fc-color-text, #333333);
+  }
+
+  > p {
+    margin: 0 0 2rem 0;
+    font-size: 1.125rem;
+    color: var(--fc-color-text-muted, #666666);
+    line-height: 1.6;
+  }
+}
+
+.editor-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.editor-example {
+  background-color: var(--fc-color-surface, #ffffff);
+  border: 1px solid var(--fc-color-border, #e0e0e0);
+  border-radius: var(--fc-border-radius, 8px);
+  overflow: hidden;
+
+  h2 {
+    margin: 0;
+    padding: 1.5rem;
+    background-color: var(--fc-color-surface-secondary, #f8f9fa);
+    border-bottom: 1px solid var(--fc-color-border, #e0e0e0);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--fc-color-text, #333333);
+  }
+}
+
+.editor-overview {
+  background-color: var(--fc-color-surface, #ffffff);
+  border: 1px solid var(--fc-color-border, #e0e0e0);
+  border-radius: var(--fc-border-radius, 8px);
+  padding: 2rem;
+
+  section {
+    h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--fc-color-text, #333333);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.5rem;
+
+      li {
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+        color: var(--fc-color-text, #333333);
+
+        strong {
+          color: var(--fc-color-primary, #007bff);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Browser",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/editor/src",
+            "sourceMaps": true,
+            "preLaunchTask": "Start Development"
+        },
+        {
+            "name": "Attach to Browser",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}/editor/src",
+            "sourceMaps": true
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+
+// Colors variables
+:root {
+  --primary-bg: #007bff;
+  --primary-color: #ffffff;
+  --primary-border: var(--border-width) solid #007bff;
+  --primary-hover-bg: #0056b3;
+  --primary-hover-border: var(--border-width) solid #0056b3;
+  
+  --second-bg: #6c757d;
+  --second-color: #ffffff;
+  --second-border: var(--border-width) solid #6c757d;
+  --second-hover-bg: #545b62;
+  --second-hover-border: var(--border-width) solid #545b62;
+
+  // Input colors
+  --input-bg: #ffffff;
+  --input-color: #495057;
+  --input-border-color: #ced4da;
+  --input-focus-border-color: #80bdff;
+  --input-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  
+  --input-valid-border-color: #28a745;
+  --input-valid-focus-border-color: #28a745;
+  --input-valid-focus-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+  
+  --input-invalid-border-color: #dc3545;
+  --input-invalid-focus-border-color: #dc3545;
+  --input-invalid-focus-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  
+  --input-error-color: #dc3545;
+  --input-label-color: #495057;
+}

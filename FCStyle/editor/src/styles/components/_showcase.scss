@@ -1,0 +1,54 @@
+// Estilos para showcase dos componentes
+.editor-showcase {
+  padding: 2rem;
+  background-color: var(--fc-color-background, #f8f9fa);
+  border-bottom: 1px solid var(--fc-color-border, #e0e0e0);
+  
+  // Layout flexível para mostrar os componentes
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+
+  // Para componentes que ocupam linha inteira (como Column)
+  &--full-width {
+    flex-direction: column;
+    
+    > * {
+      width: 100%;
+    }
+  }
+
+  // Para inputs e formulários
+  &--form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+}
+
+.editor-code {
+  margin: 0;
+  padding: 1.5rem;
+  background-color: var(--fc-color-code-background, #1e1e1e);
+  color: var(--fc-color-code-text, #d4d4d4);
+  font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  border-radius: 0;
+
+  // Syntax highlighting básico
+  .keyword {
+    color: var(--fc-color-code-keyword, #569cd6);
+  }
+
+  .string {
+    color: var(--fc-color-code-string, #ce9178);
+  }
+
+  .comment {
+    color: var(--fc-color-code-comment, #6a9955);
+    font-style: italic;
+  }
+}

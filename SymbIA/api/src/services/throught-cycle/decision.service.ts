@@ -1,6 +1,5 @@
-import { ThoughtCycleContext } from "@/interfaces/throuht-cycle";
+import { ThoughtCycleContext, ACTIONS, ActionType } from "@/interfaces/throuht-cycle";
 import { LLMManager } from "../llm.service";
-import { ACTIONS, ActionType } from "@/actions";
 
 export class DecisionService {
 
@@ -17,7 +16,6 @@ export class DecisionService {
     public async decideNextAction(ctx: ThoughtCycleContext): Promise<ActionType> {
 
         const provider = await this.llmManager.getAvailableProvider();
-
         if (!provider) {
             throw 'No LLM provider available';
         }

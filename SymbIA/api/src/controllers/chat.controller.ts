@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { Chat, IChat, IMessage } from '../models/chat.model';
 import { LLMManager } from '../services/llm.service';
 import { ThoughtCycleService } from '../services/throught-cycle/thought-cycle.service';
-import { ThoughtCycleContext } from '../interfaces/throuht-cycle';
+import { StreamChatProgress, StreamChatProgressType, ThoughtCycleContext } from '../interfaces/throuht-cycle';
+import { date } from 'zod';
 
 const llmManager = new LLMManager();
 const thoughtCycleService = new ThoughtCycleService(llmManager);
@@ -137,8 +138,8 @@ export class ChatController {
   // Stream de chat com thought cycle
   static async streamChat(req: Request, res: Response): Promise<void> {
     try {
-      const { chatId, message, isNewChat = false, model = 'llama3:8b' } = req.body;
-      const userId = (req as any).user.id;
+      const { chatId, message }: { chatId: string, message: string } = req.body;
+      const userId = (req as any).user.id as string;
 
       if (!message) {
         res.status(400).json({ error: 'Message is required' });
@@ -154,97 +155,138 @@ export class ChatController {
         'Access-Control-Allow-Headers': 'Cache-Control',
       });
 
-      let chat: IChat | null = null;
-      let messages: IMessage[] = [];
+      const { chat, isNewChat } = await this.findChat(chatId, userId);
+      if (!chat) {
+        res.write(`data: ${JSON.stringify({ error: 'Chat not found' })}\n\n`);
+        res.end();
+        return;
+      }      
+      //let messages: IMessage[] = [];
 
-      // Se for novo chat, criar temporariamente
-      if (isNewChat) {
-        messages = [{ role: 'user', content: message, timestamp: new Date() }];
-      } else {
-        // Buscar chat existente
-        chat = await Chat.findOne({ _id: chatId, userId });
-        if (!chat) {
-          res.write(`data: ${JSON.stringify({ error: 'Chat not found' })}\n\n`);
-          res.end();
-          return;
+      // // Se for novo chat, criar temporariamente
+      // if (isNewChat) {
+      //   //messages = [{ role: 'user', content: message, timestamp: new Date() }];
+      // } else {
+      //   // Buscar chat existente
+      //   // chat = await Chat.findOne({ _id: chatId, userId });
+      //   // if (!chat) {
+      //   //   res.write(`data: ${JSON.stringify({ error: 'Chat not found' })}\n\n`);
+      //   //   res.end();
+      //   //   return;
+      //   // }
+        
+      //   // Adicionar nova mensagem do usuário
+      //   const userMessage: IMessage = {
+      //     role: 'user',
+      //     content: message,
+      //     timestamp: new Date()
+      //   };
+        
+      //   chat.messages.push(userMessage);
+      //   messages = chat.messages;
+      // }
+
+      const onProgress = (message: StreamChatProgress) => {
+        res.write(`data: ${JSON.stringify(message)}\n\n`);
+        if (message.type == StreamChatProgressType.Done ||
+          message.type == StreamChatProgressType.Error) {
+            res.end();
         }
-        
-        // Adicionar nova mensagem do usuário
-        const userMessage: IMessage = {
-          role: 'user',
-          content: message,
-          timestamp: new Date()
-        };
-        
-        chat.messages.push(userMessage);
-        messages = chat.messages;
-      }
+      };
 
       try {
         // Preparar contexto para o thought cycle
-        const thoughtCycleContext: ThoughtCycleContext = {
-          originalMessage: message,
-          previousMessages: messages.slice(0, -1).map(msg => msg.content), // Excluir a última mensagem (current)
+        const ctx: ThoughtCycleContext = {
+          chat,
+          message,
+          messages: [
+            { role: 'user', content: message, timestamp: new Date() }
+          ],
           executedActions: []
         };
 
         // Função para enviar progresso via stream
-        const onProgress = (progressMessage: string) => {
-          res.write(`data: ${JSON.stringify({ 
-            type: 'progress', 
-            content: progressMessage 
-          })}\n\n`);
-        };
+        // const onProgress = (progressMessage: string) => {
+        //   res.write(`data: ${JSON.stringify({ 
+        //     type: 'progress', 
+        //     content: progressMessage 
+        //   })}\n\n`);
+        // };
+
 
         // Iniciar thought cycle com callback de progresso
         // A resposta final já é gerada pela ação finalize.action.ts
-        const assistantResponse = await thoughtCycleService.startCycleWithProgress(thoughtCycleContext, onProgress);
-        
+        await thoughtCycleService.runThoughtCycle(ctx, onProgress);
+
         // Enviar a resposta final como conteúdo
-        res.write(`data: ${JSON.stringify({ 
-          type: 'content', 
-          content: assistantResponse 
-        })}\n\n`);
+        // res.write(`data: ${JSON.stringify({ 
+        //   type: 'content', 
+        //   content: assistantResponse 
+        // })}\n\n`);
 
         // Adicionar resposta do assistente
-        const assistantMessage: IMessage = {
-          role: 'assistant',
-          content: assistantResponse,
-          timestamp: new Date()
-        };
+        // const assistantMessage: IMessage = {
+        //   role: 'assistant',
+        //   content: assistantResponse,
+        //   timestamp: new Date()
+        // };
 
+        // if (isNewChat) {
+        //   // Para novo chat, precisamos gerar um título
+        //   res.write(`data: ${JSON.stringify({ 
+        //     type: 'system',
+        //     needsTitle: true 
+        //   })}\n\n`);
+        // } else {
+        //   // Para chat existente, salvar a mensagem
+        //   chat!.messages.push(assistantMessage);
+        //   await chat!.save();
+        // }
         if (isNewChat) {
-          // Para novo chat, precisamos gerar um título
-          res.write(`data: ${JSON.stringify({ 
-            type: 'system',
-            needsTitle: true 
-          })}\n\n`);
-        } else {
-          // Para chat existente, salvar a mensagem
-          chat!.messages.push(assistantMessage);
-          await chat!.save();
+          onProgress({ type: StreamChatProgressType.RequestTitle });
         }
 
+        chat.messages.push(...ctx.messages);
+
+        await chat.save();
+
         // Send end signal
-        res.write(`data: ${JSON.stringify({ 
-          type: 'system',
-          done: true, 
-          chatId: chat?._id 
-        })}\n\n`);
-        res.end();
+        // res.write(`data: ${JSON.stringify({ 
+        //   type: 'system',
+        //   done: true, 
+        //   chatId: chat?._id 
+        // })}\n\n`);
+        // res.end();
+        onProgress({ type: StreamChatProgressType.Done });
 
       } catch (error) {
         console.error('Thought cycle error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        res.write(`data: ${JSON.stringify({ 
-          type: 'error',
-          error: errorMessage 
-        })}\n\n`);
-        res.end();
+        // res.write(`data: ${JSON.stringify({ 
+        //   type: 'error',
+        //   error: errorMessage 
+        // })}\n\n`);
+        // res.end();
+        onProgress({ type: StreamChatProgressType.Error, data: errorMessage });
       }
+
     } catch (error) {
       console.error('Chat stream endpoint error:', error);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  static async findChat(chatId: string, userId: string): Promise<{ chat: IChat | null, isNewChat: boolean}> {
+    if (chatId == '<new>') {
+      return { chat: new Chat({
+        title: 'New chat',
+        userId,
+        messages: []
+      }), isNewChat: true };
+    }
+    else {
+      const chat = await Chat.findOne({ _id: chatId, userId });
+      return { chat, isNewChat: false };
     }
   }
 

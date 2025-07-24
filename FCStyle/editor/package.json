@@ -1,0 +1,24 @@
+{
+  "name": "fcstyle-editor",
+  "version": "1.0.0",
+  "description": "Editor para customizar variáveis CSS do FCStyle framework",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.0",
+    "fcstyle": "file:../project"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@vitejs/plugin-react": "^3.1.0",
+    "sass": "^1.57.0",
+    "typescript": "^4.9.4",
+    "vite": "^4.1.0"
+  }
+}

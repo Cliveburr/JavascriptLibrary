@@ -1,0 +1,14 @@
+[
+	{
+		"key": "ctrl+b",
+		"command": "workbench.action.tasks.runTask",
+		"args": "Start Development"
+	},
+	{
+		"key": "f5",
+		"command": "workbench.action.debug.start",
+		"args": {
+			"config": "Launch Browser"
+		}
+	}
+]

@@ -1,4 +1,4 @@
-import { ThoughtCycleContext } from '@/interfaces/throuht-cycle';
+import { ActionResult, ACTIONS, StreamChatProgress, StreamChatProgressType, ThoughtCycleContext } from '@/interfaces/throuht-cycle';
 import { LLMManager } from '../services/llm.service';
 
 export class FinalizeAction {
@@ -8,31 +8,49 @@ export class FinalizeAction {
     this.llmManager = llmManager;
   }
 
-  async execute(ctx: ThoughtCycleContext, data?: any, onProgress?: (message: string) => void): Promise<string> {
-    onProgress?.('Finalizing cycle and generating response...');
+  async execute(ctx: ThoughtCycleContext, onProgress: (message: StreamChatProgress) => void): Promise<ActionResult> {
+    onProgress({
+      type: StreamChatProgressType.Info,
+      data: 'Finalizing...'
+    });
     
     const provider = await this.llmManager.getAvailableProvider();
-    
     if (!provider) {
-      // Fallback simplificado quando não há provider disponível
-      const fallbackResponse = this.generateFallbackResponse(ctx);
-      onProgress?.(fallbackResponse);
-      return fallbackResponse;
+        throw 'No LLM provider available';
     }
 
-    try {
-      const responsePrompt = this.buildResponsePrompt(ctx);
-      const response = await provider.generateSingleResponse(responsePrompt, 'llama3:8b');
+    // if (!provider) {
+    //   // Fallback simplificado quando não há provider disponível
+    //   const fallbackResponse = this.generateFallbackResponse(ctx);
+    //   onProgress?.(fallbackResponse);
+    //   return fallbackResponse;
+    // }
 
-      const finalResponse = response.trim();
-      onProgress?.('Response generated');
-      return finalResponse;
-    } catch (error) {
-      console.error('Error generating final response:', error);
-      const fallbackResponse = this.generateFallbackResponse(ctx);
-      onProgress?.(fallbackResponse);
-      return fallbackResponse;
-    }
+    //try {
+      // const responsePrompt = this.buildResponsePrompt(ctx);
+      // const response = await provider.generateSingleResponse(responsePrompt, 'llama3:8b');
+
+      let finalizeMessage = '';
+      for await (const chunk of provider.generateFinalizeResponse(ctx)) {
+        finalizeMessage += chunk;
+        onProgress({
+          type: StreamChatProgressType.TextStream,
+          data: chunk
+        });
+      }
+
+      finalizeMessage = finalizeMessage.trim();
+      return {
+        action: ACTIONS.FINALIZE,
+        result: finalizeMessage,
+        timestamp: new Date()
+      };
+    // } catch (error) {
+    //   console.error('Error generating final response:', error);
+    //   const fallbackResponse = this.generateFallbackResponse(ctx);
+    //   onProgress?.(fallbackResponse);
+    //   return fallbackResponse;
+    // }
   }
 
   private buildResponsePrompt(ctx: ThoughtCycleContext): string {
@@ -52,16 +70,16 @@ Previous conversation context: ${ctx.previousMessages.length > 0 ? JSON.stringif
 Provide a concise, direct response to the user's original message. Focus on answering their question or addressing their request. Keep the response natural and conversational, without mentioning technical details about the system or actions executed unless directly relevant to the user's request.`;
   }
 
-  private generateFallbackResponse(ctx: ThoughtCycleContext): string {
-    // Generate a simple but helpful fallback response
-    const hasMemoryActions = ctx.executedActions.some(action => 
-      ['saveMemory', 'searchMemory', 'editMemory', 'deleteMemory'].includes(action.action)
-    );
+  // private generateFallbackResponse(ctx: ThoughtCycleContext): string {
+  //   // Generate a simple but helpful fallback response
+  //   const hasMemoryActions = ctx.executedActions.some(action => 
+  //     ['saveMemory', 'searchMemory', 'editMemory', 'deleteMemory'].includes(action.action)
+  //   );
 
-    if (hasMemoryActions) {
-      return `I've processed your request regarding "${ctx.originalMessage}". The relevant memory operations have been completed.`;
-    }
+  //   if (hasMemoryActions) {
+  //     return `I've processed your request regarding "${ctx.originalMessage}". The relevant memory operations have been completed.`;
+  //   }
 
-    return `I understand your request: "${ctx.originalMessage}". I've processed this and executed the necessary actions to help you.`;
-  }
+  //   return `I understand your request: "${ctx.originalMessage}". I've processed this and executed the necessary actions to help you.`;
+  // }
 }

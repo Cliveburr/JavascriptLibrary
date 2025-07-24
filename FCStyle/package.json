@@ -1,0 +1,12 @@
+{
+  "name": "fcstyle-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"cd project && npm run start\" \"cd editor && npm run start\"",
+    "build": "cd project && npm run build && cd ../editor && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

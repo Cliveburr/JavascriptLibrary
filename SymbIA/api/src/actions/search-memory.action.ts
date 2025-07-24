@@ -1,4 +1,4 @@
-import { ThoughtCycleContext } from '@/interfaces/throuht-cycle';
+import { ActionResult, StreamChatProgress, ThoughtCycleContext } from '@/interfaces/throuht-cycle';
 import { LLMManager } from '../services/llm.service';
 
 export class SearchMemoryAction {
@@ -8,7 +8,7 @@ export class SearchMemoryAction {
     this.llmManager = llmManager;
   }
 
-  async execute(ctx: ThoughtCycleContext, data?: any, onProgress?: (message: string) => void): Promise<string> {
+  async execute(ctx: ThoughtCycleContext, onProgress?: (message: StreamChatProgress) => void): Promise<ActionResult> {
     onProgress?.('Preparing to search memory...');
     
     const provider = await this.llmManager.getAvailableProvider();

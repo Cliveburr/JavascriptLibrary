@@ -11,13 +11,3 @@ export {
   DeleteMemoryAction,
   SearchMemoryAction
 };
-
-export const ACTIONS = {
-  SAVE_MEMORY: 'saveMemory',
-  EDIT_MEMORY: 'editMemory',
-  DELETE_MEMORY: 'deleteMemory',
-  SEARCH_MEMORY: 'searchMemory',
-  FINALIZE: 'finalize'
-} as const;
-
-export type ActionType = typeof ACTIONS[keyof typeof ACTIONS];
