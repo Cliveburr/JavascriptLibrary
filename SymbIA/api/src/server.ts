@@ -1,25 +1,28 @@
-import express from 'express';
-import type { Request, Response } from 'express';
+import 'reflect-metadata';
+import express, { type Express } from 'express';
+import { configureContainer } from '@symbia/core';
+import { authRoutes } from './routes/auth.routes.js';
+import { memoriesRoutes } from './routes/memories.routes.js';
 
-const app = express();
+const app: Express = express();
 const PORT = process.env.PORT || 3000;
+
+// Configure DI container
+configureContainer();
 
 app.use(express.json());
 
 // Health check endpoint
-app.get('/health', (_req: Request, res: Response) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Placeholder routes
-app.get('/api/memories', (_req: Request, res: Response) => {
-  res.json({ memories: [] });
-});
-
-app.get('/api/chats', (_req: Request, res: Response) => {
-  res.json({ chats: [] });
-});
+// Routes
+app.use('/auth', authRoutes);
+app.use('/memories', memoriesRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+export { app };
