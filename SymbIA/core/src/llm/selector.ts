@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 import type { LlmSet, ModelSpec } from '@symbia/interfaces';
 
 const MODEL_MAP: Record<LlmSet, ModelSpec> = {
-  'fast-chat': { provider: 'ollama', model: 'phi3' },
+  'fast-chat': { provider: 'openai', model: 'gpt-4o-mini' },
   reasoning: { provider: 'openai', model: 'gpt-4o' },
   embedding: { provider: 'ollama', model: 'nomic-embed-text' },
 };

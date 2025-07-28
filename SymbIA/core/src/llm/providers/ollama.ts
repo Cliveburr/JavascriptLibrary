@@ -9,8 +9,8 @@ export interface OllamaConfig {
 export class OllamaProvider {
     private baseUrl: string;
 
-    constructor(config?: OllamaConfig) {
-        this.baseUrl = config?.baseUrl || process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    constructor() {
+        this.baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
     }
 
     async invoke(messages: LlmRequest['messages'], options?: Partial<LlmRequest>): Promise<LlmResponse> {

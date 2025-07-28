@@ -11,9 +11,9 @@ export class OpenAIProvider {
     private apiKey: string;
     private baseUrl: string;
 
-    constructor(config?: OpenAIConfig) {
-        this.apiKey = config?.apiKey || process.env.OPENAI_API_KEY || '';
-        this.baseUrl = config?.baseUrl || 'https://api.openai.com/v1';
+    constructor() {
+        this.apiKey = process.env.OPENAI_API_KEY || '';
+        this.baseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
     }
 
     async invoke(messages: LlmRequest['messages'], options?: Partial<LlmRequest>): Promise<LlmResponse> {
