@@ -1,0 +1,56 @@
+import { injectable } from 'tsyringe';
+import type { LlmRequest, LlmResponse } from '@symbia/interfaces';
+
+export interface OpenAIConfig {
+    apiKey: string;
+    baseUrl?: string;
+}
+
+@injectable()
+export class OpenAIProvider {
+    private apiKey: string;
+    private baseUrl: string;
+
+    constructor(config?: OpenAIConfig) {
+        this.apiKey = config?.apiKey || process.env.OPENAI_API_KEY || '';
+        this.baseUrl = config?.baseUrl || 'https://api.openai.com/v1';
+    }
+
+    async invoke(messages: LlmRequest['messages'], options?: Partial<LlmRequest>): Promise<LlmResponse> {
+        if (!this.apiKey) {
+            throw new Error('OpenAI API key is required');
+        }
+
+        const requestBody = {
+            model: options?.model || 'gpt-4o',
+            messages,
+            temperature: options?.temperature ?? 0.7,
+            max_tokens: options?.maxTokens,
+        };
+
+        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.apiKey}`,
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+
+        return {
+            content: data.choices[0]?.message?.content || '',
+            usage: {
+                promptTokens: data.usage?.prompt_tokens || 0,
+                completionTokens: data.usage?.completion_tokens || 0,
+                totalTokens: data.usage?.total_tokens || 0,
+            },
+        };
+    }
+}
