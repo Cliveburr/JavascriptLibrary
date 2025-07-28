@@ -1,6 +1,6 @@
 import { Ollama } from 'ollama';
 import { LLMProvider } from '../../interfaces/llm.interface';
-import { ThoughtCycleContext } from '@/interfaces/throuht-cycle';
+import { ThoughtCycleContext } from '../../interfaces/thought-cycle';
 import { buildDecisionMessages } from './decision-prompt';
 
 /**

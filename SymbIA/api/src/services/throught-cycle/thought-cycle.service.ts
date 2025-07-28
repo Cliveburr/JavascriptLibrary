@@ -1,4 +1,4 @@
-import { ThoughtCycleContext, ACTIONS, StreamChatProgress, StreamChatProgressType } from '@/interfaces/throuht-cycle';
+import { ThoughtCycleContext, ACTIONS, StreamChatProgress, StreamChatProgressType } from '../../interfaces/thought-cycle';
 import { LLMManager } from '../llm.service';
 
 import { DecisionService } from './decision.service';

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Chat, IChat, IMessage } from '../models/chat.model';
 import { LLMManager } from '../services/llm.service';
 import { ThoughtCycleService } from '../services/throught-cycle/thought-cycle.service';
-import { StreamChatProgress, StreamChatProgressType, ThoughtCycleContext } from '../interfaces/throuht-cycle';
+import { StreamChatProgress, StreamChatProgressType, ThoughtCycleContext } from '../interfaces/thought-cycle';
 import { date } from 'zod';
 
 const llmManager = new LLMManager();
@@ -12,7 +12,8 @@ export class ChatController {
   // Listar todos os chats do usuário
   static async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      // Temporariamente usando usuário hardcoded para debug
+      const userId = (req as any).user?.id || '6887c5ca176ffb6185f3626e';
       
       const chats = await Chat.find({ userId })
         .sort({ updatedAt: -1 })
@@ -34,7 +35,8 @@ export class ChatController {
   static async getById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const userId = (req as any).user.id;
+      // Temporariamente usando usuário hardcoded para debug
+      const userId = (req as any).user?.id || '6887c5ca176ffb6185f3626e';
 
       // Verificar se o ID é um ObjectId válido
       if (!id || id.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(id)) {
@@ -64,7 +66,8 @@ export class ChatController {
   static async create(req: Request, res: Response): Promise<void> {
     try {
       const { title, message } = req.body;
-      const userId = (req as any).user.id;
+      // Temporariamente usando usuário hardcoded para debug
+      const userId = (req as any).user?.id || '6887c5ca176ffb6185f3626e';
 
       if (!title || !message) {
         res.status(400).json({ error: 'Title and message are required' });
@@ -101,7 +104,8 @@ export class ChatController {
     try {
       const { id } = req.params;
       const { message, role = 'user' } = req.body;
-      const userId = (req as any).user.id;
+      // Temporariamente usando usuário hardcoded para debug
+      const userId = (req as any).user?.id || '6887c5ca176ffb6185f3626e';
 
       if (!message) {
         res.status(400).json({ error: 'Message is required' });
@@ -139,7 +143,8 @@ export class ChatController {
   static async streamChat(req: Request, res: Response): Promise<void> {
     try {
       const { chatId, message }: { chatId: string, message: string } = req.body;
-      const userId = (req as any).user.id as string;
+      // Temporariamente usando usuário hardcoded para debug
+      const userId = (req as any).user?.id || '6887c5ca176ffb6185f3626e';
 
       if (!message) {
         res.status(400).json({ error: 'Message is required' });
@@ -155,7 +160,7 @@ export class ChatController {
         'Access-Control-Allow-Headers': 'Cache-Control',
       });
 
-      const { chat, isNewChat } = await this.findChat(chatId, userId);
+      const { chat, isNewChat } = await ChatController.findChat(chatId, userId);
       if (!chat) {
         res.write(`data: ${JSON.stringify({ error: 'Chat not found' })}\n\n`);
         res.end();
@@ -272,12 +277,23 @@ export class ChatController {
 
     } catch (error) {
       console.error('Chat stream endpoint error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      // Se o stream já foi iniciado, enviar erro via SSE
+      if (res.headersSent) {
+        res.write(`data: ${JSON.stringify({ type: 'error', error: 'Internal server error' })}\n\n`);
+        res.end();
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
     }
   }
 
   static async findChat(chatId: string, userId: string): Promise<{ chat: IChat | null, isNewChat: boolean}> {
-    if (chatId == '<new>') {
+    // Se é um novo chat ou ID temporário
+    if (chatId === '<new>' || chatId === null || chatId === undefined || 
+        chatId.startsWith('temp-') || 
+        !chatId || 
+        chatId.length !== 24 || 
+        !/^[0-9a-fA-F]{24}$/.test(chatId)) {
       return { chat: new Chat({
         title: 'New chat',
         userId,
@@ -285,8 +301,18 @@ export class ChatController {
       }), isNewChat: true };
     }
     else {
-      const chat = await Chat.findOne({ _id: chatId, userId });
-      return { chat, isNewChat: false };
+      try {
+        const chat = await Chat.findOne({ _id: chatId, userId });
+        return { chat, isNewChat: false };
+      } catch (error) {
+        // Se houver erro de cast, tratar como novo chat
+        console.log('Invalid chatId format, treating as new chat:', chatId);
+        return { chat: new Chat({
+          title: 'New chat',
+          userId,
+          messages: []
+        }), isNewChat: true };
+      }
     }
   }
 
@@ -294,7 +320,8 @@ export class ChatController {
   static async generateTitle(req: Request, res: Response): Promise<void> {
     try {
       const { message, assistantResponse } = req.body;
-      const userId = (req as any).user.id;
+      // Temporariamente usando usuário hardcoded para debug
+      const userId = (req as any).user?.id || '6887c5ca176ffb6185f3626e';
 
       if (!message || !assistantResponse) {
         res.status(400).json({ error: 'Message and assistant response are required' });
@@ -362,7 +389,8 @@ Título:`;
   static async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const userId = (req as any).user.id;
+      // Temporariamente usando usuário hardcoded para debug
+      const userId = (req as any).user?.id || '6887c5ca176ffb6185f3626e';
 
       // Verificar se o ID é um ObjectId válido
       if (!id || id.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(id)) {

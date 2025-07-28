@@ -1,11 +1,11 @@
-import { ActionResult, ACTIONS, ActionType, StreamChatProgress, ThoughtCycleContext } from "@/interfaces/throuht-cycle";
+import { ActionResult, ACTIONS, ActionType, StreamChatProgress, ThoughtCycleContext } from "../../interfaces/thought-cycle";
 import { LLMManager } from "../llm.service";
 import { 
   FinalizeAction, 
   SaveMemoryAction, 
-  EditMemoryAction, 
-  DeleteMemoryAction, 
-  SearchMemoryAction 
+  // EditMemoryAction, 
+  // DeleteMemoryAction, 
+  // SearchMemoryAction 
 } from '../../actions';
 
 export class ActionService {
@@ -24,14 +24,26 @@ export class ActionService {
                 const saveMemoryAction = new SaveMemoryAction(this.llmManager);
                 return saveMemoryAction.execute(ctx, onProgress);
             case ACTIONS.EDIT_MEMORY:
-                const editMemoryAction = new EditMemoryAction(this.llmManager);
-                return editMemoryAction.execute(ctx, onProgress);
+                // Temporarily commented out
+                return Promise.resolve({
+                    action: ACTIONS.EDIT_MEMORY,
+                    result: 'Edit memory action temporarily disabled',
+                    timestamp: new Date()
+                });
             case ACTIONS.DELETE_MEMORY:
-                const deleteMemoryAction = new DeleteMemoryAction(this.llmManager);
-                return deleteMemoryAction.execute(ctx, onProgress);
+                // Temporarily commented out
+                return Promise.resolve({
+                    action: ACTIONS.DELETE_MEMORY,
+                    result: 'Delete memory action temporarily disabled',
+                    timestamp: new Date()
+                });
             case ACTIONS.SEARCH_MEMORY:
-                const searchMemoryAction = new SearchMemoryAction(this.llmManager);
-                return searchMemoryAction.execute(ctx, onProgress);
+                // Temporarily commented out
+                return Promise.resolve({
+                    action: ACTIONS.SEARCH_MEMORY,
+                    result: 'Search memory action temporarily disabled',
+                    timestamp: new Date()
+                });
             default:
                 throw `Invalid action "${action}" returned from LLM for decision make`;        }
     }

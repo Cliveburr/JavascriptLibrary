@@ -1,4 +1,4 @@
-import { ThoughtCycleContext } from "./throuht-cycle";
+import { ThoughtCycleContext } from "./thought-cycle";
 
 // Interface for LLM providers
 export interface LLMProvider {

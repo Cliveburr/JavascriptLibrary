@@ -1,4 +1,4 @@
-import { ThoughtCycleContext, ACTIONS, ActionType } from "@/interfaces/throuht-cycle";
+import { ThoughtCycleContext, ACTIONS, ActionType } from "../../interfaces/thought-cycle";
 import { LLMManager } from "../llm.service";
 
 export class DecisionService {

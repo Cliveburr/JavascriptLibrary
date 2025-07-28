@@ -1,4 +1,4 @@
-import { ThoughtCycleContext } from "@/interfaces/throuht-cycle";
+import { ThoughtCycleContext } from "../../interfaces/thought-cycle";
 import { Message } from "ollama";
 
 const decisionSystemPrompt = `Voce é um assistente de IA que precisa decidir qual a proxima ação a executar de modo a responder a mensagem do usuário.
@@ -21,16 +21,22 @@ export function buildDecisionMessages(ctx: ThoughtCycleContext): Message[] {
             content: a.result
         }));
 
+    // Convert IMessage[] to Message[]
+    const previousMessages = ctx.messages.map(msg => ({
+        role: msg.role as 'user' | 'assistant' | 'system',
+        content: msg.content
+    }));
+
     return [
         {
             role: 'system',
             content: decisionSystemPrompt
         },
-        ...ctx.previousMessages,
+        ...previousMessages,
         ...acionsExecuted,
         {
             role: 'user',
-            content: ctx.originalMessage
+            content: ctx.message
         }
     ];
 } 

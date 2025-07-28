@@ -1,6 +1,6 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { QdrantConfig, ContextSource, EmbeddingItem } from '../interfaces/llm.interface';
-import { VectorStorageProvider } from '../interfaces/vector-storage.interface';
+import { QdrantConfig, ContextSource, EmbeddingItem } from '../../interfaces/llm.interface';
+import { VectorStorageProvider } from '../../interfaces/vector-storage.interface';
 
 /**
  * Implementação do provedor de armazenamento vetorial usando Qdrant
