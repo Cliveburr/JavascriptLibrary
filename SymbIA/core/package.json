@@ -13,7 +13,9 @@
     "lint:fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
-    "@symbia/interfaces": "workspace:*"
+    "@symbia/interfaces": "workspace:*",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0"
   },
   "devDependencies": {
     "typescript": "^5.5.0",

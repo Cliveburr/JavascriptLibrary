@@ -1,5 +1,7 @@
+import { injectable } from 'tsyringe';
 import type { Memory } from '@symbia/interfaces';
 
+@injectable()
 export class MemoryService {
   async createMemory(userId: string, name: string): Promise<Memory> {
     // TODO: Implement database logic
