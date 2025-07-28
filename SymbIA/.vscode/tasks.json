@@ -2,80 +2,260 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "React Dev Server",
+      "label": "Build All",
       "type": "shell",
-      "command": "npm run dev",
-      "group": "build",
-      "isBackground": true,
-      "options": {
-        "cwd": "${workspaceFolder}/web"
-      },
-      "problemMatcher": {
-        "owner": "vite",
-        "pattern": [
-          {
-            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error)\\s+(.*)$",
-            "file": 1,
-            "line": 2,
-            "column": 3,
-            "severity": 4,
-            "message": 5
-          }
-        ],
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^.*Local:.*$",
-          "endsPattern": "^.*ready.*$"
-        }
-      }
-    },
-    {
-      "label": "API Dev Server",
-      "type": "shell",
-      "command": "npm run dev",
-      "group": "build",
-      "isBackground": true,
-      "options": {
-        "cwd": "${workspaceFolder}/api"
-      },
-      "problemMatcher": {
-        "owner": "nodemon",
-        "pattern": [
-          {
-            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error)\\s+(.*)$",
-            "file": 1,
-            "line": 2,
-            "column": 3,
-            "severity": 4,
-            "message": 5
-          }
-        ],
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^.*starting.*$",
-          "endsPattern": "^.*Server running.*$"
-        }
-      }
-    },
-    {
-      "label": "Install API Dependencies",
-      "type": "shell",
-      "command": "npm install",
-      "options": {
-        "cwd": "${workspaceFolder}/api"
-      }
-    },
-    {
-      "label": "Start Full Stack",
+      "command": "pnpm",
+      "args": [
+        "build"
+      ],
       "group": {
         "kind": "build",
         "isDefault": true
       },
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Watch API",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@symbia/api",
+        "dev"
+      ],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "applyTo": "closedDocuments",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}/api"
+        ],
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*File change detected.*",
+          "endsPattern": ".*waiting for file changes.*"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Watch Web",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@symbia/web",
+        "dev"
+      ],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "source": "vite",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}/web"
+        ],
+        "pattern": [
+          {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error)\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Local:.*",
+          "endsPattern": ".*ready in.*"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Dev: API + Web",
       "dependsOrder": "parallel",
       "dependsOn": [
-        "React Dev Server",
-        "API Dev Server"
-      ]
+        "Watch API",
+        "Watch Web"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Test All",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "test"
+      ],
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Lint All",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "lint"
+      ],
+      "group": "build",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Build Interfaces",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@symbia/interfaces",
+        "build"
+      ],
+      "group": "build",
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Build Core",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@symbia/core",
+        "build"
+      ],
+      "group": "build",
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "dependsOn": [
+        "Build Interfaces"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Build API",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@symbia/api",
+        "build"
+      ],
+      "group": "build",
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "dependsOn": [
+        "Build Core"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Launch Chrome Debug",
+      "type": "shell",
+      "command": "start",
+      "args": [
+        "chrome",
+        "--remote-debugging-port=9222",
+        "--user-data-dir=${workspaceFolder}/.chrome-debug",
+        "http://localhost:3001"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      },
+      "windows": {
+        "command": "start",
+        "args": [
+          "chrome",
+          "--remote-debugging-port=9222",
+          "--user-data-dir=${workspaceFolder}/.chrome-debug",
+          "http://localhost:3001"
+        ]
+      },
+      "problemMatcher": []
     }
   ]
 }

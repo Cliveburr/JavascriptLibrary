@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "ms-vscode.eslint",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "vitest.explorer",
+        "ms-vscode.vscode-js-debug",
+        "msjsdiag.debugger-for-chrome"
+    ]
+}

@@ -1,2 +1,2 @@
 
-** Sempre leia o arquivo PLANNING.md no inicio da conversa
+** Sempre leia o arquivo "docs/PLANNING.md" no inicio da conversa

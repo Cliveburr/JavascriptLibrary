@@ -1,0 +1,42 @@
+{
+  "name": "symbia",
+  "version": "1.0.0",
+  "description": "SymbIA v2 - Multi-memory AI agent platform",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "dev:api": "pnpm --filter @symbia/api dev",
+    "dev:web": "pnpm --filter @symbia/web dev",
+    "dev:parallel": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
+    "build:api": "pnpm --filter @symbia/api build",
+    "build:web": "pnpm --filter @symbia/web build",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "prettier": "^3.3.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "ts-node": "^10.9.0",
+    "@types/node": "^22.0.0",
+    "concurrently": "^9.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "packageManager": "pnpm@9.0.0"
+}

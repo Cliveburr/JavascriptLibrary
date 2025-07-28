@@ -1,3 +1,28 @@
 {
-    "github.copilot.chat.codeGeneration.useInstructionFiles": true
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "typescript.preferences.quoteStyle": "single",
+    "typescript.format.semicolons": "insert",
+    "eslint.workingDirectories": [
+        "interfaces",
+        "core",
+        "api",
+        "web"
+    ],
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true,
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
+    },
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/build": true
+    },
+    "typescript.preferences.includePackageJsonAutoImports": "on"
 }

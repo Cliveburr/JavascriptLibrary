@@ -2,43 +2,99 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Chrome against localhost",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}/web/src"
-    },
-    {
-      "name": "Attach to Chrome",
-      "type": "chrome",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}/web/src"
-    },
-    {
-      "name": "Debug API",
+      "name": "Debug API Server",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/api/index.js",
+      "program": "${workspaceFolder}/api/src/server.ts",
+      "cwd": "${workspaceFolder}/api",
+      "runtimeExecutable": "tsx",
+      "runtimeArgs": [
+        "--inspect"
+      ],
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "PORT": "3000"
       },
       "console": "integratedTerminal",
       "restart": true,
-      "runtimeExecutable": "nodemon",
-      "runtimeArgs": ["--exec"],
-      "cwd": "${workspaceFolder}/api"
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     },
     {
-      "name": "Debug API (Production)",
+      "name": "Debug Tests",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/api/index.js",
-      "env": {
-        "NODE_ENV": "production"
-      },
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "run",
+        "--inspect-brk"
+      ],
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}/api"
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "name": "Debug Web (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3001",
+      "webRoot": "${workspaceFolder}/web/src",
+      "sourceMaps": true,
+      "preLaunchTask": "Watch Web",
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Debug Web (Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:3001",
+      "webRoot": "${workspaceFolder}/web/src",
+      "sourceMaps": true,
+      "preLaunchTask": "Watch Web",
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Attach to Web (Chrome)",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/web/src",
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch API + Web Dev",
+      "configurations": [],
+      "preLaunchTask": "Dev: API + Web",
+      "presentation": {
+        "group": "development",
+        "order": 1
+      }
+    },
+    {
+      "name": "Debug Full Stack",
+      "configurations": [
+        "Debug API Server",
+        "Debug Web (Chrome)"
+      ],
+      "presentation": {
+        "group": "development",
+        "order": 2
+      }
     }
   ]
 }
