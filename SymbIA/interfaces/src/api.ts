@@ -64,5 +64,6 @@ export interface SendMessageRequest {
 }
 
 export interface SendMessageResponse {
-  message: MessageDTO;
+  userMessage: MessageDTO;
+  assistantMessage: MessageDTO;
 }

@@ -17,7 +17,7 @@ export const DashboardPage: React.FC = () => {
     };
 
     return (
-        <div className="dashboard-page">
+        <div className="dashboard-page" data-testid="dashboard">
             <div className="dashboard-header">
                 <div className="header-content">
                     <h1>SymbIA</h1>

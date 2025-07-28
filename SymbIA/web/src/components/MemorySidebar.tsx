@@ -46,6 +46,7 @@ export const MemorySidebar: React.FC = () => {
                     className="add-memory-button"
                     onClick={() => setShowCreateForm(!showCreateForm)}
                     disabled={isLoading}
+                    data-testid="create-memory-button"
                 >
                     +
                 </button>
@@ -60,9 +61,14 @@ export const MemorySidebar: React.FC = () => {
                         placeholder="Memory name"
                         autoFocus
                         disabled={isLoading}
+                        data-testid="memory-name-input"
                     />
                     <div className="form-actions">
-                        <button type="submit" disabled={isLoading || !newMemoryName.trim()}>
+                        <button
+                            type="submit"
+                            disabled={isLoading || !newMemoryName.trim()}
+                            data-testid="confirm-create-memory"
+                        >
                             Create
                         </button>
                         <button type="button" onClick={() => setShowCreateForm(false)}>
@@ -87,6 +93,7 @@ export const MemorySidebar: React.FC = () => {
                             key={memory.id}
                             className={`memory-item ${currentMemoryId === memory.id ? 'active' : ''}`}
                             onClick={() => setCurrentMemory(memory.id)}
+                            data-testid="memory-item"
                         >
                             <div className="memory-info">
                                 <div className="memory-name">{memory.name}</div>

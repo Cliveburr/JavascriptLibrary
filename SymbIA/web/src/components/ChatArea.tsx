@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useMemoryStore } from '../stores';
+import { useChatStore } from '../stores/chat.store';
+import { ChatWindow } from './ChatWindow';
+import { ChatInput } from './ChatInput';
 import './ChatArea.scss';
 
 export const ChatArea: React.FC = () => {
     const { currentMemoryId, memories } = useMemoryStore();
+    const { clearMessages } = useChatStore();
 
     const currentMemory = memories.find(m => m.id === currentMemoryId);
+
+    // Clear messages when switching memories
+    useEffect(() => {
+        clearMessages();
+    }, [currentMemoryId, clearMessages]);
 
     return (
         <div className="chat-area">
@@ -15,11 +24,10 @@ export const ChatArea: React.FC = () => {
 
             <div className="chat-content">
                 {currentMemory ? (
-                    <div className="chat-placeholder">
-                        <div className="placeholder-icon">💭</div>
-                        <h4>Start a conversation</h4>
-                        <p>This is where your chat with the AI will appear. The conversation will be linked to the memory "{currentMemory.name}".</p>
-                    </div>
+                    <>
+                        <ChatWindow memoryId={currentMemory.id} />
+                        <ChatInput memoryId={currentMemory.id} />
+                    </>
                 ) : (
                     <div className="chat-placeholder">
                         <div className="placeholder-icon">🤖</div>
@@ -28,22 +36,6 @@ export const ChatArea: React.FC = () => {
                     </div>
                 )}
             </div>
-
-            {currentMemory && (
-                <div className="chat-input-area">
-                    <div className="chat-input-container">
-                        <input
-                            type="text"
-                            placeholder="Type your message..."
-                            disabled
-                        />
-                        <button disabled>Send</button>
-                    </div>
-                    <div className="input-hint">
-                        Chat functionality will be implemented in the next phase
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

@@ -11,7 +11,7 @@ function App() {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
   return (
-    <div className="App" data-theme={theme}>
+    <div className="App" data-theme={theme} data-testid="app">
       <Router>
         <Routes>
           <Route
