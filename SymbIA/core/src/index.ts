@@ -9,6 +9,7 @@ import { OpenAIProvider } from './llm/providers/openai.js';
 import { OllamaProvider } from './llm/providers/ollama.js';
 import { PlannerService } from './planner/planner.service.js';
 import { ActionService } from './actions/action.service.js';
+import { ThoughtCycleService } from './thought/thought-cycle.service.js';
 
 // Export services
 export * from './llm/selector.js';
@@ -20,6 +21,7 @@ export * from './memory/embedding.service.js';
 export * from './memory/qdrant.provider.js';
 export * from './planner/planner.service.js';
 export * from './actions/action.service.js';
+export * from './thought/thought-cycle.service.js';
 
 // Export container for external usage
 export { container };
@@ -36,6 +38,7 @@ export function configureContainer() {
     container.registerSingleton(LlmGateway);
     container.registerSingleton(PlannerService);
     container.registerSingleton(ActionService);
+    container.registerSingleton(ThoughtCycleService);
 
     return container;
 }
