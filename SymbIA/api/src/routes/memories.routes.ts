@@ -18,7 +18,16 @@ router.use(authMiddleware);
 // GET /memories
 router.get('/', memoriesController.getMemories);
 
+// GET /memories/:id
+router.get('/:id', memoriesController.getMemoryById);
+
 // POST /memories
 router.post('/', ...memoriesController.createMemory);
+
+// PUT /memories/:id
+router.put('/:id', ...memoriesController.updateMemory);
+
+// DELETE /memories/:id
+router.delete('/:id', memoriesController.deleteMemory);
 
 export { router as memoriesRoutes };
