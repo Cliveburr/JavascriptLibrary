@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import type { LlmRequest, LlmResponse } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
 
 export interface OpenAIConfig {
     apiKey: string;
@@ -49,6 +49,42 @@ export class OpenAIProvider {
             usage: {
                 promptTokens: data.usage?.prompt_tokens || 0,
                 completionTokens: data.usage?.completion_tokens || 0,
+                totalTokens: data.usage?.total_tokens || 0,
+            },
+        };
+    }
+
+    async generateEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
+        if (!this.apiKey) {
+            throw new Error('OpenAI API key is required');
+        }
+
+        const requestBody = {
+            input: request.text,
+            model: request.model || 'text-embedding-ada-002',
+            encoding_format: 'float',
+        };
+
+        const response = await fetch(`${this.baseUrl}/embeddings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.apiKey}`,
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`OpenAI Embedding API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+
+        return {
+            embedding: data.data[0]?.embedding || [],
+            usage: {
+                promptTokens: data.usage?.prompt_tokens || 0,
                 totalTokens: data.usage?.total_tokens || 0,
             },
         };

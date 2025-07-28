@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import type { LlmRequest, LlmResponse } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
 
 export interface OllamaConfig {
     baseUrl?: string;
@@ -45,6 +45,36 @@ export class OllamaProvider {
                 promptTokens: data.prompt_eval_count || 0,
                 completionTokens: data.eval_count || 0,
                 totalTokens: (data.prompt_eval_count || 0) + (data.eval_count || 0),
+            },
+        };
+    }
+
+    async generateEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
+        const requestBody = {
+            model: request.model,
+            prompt: request.text,
+        };
+
+        const response = await fetch(`${this.baseUrl}/api/embeddings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text().catch(() => '');
+            throw new Error(`Ollama Embedding API error: ${response.status} ${response.statusText} - ${errorData}`);
+        }
+
+        const data = await response.json();
+
+        return {
+            embedding: data.embedding || [],
+            usage: {
+                promptTokens: data.prompt_eval_count || 0,
+                totalTokens: data.prompt_eval_count || 0,
             },
         };
     }

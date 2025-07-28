@@ -30,3 +30,16 @@ export interface LlmResponse {
     totalTokens: number;
   };
 }
+
+export interface EmbeddingRequest {
+  text: string;
+  model: string;
+}
+
+export interface EmbeddingResponse {
+  embedding: number[];
+  usage?: {
+    promptTokens: number;
+    totalTokens: number;
+  };
+}

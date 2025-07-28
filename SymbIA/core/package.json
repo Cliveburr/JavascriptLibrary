@@ -13,6 +13,8 @@
     "lint:fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
+    "@dqbd/tiktoken": "^1.0.21",
+    "@qdrant/js-client-rest": "^1.15.0",
     "@symbia/interfaces": "workspace:*",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0"
