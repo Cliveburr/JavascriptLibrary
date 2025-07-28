@@ -1,0 +1,278 @@
+// GLOBAL STYLES & RESET
+// ==================================================
+
+@use 'variables' as *;
+
+// CSS Reset & Base Styles
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    line-height: $line-height-normal;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+}
+
+body {
+    font-family: $font-family-primary;
+    font-size: $font-size-base;
+    font-weight: $font-weight-normal;
+    line-height: $line-height-normal;
+    color: $color-text-primary;
+    background-color: $color-bg-primary;
+    overflow-x: hidden;
+
+    // Futuristic background pattern
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba($color-primary, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba($color-accent, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba($color-secondary, 0.05) 0%, transparent 50%);
+
+    // Smooth scrolling
+    scroll-behavior: smooth;
+}
+
+// Typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: $font-weight-semibold;
+    line-height: $line-height-tight;
+    color: $color-text-primary;
+    margin-bottom: $spacing-md;
+}
+
+h1 {
+    font-size: $font-size-4xl;
+}
+
+h2 {
+    font-size: $font-size-3xl;
+}
+
+h3 {
+    font-size: $font-size-2xl;
+}
+
+h4 {
+    font-size: $font-size-xl;
+}
+
+h5 {
+    font-size: $font-size-lg;
+}
+
+h6 {
+    font-size: $font-size-base;
+}
+
+p {
+    margin-bottom: $spacing-md;
+    color: $color-text-secondary;
+    line-height: $line-height-relaxed;
+}
+
+a {
+    color: $color-primary;
+    text-decoration: none;
+    transition: all $transition-fast;
+
+    &:hover {
+        color: $color-primary-light;
+        text-shadow: $glow-primary;
+    }
+
+    &:focus {
+        outline: 2px solid $color-primary;
+        outline-offset: 2px;
+    }
+}
+
+// Code elements
+code,
+pre {
+    font-family: $font-family-mono;
+    background-color: $color-bg-secondary;
+    border: 1px solid $color-border;
+    border-radius: $border-radius-sm;
+}
+
+code {
+    padding: 2px 4px;
+    font-size: 0.875em;
+    color: $color-accent;
+}
+
+pre {
+    padding: $spacing-md;
+    overflow-x: auto;
+    margin-bottom: $spacing-md;
+
+    code {
+        background: none;
+        border: none;
+        padding: 0;
+    }
+}
+
+// Lists
+ul,
+ol {
+    margin-bottom: $spacing-md;
+    padding-left: $spacing-lg;
+
+    li {
+        margin-bottom: $spacing-sm;
+        color: $color-text-secondary;
+    }
+}
+
+// Images
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: $border-radius-md;
+}
+
+// Form elements
+input,
+textarea,
+select,
+button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+// Focus styles for accessibility
+:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+}
+
+// Selection styles
+::selection {
+    background-color: rgba($color-primary, 0.3);
+    color: $color-text-primary;
+}
+
+// Scrollbar styling (Webkit)
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: $color-bg-secondary;
+    border-radius: $border-radius-sm;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $color-border;
+    border-radius: $border-radius-sm;
+
+    &:hover {
+        background: $color-primary;
+        box-shadow: $glow-primary;
+    }
+}
+
+// Utility classes
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+
+    @media (min-width: $breakpoint-lg) {
+        padding: 0 $spacing-lg;
+    }
+}
+
+.text-gradient {
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glow {
+    box-shadow: $glow-primary;
+    transition: box-shadow $transition-normal;
+
+    &:hover {
+        box-shadow: 0 0 30px rgba($color-primary, 0.7);
+    }
+}
+
+// Animation keyframes
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes glow {
+
+    0%,
+    100% {
+        box-shadow: $glow-primary;
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba($color-primary, 0.8);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+.animate-glow {
+    animation: glow 2s infinite;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+}

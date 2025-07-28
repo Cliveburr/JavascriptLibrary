@@ -1,15 +1,19 @@
-import React from 'react';
+import { MainLayout } from './layouts';
+import { Header } from './components';
+import { HomePage } from './pages';
+import { useTheme } from './hooks';
+import './styles/globals.scss';
 
 function App() {
+  const { theme } = useTheme();
+
   return (
-    <div className="App">
-      <header>
-        <h1>SymbIA v2</h1>
-        <p>Multi-memory AI agent platform</p>
-      </header>
-      <main>
-        <p>Welcome to SymbIA! The platform is under development.</p>
-      </main>
+    <div className="App" data-theme={theme}>
+      <MainLayout
+        header={<Header />}
+      >
+        <HomePage />
+      </MainLayout>
     </div>
   );
 }

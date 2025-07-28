@@ -1,0 +1,128 @@
+@use '../../styles/variables' as *;
+
+.card {
+    border-radius: $border-radius-lg;
+    transition: all $transition-normal;
+    position: relative;
+    overflow: hidden;
+
+    // Default variant
+    &--default {
+        background-color: $color-bg-secondary;
+        border: 1px solid $color-border;
+        box-shadow: $shadow-sm;
+
+        &:hover {
+            border-color: $color-border-light;
+            box-shadow: $shadow-md;
+        }
+    }
+
+    // Elevated variant
+    &--elevated {
+        background-color: $color-bg-secondary;
+        border: 1px solid $color-border;
+        box-shadow: $shadow-lg;
+
+        &:hover {
+            box-shadow: $shadow-xl;
+            transform: translateY(-2px);
+        }
+    }
+
+    // Outlined variant
+    &--outlined {
+        background-color: transparent;
+        border: 2px solid $color-border;
+
+        &:hover {
+            border-color: $color-primary;
+            background-color: rgba($color-primary, 0.05);
+        }
+    }
+
+    // Glass variant (glassmorphism effect)
+    &--glass {
+        background: rgba($color-bg-secondary, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba($color-border, 0.3);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba($color-primary, 0.5),
+                    transparent);
+        }
+
+        &:hover {
+            background: rgba($color-bg-secondary, 0.9);
+            border-color: rgba($color-primary, 0.3);
+        }
+    }
+
+    // Glow effect
+    &--glow {
+        box-shadow: $shadow-md, $glow-primary;
+
+        &:hover {
+            box-shadow: $shadow-lg, 0 0 30px rgba($color-primary, 0.4);
+        }
+    }
+
+    // Padding variants
+    &--padding-none {
+        padding: 0;
+    }
+
+    &--padding-sm {
+        padding: $spacing-sm;
+    }
+
+    &--padding-md {
+        padding: $spacing-md;
+    }
+
+    &--padding-lg {
+        padding: $spacing-lg;
+    }
+
+    // Interactive states
+    &:focus-within {
+        outline: 2px solid $color-primary;
+        outline-offset: 2px;
+    }
+}
+
+// Card header, body, footer components
+.card__header {
+    padding: $spacing-md $spacing-md $spacing-sm;
+    border-bottom: 1px solid $color-border;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin-bottom: 0;
+    }
+}
+
+.card__body {
+    padding: $spacing-md;
+}
+
+.card__footer {
+    padding: $spacing-sm $spacing-md $spacing-md;
+    border-top: 1px solid $color-border;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+}
