@@ -1,10 +1,12 @@
 // API DTOs and request/response types
-export interface AuthLoginRequest {
+
+// Auth DTOs
+export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface AuthLoginResponse {
+export interface LoginResponse {
   token: string;
   refreshToken: string;
   user: {
@@ -12,6 +14,15 @@ export interface AuthLoginResponse {
     email: string;
     defaultMemoryId: string;
   };
+}
+
+// Memory DTOs
+export interface MemoryDTO {
+  id: string;
+  userId: string;
+  name: string;
+  createdAt: string;
+  deletedAt?: string;
 }
 
 export interface CreateMemoryRequest {
@@ -22,23 +33,36 @@ export interface UpdateMemoryRequest {
   name: string;
 }
 
+// Chat DTOs
+export interface ChatDTO {
+  id: string;
+  memoryId: string;
+  title: string;
+  createdAt: string;
+}
+
 export interface CreateChatRequest {
   memoryId: string;
   title?: string;
 }
 
+// Message DTOs
+export interface MessageDTO {
+  id: string;
+  chatId: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  contentType: 'text' | 'form' | 'chart' | 'file';
+  toolCall?: object;
+  createdAt: string;
+}
+
 export interface SendMessageRequest {
   chatId: string;
   content: string;
-  contentType?: string;
+  contentType?: 'text' | 'form' | 'chart' | 'file';
 }
 
 export interface SendMessageResponse {
-  message: {
-    id: string;
-    role: string;
-    content: string;
-    contentType: string;
-    createdAt: Date;
-  };
+  message: MessageDTO;
 }
