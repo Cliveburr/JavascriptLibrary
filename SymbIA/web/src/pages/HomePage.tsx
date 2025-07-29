@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Card } from '../components/ui';
 import './HomePage.scss';
 
@@ -19,12 +20,16 @@ export const HomePage: React.FC = () => {
                     </p>
 
                     <div className="hero-actions">
-                        <Button variant="primary" size="lg" className="animate-glow">
-                            Get Started
-                        </Button>
-                        <Button variant="outline" size="lg">
-                            Learn More
-                        </Button>
+                        <Link to="/register">
+                            <Button variant="primary" size="lg" className="animate-glow">
+                                Get Started
+                            </Button>
+                        </Link>
+                        <Link to="/login">
+                            <Button variant="outline" size="lg">
+                                Sign In
+                            </Button>
+                        </Link>
                     </div>
                 </div>
 
@@ -94,9 +99,11 @@ export const HomePage: React.FC = () => {
                             <p>
                                 Join the next generation of AI interaction. Build, learn, and grow with SymbIA.
                             </p>
-                            <Button variant="accent" size="lg">
-                                Start Your Journey
-                            </Button>
+                            <Link to="/register">
+                                <Button variant="accent" size="lg">
+                                    Start Your Journey
+                                </Button>
+                            </Link>
                         </div>
                     </Card>
                 </div>

@@ -1,0 +1,162 @@
+@import '../styles/_variables.scss';
+
+.register-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, $color-bg-primary 0%, $color-bg-secondary 100%);
+    padding: 1rem;
+
+    .register-container {
+        background: $color-bg-surface;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid $color-border;
+        width: 100%;
+        max-width: 400px;
+        backdrop-filter: blur(10px);
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+
+            h1 {
+                color: $color-text-primary;
+                margin-bottom: 0.5rem;
+                font-size: 2rem;
+                font-weight: 700;
+                background: linear-gradient(45deg, $color-primary, $color-secondary);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            p {
+                color: $color-text-secondary;
+                font-size: 0.95rem;
+            }
+        }
+
+        .register-form {
+            .form-group {
+                margin-bottom: 1.5rem;
+
+                label {
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    color: $color-text-primary;
+                    font-weight: 500;
+                    font-size: 0.9rem;
+                }
+
+                input {
+                    width: 100%;
+                    padding: 0.75rem;
+                    border: 1px solid $color-border;
+                    border-radius: 8px;
+                    background: $color-bg-tertiary;
+                    color: $color-text-primary;
+                    font-size: 0.95rem;
+                    transition: all 0.3s ease;
+
+                    &:focus {
+                        outline: none;
+                        border-color: $color-primary;
+                        box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.1);
+                    }
+
+                    &:disabled {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+
+                    &::placeholder {
+                        color: $color-text-muted;
+                    }
+                }
+            }
+
+            .error-message {
+                background: rgba(255, 107, 107, 0.1);
+                border: 1px solid rgba(255, 107, 107, 0.3);
+                color: $color-secondary;
+                padding: 0.75rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                font-size: 0.9rem;
+                text-align: center;
+            }
+
+            .register-button {
+                width: 100%;
+                padding: 0.875rem;
+                background: linear-gradient(45deg, $color-primary, $color-secondary);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &:hover:not(:disabled) {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.3);
+                }
+
+                &:active:not(:disabled) {
+                    transform: translateY(0);
+                }
+
+                &:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    transform: none;
+                }
+            }
+        }
+
+        .register-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid $color-border;
+
+            p {
+                color: $color-text-secondary;
+                font-size: 0.9rem;
+            }
+
+            .login-link {
+                color: $color-primary;
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.3s ease;
+
+                &:hover {
+                    color: $color-secondary;
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+    .register-page {
+        padding: 0.5rem;
+
+        .register-container {
+            padding: 2rem 1.5rem;
+            max-width: none;
+            margin: 0;
+
+            .register-header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    }
+}

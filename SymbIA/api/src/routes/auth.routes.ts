@@ -11,6 +11,9 @@ container.registerSingleton(AuthService);
 // Get controller instance from DI container
 const authController = container.resolve(AuthController);
 
+// POST /auth/register
+router.post('/register', ...authController.register);
+
 // POST /auth/login
 router.post('/login', ...authController.login);
 

@@ -11,6 +11,7 @@ import { PlannerService } from './planner/planner.service.js';
 import { ActionService } from './actions/action.service.js';
 import { ThoughtCycleService } from './thought/thought-cycle.service.js';
 import { AuthService } from './auth/auth.service.js';
+import { MongoDBService } from './database/mongodb.service.js';
 
 // Export services
 export * from './llm/selector.js';
@@ -24,6 +25,7 @@ export * from './planner/planner.service.js';
 export * from './actions/action.service.js';
 export * from './thought/thought-cycle.service.js';
 export * from './auth/auth.service.js';
+export * from './database/mongodb.service.js';
 
 // Export container for external usage
 export { container };
@@ -31,6 +33,7 @@ export { container };
 // Configure DI container
 export function configureContainer() {
     // Register services as singletons
+    container.registerSingleton(MongoDBService);
     container.registerSingleton(MemoryService);
     container.registerSingleton(EmbeddingService);
     container.registerSingleton(QdrantProvider);

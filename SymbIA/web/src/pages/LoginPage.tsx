@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores';
 import './LoginPage.scss';
 
@@ -76,6 +77,15 @@ export const LoginPage: React.FC = () => {
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
+
+                <div className="login-footer">
+                    <p>
+                        Don't have an account?{' '}
+                        <Link to="/register" className="register-link">
+                            Create one
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );

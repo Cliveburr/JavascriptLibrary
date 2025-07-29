@@ -1,9 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { LoginResponse } from '@symbia/interfaces';
+import type { LoginResponse, RegisterResponse } from '@symbia/interfaces';
 
 interface User {
     id: string;
+    username?: string;
     email: string;
     defaultMemoryId: string;
 }
@@ -14,8 +15,9 @@ interface AuthState {
     refreshToken: string | null;
     isAuthenticated: boolean;
     login: (credentials: { email: string; password: string; }) => Promise<void>;
+    register: (data: { username: string; email: string; password: string; }) => Promise<void>;
     logout: () => void;
-    setAuth: (data: LoginResponse) => void;
+    setAuth: (data: LoginResponse | RegisterResponse) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -48,6 +50,29 @@ export const useAuthStore = create<AuthState>()(
                 }
             },
 
+            register: async (registerData) => {
+                try {
+                    const response = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(registerData),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Registration failed');
+                    }
+
+                    const data: RegisterResponse = await response.json();
+                    get().setAuth(data);
+                } catch (error) {
+                    console.error('Register error:', error);
+                    throw error;
+                }
+            },
+
             logout: () => {
                 set({
                     user: null,
@@ -57,7 +82,7 @@ export const useAuthStore = create<AuthState>()(
                 });
             },
 
-            setAuth: (data: LoginResponse) => {
+            setAuth: (data: LoginResponse | RegisterResponse) => {
                 set({
                     user: data.user,
                     token: data.token,

@@ -111,8 +111,19 @@
         align-items: center;
         gap: $spacing-sm;
 
+        .user-info {
+            color: $color-text-secondary;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-medium;
+            margin-right: $spacing-sm;
+        }
+
         @media (max-width: $breakpoint-sm) {
             gap: $spacing-xs;
+
+            .user-info {
+                display: none; // Hide user info on small screens
+            }
 
             .btn {
                 padding: $spacing-xs $spacing-sm;

@@ -6,6 +6,23 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  token: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    username: string;
+    email: string;
+    defaultMemoryId: string;
+  };
+}
+
 export interface LoginResponse {
   token: string;
   refreshToken: string;

@@ -1,5 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui';
+import { useAuthStore } from '../stores';
 import './Header.scss';
 
 export interface HeaderProps {
@@ -13,6 +15,8 @@ export const Header: React.FC<HeaderProps> = ({
     onMenuClick,
     showMenu = false,
 }) => {
+    const { isAuthenticated, user, logout } = useAuthStore();
+
     return (
         <header className="header">
             <div className="header__container">
@@ -30,29 +34,46 @@ export const Header: React.FC<HeaderProps> = ({
                         </Button>
                     )}
 
-                    <div className="header__logo">
+                    <Link to="/" className="header__logo">
                         <span className="logo-icon">🧠</span>
                         <h1 className="logo-text">
                             <span className="text-gradient">{title}</span>
                         </h1>
-                    </div>
+                    </Link>
                 </div>
 
                 <div className="header__right">
-                    <nav className="header__nav">
-                        <a href="#" className="nav-link">Dashboard</a>
-                        <a href="#" className="nav-link">Chat</a>
-                        <a href="#" className="nav-link">Memories</a>
-                    </nav>
+                    {isAuthenticated ? (
+                        <>
+                            <nav className="header__nav">
+                                <Link to="/dashboard" className="nav-link">Dashboard</Link>
+                                <a href="#" className="nav-link">Chat</a>
+                                <a href="#" className="nav-link">Memories</a>
+                            </nav>
 
-                    <div className="header__actions">
-                        <Button variant="outline" size="sm">
-                            Sign In
-                        </Button>
-                        <Button variant="primary" size="sm">
-                            Get Started
-                        </Button>
-                    </div>
+                            <div className="header__actions">
+                                <span className="user-info">
+                                    Welcome, {user?.username || user?.email}
+                                </span>
+                                <Button variant="outline" size="sm" onClick={logout}>
+                                    Sign Out
+                                </Button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="header__actions">
+                            <Link to="/login">
+                                <Button variant="outline" size="sm">
+                                    Sign In
+                                </Button>
+                            </Link>
+                            <Link to="/register">
+                                <Button variant="primary" size="sm">
+                                    Get Started
+                                </Button>
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </div>
         </header>
