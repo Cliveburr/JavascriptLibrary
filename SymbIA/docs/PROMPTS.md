@@ -73,6 +73,8 @@ Decisão de qual ação executar.
 # CONTEXTO
 Primeira ação executável.
 
+** Leia o arquivo "docs/THOUGHT-CYCLE.md" para visualizar minuciosamente como o ThoughtCyle deve funcionar **
+
 ## TAREFA
 1. /core/src/actions/finalize.action.ts:
    - Implements ActionHandler.
@@ -92,6 +94,8 @@ Primeira ação executável.
 ```text
 # CONTEXTO
 Conectar tudo no controller.
+
+** Leia o arquivo "docs/THOUGHT-CYCLE.md" para visualizar minuciosamente como o ThoughtCyle deve funcionar **
 
 ## TAREFA
 1. /api/controllers/message.controller.ts:
