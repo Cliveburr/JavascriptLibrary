@@ -1,14 +1,7 @@
 import { create } from 'zustand';
-import type { MessageDTO } from '@symbia/interfaces';
+import type { MessageDTO, ChatDTO } from '@symbia/interfaces';
 
-interface ChatState {
-    messages: MessageDTO[];
-    isLoading: boolean;
-    error: string | null;
-    sendMessage: (memoryId: string, content: string) => Promise<void>;
-    clearMessages: () => void;
-}
-
+// Helper para chamadas à API
 const getAuthToken = () => {
     const authStorage = localStorage.getItem('auth-storage');
     if (authStorage) {
@@ -37,19 +30,190 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
     return response.json();
 };
 
-export const useChatStore = create<ChatState>((set) => ({
-    messages: [],
+interface ChatState {
+    // Chats organizados por memória
+    chatsByMemory: Record<string, ChatDTO[]>;
+    // Mensagens organizadas por chat
+    messagesByChat: Record<string, MessageDTO[]>;
+    // Chat atualmente selecionado
+    selectedChatId: string | null;
+    // Estados de loading
+    isLoading: boolean;
+    isLoadingChats: boolean;
+    isLoadingMessages: boolean;
+    error: string | null;
+
+    // Actions para chats
+    loadChatsByMemory: (memoryId: string) => Promise<void>;
+    createChat: (memoryId: string, title?: string) => Promise<ChatDTO>;
+    deleteChat: (chatId: string) => Promise<void>;
+    selectChat: (chatId: string) => void;
+
+    // Actions para mensagens
+    loadMessages: (chatId: string) => Promise<void>;
+    sendMessage: (chatId: string, content: string) => Promise<void>;
+    clearMessages: (chatId?: string) => void;
+}
+
+export const useChatStore = create<ChatState>((set, get) => ({
+    chatsByMemory: {},
+    messagesByChat: {},
+    selectedChatId: null,
     isLoading: false,
+    isLoadingChats: false,
+    isLoadingMessages: false,
     error: null,
 
-    sendMessage: async (memoryId: string, content: string) => {
+    loadChatsByMemory: async (memoryId: string) => {
+        try {
+            set({ isLoadingChats: true, error: null });
+
+            const chats = await apiCall(`http://localhost:3002/chats?memoryId=${memoryId}`);
+
+            set(state => ({
+                chatsByMemory: {
+                    ...state.chatsByMemory,
+                    [memoryId]: chats
+                },
+                isLoadingChats: false
+            }));
+
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to load chats',
+                isLoadingChats: false
+            });
+        }
+    },
+
+    createChat: async (memoryId: string, title = 'Novo Chat') => {
+        try {
+            set({ isLoading: true, error: null });
+
+            const newChat = await apiCall('http://localhost:3002/chats', {
+                method: 'POST',
+                body: JSON.stringify({ memoryId, title }),
+            });
+
+            set(state => {
+                const existingChats = state.chatsByMemory[memoryId] || [];
+                return {
+                    chatsByMemory: {
+                        ...state.chatsByMemory,
+                        [memoryId]: [...existingChats, newChat]
+                    },
+                    isLoading: false
+                };
+            });
+
+            return newChat;
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to create chat',
+                isLoading: false
+            });
+            throw error;
+        }
+    },
+
+    deleteChat: async (chatId: string) => {
+        try {
+            set({ isLoading: true, error: null });
+
+            await apiCall(`http://localhost:3002/chats/${chatId}`, {
+                method: 'DELETE',
+            });
+
+            set(state => {
+                const newChatsByMemory = { ...state.chatsByMemory };
+                const newMessagesByChat = { ...state.messagesByChat };
+
+                // Remover chat de todas as memórias
+                Object.keys(newChatsByMemory).forEach(memoryId => {
+                    const chats = newChatsByMemory[memoryId];
+                    if (chats) {
+                        newChatsByMemory[memoryId] = chats.filter(
+                            chat => chat.id !== chatId
+                        );
+                    }
+                });
+
+                // Remover mensagens do chat
+                delete newMessagesByChat[chatId];
+
+                return {
+                    chatsByMemory: newChatsByMemory,
+                    messagesByChat: newMessagesByChat,
+                    selectedChatId: state.selectedChatId === chatId ? null : state.selectedChatId,
+                    isLoading: false
+                };
+            });
+
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to delete chat',
+                isLoading: false
+            });
+        }
+    },
+
+    selectChat: (chatId: string) => {
+        set({ selectedChatId: chatId });
+        // Carregar mensagens automaticamente quando um chat é selecionado
+        get().loadMessages(chatId);
+    },
+
+    loadMessages: async (chatId: string) => {
+        try {
+            set({ isLoadingMessages: true, error: null });
+
+            // Mock data por enquanto - substituir por API real
+            const mockMessages: MessageDTO[] = [
+                {
+                    id: `msg-1-${chatId}`,
+                    chatId,
+                    role: 'user',
+                    content: 'Olá! Como você pode me ajudar?',
+                    contentType: 'text',
+                    createdAt: new Date(Date.now() - 60000).toISOString()
+                },
+                {
+                    id: `msg-2-${chatId}`,
+                    chatId,
+                    role: 'assistant',
+                    content: 'Olá! Sou seu assistente IA. Posso ajudar com diversas tarefas como responder perguntas, ajudar com análises, criar conteúdo e muito mais. Em que posso te ajudar hoje?',
+                    contentType: 'text',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+
+            // Simular delay da API
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            set(state => ({
+                messagesByChat: {
+                    ...state.messagesByChat,
+                    [chatId]: mockMessages
+                },
+                isLoadingMessages: false
+            }));
+
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to load messages',
+                isLoadingMessages: false
+            });
+        }
+    },
+
+    sendMessage: async (chatId: string, content: string) => {
         try {
             set({ isLoading: true, error: null });
 
             // Adiciona mensagem do usuário imediatamente
             const userMessage: MessageDTO = {
                 id: `temp-user-${Date.now()}`,
-                chatId: `chat-${memoryId}`,
+                chatId,
                 role: 'user',
                 content,
                 contentType: 'text',
@@ -57,20 +221,37 @@ export const useChatStore = create<ChatState>((set) => ({
             };
 
             set(state => ({
-                messages: [...state.messages, userMessage]
+                messagesByChat: {
+                    ...state.messagesByChat,
+                    [chatId]: [...(state.messagesByChat[chatId] || []), userMessage]
+                }
             }));
 
-            // Envia para a API
-            const response = await apiCall(`/api/chats/${memoryId}/messages`, {
-                method: 'POST',
-                body: JSON.stringify({ content })
-            });
+            // Simular delay da API
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Remove mensagem temporária e adiciona as mensagens reais
+            // Criar resposta do assistente
+            const assistantMessage: MessageDTO = {
+                id: `msg-${Date.now()}`,
+                chatId,
+                role: 'assistant',
+                content: `Entendi sua mensagem: "${content}". Esta é uma resposta simulada do assistente IA.`,
+                contentType: 'text',
+                createdAt: new Date().toISOString()
+            };
+
+            // Substitui mensagem temporária e adiciona resposta
             set(state => {
-                const messagesWithoutTemp = state.messages.filter(m => m.id !== userMessage.id);
+                const currentMessages = state.messagesByChat[chatId] || [];
+                const messagesWithoutTemp = currentMessages.filter(m => m.id !== userMessage.id);
+
+                const finalUserMessage = { ...userMessage, id: `msg-user-${Date.now()}` };
+
                 return {
-                    messages: [...messagesWithoutTemp, response.userMessage, response.assistantMessage],
+                    messagesByChat: {
+                        ...state.messagesByChat,
+                        [chatId]: [...messagesWithoutTemp, finalUserMessage, assistantMessage]
+                    },
                     isLoading: false
                 };
             });
@@ -84,7 +265,17 @@ export const useChatStore = create<ChatState>((set) => ({
         }
     },
 
-    clearMessages: () => {
-        set({ messages: [], error: null });
+    clearMessages: (chatId?: string) => {
+        if (chatId) {
+            set(state => ({
+                messagesByChat: {
+                    ...state.messagesByChat,
+                    [chatId]: []
+                },
+                error: null
+            }));
+        } else {
+            set({ messagesByChat: {}, error: null });
+        }
     }
 }));

@@ -14,10 +14,15 @@ interface AuthState {
     token: string | null;
     refreshToken: string | null;
     isAuthenticated: boolean;
+    lastSelectedMemoryId: string | null;
+    lastSelectedChatId: string | null;
     login: (credentials: { email: string; password: string; }) => Promise<void>;
     register: (data: { username: string; email: string; password: string; }) => Promise<void>;
     logout: () => void;
     setAuth: (data: LoginResponse | RegisterResponse) => void;
+    setLastSelected: (memoryId: string, chatId?: string) => void;
+    // Função para login automático de desenvolvimento
+    autoLoginDev: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -27,10 +32,12 @@ export const useAuthStore = create<AuthState>()(
             token: null,
             refreshToken: null,
             isAuthenticated: false,
+            lastSelectedMemoryId: null,
+            lastSelectedChatId: null,
 
             login: async (credentials) => {
                 try {
-                    const response = await fetch('/api/auth/login', {
+                    const response = await fetch('http://localhost:3002/auth/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -52,7 +59,7 @@ export const useAuthStore = create<AuthState>()(
 
             register: async (registerData) => {
                 try {
-                    const response = await fetch('/api/auth/register', {
+                    const response = await fetch('http://localhost:3002/auth/register', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -79,6 +86,8 @@ export const useAuthStore = create<AuthState>()(
                     token: null,
                     refreshToken: null,
                     isAuthenticated: false,
+                    lastSelectedMemoryId: null,
+                    lastSelectedChatId: null,
                 });
             },
 
@@ -90,6 +99,24 @@ export const useAuthStore = create<AuthState>()(
                     isAuthenticated: true,
                 });
             },
+
+            setLastSelected: (memoryId: string, chatId?: string) => {
+                set({
+                    lastSelectedMemoryId: memoryId,
+                    lastSelectedChatId: chatId || null,
+                });
+            },
+
+            autoLoginDev: async () => {
+                try {
+                    await get().login({
+                        email: 'teste@exemplo.com',
+                        password: '123456'
+                    });
+                } catch (error) {
+                    console.error('Auto login failed:', error);
+                }
+            },
         }),
         {
             name: 'auth-storage',
@@ -98,6 +125,8 @@ export const useAuthStore = create<AuthState>()(
                 token: state.token,
                 refreshToken: state.refreshToken,
                 isAuthenticated: state.isAuthenticated,
+                lastSelectedMemoryId: state.lastSelectedMemoryId,
+                lastSelectedChatId: state.lastSelectedChatId,
             }),
         }
     )

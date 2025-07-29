@@ -2,88 +2,32 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #0f1419;
-
-    .dashboard-header {
-        background: rgba(255, 255, 255, 0.05);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 1rem 2rem;
-
-        @media (max-width: 768px) {
-            padding: 1rem;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-
-            h1 {
-                color: #ffffff;
-                font-size: 1.5rem;
-                font-weight: 300;
-                margin: 0;
-                letter-spacing: 1px;
-
-                @media (max-width: 480px) {
-                    font-size: 1.25rem;
-                }
-            }
-
-            .user-info {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-
-                @media (max-width: 480px) {
-                    gap: 0.5rem;
-                }
-
-                .user-email {
-                    color: rgba(255, 255, 255, 0.7);
-                    font-size: 0.9rem;
-
-                    @media (max-width: 480px) {
-                        display: none;
-                    }
-                }
-
-                .logout-button {
-                    background: rgba(244, 67, 54, 0.15);
-                    border: 1px solid rgba(244, 67, 54, 0.3);
-                    color: #ff8a80;
-                    padding: 0.5rem 1rem;
-                    border-radius: 6px;
-                    font-size: 0.9rem;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-
-                    @media (max-width: 480px) {
-                        padding: 0.5rem 0.75rem;
-                        font-size: 0.8rem;
-                    }
-
-                    &:hover {
-                        background: rgba(244, 67, 54, 0.25);
-                        border-color: rgba(244, 67, 54, 0.5);
-                    }
-                }
-            }
-        }
-    }
+    background: var(--surface-primary);
+    overflow: hidden;
 
     .dashboard-content {
         flex: 1;
-        display: flex;
-        max-width: 1400px;
-        margin: 0 auto;
-        width: 100%;
+        display: grid;
+        grid-template-columns: 280px 1fr; // Sidebar fixa + área flexível conforme especificação
         min-height: 0;
+        overflow: hidden;
+    }
+}
 
-        @media (max-width: 768px) {
-            flex-direction: column;
+// Responsividade
+@media (max-width: 768px) {
+    .dashboard-page {
+        .dashboard-content {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 1fr;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-page {
+        .dashboard-content {
+            grid-template-columns: 1fr;
         }
     }
 }

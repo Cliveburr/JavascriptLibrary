@@ -4,10 +4,10 @@ import { useChatStore } from '../stores/chat.store';
 import './ChatInput.scss';
 
 interface ChatInputProps {
-    memoryId: string;
+    chatId: string;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ memoryId }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ chatId }) => {
     const [message, setMessage] = useState('');
     const { sendMessage, isLoading } = useChatStore();
 
@@ -18,7 +18,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ memoryId }) => {
         setMessage('');
 
         try {
-            await sendMessage(memoryId, messageToSend);
+            await sendMessage(chatId, messageToSend);
         } catch (error) {
             console.error('Failed to send message:', error);
             // Restore message on error
@@ -33,6 +33,47 @@ export const ChatInput: React.FC<ChatInputProps> = ({ memoryId }) => {
         }
     };
 
+    // Determinar o estado do botão
+    const getButtonState = () => {
+        if (isLoading) return 'processing';
+        if (message.trim()) return 'send';
+        return 'disabled';
+    };
+
+    const buttonState = getButtonState();
+
+    const renderButtonIcon = () => {
+        switch (buttonState) {
+            case 'processing':
+                return (
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="pause-icon">
+                        <path
+                            d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"
+                            fill="currentColor"
+                        />
+                    </svg>
+                );
+            case 'send':
+                return (
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="send-icon">
+                        <path
+                            d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+                            fill="currentColor"
+                        />
+                    </svg>
+                );
+            default:
+                return (
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="send-icon disabled">
+                        <path
+                            d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+                            fill="currentColor"
+                        />
+                    </svg>
+                );
+        }
+    };
+
     return (
         <div className="chat-input">
             <div className="input-container">
@@ -40,7 +81,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ memoryId }) => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
+                    placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
                     disabled={isLoading}
                     rows={1}
                     className="message-input"
@@ -48,31 +89,19 @@ export const ChatInput: React.FC<ChatInputProps> = ({ memoryId }) => {
                 />
                 <button
                     onClick={handleSubmit}
-                    disabled={!message.trim() || isLoading}
-                    className="send-button"
+                    disabled={buttonState === 'disabled'}
+                    className={`send-button ${buttonState}`}
                     type="button"
                     data-testid="send-button"
+                    title={
+                        buttonState === 'processing'
+                            ? 'Pausar'
+                            : buttonState === 'send'
+                                ? 'Enviar mensagem'
+                                : 'Digite uma mensagem'
+                    }
                 >
-                    {isLoading ? (
-                        <div className="loading-spinner" />
-                    ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path
-                                d="M22 2L11 13L2 22L22 2Z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                            <path
-                                d="M22 2L15 22L11 13L22 2Z"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
-                    )}
+                    {renderButtonIcon()}
                 </button>
             </div>
         </div>

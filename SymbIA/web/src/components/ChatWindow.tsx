@@ -5,11 +5,12 @@ import type { MessageDTO } from '@symbia/interfaces';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
-    memoryId: string;
+    chatId: string;
+    messages: MessageDTO[];
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ memoryId }) => {
-    const { messages, isLoading } = useChatStore();
+export const ChatWindow: React.FC<ChatWindowProps> = ({ chatId, messages }) => {
+    const { isLoading, isLoadingMessages } = useChatStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -23,10 +24,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ memoryId }) => {
         }
     }, [messages]);
 
-    // Filter messages for current memory/chat
-    const currentMessages = messages.filter(msg =>
-        msg.chatId === `chat-${memoryId}`
-    );
+    const isAnyLoading = isLoading || isLoadingMessages;
 
     return (
         <div className="chat-window">
@@ -35,22 +33,22 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ memoryId }) => {
                 ref={scrollContainerRef}
                 data-testid="messages-container"
             >
-                {currentMessages.length === 0 && !isLoading && (
+                {messages.length === 0 && !isAnyLoading && (
                     <div className="empty-state">
                         <div className="empty-icon">💭</div>
-                        <h4>Start a conversation</h4>
-                        <p>Send a message to begin chatting with your AI assistant.</p>
+                        <h4>Inicie uma conversa</h4>
+                        <p>Envie uma mensagem para começar a conversar com seu assistente IA.</p>
                     </div>
                 )}
 
-                {currentMessages.map((message: MessageDTO) => (
+                {messages.map((message: MessageDTO) => (
                     <ChatMessage
                         key={message.id}
                         message={message}
                     />
                 ))}
 
-                {isLoading && (
+                {isAnyLoading && (
                     <div className="typing-indicator" data-testid="typing-indicator">
                         <div className="typing-content">
                             <div className="typing-dots">
@@ -58,7 +56,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ memoryId }) => {
                                 <span></span>
                                 <span></span>
                             </div>
-                            <div className="typing-text">AI is thinking...</div>
+                            <div className="typing-text">IA está pensando...</div>
                         </div>
                     </div>
                 )}

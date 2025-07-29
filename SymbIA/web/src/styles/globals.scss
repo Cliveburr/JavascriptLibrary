@@ -3,6 +3,55 @@
 
 @use 'variables' as *;
 
+// CSS Custom Properties (CSS Variables)
+:root {
+    // Color Variables
+    --color-primary: #{$color-primary};
+    --color-primary-light: #{$color-primary-light};
+    --color-primary-dark: #{$color-primary-dark};
+    --color-secondary: #{$color-secondary};
+    --color-accent: #{$color-accent};
+    --accent-primary: #{$color-primary}; // Alias for accent
+
+    // Background Colors
+    --surface-primary: #{$color-bg-primary};
+    --surface-secondary: #{$color-bg-secondary};
+    --surface-tertiary: #{$color-bg-tertiary};
+    --surface-dark: #{$color-bg-surface};
+
+    // Text Colors
+    --text-primary: #{$color-text-primary};
+    --text-secondary: #{$color-text-secondary};
+    --text-tertiary: #{$color-text-muted};
+    --text-on-accent: #{$color-text-primary};
+
+    // Border Colors
+    --border-subtle: #{$color-border};
+    --border-primary: #{$color-border-accent};
+
+    // Status Colors
+    --color-success: #{$color-success};
+    --color-warning: #{$color-warning};
+    --color-error: #{$color-error};
+    --color-info: #{$color-info};
+
+    // Spacing
+    --spacing-xs: #{$spacing-xs};
+    --spacing-sm: #{$spacing-sm};
+    --spacing-md: #{$spacing-md};
+    --spacing-lg: #{$spacing-lg};
+    --spacing-xl: #{$spacing-xl};
+
+    // Typography
+    --font-size-xs: #{$font-size-xs};
+    --font-size-sm: #{$font-size-sm};
+    --font-size-base: #{$font-size-base};
+
+    // Transitions
+    --transition-fast: #{$transition-fast};
+    --transition-normal: #{$transition-normal};
+}
+
 // CSS Reset & Base Styles
 * {
     box-sizing: border-box;
@@ -26,8 +75,8 @@ body {
     font-size: $font-size-base;
     font-weight: $font-weight-normal;
     line-height: $line-height-normal;
-    color: $color-text-primary;
-    background-color: $color-bg-primary;
+    color: $color-text-primary !important; // Force white text
+    background-color: $color-bg-primary !important; // Force dark background
     overflow-x: hidden;
 
     // Futuristic background pattern
@@ -38,6 +87,27 @@ body {
 
     // Smooth scrolling
     scroll-behavior: smooth;
+}
+
+// Force text colors for all common elements
+* {
+    color: inherit;
+}
+
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+input,
+textarea,
+select {
+    color: inherit !important;
 }
 
 // Typography

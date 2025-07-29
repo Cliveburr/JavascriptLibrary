@@ -47,8 +47,6 @@ export const Header: React.FC<HeaderProps> = ({
                         <>
                             <nav className="header__nav">
                                 <Link to="/dashboard" className="nav-link">Dashboard</Link>
-                                <a href="#" className="nav-link">Chat</a>
-                                <a href="#" className="nav-link">Memories</a>
                             </nav>
 
                             <div className="header__actions">

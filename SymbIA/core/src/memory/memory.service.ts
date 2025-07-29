@@ -1,5 +1,7 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import type { Memory } from '@symbia/interfaces';
+import { MongoDBService } from '../database/mongodb.service.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export class MemoryValidationError extends Error {
   constructor(message: string) {
@@ -24,12 +26,12 @@ export class CannotDeleteLastMemoryError extends Error {
 
 @injectable()
 export class MemoryService {
-  // In-memory storage for testing/development
-  private memories: Map<string, Memory>;
 
-  constructor() {
-    // Initialize the map in constructor to avoid decorator issues
-    this.memories = new Map<string, Memory>();
+  constructor(
+    @inject(MongoDBService) private mongodbService: MongoDBService
+  ) {
+    // Ensure MongoDB connection
+    this.mongodbService.connect().catch(console.error);
   }
 
   async createMemory(userId: string, name: string): Promise<Memory> {
@@ -42,13 +44,15 @@ export class MemoryService {
     }
 
     const memory: Memory = {
-      id: `mem_${Date.now()}_${Math.random().toString(36).substring(2)}`,
+      id: uuidv4(),
       userId,
       name: name.trim(),
       createdAt: new Date(),
     };
 
-    this.memories.set(memory.id, memory);
+    const collection = this.mongodbService.getMemoriesCollection();
+    await collection.insertOne(memory);
+
     return memory;
   }
 
@@ -57,9 +61,11 @@ export class MemoryService {
       throw new MemoryValidationError('User ID is required');
     }
 
-    const userMemories = Array.from(this.memories.values())
-      .filter(memory => memory.userId === userId && !memory.deletedAt)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const collection = this.mongodbService.getMemoriesCollection();
+    const userMemories = await collection.find({
+      userId: userId,
+      deletedAt: { $exists: false }
+    }).sort({ createdAt: -1 }).toArray();
 
     return userMemories;
   }
@@ -69,10 +75,11 @@ export class MemoryService {
       throw new MemoryValidationError('Memory ID is required');
     }
 
-    const memory = this.memories.get(id);
-    if (!memory || memory.deletedAt) {
-      return null;
-    }
+    const collection = this.mongodbService.getMemoriesCollection();
+    const memory = await collection.findOne({
+      id: id,
+      deletedAt: { $exists: false }
+    });
 
     return memory;
   }
@@ -86,8 +93,13 @@ export class MemoryService {
       throw new MemoryValidationError('Memory name is required');
     }
 
-    const memory = this.memories.get(id);
-    if (!memory || memory.deletedAt) {
+    const collection = this.mongodbService.getMemoriesCollection();
+    const memory = await collection.findOne({
+      id: id,
+      deletedAt: { $exists: false }
+    });
+
+    if (!memory) {
       throw new MemoryNotFoundError('Memory not found');
     }
 
@@ -96,7 +108,11 @@ export class MemoryService {
       name: name.trim(),
     };
 
-    this.memories.set(id, updatedMemory);
+    await collection.updateOne(
+      { id: id },
+      { $set: { name: name.trim() } }
+    );
+
     return updatedMemory;
   }
 
@@ -105,8 +121,13 @@ export class MemoryService {
       throw new MemoryValidationError('Memory ID is required');
     }
 
-    const memory = this.memories.get(id);
-    if (!memory || memory.deletedAt) {
+    const collection = this.mongodbService.getMemoriesCollection();
+    const memory = await collection.findOne({
+      id: id,
+      deletedAt: { $exists: false }
+    });
+
+    if (!memory) {
       throw new MemoryNotFoundError('Memory not found');
     }
 
@@ -117,12 +138,11 @@ export class MemoryService {
     }
 
     // Soft delete
-    const deletedMemory: Memory = {
-      ...memory,
-      deletedAt: new Date(),
-    };
+    await collection.updateOne(
+      { id: id },
+      { $set: { deletedAt: new Date() } }
+    );
 
-    this.memories.set(id, deletedMemory);
     return true;
   }
 
@@ -134,6 +154,7 @@ export class MemoryService {
 
   // Helper method for testing - clear all memories
   async clearAll(): Promise<void> {
-    this.memories.clear();
+    const collection = this.mongodbService.getMemoriesCollection();
+    await collection.deleteMany({});
   }
 }

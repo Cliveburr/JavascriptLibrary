@@ -37,6 +37,12 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
         throw new Error(`API call failed: ${response.statusText}`);
     }
 
+    // Handle empty responses (like 204 No Content)
+    const contentLength = response.headers.get('content-length');
+    if (response.status === 204 || contentLength === '0') {
+        return null;
+    }
+
     return response.json();
 };
 
@@ -48,27 +54,29 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
 
     fetchMemories: async () => {
         try {
+            console.log('Iniciando busca de memórias...');
             set({ isLoading: true, error: null });
-            const memories = await apiCall('/api/memories');
+            const memories = await apiCall('http://localhost:3002/memories');
+            console.log('Memórias recebidas:', memories);
             set({ memories, isLoading: false });
 
             // Set current memory if none is selected
             const { currentMemoryId } = get();
             if (!currentMemoryId && memories.length > 0) {
-                set({ currentMemoryId: memories[0].id });
+                console.log('Selecionando primeira memória:', memories[0]?.id);
+                set({ currentMemoryId: memories[0]?.id });
             }
         } catch (error) {
+            console.error('Erro ao buscar memórias:', error);
             set({
                 error: error instanceof Error ? error.message : 'Failed to fetch memories',
                 isLoading: false
             });
         }
-    },
-
-    createMemory: async (name: string) => {
+    }, createMemory: async (name: string) => {
         try {
             set({ isLoading: true, error: null });
-            const newMemory = await apiCall('/api/memories', {
+            const newMemory = await apiCall('http://localhost:3002/memories', {
                 method: 'POST',
                 body: JSON.stringify({ name }),
             });
@@ -96,7 +104,7 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
             }
 
             set({ isLoading: true, error: null });
-            await apiCall(`/api/memories/${id}`, {
+            await apiCall(`http://localhost:3002/memories/${id}`, {
                 method: 'DELETE',
             });
 
