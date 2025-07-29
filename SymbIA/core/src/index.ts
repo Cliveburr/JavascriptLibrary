@@ -25,6 +25,7 @@ export * from './memory/embedding.service.js';
 export * from './memory/qdrant.provider.js';
 export * from './planner/planner.service.js';
 export * from './actions/action.service.js';
+export * from './actions/action.registry.js';
 export * from './thought/thought-cycle.service.js';
 export * from './auth/auth.service.js';
 export * from './database/mongodb.service.js';

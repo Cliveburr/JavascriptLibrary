@@ -34,13 +34,13 @@ Adicionar interface comum para handlers de ação.
 ### Prompt 14 – ActionRegistry dinâmico
 ```text
 # CONTEXTO
-Carregar ações automaticamente.
+Carregar ações dinamicamente.
+
+** Leia o arquivo "docs/THOUGHT-CYCLE.md" para visualizar minuciosamente como o ThoughtCyle deve funcionar **
 
 ## TAREFA
 1. /core/src/actions/action.registry.ts:
-   - Importar `*.action.ts` dinamicamente (vite glob / fs).
-   - Filtrar enabled.
-   - Exportar `getEnabledActionNames()`.
+   - Usar todas actions registrada
 
 2. Adicionar teste Vitest: deve listar `"Finalize"` após implementar stub.
 
