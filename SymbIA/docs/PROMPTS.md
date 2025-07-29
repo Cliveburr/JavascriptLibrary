@@ -53,6 +53,8 @@ Carregar ações dinamicamente.
 # CONTEXTO
 Decisão de qual ação executar.
 
+** Leia o arquivo "docs/THOUGHT-CYCLE.md" para visualizar minuciosamente como o ThoughtCyle deve funcionar **
+
 ## TAREFA
 1. /core/src/planner/decision.service.ts:
    - Método decide(userId, memoryId, chatId, message).
