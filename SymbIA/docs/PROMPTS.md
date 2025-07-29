@@ -1,352 +1,257 @@
-# Copilot Chat – Sequência de Prompts para implementar o **SymbIA** do zero
 
-> **Como usar**  
-> 1. Abra o Copilot Chat na raiz do monorepo.  
-> 2. Copie **um** prompt por vez, execute, revise o diff e _commit_.  
-> 3. Rode `pnpm test` / linters antes de avançar.  
-> 4. Só então continue para o próximo prompt.
+# Copilot Prompts – Road to Version 1 (SymbIA v2)
 
----
-
-## 🔰 SETUP INICIAL
-
-### Prompt 1 – Criar Monorepo & Tooling Básico
-```text
-# CONTEXTO
-Estamos começando o projeto SymbIA do zero.
-
-## TAREFA
-1. Inicialize monorepo PNPM com workspaces `/interfaces`, `/core`, `/api`, `/web`.
-2. Configure tsconfig base + tsconfig por projeto (extends).
-3. Instale & configure:
-   - ESLint + Prettier (Airbnb + TypeScript).
-   - Vitest + ts‑node.
-   - Husky + pre‑commit lint+test.
-4. Adicione script `"test"` que roda Vitest em todos pacotes.
-
-## ACEITE
-- `pnpm install` sem erros.
-- Rodar `pnpm test` executa Vitest (0 testes).
-- Lint passa (`pnpm lint`).
-```
+> **Contexto inicial:**  
+> • Prompts 1‑12 já aplicados (monorepo estruturado, login/Mongo, chat texto básico).  
+> • LLM sets configurados (`ollama-local.json`, `ollama-sets.json`).  
+> • Novo Thought Cycle de 2 estágios (Decisão → Execução) definido.  
+>  
+> **Objetivo:** levar o projeto até a **Versão 1** com todas ações internas, DecisionService, renderers e testes completos.
 
 ---
 
-## 🗂️ WORKSPACE **/interfaces**
+## 🔰 BÁSICO DE ACTIONS & DECISION
 
-### Prompt 2 – Definir Tipos de Domínio e DTOs
+### Prompt 13 – Interface `ActionHandler` + Context
 ```text
 # CONTEXTO
-Criar contrato compartilhado.
+Adicionar interface comum para handlers de ação.
+
+** Leia o arquivo "docs/THOUGHT-CYCLE.md" para visualizar minuciosamente como o ThoughtCyle deve funcionar **
 
 ## TAREFA
-1. Em `/interfaces/src` crie arquivos:
-   - `domain.ts`: User, Memory, Chat, Message (segundo PLANNING).
-   - `llm.ts`: LlmSet, ModelSpec.
-   - `api.ts`: DTOs LoginRequest/Response, MemoryDTO, ChatDTO, MessageDTO.
-2. Reexporte tudo em `index.ts`.
-3. Adicione testes de type‑checking com Vitest.
+1. Em /interfaces/src, crie:
+   - actions.ts com:
+     export interface ActionContext { userId, memoryId, chatId, sendMessage(), llm, mongo, vector }
+     export interface ActionHandler { readonly name: string; readonly enabled: boolean; execute(ctx: ActionContext): Promise<void>; }
+
+2. Exporte via index.ts.
 
 ## ACEITE
-- `pnpm --filter interfaces test` verde.
-- Nenhum erro tsc ao rodar `pnpm build` (emitDeclarationOnly).
+- `pnpm --filter interfaces build` gera *.d.ts sem erros.
 ```
 
----
-
-## ⚙️ WORKSPACE **/core**
-
-### Prompt 3 – Skeleton do Core + Injeção de Dependência
+### Prompt 14 – ActionRegistry dinâmico
 ```text
 # CONTEXTO
-Vamos iniciar a lógica de domínio.
+Carregar ações automaticamente.
 
 ## TAREFA
-1. Crie `/core/src/index.ts` exportando serviços vazios.
-2. Instale `tsyringe` e configure container global para DI.
-3. Crie pastas `llm/`, `memory/`, `planner/`, `actions/`.
-4. Adicione teste simples que resolve container sem erros.
+1. /core/src/actions/action.registry.ts:
+   - Importar `*.action.ts` dinamicamente (vite glob / fs).
+   - Filtrar enabled.
+   - Exportar `getEnabledActionNames()`.
+
+2. Adicionar teste Vitest: deve listar `"Finalize"` após implementar stub.
 
 ## ACEITE
-- `pnpm --filter core test` verde.
+- Teste passa; lint ok.
 ```
 
-### Prompt 4 – LLM Gateway & Model Selector
+### Prompt 15 – DecisionService
 ```text
 # CONTEXTO
-Implementar acesso unificado aos provedores de LLM.
+Decisão de qual ação executar.
 
 ## TAREFA
-1. Em `/core/src/llm`:
-   - `selector.ts` conforme PLANNING (fast-chat, reasoning, embedding).
-   - `providers/openai.ts`, `providers/ollama.ts` com método `invoke(messages, options)`.
-   - `LlmGateway.ts` decide provider/model baseado em `LlmSet`.
-2. Mock providers nos testes.
+1. /core/src/planner/decision.service.ts:
+   - Método decide(userId, memoryId, chatId, message).
+   - Monta prompt com histórico (chat-history:true) + getEnabledActionNames().
+   - Usa LLM set 'reasoning-heavy' (fallback incluído).
+   - Retorna string ação.
 
-## TESTES
-- Vitest: selector retorna modelo correto por set.
-- Gateway chama provider certo (spy).
+2. Teste: mock LLM → resposta "Finalize" → expect same.
 
 ## ACEITE
-- Cobertura ≥ 90 % em `llm/`.
+- Coverage DecisionService ≥ 90 %.
 ```
 
-### Prompt 5 – Serviço de Memória Vetorial
+### Prompt 16 – FinalizeAction (MVP)
 ```text
 # CONTEXTO
-Precisamos persistir embeddings por memoryId.
+Primeira ação executável.
 
 ## TAREFA
-1. Adicionar `@qdrant/js-client-rest` & `@dqbd/tiktoken`.
-2. `memory/qdrant.provider.ts`:
-   - `upsert(memoryId, id, vector, payload)`
-   - `search(memoryId, vector, topK, filter?)`
-3. `memory/embedding.service.ts` usa LlmGateway(`embedding`).
+1. /core/src/actions/finalize.action.ts:
+   - Implements ActionHandler.
+   - execute(): chama LLM set 'chat' stream on com resposta final.
 
-## TESTES
-- Mock Qdrant e verifique chamada correta.
+2. Registrar enabled=true.
 
 ## ACEITE
-- Nenhum TODO pendente; testes verdes.
-```
-
-### Prompt 6 – Ciclo de Pensamento MVP (Observe → Respond)
-```text
-# CONTEXTO
-Queremos uma primeira resposta sem planner.
-
-## TAREFA
-1. `ThoughtCycleService`:
-   - `handle(userId, memoryId, message)`.
-   - Recupera últimas 10 mensagens em SQL (mock) e envia ao LLM (`fast-chat`).
-   - Retorna texto da resposta.
-2. Sem ações nem memórias ainda.
-
-## TESTES
-- Stub LLM; verifica concatenação de contexto.
-
-## ACEITE
-- Serviço retorna string ≠ '' em teste.
+- Envio simples de mensagem final em chat flow manual test.
 ```
 
 ---
 
-## 🛠️ WORKSPACE **/api**
+## ⚙️ CICLO COMPLETO NO BACK‑END
 
-### Prompt 7 – Bootstrap Express & Dependency Injection
+### Prompt 17 – Orquestração decisão → execução
 ```text
 # CONTEXTO
-Subir API com controllers pattern.
+Conectar tudo no controller.
 
 ## TAREFA
-1. Setup Express + `zod-express-middleware`.
-2. Configure container DI para usar serviços do Core.
-3. Endpoints:
-   - POST `/auth/login`
-   - GET `/memories`
-   - POST `/memories`
-4. Use DTOs de `/interfaces`.
-
-## TESTES
-- Supertest cobrindo 100 % dos endpoints.
+1. /api/controllers/message.controller.ts:
+   - Após receber msg do usuário:
+     a) sendMessage placeholder ("Thinking…", modal text-for-replace).
+     b) chama DecisionService.
+     c) Recupera handler via ActionRegistry e executa.
+2. Remover flow antigo.
 
 ## ACEITE
-- `pnpm --filter api test` verde; server inicia em `pnpm dev`.
+- Post message retorna status 200 e placeholder id.
 ```
 
-### Prompt 8 – Regras de Memory (≥1 ativa)
+### Prompt 18 – Renderer `TextForReplace`
 ```text
 # CONTEXTO
-Aplicar regra de negócio.
+Frontend precisa substituir placeholder.
 
 ## TAREFA
-1. `MemoryService` (core): CRUD com validações.
-2. Controller deve impedir deletar última memória do usuário.
-3. Adicione testes (unit e integração).
+1. /web/components/chat/TextForReplace.tsx.
+2. Na store de mensagens, se receber msg com mesmo _id e modal=text-for-replace, substitui conteúdo.
+
+3. Ajustar ChatWindow para usar.
+
+## TESTE
+- Playwright: Thinking… troca pela resposta do Finalize.
 
 ## ACEITE
-- Tentativa de delete única memory devolve 400.
-```
-
-### Prompt 9 – Endpoint de Chat + ThoughtCycle
-```text
-# CONTEXTO
-Integrar ciclo MVP.
-
-## TAREFA
-1. POST `/chats/:memoryId/messages` (body: content).
-2. Chama `ThoughtCycleService.handle` e persiste resposta em SQL.
-3. Retorna `MessageDTO` de resposta.
-
-## TESTES
-- Supertest simula conversa curta.
-
-## ACEITE
-- Latência <800 ms com LLM mock.
+- UI sem flicker.
 ```
 
 ---
 
-## 💻 WORKSPACE **/web**
+## 🧠 MEMÓRIA – REPOSITÓRIOS E AÇÕES
 
-### Prompt 10 – Configuração Vite + SCSS + Zustand
+### Prompt 19 – MemoryRepository & Vector sync
 ```text
 # CONTEXTO
-Criar front‑end base.
+Persistir e relacionar memórias.
 
 ## TAREFA
-1. Vite + React + TS.
-2. Arquitetura pages/layout/components/hooks.
-3. Tema SCSS futurista (variáveis).
+1. /core/src/memory/memory.repository.ts:
+   - CRUD Mongo.
+   - syncVectorIds(memoryId, qdrantIds[]).
+
+2. Testes mongo-memory-server.
 
 ## ACEITE
-- `pnpm --filter web dev` abre hello world estilizado.
+- Unit tests verde.
 ```
 
-### Prompt 11 – Auth & Memory UI
+### Prompt 20 – MemorySearchAction
 ```text
 # CONTEXTO
-Fluxo mínimo de navegação.
+Implementar fluxo detalhado.
 
 ## TAREFA
-1. Página Login (email/pass) → token store.
-2. Página Dashboard:
-   - Sidebar de Memories (fetch GET /memories).
-   - Botão add/delete; regras visuais (disable delete se 1).
-3. Zustand para auth + memory state.
+1. /core/actions/memory-search.action.ts:
+   - Seguir mini‑workflow completo do doc (Buscando… -> reasoning -> embeddings -> Qdrant).
+   - Enviar `modal:"memory"` msgs para cada resultado.
 
-## TESTES
-- Playwright: login, cria memória, deleta (quando >1).
+2. Teste integra mocks LLM + Qdrant.
 
 ## ACEITE
-- UX sem erros; responsivo a 320 px.
+- Busca retorna ≥1 memory card em cenário de teste.
 ```
 
-### Prompt 12 – Chat Dinâmico (texto)
+### Prompt 21 – MemorySaveAction
 ```text
 # CONTEXTO
-Consumir endpoint de chat.
+Salvar novas informações.
 
 ## TAREFA
-1. Componente ChatWindow com scroll infinito mensagens.
-2. Campo input + submit → POST message.
-3. Rende­ril­za respostas textuais.
-
-## TESTES
-- Playwright send/receive 3 mensagens.
+1. memory-save.action.ts implementación full pipeline.
+2. Atualizar Mongo & Qdrant.
 
 ## ACEITE
-- Sem recarregar página; scroll auto‑to‑bottom.
+- Test integration: info salva e memória visível em busca posterior.
 ```
 
----
-
-## 🔬 AMPLIANDO O CORE
-
-### Prompt 13 – Ações `saveMemory` & `searchMemory`
+### Prompt 22 – MemoryUpdate & MemoryDelete
 ```text
 # CONTEXTO
-Adicionar comandos internos.
+Completar CRUD de memórias.
 
 ## TAREFA
-1. Implementar Actions no core:
-   - `SaveMemoryAction` grava em Qdrant.
-   - `SearchMemoryAction` consulta vetores.
-2. Implementar `PlannerService` versão 1 com heurística simples via LLM `reasoning`.
-
-## TESTES
-- Unit: chamada de ação com spy para Qdrant.
-- Integration: pergunta “Qual meu e‑mail?” após salvar deve responder certo.
+1. memory-update.action.ts e memory-delete.action.ts.
+2. Pipeline conforme doc.
 
 ## ACEITE
-- Cobertura core ≥ 85 %.
-```
-
-### Prompt 14 – Short‑term Buffer + Resumo
-```text
-# CONTEXTO
-Limitar tokens.
-
-## TAREFA
-1. `ShortTermMemoryManager` (buffer 20 msgs).
-2. Quando exceder, cria TL;DR via LLM `fast-chat` e salva com `SaveMemoryAction`.
-
-## TESTES
-- Buffer size nunca >20.
-- TL;DR salvo no vetor.
-
-## ACEITE
-- p99 latency +5 % máx.
+- Teste unitário cobre update/delete.
 ```
 
 ---
 
-## 📊 RICH MESSAGES
+## 💻 RENDERERS AVANÇADOS
 
-### Prompt 15 – Suporte a `contentType`
+### Prompt 23 – MemoryCard renderer
 ```text
 # CONTEXTO
-Renderizar forms e charts.
+Exibir memórias retornadas.
 
 ## TAREFA
-1. Extender MessageDTO (`contentType`).
-2. Web: renderer switch (Text, FormSurvey, Chart).
-3. Exemplo: se mensagem JSON com type `form` crie form dinâmico.
-
-## TESTES
-- Unit renderer.
-- Playwright: form é exibido e envia resposta.
+1. Componente MemoryCard (props: memory payload).
+2. Chat render switch para modal "memory".
 
 ## ACEITE
-- Passa testes; nenhuma regressão nos chats de texto.
+- Card mostra título + snippet; click expande detalhe.
 ```
 
 ---
 
-## 🔎 OBSERVABILIDADE & SEC
+## 🔍 OBSERVABILIDADE
 
-### Prompt 16 – Logging OpenTelemetry
+### Prompt 24 – Tracing por ação
 ```text
 # CONTEXTO
-Rastrear spans.
+Medições de latência.
 
 ## TAREFA
-1. Configurar OTEL SDK no core e API.
-2. Exporter console + OTLP grpc (env).
+1. Adicionar span OpenTelemetry em DecisionService e cada ActionHandler.
+2. Exporter console.
 
 ## ACEITE
-- Trace ThoughtCycle > LLM > Qdrant visível.
-```
-
-### Prompt 17 – Filtro de Dados Sensíveis
-```text
-# CONTEXTO
-Redaction antes de enviar ao LLM.
-
-## TAREFA
-1. Middleware em core que mascara CPF, cartão, e‑mail corporativo.
-2. Unit tests de regex.
-
-## ACEITE
-- Dados sensíveis não aparecem no mock de provider.
+- Logs mostram decision.duration e action.duration.
 ```
 
 ---
 
-## 🧪 E2E & PIPELINE
+## 🧪 TESTES FINAIS & CI
 
-### Prompt 18 – Pipeline CI + Playwright E2E
+### Prompt 25 – Suite de testes completos
 ```text
 # CONTEXTO
-Garantir qualidade contínua.
+Cobertura alvo 90 %.
 
 ## TAREFA
-1. GitHub Actions:
-   - Instalar PNPM, restore cache.
-   - `pnpm test` em todos pacotes.
-   - Playwright headless (web + api com mocks).
-2. Badge “build” no README.
+1. Unit tests faltantes nas novas actions e renderers.
+2. Integration MemorySearch e Save.
+3. Playwright flow: criar mem → salvar dado → buscar → deletar.
 
 ## ACEITE
-- Pipeline verde em branch main.
+- `pnpm test` cobertura ≥ 90 %.
 ```
+
+### Prompt 26 – Pipeline GitHub Actions
+```text
+# CONTEXTO
+CI versão 1.
+
+## TAREFA
+1. workflow main:
+   - setup PNPM cache
+   - lint
+   - vitest
+   - playwright headless
+   - upload coverage badge.
+
+## ACEITE
+- Build verde; badge no README.
+```
+
+---
+
+> **Após o Prompt 26 concluído, versão 1 estará funcional** com ciclo Decisão→Execução, todas ações de memória, renderização dinâmica e observabilidade básica.
