@@ -26,6 +26,7 @@ export interface Chat {
 
 export type MessageRole = 'user' | 'assistant' | 'system';
 export type ContentType = 'text' | 'form' | 'chart' | 'file';
+export type MessageModal = 'text' | 'text-for-replace' | 'memory';
 
 export interface Message {
   id: string;
@@ -35,6 +36,9 @@ export interface Message {
   contentType: ContentType;
   toolCall?: object;
   createdAt: Date;
+  // THOUGHT-CYCLE specific fields
+  'chat-history': boolean;
+  modal: MessageModal;
 }
 
 export interface VectorEntry {

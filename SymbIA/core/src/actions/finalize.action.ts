@@ -6,6 +6,18 @@ export class FinalizeAction implements ActionHandler {
 
     async execute(ctx: ActionContext): Promise<void> {
         try {
+            // MOCK: Por enquanto usar resposta mock para demonstrar o fluxo
+            // TODO: Descomentar quando Ollama estiver disponível com modelos
+            /*
+            // Get the LLM set to use for this request
+            const llmSetId = ctx.llmSetId || 'ollama-fast-chat'; // fallback to default
+            const llmSetService = ctx.llm.llmSetService; // Access LlmSetService through gateway
+            const llmSet = await llmSetService.getLlmSetById(llmSetId);
+            
+            if (!llmSet) {
+                throw new Error(`LLM set not found: ${llmSetId}`);
+            }
+
             // Build messages for LLM context
             const messages = [
                 {
@@ -18,13 +30,15 @@ export class FinalizeAction implements ActionHandler {
                 }
             ];
 
-            // Call LLM with 'fast-chat' set (equivalent to 'chat' mode in THOUGHT-CYCLE.md)
-            // Note: For now using stream: false since the provider doesn't support streaming yet
-            // According to THOUGHT-CYCLE.md, this should be stream: true
-            const response = await ctx.llm.invoke('fast-chat', messages, {
+            const response = await ctx.llm.invoke(llmSet, 'chat', messages, {
                 temperature: 0.7,
                 maxTokens: 200
             });
+            */
+
+            const response = {
+                content: "Olá! Sistema funcionando perfeitamente. O ciclo de pensamento foi executado com sucesso!"
+            };
 
             // Send the final message to replace the "Thinking..." placeholder
             ctx.sendMessage({

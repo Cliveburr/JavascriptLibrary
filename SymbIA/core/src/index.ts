@@ -3,7 +3,6 @@ import { container } from 'tsyringe';
 import { MemoryService } from './memory/memory.service.js';
 import { EmbeddingService } from './memory/embedding.service.js';
 import { QdrantProvider } from './memory/qdrant.provider.js';
-import { LlmSelectorService } from './llm/selector.js';
 import { LlmGateway } from './llm/LlmGateway.js';
 import { LlmSetService } from './llm/llm-set.service.js';
 import { OpenAIProvider } from './llm/providers/openai.js';
@@ -16,7 +15,6 @@ import { AuthService } from './auth/auth.service.js';
 import { MongoDBService } from './database/mongodb.service.js';
 
 // Export services
-export * from './llm/selector.js';
 export * from './llm/LlmGateway.js';
 export * from './llm/llm-set.service.js';
 export * from './llm/providers/openai.js';
@@ -42,7 +40,6 @@ export function configureContainer() {
     container.registerSingleton(MemoryService);
     container.registerSingleton(EmbeddingService);
     container.registerSingleton(QdrantProvider);
-    container.registerSingleton(LlmSelectorService);
     container.registerSingleton(LlmSetService);
     container.registerSingleton(OpenAIProvider);
     container.registerSingleton(OllamaProvider);

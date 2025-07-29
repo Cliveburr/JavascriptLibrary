@@ -2,13 +2,33 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { container } from 'tsyringe';
 import { ThoughtCycleService } from '../src/thought/thought-cycle.service.js';
 import { LlmGateway } from '../src/llm/LlmGateway.js';
-import type { LlmResponse } from '@symbia/interfaces';
+import { LlmSetService } from '../src/llm/llm-set.service.js';
+import type { LlmResponse, LlmSetConfig } from '@symbia/interfaces';
 
 describe('ThoughtCycleService', () => {
     let thoughtCycleService: ThoughtCycleService;
     let mockLlmGateway: LlmGateway;
+    let mockLlmSetService: LlmSetService;
+    let mockLlmSetConfig: LlmSetConfig;
 
     beforeEach(() => {
+        // Create mock LLM set config
+        mockLlmSetConfig = {
+            id: 'test-set',
+            display: 'Test Set',
+            icon: { type: 'emoji', emoji: '🤖' },
+            models: {
+                chat: { provider: 'ollama', model: 'llama3:8b' }
+            }
+        };
+
+        // Create a mock LlmSetService
+        mockLlmSetService = {
+            getLlmSetById: vi.fn().mockResolvedValue(mockLlmSetConfig),
+            loadLlmSets: vi.fn().mockResolvedValue([mockLlmSetConfig]),
+            getModelSpecWithFallback: vi.fn().mockReturnValue({ provider: 'ollama', model: 'llama3:8b' })
+        } as any;
+
         // Create a mock LlmGateway
         mockLlmGateway = {
             invoke: vi.fn(),
@@ -16,8 +36,9 @@ describe('ThoughtCycleService', () => {
             getModelSpec: vi.fn()
         } as any;
 
-        // Register the mock in the container
+        // Register the mocks in the container
         container.registerInstance(LlmGateway, mockLlmGateway);
+        container.registerInstance(LlmSetService, mockLlmSetService);
 
         // Get the service instance
         thoughtCycleService = container.resolve(ThoughtCycleService);

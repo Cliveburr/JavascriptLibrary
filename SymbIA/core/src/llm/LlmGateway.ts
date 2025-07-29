@@ -1,25 +1,30 @@
 import { injectable, inject } from 'tsyringe';
-import type { LlmSet, LlmRequest, LlmResponse } from '@symbia/interfaces';
-import { LlmSelectorService } from './selector';
+import type { LlmSetConfig, LlmRequest, LlmResponse, ModelSpec } from '@symbia/interfaces';
+import { LlmSetService } from './llm-set.service';
 import { OpenAIProvider } from './providers/openai';
 import { OllamaProvider } from './providers/ollama';
 
 @injectable()
 export class LlmGateway {
     constructor(
-        @inject(LlmSelectorService) private selector: LlmSelectorService,
+        @inject(LlmSetService) private llmSetService: LlmSetService,
         @inject(OpenAIProvider) private openaiProvider: OpenAIProvider,
         @inject(OllamaProvider) private ollamaProvider: OllamaProvider
     ) { }
 
     async invoke(
-        set: LlmSet,
+        llmSetConfig: LlmSetConfig,
+        purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding',
         messages: LlmRequest['messages'],
         options?: Partial<LlmRequest>
     ): Promise<LlmResponse> {
-        const modelSpec = this.selector.pickModel(set);
+        const modelSpec = this.llmSetService.getModelSpecWithFallback(llmSetConfig, purpose);
 
-        // Merge model from selector with options
+        if (!modelSpec) {
+            throw new Error(`No model found for purpose '${purpose}' in LLM set '${llmSetConfig.id}'`);
+        }
+
+        // Merge model from llmSetConfig with options
         const requestOptions = {
             ...options,
             model: modelSpec.model,
@@ -37,8 +42,12 @@ export class LlmGateway {
         }
     }
 
-    getProvider(set: LlmSet) {
-        const modelSpec = this.selector.pickModel(set);
+    getProvider(llmSetConfig: LlmSetConfig, purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding') {
+        const modelSpec = this.llmSetService.getModelSpecWithFallback(llmSetConfig, purpose);
+
+        if (!modelSpec) {
+            throw new Error(`No model found for purpose '${purpose}' in LLM set '${llmSetConfig.id}'`);
+        }
 
         switch (modelSpec.provider) {
             case 'openai':
@@ -52,7 +61,7 @@ export class LlmGateway {
         }
     }
 
-    getModelSpec(set: LlmSet) {
-        return this.selector.pickModel(set);
+    getModelSpec(llmSetConfig: LlmSetConfig, purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding'): ModelSpec | null {
+        return this.llmSetService.getModelSpecWithFallback(llmSetConfig, purpose);
     }
 }

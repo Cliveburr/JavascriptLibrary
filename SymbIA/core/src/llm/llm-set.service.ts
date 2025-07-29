@@ -2,7 +2,7 @@ import { readdir, readFile } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { injectable } from 'tsyringe';
-import type { LlmSetConfig } from '@symbia/interfaces';
+import type { LlmSetConfig, ModelSpec } from '@symbia/interfaces';
 
 // Get the directory path for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -63,14 +63,27 @@ export class LlmSetService {
             }
 
             // Sort sets by display name
-            sets.sort((a, b) => a.index == 999 ?
-                999 + a.display.localeCompare(b.display)
-                : a.index!
-            );
             console.log(`Loaded ${sets.length} LLM sets!`);
 
-            this.cachedSets = sets;
-            return sets;
+            this.cachedSets = sets.sort((a, b) => {
+                const aIndex = typeof a.index === 'number' ? a.index : 999;
+                const bIndex = typeof b.index === 'number' ? b.index : 999;
+                const aIsNumber = aIndex !== 999;
+                const bIsNumber = bIndex !== 999;
+
+                if (aIsNumber && bIsNumber) {
+                    return aIndex - bIndex;
+                }
+                if (aIsNumber && !bIsNumber) {
+                    return -1;
+                }
+                if (!aIsNumber && bIsNumber) {
+                    return 1;
+                }
+                // Ambos não são número (index == 999)
+                return a.display.localeCompare(b.display);
+            });
+            return this.cachedSets;
         } catch (error) {
             console.error('Error loading LLM sets:', error);
             return [];
@@ -108,5 +121,59 @@ export class LlmSetService {
         });
 
         return Array.from(providers).sort();
+    }
+
+    /**
+     * Get model specification for a specific purpose from a LLM set
+     */
+    getModelSpec(llmSetConfig: LlmSetConfig, purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding'): ModelSpec | null {
+        const model = llmSetConfig.models[purpose];
+        if (!model) {
+            return null;
+        }
+
+        return {
+            provider: model.provider,
+            model: model.model
+        };
+    }
+
+    /**
+     * Get model specification with fallback logic
+     */
+    getModelSpecWithFallback(llmSetConfig: LlmSetConfig, purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding'): ModelSpec | null {
+        // Try the specific purpose first
+        let model = llmSetConfig.models[purpose];
+
+        // Fallback logic based on purpose
+        if (!model) {
+            switch (purpose) {
+                case 'reasoningHeavy':
+                    model = llmSetConfig.models.reasoning || llmSetConfig.models.chat;
+                    break;
+                case 'reasoning':
+                    model = llmSetConfig.models.chat || llmSetConfig.models.reasoningHeavy;
+                    break;
+                case 'chat':
+                    model = llmSetConfig.models.reasoning || llmSetConfig.models.reasoningHeavy;
+                    break;
+                case 'codegen':
+                    model = llmSetConfig.models.reasoning || llmSetConfig.models.chat;
+                    break;
+                case 'embedding':
+                    // Embedding usually doesn't have a fallback, but could fallback to a small model
+                    model = llmSetConfig.models.chat;
+                    break;
+            }
+        }
+
+        if (!model) {
+            return null;
+        }
+
+        return {
+            provider: model.provider,
+            model: model.model
+        };
     }
 }

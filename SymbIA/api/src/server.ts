@@ -4,6 +4,7 @@ import { configureContainer } from '@symbia/core';
 import { authRoutes } from './routes/auth.routes.js';
 import { memoriesRoutes } from './routes/memories.routes.js';
 import { chatRoutes } from './routes/chat.routes.js';
+import { messageRoutes } from './routes/message.routes.js';
 import { llmSetsRoutes } from './routes/llm-sets.routes.js';
 
 const app: Express = express();
@@ -37,6 +38,7 @@ app.get('/health', (_req, res) => {
 app.use('/auth', authRoutes);
 app.use('/memories', memoriesRoutes);
 app.use('/chats', chatRoutes);
+app.use('/messages', messageRoutes);
 app.use('/llm-sets', llmSetsRoutes);
 
 app.listen(PORT, () => {

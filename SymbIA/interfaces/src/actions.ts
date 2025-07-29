@@ -8,6 +8,7 @@ export interface ActionContext {
     llm: any; // LLM gateway instance
     mongo: any; // MongoDB connection
     vector: any; // Qdrant vector database connection
+    llmSetId?: string; // Optional LLM set ID for this request
 }
 
 export interface ActionHandler {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { container, configureContainer, MemoryService, LlmSelectorService, PlannerService, ActionService } from '../src/index.js';
+import { container, configureContainer, MemoryService, LlmSetService, PlannerService, ActionService } from '../src/index.js';
 
 describe('Dependency Injection Container', () => {
     beforeEach(() => {
@@ -19,10 +19,11 @@ describe('Dependency Injection Container', () => {
         expect(memoryService.getMemoriesByUser).toBeDefined();
     });
 
-    it('should resolve LlmSelectorService from container', () => {
-        const selectorService = container.resolve(LlmSelectorService);
-        expect(selectorService).toBeInstanceOf(LlmSelectorService);
-        expect(selectorService.pickModel).toBeDefined();
+    it('should resolve LlmSetService from container', () => {
+        const llmSetService = container.resolve(LlmSetService);
+        expect(llmSetService).toBeInstanceOf(LlmSetService);
+        expect(llmSetService.loadLlmSets).toBeDefined();
+        expect(llmSetService.getLlmSetById).toBeDefined();
     });
 
     it('should resolve PlannerService from container', () => {

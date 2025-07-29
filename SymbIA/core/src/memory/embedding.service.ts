@@ -1,18 +1,30 @@
 import { injectable, inject } from 'tsyringe';
 import { encoding_for_model } from '@dqbd/tiktoken';
 import { LlmGateway } from '../llm/LlmGateway';
+import { LlmSetService } from '../llm/llm-set.service';
+import type { LlmSetConfig } from '@symbia/interfaces';
 
 @injectable()
 export class EmbeddingService {
     constructor(
-        @inject(LlmGateway) private llmGateway: LlmGateway
+        @inject(LlmGateway) private llmGateway: LlmGateway,
+        @inject(LlmSetService) private llmSetService: LlmSetService
     ) { }
 
-    async generateEmbedding(text: string): Promise<number[]> {
-        const modelSpec = this.llmGateway.getModelSpec('embedding');
+    async generateEmbedding(text: string, llmSetId?: string): Promise<number[]> {
+        // Get LLM set configuration
+        const llmSetConfig = await this.getLlmSetForEmbedding(llmSetId);
+        if (!llmSetConfig) {
+            throw new Error('No suitable LLM set found for embedding');
+        }
+
+        const modelSpec = this.llmGateway.getModelSpec(llmSetConfig, 'embedding');
+        if (!modelSpec) {
+            throw new Error(`No embedding model found in LLM set '${llmSetConfig.id}'`);
+        }
 
         try {
-            const provider = this.llmGateway.getProvider('embedding');
+            const provider = this.llmGateway.getProvider(llmSetConfig, 'embedding');
 
             // Check if provider has embedding method
             if ('generateEmbedding' in provider && typeof provider.generateEmbedding === 'function') {
@@ -78,14 +90,31 @@ export class EmbeddingService {
     /**
      * Generate embeddings for multiple text chunks
      */
-    async generateEmbeddings(texts: string[]): Promise<number[][]> {
+    async generateEmbeddings(texts: string[], llmSetId?: string): Promise<number[][]> {
         const embeddings: number[][] = [];
 
         for (const text of texts) {
-            const embedding = await this.generateEmbedding(text);
+            const embedding = await this.generateEmbedding(text, llmSetId);
             embeddings.push(embedding);
         }
 
         return embeddings;
+    }
+
+    /**
+     * Get LLM set configuration for embedding with fallback logic
+     */
+    private async getLlmSetForEmbedding(llmSetId?: string): Promise<LlmSetConfig | null> {
+        // If a specific LLM set ID is provided, try to get it first
+        if (llmSetId) {
+            const requestedSet = await this.llmSetService.getLlmSetById(llmSetId);
+            if (requestedSet && requestedSet.models.embedding) {
+                return requestedSet;
+            }
+        }
+
+        // Fallback logic - try to find a suitable LLM set with embedding support
+        const allSets = await this.llmSetService.loadLlmSets();
+        return allSets.find(set => set.models.embedding) || null;
     }
 }

@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import type { Message } from '@symbia/interfaces';
-import { LlmGateway } from '../llm/LlmGateway.js';
+import type { Message, LlmSetConfig } from '@symbia/interfaces';
+// import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 import { getEnabledActionNames } from '../actions/action.registry.js';
 import { MongoDBService } from '../database/mongodb.service.js';
@@ -15,7 +15,6 @@ export class DecisionServiceError extends Error {
 @injectable()
 export class DecisionService {
     constructor(
-        @inject(LlmGateway) private llmGateway: LlmGateway,
         @inject(LlmSetService) private llmSetService: LlmSetService,
         @inject(MongoDBService) private mongodbService: MongoDBService
     ) {
@@ -29,9 +28,10 @@ export class DecisionService {
      * @param memoryId The memory ID
      * @param chatId The chat ID
      * @param message The user's message
+     * @param llmSetId The ID of the LLM set to use for decision making
      * @returns The name of the action to execute
      */
-    async decide(userId: string, memoryId: string, chatId: string, message: string): Promise<string> {
+    async decide(userId: string, memoryId: string, chatId: string, message: string, llmSetId?: string): Promise<string> {
         if (!userId?.trim()) {
             throw new DecisionServiceError('User ID is required');
         }
@@ -49,6 +49,12 @@ export class DecisionService {
         }
 
         try {
+            // Get the LLM set to use
+            const llmSet = await this.getLlmSetWithFallback(llmSetId);
+            if (!llmSet) {
+                throw new DecisionServiceError('No suitable LLM set found for decision making');
+            }
+
             // Get chat history with chat-history flag
             const chatHistory = await this.getChatHistory(chatId);
 
@@ -62,21 +68,34 @@ export class DecisionService {
             // Build the decision prompt
             const prompt = this.buildDecisionPrompt(message, chatHistory, enabledActions);
 
-            // Get reasoning-heavy LLM set with fallback
-            const llmSet = await this.getLlmSetWithFallback();
+            // MOCK: Por enquanto retornar sempre "Finalize" para demonstrar o fluxo
+            // TODO: Descomentar quando Ollama estiver disponível
+            /*
+            // Get the model to use (reasoningHeavy or reasoning)
+            const modelToUse = llmSet.models.reasoningHeavy || llmSet.models.reasoning;
+            if (!modelToUse) {
+                throw new DecisionServiceError('No reasoning model found in LLM set');
+            }
 
-            // Call LLM to get decision
+            // Call LLM to get decision using the LLM set configuration
             const response = await this.llmGateway.invoke(
                 llmSet,
+                'reasoningHeavy', // Try reasoningHeavy first, will fallback to reasoning
                 [{ role: 'user', content: prompt }],
                 {
                     temperature: 0.1, // Low temperature for consistent decisions
-                    maxTokens: 50 // Short response expected
+                    maxTokens: 50, // Short response expected
                 }
             );
 
             // Extract action name from response
             const actionName = this.extractActionName(response.content, enabledActions);
+            */
+
+            console.log('MOCK: Decision prompt built:', prompt.substring(0, 100) + '...');
+            console.log('MOCK: Available actions:', enabledActions);
+            console.log('MOCK: Using LLM set:', llmSet.id);
+            const actionName = 'Finalize'; // Mock sempre retorna Finalize
 
             return actionName;
         } catch (error) {
@@ -91,6 +110,9 @@ export class DecisionService {
      * Get chat history messages marked with chat-history flag
      */
     private async getChatHistory(chatId: string): Promise<Message[]> {
+        // Mock: Por enquanto retorna histórico vazio para testar o fluxo
+        // TODO: Descomentar quando MongoDB estiver disponível
+        /*
         const db = await this.mongodbService.getDatabase();
         const collection = db.collection<Message>('messages');
 
@@ -104,6 +126,10 @@ export class DecisionService {
             .toArray();
 
         return messages.reverse(); // Return in chronological order
+        */
+
+        console.log('Using mock chat history for chatId:', chatId);
+        return []; // Mock: retorna histórico vazio
     }
 
     /**
@@ -139,16 +165,26 @@ Action:`;
     /**
      * Get reasoning-heavy LLM set with fallback to reasoning
      */
-    private async getLlmSetWithFallback(): Promise<any> {
-        // Try to get reasoning-heavy set first
-        let llmSet = await this.llmSetService.getLlmSetById('reasoning-heavy');
+    private async getLlmSetWithFallback(llmSetId?: string): Promise<LlmSetConfig | null> {
+        // If a specific LLM set ID is provided, try to get it first
+        if (llmSetId) {
+            const requestedSet = await this.llmSetService.getLlmSetById(llmSetId);
+            if (requestedSet && (requestedSet.models.reasoningHeavy || requestedSet.models.reasoning)) {
+                return requestedSet;
+            }
+        }
+
+        // Try to get mixtral-heavy set first (has reasoningHeavy)
+        let llmSet = await this.llmSetService.getLlmSetById('ollama-mixtral-heavy');
 
         if (!llmSet || !llmSet.models.reasoningHeavy) {
-            // Fallback to reasoning set
-            llmSet = await this.llmSetService.getLlmSetById('reasoning');
+            // Fallback to any available set with reasoning
+            llmSet = await this.llmSetService.getLlmSetById('ollama-fast-chat');
 
             if (!llmSet || !llmSet.models.reasoning) {
-                throw new DecisionServiceError('No suitable LLM set found (reasoning-heavy or reasoning)');
+                // Try to get any set that has reasoning capabilities
+                const allSets = await this.llmSetService.loadLlmSets();
+                llmSet = allSets.find(set => set.models.reasoningHeavy || set.models.reasoning) || null;
             }
         }
 

@@ -1,5 +1,3 @@
-// LLM types and configurations
-export type LlmSet = 'fast-chat' | 'reasoning' | 'embedding';
 
 export interface ModelSpec {
   provider: string;
