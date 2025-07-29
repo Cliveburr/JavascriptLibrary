@@ -7,7 +7,7 @@ import './DashboardPage.scss';
 export const DashboardPage: React.FC = () => {
     const { lastSelectedMemoryId, isAuthenticated, autoLoginDev } = useAuthStore();
     const { fetchMemories, setCurrentMemory } = useMemoryStore();
-    const { loadModels } = useLLMStore();
+    const { loadSets } = useLLMStore();
 
     // Auto login para desenvolvimento
     useEffect(() => {
@@ -22,13 +22,13 @@ export const DashboardPage: React.FC = () => {
     useEffect(() => {
         // Carregar dados iniciais apenas se autenticado
         if (isAuthenticated) {
-            console.log('Carregando memórias e modelos...');
+            console.log('Carregando memórias e conjuntos LLM...');
             fetchMemories();
-            loadModels();
+            loadSets();
         } else {
             console.log('Aguardando autenticação...');
         }
-    }, [isAuthenticated, fetchMemories, loadModels]);
+    }, [isAuthenticated, fetchMemories, loadSets]);
 
     // Restaurar última seleção quando os dados estiverem carregados
     useEffect(() => {

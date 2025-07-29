@@ -4,6 +4,7 @@ import { configureContainer } from '@symbia/core';
 import { authRoutes } from './routes/auth.routes.js';
 import { memoriesRoutes } from './routes/memories.routes.js';
 import { chatRoutes } from './routes/chat.routes.js';
+import { llmSetsRoutes } from './routes/llm-sets.routes.js';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3002;
@@ -36,6 +37,7 @@ app.get('/health', (_req, res) => {
 app.use('/auth', authRoutes);
 app.use('/memories', memoriesRoutes);
 app.use('/chats', chatRoutes);
+app.use('/llm-sets', llmSetsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

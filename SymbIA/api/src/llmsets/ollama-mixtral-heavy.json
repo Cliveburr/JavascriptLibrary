@@ -1,0 +1,37 @@
+{
+    "id": "ollama-mixtral-heavy",
+    "display": "Ollama Mixtral Heavy",
+    "index": 2,
+    "info": "Para raciocínio profundo, contexto longo (32 k) e planejamento multi-etapas; requer GPU ≥24 GB.",
+    "icon": {
+        "type": "emoji",
+        "emoji": "🧠",
+        "fill": "#8b5cf6"
+    },
+    "models": {
+        "reasoning": {
+            "provider": "ollama",
+            "model": "mixtral:8x7b-instruct",
+            "promptFormat": "text-messages"
+        },
+        "reasoningHeavy": {
+            "provider": "ollama",
+            "model": "llama3:70b-instruct",
+            "promptFormat": "text-messages"
+        },
+        "chat": {
+            "provider": "ollama",
+            "model": "llama3-groq-tool-use:latest",
+            "promptFormat": "full-json"
+        },
+        "codegen": {
+            "provider": "ollama",
+            "model": "mixtral:8x7b-instruct",
+            "promptFormat": "text-messages"
+        },
+        "embedding": {
+            "provider": "ollama",
+            "model": "nomic-embed-text"
+        }
+    }
+}

@@ -1,0 +1,36 @@
+{
+    "id": "ollama-deep-code",
+    "display": "Ollama Deep Code",
+    "info": "Planejado para geração de código e scripts complexos com alta consistência sintática.",
+    "icon": {
+        "type": "emoji",
+        "emoji": "🔧",
+        "fill": "#3b82f6"
+    },
+    "models": {
+        "reasoning": {
+            "provider": "ollama",
+            "model": "codellama:13b-instruct",
+            "promptFormat": "text-messages"
+        },
+        "reasoningHeavy": {
+            "provider": "ollama",
+            "model": "deepseek-coder:6.7b",
+            "promptFormat": "text-messages"
+        },
+        "chat": {
+            "provider": "ollama",
+            "model": "codellama:7b-instruct",
+            "promptFormat": "text-messages"
+        },
+        "codegen": {
+            "provider": "ollama",
+            "model": "deepseek-coder:6.7b",
+            "promptFormat": "text-messages"
+        },
+        "embedding": {
+            "provider": "ollama",
+            "model": "nomic-embed-text"
+        }
+    }
+}

@@ -147,7 +147,7 @@ export class AuthService {
                 userId: user.id,
                 email: user.email,
                 username: user.username
-            } as object,
+            },
             this.JWT_SECRET as string,
             { expiresIn: this.JWT_EXPIRES_IN as string }
         );
@@ -159,7 +159,7 @@ export class AuthService {
                 userId: user.id,
                 email: user.email,
                 username: user.username
-            } as object,
+            },
             this.JWT_REFRESH_SECRET as string,
             { expiresIn: this.JWT_REFRESH_EXPIRES_IN as string }
         );

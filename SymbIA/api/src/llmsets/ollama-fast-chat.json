@@ -1,0 +1,37 @@
+{
+    "id": "ollama-fast-chat",
+    "display": "Ollama Fast Chat",
+    "index": 1,
+    "info": "Conjunto leve (≤8 GB VRAM) voltado para respostas rápidas de chat e FAQs. Ideal para UI em tempo real.",
+    "icon": {
+        "type": "emoji",
+        "emoji": "⚡",
+        "fill": "#fbbf24"
+    },
+    "models": {
+        "reasoning": {
+            "provider": "ollama",
+            "model": "phi3-mini:3.8b",
+            "promptFormat": "text-messages"
+        },
+        "reasoningHeavy": {
+            "provider": "ollama",
+            "model": "llama3:8b",
+            "promptFormat": "text-messages"
+        },
+        "chat": {
+            "provider": "ollama",
+            "model": "mistral-openorca:7b",
+            "promptFormat": "text-messages"
+        },
+        "codegen": {
+            "provider": "ollama",
+            "model": "phi2:latest",
+            "promptFormat": "text-messages"
+        },
+        "embedding": {
+            "provider": "ollama",
+            "model": "nomic-embed-text"
+        }
+    }
+}

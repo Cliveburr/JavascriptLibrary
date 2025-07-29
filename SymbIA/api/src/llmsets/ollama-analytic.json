@@ -1,0 +1,36 @@
+{
+    "id": "ollama-analytic",
+    "display": "Ollama Analyst",
+    "info": "Voltado para análise de dados, geração de insights e respostas estruturadas (tabelas, gráficos).",
+    "icon": {
+        "type": "emoji",
+        "emoji": "📊",
+        "fill": "#10b981"
+    },
+    "models": {
+        "reasoning": {
+            "provider": "ollama",
+            "model": "llama3-groq-tool-use:latest",
+            "promptFormat": "full-json"
+        },
+        "reasoningHeavy": {
+            "provider": "ollama",
+            "model": "mixtral:8x7b-instruct",
+            "promptFormat": "text-messages"
+        },
+        "chat": {
+            "provider": "ollama",
+            "model": "phi3-mini:3.8b",
+            "promptFormat": "text-messages"
+        },
+        "codegen": {
+            "provider": "ollama",
+            "model": "deepseek-coder:6.7b",
+            "promptFormat": "text-messages"
+        },
+        "embedding": {
+            "provider": "ollama",
+            "model": "nomic-embed-text"
+        }
+    }
+}

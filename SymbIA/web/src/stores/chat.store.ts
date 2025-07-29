@@ -1,14 +1,11 @@
 import { create } from 'zustand';
 import type { MessageDTO, ChatDTO } from '@symbia/interfaces';
+import { useAuthStore } from './auth.store';
 
 // Helper para chamadas à API
 const getAuthToken = () => {
-    const authStorage = localStorage.getItem('auth-storage');
-    if (authStorage) {
-        const parsed = JSON.parse(authStorage);
-        return parsed.state?.token;
-    }
-    return null;
+    const authState = useAuthStore.getState();
+    return authState.token;
 };
 
 const apiCall = async (url: string, options: RequestInit = {}) => {

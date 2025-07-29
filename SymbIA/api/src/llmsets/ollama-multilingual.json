@@ -1,0 +1,36 @@
+{
+    "id": "ollama-multilingual",
+    "display": "Ollama Multilingual",
+    "info": "Indicada para diálogos e tarefas em múltiplos idiomas (especial PT/ES/EN/FR).",
+    "icon": {
+        "type": "emoji",
+        "emoji": "🌍",
+        "fill": "#06b6d4"
+    },
+    "models": {
+        "reasoning": {
+            "provider": "ollama",
+            "model": "mistral-mixtral-8x7b:22b-multilingual",
+            "promptFormat": "text-messages"
+        },
+        "reasoningHeavy": {
+            "provider": "ollama",
+            "model": "llama3:8b",
+            "promptFormat": "text-messages"
+        },
+        "chat": {
+            "provider": "ollama",
+            "model": "gemma:7b-it",
+            "promptFormat": "text-messages"
+        },
+        "codegen": {
+            "provider": "ollama",
+            "model": "codellama:13b-instruct",
+            "promptFormat": "text-messages"
+        },
+        "embedding": {
+            "provider": "ollama",
+            "model": "nomic-embed-text"
+        }
+    }
+}
