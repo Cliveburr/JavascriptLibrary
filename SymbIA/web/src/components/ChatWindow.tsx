@@ -9,7 +9,7 @@ interface ChatWindowProps {
     messages: MessageDTO[];
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ chatId, messages }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
     const { isLoading, isLoadingMessages } = useChatStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);

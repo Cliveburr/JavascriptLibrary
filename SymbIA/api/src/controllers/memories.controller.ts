@@ -3,7 +3,7 @@ import type { Request, Response, RequestHandler } from 'express';
 import { z } from 'zod';
 import { processRequestBody } from 'zod-express-middleware';
 import { MemoryService, MemoryValidationError, MemoryNotFoundError, CannotDeleteLastMemoryError } from '@symbia/core';
-import type { MemoryDTO, CreateMemoryRequest, UpdateMemoryRequest } from '@symbia/interfaces';
+import type { MemoryDTO, CreateMemoryRequest } from '@symbia/interfaces';
 
 const CreateMemoryRequestSchema = z.object({
     name: z.string().min(1)

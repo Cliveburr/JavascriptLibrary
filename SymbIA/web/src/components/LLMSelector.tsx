@@ -80,21 +80,6 @@ export const LLMSelector: React.FC = () => {
         }
     };
 
-    const getProviderInfo = (set: typeof selectedSet) => {
-        if (!set) return { provider: '', count: 0 };
-
-        const models = Object.values(set.models);
-        const providers = [...new Set(models.map(m => m?.provider).filter(Boolean))];
-        const mainProvider = providers[0] || '';
-        const modelCount = models.filter(Boolean).length;
-
-        return {
-            provider: mainProvider,
-            count: modelCount,
-            providers: providers.length > 1 ? providers : [mainProvider]
-        };
-    };
-
     if (error) {
         return (
             <div className="llm-selector error">
@@ -152,7 +137,6 @@ export const LLMSelector: React.FC = () => {
                     </div>
 
                     {availableSets.map((set) => {
-                        const providerInfo = getProviderInfo(set);
                         return (
                             <button
                                 key={set.id}

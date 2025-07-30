@@ -16,7 +16,7 @@ async function getLlmSetForChat(llmSetService: LlmSetService, llmSetId?: string)
 
 export class LlmController {
     async generateTitle(req: Request, res: Response): Promise<void> {
-        const { chatId, memoryId, firstMessage, llmSetId } = req.body;
+        const { firstMessage, llmSetId } = req.body;
         if (!firstMessage || typeof firstMessage !== 'string') {
             res.status(400).json({ error: 'Mensagem inicial ausente ou inválida' });
             return;
@@ -36,7 +36,7 @@ export class LlmController {
             ];
             const title = await generateChatTitle(llmGateway, llmSetConfig, messages);
             res.json({ title });
-        } catch (error) {
+        } catch {
             res.status(500).json({ error: 'Erro ao gerar título via LLM' });
         }
     }

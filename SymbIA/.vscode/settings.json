@@ -24,5 +24,9 @@
         "**/dist": true,
         "**/build": true
     },
-    "typescript.preferences.includePackageJsonAutoImports": "on"
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "debug.openDebug": "openOnDebugBreak",
+    "debug.internalConsoleOptions": "neverOpen",
+    "debug.terminal.clearBeforeReusing": true,
+    "task.autoDetect": "off"
 }

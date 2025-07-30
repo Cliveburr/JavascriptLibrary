@@ -1,0 +1,14 @@
+[
+    {
+        "key": "ctrl+shift+b",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Launch Chrome Debug"
+    },
+    {
+        "key": "ctrl+shift+d",
+        "command": "workbench.action.debug.start",
+        "args": {
+            "name": "Debug Full Stack"
+        }
+    }
+]

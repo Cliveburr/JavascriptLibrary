@@ -2,6 +2,32 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Chrome & Attach",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3001",
+      "webRoot": "${workspaceFolder}/web/src",
+      "sourceMaps": true,
+      "userDataDir": "${workspaceFolder}/.chrome-debug",
+      "port": 9222,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Attach to Web (Chrome)",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/web/src",
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    },
+    {
       "name": "Debug API Server",
       "type": "node",
       "request": "launch",
@@ -19,8 +45,7 @@
       "restart": true,
       "skipFiles": [
         "<node_internals>/**"
-      ],
-      "preLaunchTask": "Watch API"
+      ]
     },
     {
       "name": "Debug Tests",
@@ -44,7 +69,6 @@
       "url": "http://localhost:3001",
       "webRoot": "${workspaceFolder}/web/src",
       "sourceMaps": true,
-      "preLaunchTask": "Watch Web",
       "skipFiles": [
         "<node_internals>/**",
         "**/node_modules/**"
@@ -57,19 +81,6 @@
       "url": "http://localhost:3001",
       "webRoot": "${workspaceFolder}/web/src",
       "sourceMaps": true,
-      "preLaunchTask": "Watch Web",
-      "skipFiles": [
-        "<node_internals>/**",
-        "**/node_modules/**"
-      ]
-    },
-    {
-      "name": "Attach to Web (Chrome)",
-      "type": "chrome",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}/web/src",
-      "sourceMaps": true,
       "skipFiles": [
         "<node_internals>/**",
         "**/node_modules/**"
@@ -80,7 +91,6 @@
     {
       "name": "Launch API + Web Dev",
       "configurations": [],
-      "preLaunchTask": "Dev: API + Web",
       "presentation": {
         "group": "development",
         "order": 1
@@ -90,7 +100,7 @@
       "name": "Debug Full Stack",
       "configurations": [
         "Debug API Server",
-        "Debug Web (Chrome)"
+        "Launch Chrome & Attach"
       ],
       "presentation": {
         "group": "development",

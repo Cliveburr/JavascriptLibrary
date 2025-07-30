@@ -29,9 +29,10 @@ export class ThoughtCycleService {
         return response.content;
     }
 
-    private async getRecentMessages(_memoryId: string): Promise<Message[]> {
+    private async getRecentMessages(memoryId: string): Promise<Message[]> {
         // Mock: simula recuperação das últimas 10 mensagens do SQL
-        // TODO: implementar recuperação real do banco de dados
+        // TODO: implementar recuperação real do banco de dados usando memoryId
+        console.log('memoryId para implementação futura:', memoryId);
         return [
             {
                 id: 'msg-1',

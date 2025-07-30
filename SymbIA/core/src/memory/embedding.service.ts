@@ -51,7 +51,7 @@ export class EmbeddingService {
             const tokens = encoder.encode(text);
             encoder.free();
             return tokens.length;
-        } catch (error) {
+        } catch {
             // Fallback: rough estimation (1 token ≈ 4 characters)
             return Math.ceil(text.length / 4);
         }

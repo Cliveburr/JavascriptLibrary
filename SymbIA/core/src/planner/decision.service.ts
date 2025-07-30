@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import type { Message, LlmSetConfig } from '@symbia/interfaces';
+import type { Message } from '@symbia/interfaces';
 // import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 import { getEnabledActionNames } from '../actions/action.registry.js';

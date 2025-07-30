@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores';
 import './RegisterPage.scss';
 
+interface ApiError {
+    message?: string;
+}
+
 export const RegisterPage: React.FC = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -32,8 +36,9 @@ export const RegisterPage: React.FC = () => {
 
         try {
             await register({ username, email, password });
-        } catch (err: any) {
-            setError(err.message || 'Registration failed');
+        } catch (err: unknown) {
+            const apiError = err as ApiError;
+            setError(apiError.message || 'Registration failed');
         } finally {
             setIsLoading(false);
         }

@@ -8,10 +8,7 @@
       "args": [
         "build"
       ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
+      "group": "build",
       "problemMatcher": {
         "owner": "typescript",
         "source": "ts",
@@ -121,7 +118,10 @@
         "Watch API",
         "Watch Web"
       ],
-      "group": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "presentation": {
         "echo": true,
         "reveal": "always",

@@ -56,7 +56,7 @@ export const MemorySidebar: React.FC = () => {
             await createMemory(newMemoryName.trim());
             setNewMemoryName('');
             setShowCreateMemoryForm(false);
-        } catch (err) {
+        } catch {
             // Error is handled in the store
         }
     };
