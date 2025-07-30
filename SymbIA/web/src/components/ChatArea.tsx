@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useMemoryStore, useChatStore } from '../stores';
 import { ChatWindow } from './ChatWindow';
-import { ChatInput } from './ChatInput';
+import { ChatInput, type ChatInputRef } from './ChatInput';
 import { LLMSelector } from './LLMSelector';
 import './ChatArea.scss';
 import { useLLMStore } from '../stores/llm.store';
@@ -10,6 +10,8 @@ export const ChatArea: React.FC = () => {
     const { currentMemoryId, memories } = useMemoryStore();
     const { selectedChatId, messagesByChat, clearMessages, isStreaming, streamingChatId } = useChatStore();
     const { selectedSetId } = useLLMStore();
+    const chatInputRef = useRef<ChatInputRef>(null);
+    const wasStreamingRef = useRef(false);
 
     const currentMemory = memories.find(m => m.id === currentMemoryId);
 
@@ -26,6 +28,20 @@ export const ChatArea: React.FC = () => {
             clearMessages();
         }
     }, [currentMemoryId, selectedChatId, clearMessages]);
+
+    // Focar no input quando o streaming terminar
+    useEffect(() => {
+        // Se estava em streaming e agora não está mais, focar no input
+        if (wasStreamingRef.current && !isStreaming) {
+            // Usar setTimeout para garantir que o DOM foi atualizado
+            setTimeout(() => {
+                chatInputRef.current?.focus();
+            }, 100);
+        }
+
+        // Atualizar o estado anterior do streaming
+        wasStreamingRef.current = isStreaming;
+    }, [isStreaming]);
 
     const handleStartNewChat = async (firstMessage: string) => {
         if (!currentMemory || !selectedSetId) return;
@@ -54,6 +70,7 @@ export const ChatArea: React.FC = () => {
                             messages={currentMessages}
                         />
                         <ChatInput
+                            ref={chatInputRef}
                             chatId={selectedChatId}
                             memoryId={currentMemory.id}
                             llmSetId={selectedSetId || undefined}
@@ -65,6 +82,7 @@ export const ChatArea: React.FC = () => {
                         <h4>Iniciar novo chat</h4>
                         <p>Digite a primeira mensagem para iniciar um novo chat.</p>
                         <ChatInput
+                            ref={chatInputRef}
                             chatId={null}
                             memoryId={currentMemory.id}
                             horizontal

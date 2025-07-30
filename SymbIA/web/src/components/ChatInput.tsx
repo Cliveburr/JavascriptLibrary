@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { useChatStore } from '../stores/chat.store';
 import './ChatInput.scss';
@@ -11,11 +11,26 @@ interface ChatInputProps {
     llmSetId?: string;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ chatId, memoryId, onStartNewChat, horizontal, llmSetId }) => {
+interface ChatInputRef {
+    focus: () => void;
+}
+
+export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, memoryId, onStartNewChat, horizontal, llmSetId }, ref) => {
     const [message, setMessage] = useState('');
     const { sendStreamingMessage, isLoading, isStreaming } = useChatStore();
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
     // Detectar se é novo chat
     const isNewChat = chatId == null;
+
+    // Expor função de foco para o componente pai
+    useImperativeHandle(ref, () => ({
+        focus: () => {
+            if (textareaRef.current) {
+                textareaRef.current.focus();
+            }
+        }
+    }));
 
     const handleSubmit = async () => {
         if (!message.trim() || isLoading || isStreaming) return;
@@ -91,6 +106,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId, memoryId, onStartN
         <div className={`chat-input${horizontal ? ' horizontal' : ''}`}>
             <div className="input-container">
                 <textarea
+                    ref={textareaRef}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
@@ -119,4 +135,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId, memoryId, onStartN
             </div>
         </div>
     );
-};
+});
+
+ChatInput.displayName = 'ChatInput';
+
+export type { ChatInputRef };
