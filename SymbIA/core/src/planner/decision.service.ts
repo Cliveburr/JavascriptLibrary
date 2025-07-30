@@ -31,7 +31,7 @@ export class DecisionService {
      * @param llmSetId The ID of the LLM set to use for decision making
      * @returns The name of the action to execute
      */
-    async decide(userId: string, memoryId: string, chatId: string, message: string, llmSetId?: string): Promise<string> {
+    async decide(userId: string, memoryId: string, chatId: string, message: string, llmSetId: string): Promise<string> {
         if (!userId?.trim()) {
             throw new DecisionServiceError('User ID is required');
         }
@@ -48,11 +48,15 @@ export class DecisionService {
             throw new DecisionServiceError('Message is required');
         }
 
+        if (!llmSetId?.trim()) {
+            throw new DecisionServiceError('LLM Set ID is required');
+        }
+
         try {
-            // Get the LLM set to use
-            const llmSet = await this.getLlmSetWithFallback(llmSetId);
-            if (!llmSet) {
-                throw new DecisionServiceError('No suitable LLM set found for decision making');
+            // Get the specific LLM set - no fallback
+            const llmSet = await this.llmSetService.getLlmSetById(llmSetId);
+            if (!llmSet || (!llmSet.models.reasoningHeavy && !llmSet.models.reasoning)) {
+                throw new DecisionServiceError(`LLM set '${llmSetId}' not found or doesn't support reasoning`);
             }
 
             // Get chat history with chat-history flag
@@ -160,35 +164,6 @@ Instructions:
 Action:`;
 
         return prompt;
-    }
-
-    /**
-     * Get reasoning-heavy LLM set with fallback to reasoning
-     */
-    private async getLlmSetWithFallback(llmSetId?: string): Promise<LlmSetConfig | null> {
-        // If a specific LLM set ID is provided, try to get it first
-        if (llmSetId) {
-            const requestedSet = await this.llmSetService.getLlmSetById(llmSetId);
-            if (requestedSet && (requestedSet.models.reasoningHeavy || requestedSet.models.reasoning)) {
-                return requestedSet;
-            }
-        }
-
-        // Try to get mixtral-heavy set first (has reasoningHeavy)
-        let llmSet = await this.llmSetService.getLlmSetById('ollama-mixtral-heavy');
-
-        if (!llmSet || !llmSet.models.reasoningHeavy) {
-            // Fallback to any available set with reasoning
-            llmSet = await this.llmSetService.getLlmSetById('ollama-fast-chat');
-
-            if (!llmSet || !llmSet.models.reasoning) {
-                // Try to get any set that has reasoning capabilities
-                const allSets = await this.llmSetService.loadLlmSets();
-                llmSet = allSets.find(set => set.models.reasoningHeavy || set.models.reasoning) || null;
-            }
-        }
-
-        return llmSet;
     }
 
     /**

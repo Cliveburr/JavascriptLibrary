@@ -62,7 +62,7 @@ describe('ThoughtCycleService', () => {
         vi.mocked(mockLlmGateway.invoke).mockResolvedValue(mockResponse);
 
         // Act
-        const result = await thoughtCycleService.handle(userId, memoryId, message);
+        const result = await thoughtCycleService.handle(userId, memoryId, message, 'test-llm-set');
 
         // Assert
         expect(result).toBe(mockResponse.content);
@@ -83,7 +83,7 @@ describe('ThoughtCycleService', () => {
         vi.mocked(mockLlmGateway.invoke).mockResolvedValue(mockResponse);
 
         // Act
-        await thoughtCycleService.handle(userId, memoryId, message);
+        await thoughtCycleService.handle(userId, memoryId, message, 'test-llm-set');
 
         // Assert
         expect(mockLlmGateway.invoke).toHaveBeenCalledWith(
@@ -118,7 +118,7 @@ describe('ThoughtCycleService', () => {
         vi.mocked(mockLlmGateway.invoke).mockResolvedValue(mockResponse);
 
         // Act
-        await thoughtCycleService.handle(userId, memoryId, message);
+        await thoughtCycleService.handle(userId, memoryId, message, 'test-llm-set');
 
         // Assert
         const callArgs = vi.mocked(mockLlmGateway.invoke).mock.calls[0];

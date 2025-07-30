@@ -8,7 +8,7 @@ import type { ActionContext, Message } from '@symbia/interfaces';
 // Schema de validação para o body
 const sendMessageSchema = z.object({
     content: z.string().min(1, 'Content cannot be empty'),
-    llmSetId: z.string().optional() // Optional LLM set ID
+    llmSetId: z.string().min(1, 'LLM Set ID is required') // Required LLM set ID
 });
 
 // Schema de validação para os params
@@ -108,7 +108,7 @@ export class MessageController {
         chatId: string,
         userMessage: string,
         placeholderId: string,
-        llmSetId?: string
+        llmSetId: string
     ): Promise<void> {
         const sentMessages: Message[] = [];
 

@@ -1,12 +1,16 @@
 import { injectable, inject } from 'tsyringe';
 import { v4 as uuidv4 } from 'uuid';
-import type { Chat, Message } from '@symbia/interfaces';
+import type { Chat, Message, LlmRequest } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
+import { LlmGateway } from '../llm/LlmGateway.js';
+import { LlmSetService } from '../llm/llm-set.service.js';
 
 @injectable()
 export class ChatService {
     constructor(
-        @inject(MongoDBService) private mongoService: MongoDBService
+        @inject(MongoDBService) private mongoService: MongoDBService,
+        @inject(LlmGateway) private llmGateway: LlmGateway,
+        @inject(LlmSetService) private llmSetService: LlmSetService
     ) { }
 
     async createChat(memoryId: string, title: string = 'Novo Chat'): Promise<Chat> {
@@ -73,7 +77,7 @@ export class ChatService {
             { returnDocument: 'after' }
         );
 
-        return result.value || null;
+        return result || null;
     }
 
     async updateChatOrder(chatId: string, newOrderIndex: number): Promise<Chat | null> {
@@ -156,5 +160,37 @@ export class ChatService {
 
         const result = await messagesCollection.deleteOne({ id: messageId });
         return result.deletedCount === 1;
+    }
+
+    async generateChatTitle(userMessage: string, llmSetId: string): Promise<string> {
+        try {
+            // Get LLM set configuration
+            const llmSetConfig = await this.llmSetService.getLlmSetById(llmSetId);
+            if (!llmSetConfig) {
+                console.warn(`LLM set '${llmSetId}' not found, using default title`);
+                return 'Novo Chat';
+            }
+
+            // Create prompt for title generation
+            const messages: LlmRequest['messages'] = [
+                {
+                    role: 'system',
+                    content: 'Você é um assistente que gera títulos curtos e descritivos para conversas. Gere um título de máximo 60 caracteres baseado na primeira mensagem do usuário. Responda apenas com o título, sem aspas ou formatação extra.'
+                },
+                {
+                    role: 'user',
+                    content: `Mensagem do usuário: "${userMessage}"`
+                }
+            ];
+
+            const response = await this.llmGateway.invoke(llmSetConfig, 'reasoning', messages);
+
+            // Clean and limit the title
+            const title = response.content?.trim().replace(/^["']|["']$/g, '') || 'Novo Chat';
+            return title.substring(0, 60);
+        } catch (error) {
+            console.warn('Error generating chat title:', error);
+            return 'Novo Chat';
+        }
     }
 }

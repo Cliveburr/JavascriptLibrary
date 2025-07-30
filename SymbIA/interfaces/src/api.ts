@@ -80,7 +80,7 @@ export interface SendMessageRequest {
   chatId: string;
   content: string;
   contentType?: 'text' | 'form' | 'chart' | 'file';
-  llmSetId?: string; // Optional LLM set ID for this request
+  llmSetId: string; // Required LLM set ID for this request
 }
 
 export interface SendMessageResponse {

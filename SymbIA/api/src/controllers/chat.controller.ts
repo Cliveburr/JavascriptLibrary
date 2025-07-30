@@ -7,7 +7,8 @@ import type { SendMessageResponse } from '@symbia/interfaces';
 // Schema de validação para o body
 const sendMessageSchema = z.object({
     content: z.string().min(1, 'Content cannot be empty'),
-    chatId: z.string().optional()
+    chatId: z.string().optional(),
+    llmSetId: z.string().min(1, 'LLM Set ID is required')
 });
 
 // Schema de validação para os params
@@ -151,15 +152,23 @@ export class ChatController {
             }
 
             const { memoryId } = paramsResult.data;
-            const { content, chatId } = bodyResult.data;
+            const { content, chatId, llmSetId } = bodyResult.data;
 
-            // Verificar se o chat existe
+            let finalChatId = chatId;
+            let isNewChat = false;
+
+            // Verificar se o chat existe ou precisa ser criado
             if (chatId) {
                 const chat = await this.chatService.getChatById(chatId);
                 if (!chat) {
                     res.status(404).json({ error: 'Chat não encontrado' });
                     return;
                 }
+            } else {
+                // Se não tem chatId, é um chat novo - criar temporariamente com título padrão
+                isNewChat = true;
+                const newChat = await this.chatService.createChat(memoryId, 'Novo Chat');
+                finalChatId = newChat.id;
             }
 
             // Extrair userId do token (mock por enquanto)
@@ -171,7 +180,7 @@ export class ChatController {
             // Chamar ThoughtCycleService
             let responseContent: string;
             try {
-                responseContent = await this.thoughtCycleService.handle(userId, memoryId, content);
+                responseContent = await this.thoughtCycleService.handle(userId, memoryId, content, llmSetId);
             } catch (error) {
                 console.warn('ThoughtCycleService failed, using mock response:', error);
                 responseContent = `Hello! I received your message: "${content}". This is a mock response for testing purposes.`;
@@ -183,7 +192,7 @@ export class ChatController {
             // Criar mensagens com persistência real
             const userMessage = {
                 id: `msg-${Date.now()}-user`,
-                chatId: chatId || `default-${memoryId}`,
+                chatId: finalChatId || `default-${memoryId}`,
                 role: 'user' as const,
                 content,
                 contentType: 'text' as const,
@@ -195,7 +204,7 @@ export class ChatController {
 
             const assistantMessage = {
                 id: `msg-${Date.now()}-assistant`,
-                chatId: chatId || `default-${memoryId}`,
+                chatId: finalChatId || `default-${memoryId}`,
                 role: 'assistant' as const,
                 content: responseContent,
                 contentType: 'text' as const,
@@ -208,6 +217,17 @@ export class ChatController {
             // Salvar mensagens no banco
             await this.chatService.saveMessage(userMessage);
             await this.chatService.saveMessage(assistantMessage);
+
+            // Se é um chat novo, gerar título automaticamente após o thoughtCycle
+            if (isNewChat && finalChatId) {
+                try {
+                    const generatedTitle = await this.chatService.generateChatTitle(content, llmSetId);
+                    await this.chatService.updateChatTitle(finalChatId, generatedTitle);
+                } catch (error) {
+                    console.warn('Error generating chat title:', error);
+                    // Continua mesmo se falhar a geração do título
+                }
+            }
 
             const response: SendMessageResponse = {
                 userMessage: {

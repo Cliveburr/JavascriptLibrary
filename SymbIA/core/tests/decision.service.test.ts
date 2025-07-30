@@ -102,7 +102,7 @@ describe('DecisionService', () => {
             mockLlmGateway.invoke.mockResolvedValue(mockLlmResponse);
 
             // Act
-            const result = await decisionService.decide(userId, memoryId, chatId, message);
+            const result = await decisionService.decide(userId, memoryId, chatId, message, 'test-llm-set');
 
             // Assert
             expect(result).toBe('Finalize');

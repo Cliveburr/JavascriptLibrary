@@ -23,7 +23,7 @@ export const ChatArea: React.FC = () => {
     }, [currentMemoryId, selectedChatId, clearMessages]);
 
     const handleStartNewChat = async (firstMessage: string) => {
-        if (!currentMemory) return;
+        if (!currentMemory || !selectedSetId) return;
 
         try {
             // Cria novo chat sem nome (título vazio temporariamente)
@@ -33,7 +33,7 @@ export const ChatArea: React.FC = () => {
             useChatStore.getState().selectChat(newChat.id);
 
             // Envia primeira mensagem e aguarda o término do thought-cycle
-            await useChatStore.getState().sendMessage(newChat.id, firstMessage);
+            await useChatStore.getState().sendMessage(newChat.id, firstMessage, selectedSetId);
 
             // APÓS o término do thought-cycle, gerar título usando LLM no modo "reasoning"
             try {
@@ -83,7 +83,7 @@ export const ChatArea: React.FC = () => {
                             chatId={selectedChatId}
                             messages={currentMessages}
                         />
-                        <ChatInput chatId={selectedChatId} />
+                        <ChatInput chatId={selectedChatId} llmSetId={selectedSetId || undefined} />
                     </>
                 ) : currentMemory ? (
                     <div className="chat-placeholder">
@@ -94,6 +94,7 @@ export const ChatArea: React.FC = () => {
                             chatId={null}
                             horizontal
                             onStartNewChat={handleStartNewChat}
+                            llmSetId={selectedSetId || undefined}
                         />
                     </div>
                 ) : (

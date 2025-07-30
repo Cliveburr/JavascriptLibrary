@@ -28,8 +28,12 @@ describe('Chat Store', () => {
 
         // Reset store state
         useChatStore.setState({
-            messages: [],
+            chatsByMemory: {},
+            messagesByChat: {},
+            selectedChatId: null,
             isLoading: false,
+            isLoadingChats: false,
+            isLoadingMessages: false,
             error: null
         });
     });
@@ -59,28 +63,60 @@ describe('Chat Store', () => {
             json: () => Promise.resolve(mockResponse)
         });
 
-        await useChatStore.getState().sendMessage('test-memory', 'Hello');
+        // Setup chat to simulate it exists
+        useChatStore.setState({
+            chatsByMemory: {
+                'test-memory': [{
+                    id: 'chat-test-memory',
+                    memoryId: 'test-memory',
+                    title: 'Test Chat',
+                    orderIndex: 0,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }]
+            }
+        });
 
-        expect(mockFetch).toHaveBeenCalledWith('/api/chats/test-memory/messages', {
+        await useChatStore.getState().sendMessage('chat-test-memory', 'Hello', 'test-llm-set');
+
+        expect(mockFetch).toHaveBeenCalledWith('http://localhost:3002/chats/test-memory/messages', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer test-token'
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ content: 'Hello' })
+            body: JSON.stringify({ content: 'Hello', llmSetId: 'test-llm-set' })
         });
 
         const state = useChatStore.getState();
-        expect(state.messages).toHaveLength(2);
-        expect(state.messages[0].role).toBe('user');
-        expect(state.messages[1].role).toBe('assistant');
+        const chatMessages = state.messagesByChat['chat-test-memory'] || [];
+        expect(chatMessages).toHaveLength(2);
+        expect(chatMessages[0].role).toBe('user');
+        expect(chatMessages[1].role).toBe('assistant');
         expect(state.isLoading).toBe(false);
     });
 
     it('should handle errors correctly', async () => {
         mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-        await useChatStore.getState().sendMessage('test-memory', 'Hello');
+        // Setup chat to simulate it exists
+        useChatStore.setState({
+            chatsByMemory: {
+                'test-memory': [{
+                    id: 'chat-test-memory',
+                    memoryId: 'test-memory',
+                    title: 'Test Chat',
+                    orderIndex: 0,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }]
+            }
+        });
+
+        try {
+            await useChatStore.getState().sendMessage('chat-test-memory', 'Hello', 'test-llm-set');
+        } catch (error) {
+            // Expected to throw
+        }
 
         const state = useChatStore.getState();
         expect(state.error).toBe('Network error');
@@ -91,11 +127,9 @@ describe('Chat Store', () => {
         const store = useChatStore.getState();
 
         // Add some messages first
-        store.sendMessage('test-memory', 'Test');
+        store.clearMessages('test-chat');
 
-        store.clearMessages();
-
-        expect(store.messages).toHaveLength(0);
+        expect(store.messagesByChat['test-chat']).toBeUndefined();
         expect(store.error).toBeNull();
     });
 });

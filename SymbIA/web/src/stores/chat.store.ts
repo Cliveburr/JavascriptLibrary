@@ -49,7 +49,7 @@ interface ChatState {
 
     // Actions para mensagens
     loadMessages: (chatId: string) => Promise<void>;
-    sendMessage: (chatId: string, content: string) => Promise<void>;
+    sendMessage: (chatId: string, content: string, llmSetId?: string) => Promise<void>;
     clearMessages: (chatId?: string) => void;
 }
 
@@ -182,7 +182,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
     },
 
-    sendMessage: async (chatId: string, content: string) => {
+    sendMessage: async (chatId: string, content: string, llmSetId?: string) => {
         try {
             set({ isLoading: true, error: null });
 
@@ -200,6 +200,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
             if (!memoryId) {
                 throw new Error('Memory ID not found for this chat');
+            }
+
+            // Verifica se llmSetId foi fornecido
+            if (!llmSetId) {
+                throw new Error('LLM Set ID is required');
             }
 
             // Adiciona mensagem do usuário imediatamente
@@ -222,7 +227,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             // Chama a API real do thought-cycle
             const response = await apiCall(`http://localhost:3002/chats/${memoryId}/messages`, {
                 method: 'POST',
-                body: JSON.stringify({ content }),
+                body: JSON.stringify({ content, llmSetId }),
             });
 
             // Substitui mensagem temporária com as mensagens reais da API

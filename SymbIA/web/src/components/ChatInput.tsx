@@ -7,9 +7,10 @@ interface ChatInputProps {
     chatId: string | null;
     onStartNewChat?: (firstMessage: string) => Promise<void>;
     horizontal?: boolean;
+    llmSetId?: string;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ chatId, onStartNewChat, horizontal }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ chatId, onStartNewChat, horizontal, llmSetId }) => {
     const [message, setMessage] = useState('');
     const { sendMessage, isLoading } = useChatStore();
     // Detectar se é novo chat
@@ -22,8 +23,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId, onStartNewChat, ho
         try {
             if (isNewChat && onStartNewChat) {
                 await onStartNewChat(messageToSend);
-            } else if (chatId) {
-                await sendMessage(chatId, messageToSend);
+            } else if (chatId && llmSetId) {
+                await sendMessage(chatId, messageToSend, llmSetId);
+            } else if (chatId && !llmSetId) {
+                throw new Error('LLM Set ID is required for sending messages');
             }
         } catch (error) {
             console.error('Failed to send message:', error);

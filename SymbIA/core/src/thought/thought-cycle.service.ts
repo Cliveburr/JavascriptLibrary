@@ -10,11 +10,11 @@ export class ThoughtCycleService {
         @inject(LlmSetService) private llmSetService: LlmSetService
     ) { }
 
-    async handle(_userId: string, memoryId: string, message: string, llmSetId?: string): Promise<string> {
+    async handle(_userId: string, memoryId: string, message: string, llmSetId: string): Promise<string> {
         // Get LLM set configuration
         const llmSetConfig = await this.getLlmSetForChat(llmSetId);
         if (!llmSetConfig) {
-            throw new Error('No suitable LLM set found for chat');
+            throw new Error(`LLM set '${llmSetId}' not found or doesn't support chat`);
         }
 
         // Mock: recupera últimas 10 mensagens em SQL (para este primeiro ciclo sem planner)
@@ -77,19 +77,19 @@ export class ThoughtCycleService {
     }
 
     /**
-     * Get LLM set configuration for chat with fallback logic
+     * Get LLM set configuration for chat - no fallback, must be exact match
      */
-    private async getLlmSetForChat(llmSetId?: string): Promise<LlmSetConfig | null> {
-        // If a specific LLM set ID is provided, try to get it first
-        if (llmSetId) {
-            const requestedSet = await this.llmSetService.getLlmSetById(llmSetId);
-            if (requestedSet && (requestedSet.models.chat || requestedSet.models.reasoning)) {
-                return requestedSet;
-            }
+    private async getLlmSetForChat(llmSetId: string): Promise<LlmSetConfig | null> {
+        const requestedSet = await this.llmSetService.getLlmSetById(llmSetId);
+        if (!requestedSet) {
+            return null;
         }
 
-        // Fallback logic - try to find a suitable LLM set with chat support
-        const allSets = await this.llmSetService.loadLlmSets();
-        return allSets.find(set => set.models.chat || set.models.reasoning) || null;
+        // Verify the LLM set has chat capabilities
+        if (!requestedSet.models.chat && !requestedSet.models.reasoning) {
+            return null;
+        }
+
+        return requestedSet;
     }
 }
