@@ -12,9 +12,15 @@
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": [
-        "$tsc"
-      ],
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": "$tsc"
+      },
       "presentation": {
         "echo": true,
         "reveal": "always",
@@ -46,8 +52,8 @@
         "pattern": "$tsc",
         "background": {
           "activeOnStart": true,
-          "beginsPattern": ".*File change detected.*",
-          "endsPattern": ".*waiting for file changes.*"
+          "beginsPattern": "^\\s*\\[.*\\]\\s*File change detected\\.|Starting compilation",
+          "endsPattern": "^\\s*\\[.*\\]\\s*Found 0 errors\\. Watching for file changes\\.|Watching for file changes\\.|waiting for file changes"
         }
       },
       "presentation": {
@@ -92,8 +98,8 @@
         ],
         "background": {
           "activeOnStart": true,
-          "beginsPattern": ".*Local:.*",
-          "endsPattern": ".*ready in.*"
+          "beginsPattern": "^\\s*VITE.*building for.*|^\\s*building for.*",
+          "endsPattern": "^\\s*.*Local:.*http.*|^\\s*.*ready in.*|^\\s*.*Local.*ready.*"
         }
       },
       "presentation": {
@@ -133,7 +139,26 @@
         "test"
       ],
       "group": "test",
-      "problemMatcher": [],
+      "problemMatcher": {
+        "owner": "vitest",
+        "source": "vitest",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": [
+          {
+            "regexp": "^\\s*❯\\s+(.*):(\\d+):(\\d+)$",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          },
+          {
+            "regexp": "^\\s*(.*)$",
+            "message": 1
+          }
+        ]
+      },
       "presentation": {
         "echo": true,
         "reveal": "always",
@@ -151,9 +176,15 @@
         "lint"
       ],
       "group": "build",
-      "problemMatcher": [
-        "$eslint-stylish"
-      ],
+      "problemMatcher": {
+        "owner": "eslint",
+        "source": "eslint",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": "$eslint-stylish"
+      },
       "presentation": {
         "echo": true,
         "reveal": "always",
@@ -173,9 +204,15 @@
         "build"
       ],
       "group": "build",
-      "problemMatcher": [
-        "$tsc"
-      ],
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}/interfaces"
+        ],
+        "pattern": "$tsc"
+      },
       "presentation": {
         "echo": true,
         "reveal": "silent",
@@ -193,9 +230,15 @@
         "build"
       ],
       "group": "build",
-      "problemMatcher": [
-        "$tsc"
-      ],
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}/core"
+        ],
+        "pattern": "$tsc"
+      },
       "dependsOn": [
         "Build Interfaces"
       ],
@@ -216,9 +259,15 @@
         "build"
       ],
       "group": "build",
-      "problemMatcher": [
-        "$tsc"
-      ],
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}/api"
+        ],
+        "pattern": "$tsc"
+      },
       "dependsOn": [
         "Build Core"
       ],
@@ -255,7 +304,15 @@
           "http://localhost:3001"
         ]
       },
-      "problemMatcher": []
+      "problemMatcher": {
+        "owner": "chrome",
+        "source": "chrome",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(.*)$",
+          "message": 1
+        }
+      }
     }
   ]
 }
