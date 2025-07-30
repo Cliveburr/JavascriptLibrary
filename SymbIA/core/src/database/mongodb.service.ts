@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 import { injectable } from 'tsyringe';
-import type { User, Memory } from '@symbia/interfaces';
+import type { User, Memory, Chat, Message } from '@symbia/interfaces';
 
 @injectable()
 export class MongoDBService {
@@ -46,5 +46,13 @@ export class MongoDBService {
 
     getMemoriesCollection(): Collection<Memory> {
         return this.getDatabase().collection<Memory>('memories');
+    }
+
+    getChatsCollection(): Collection<Chat> {
+        return this.getDatabase().collection<Chat>('chats');
+    }
+
+    getMessagesCollection(): Collection<Message> {
+        return this.getDatabase().collection<Message>('messages');
     }
 }

@@ -13,6 +13,7 @@ import { ActionService } from './actions/action.service.js';
 import { ThoughtCycleService } from './thought/thought-cycle.service.js';
 import { AuthService } from './auth/auth.service.js';
 import { MongoDBService } from './database/mongodb.service.js';
+import { ChatService } from './chat/chat.service.js';
 
 // Export services
 export * from './llm/LlmGateway.js';
@@ -29,6 +30,7 @@ export * from './actions/action.registry.js';
 export * from './thought/thought-cycle.service.js';
 export * from './auth/auth.service.js';
 export * from './database/mongodb.service.js';
+export * from './chat/chat.service.js';
 
 // Export container for external usage
 export { container };
@@ -49,6 +51,7 @@ export function configureContainer() {
     container.registerSingleton(ActionService);
     container.registerSingleton(ThoughtCycleService);
     container.registerSingleton(AuthService);
+    container.registerSingleton(ChatService);
 
     return container;
 }

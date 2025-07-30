@@ -1,4 +1,7 @@
 
+
+
+
 Style:
     - Futuristas
     - Cores neutras
@@ -9,6 +12,10 @@ Comportamento geral:
     - Ao abrir, lembrar qual a ultima memories e chat usados e selecionar eles
     - Ao selecionar uma memorie carregar os chats relacionado a memories
     - Ao selecionar uma memorie carregar o conteudo do chat
+    - Se não tiver nenhum chat na memories, exibir o campo de texto para iniciar um novo chat alinhado horizontalmente
+    - Ao clicar no botão para iniciar um novo chat, não precisa perguntar nome, limpe o campo de chat e exibir o campo de texto para iniciar um novo chat alinhado horizontalmente
+    - Se estiver no modo de iniciar novo chat com o campo de texto no alinhado horizontalmente e o usuario enviar a primeira message, dar inicio ao thought-cycle normalmente, e somente após o termino do primeiro thought-cycle, chamar o LLM no modo "reasoning" pedindo para criar um titulo para esse chat de no maximo 60 caracteres, após isso atualize a tela com o nome do chat correto
+
 
 Tela divida em 2 partes verticalmente
     # Parte da esquerda

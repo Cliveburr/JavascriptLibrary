@@ -55,7 +55,9 @@ export interface ChatDTO {
   id: string;
   memoryId: string;
   title: string;
+  orderIndex: number;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateChatRequest {

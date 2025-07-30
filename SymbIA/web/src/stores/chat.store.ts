@@ -10,7 +10,6 @@ const getAuthToken = () => {
 
 const apiCall = async (url: string, options: RequestInit = {}) => {
     const token = getAuthToken();
-
     const response = await fetch(url, {
         ...options,
         headers: {
@@ -44,7 +43,9 @@ interface ChatState {
     loadChatsByMemory: (memoryId: string) => Promise<void>;
     createChat: (memoryId: string, title?: string) => Promise<ChatDTO>;
     deleteChat: (chatId: string) => Promise<void>;
-    selectChat: (chatId: string) => void;
+    selectChat: (chatId: string | null) => void;
+    updateChatTitle: (chatId: string, title: string) => Promise<void>;
+    updateChatOrder: (chatId: string, newOrderIndex: number) => Promise<void>;
 
     // Actions para mensagens
     loadMessages: (chatId: string) => Promise<void>;
@@ -125,7 +126,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 const newChatsByMemory = { ...state.chatsByMemory };
                 const newMessagesByChat = { ...state.messagesByChat };
 
-                // Remover chat de todas as memórias
                 Object.keys(newChatsByMemory).forEach(memoryId => {
                     const chats = newChatsByMemory[memoryId];
                     if (chats) {
@@ -135,7 +135,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
                     }
                 });
 
-                // Remover mensagens do chat
                 delete newMessagesByChat[chatId];
 
                 return {
@@ -145,7 +144,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
                     isLoading: false
                 };
             });
-
         } catch (error) {
             set({
                 error: error instanceof Error ? error.message : 'Failed to delete chat',
@@ -154,43 +152,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
     },
 
-    selectChat: (chatId: string) => {
+    selectChat: (chatId: string | null) => {
         set({ selectedChatId: chatId });
-        // Carregar mensagens automaticamente quando um chat é selecionado
-        get().loadMessages(chatId);
+        if (chatId) {
+            get().loadMessages(chatId);
+        }
     },
 
     loadMessages: async (chatId: string) => {
         try {
             set({ isLoadingMessages: true, error: null });
 
-            // Mock data por enquanto - substituir por API real
-            const mockMessages: MessageDTO[] = [
-                {
-                    id: `msg-1-${chatId}`,
-                    chatId,
-                    role: 'user',
-                    content: 'Olá! Como você pode me ajudar?',
-                    contentType: 'text',
-                    createdAt: new Date(Date.now() - 60000).toISOString()
-                },
-                {
-                    id: `msg-2-${chatId}`,
-                    chatId,
-                    role: 'assistant',
-                    content: 'Olá! Sou seu assistente IA. Posso ajudar com diversas tarefas como responder perguntas, ajudar com análises, criar conteúdo e muito mais. Em que posso te ajudar hoje?',
-                    contentType: 'text',
-                    createdAt: new Date().toISOString()
-                }
-            ];
-
-            // Simular delay da API
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Chama API real para carregar mensagens do chat
+            const messages = await apiCall(`http://localhost:3002/chats/${chatId}/messages`);
 
             set(state => ({
                 messagesByChat: {
                     ...state.messagesByChat,
-                    [chatId]: mockMessages
+                    [chatId]: messages
                 },
                 isLoadingMessages: false
             }));
@@ -206,6 +185,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
     sendMessage: async (chatId: string, content: string) => {
         try {
             set({ isLoading: true, error: null });
+
+            // Precisamos obter o memoryId do chat
+            const state = get();
+            let memoryId: string | null = null;
+
+            // Busca memoryId nas estruturas existentes
+            for (const [mId, chats] of Object.entries(state.chatsByMemory)) {
+                if (chats.some(chat => chat.id === chatId)) {
+                    memoryId = mId;
+                    break;
+                }
+            }
+
+            if (!memoryId) {
+                throw new Error('Memory ID not found for this chat');
+            }
 
             // Adiciona mensagem do usuário imediatamente
             const userMessage: MessageDTO = {
@@ -224,30 +219,25 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 }
             }));
 
-            // Simular delay da API
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Chama a API real do thought-cycle
+            const response = await apiCall(`http://localhost:3002/chats/${memoryId}/messages`, {
+                method: 'POST',
+                body: JSON.stringify({ content }),
+            });
 
-            // Criar resposta do assistente
-            const assistantMessage: MessageDTO = {
-                id: `msg-${Date.now()}`,
-                chatId,
-                role: 'assistant',
-                content: `Entendi sua mensagem: "${content}". Esta é uma resposta simulada do assistente IA.`,
-                contentType: 'text',
-                createdAt: new Date().toISOString()
-            };
-
-            // Substitui mensagem temporária e adiciona resposta
+            // Substitui mensagem temporária com as mensagens reais da API
             set(state => {
                 const currentMessages = state.messagesByChat[chatId] || [];
                 const messagesWithoutTemp = currentMessages.filter(m => m.id !== userMessage.id);
 
-                const finalUserMessage = { ...userMessage, id: `msg-user-${Date.now()}` };
-
                 return {
                     messagesByChat: {
                         ...state.messagesByChat,
-                        [chatId]: [...messagesWithoutTemp, finalUserMessage, assistantMessage]
+                        [chatId]: [
+                            ...messagesWithoutTemp,
+                            response.userMessage,
+                            response.assistantMessage
+                        ]
                     },
                     isLoading: false
                 };
@@ -259,6 +249,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 isLoading: false,
                 error: error instanceof Error ? error.message : 'Failed to send message'
             });
+            throw error; // Re-throw para que o componente possa tratar
         }
     },
 
@@ -274,5 +265,64 @@ export const useChatStore = create<ChatState>((set, get) => ({
         } else {
             set({ messagesByChat: {}, error: null });
         }
-    }
+    },
+
+    updateChatTitle: async (chatId: string, title: string) => {
+        try {
+            set({ isLoading: true, error: null });
+            const updatedChat = await apiCall(`http://localhost:3002/chats/${chatId}/title`, {
+                method: 'PATCH',
+                body: JSON.stringify({ title }),
+            });
+            set((state: ChatState) => {
+                const chatsByMemory = { ...state.chatsByMemory };
+                Object.keys(chatsByMemory).forEach(memoryId => {
+                    if (chatsByMemory[memoryId]) {
+                        chatsByMemory[memoryId] = chatsByMemory[memoryId].map((chat: ChatDTO) =>
+                            chat.id === chatId ? { ...chat, title: updatedChat.title } : chat
+                        );
+                    }
+                });
+                return { chatsByMemory, isLoading: false };
+            });
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to update chat title',
+                isLoading: false
+            });
+        }
+    },
+
+    updateChatOrder: async (chatId: string, newOrderIndex: number) => {
+        try {
+            set({ isLoading: true, error: null });
+            await apiCall(`http://localhost:3002/chats/${chatId}/order`, {
+                method: 'PATCH',
+                body: JSON.stringify({ orderIndex: newOrderIndex }),
+            });
+
+            // Recarregar a lista de chats para refletir a nova ordem
+            const state = get();
+            let memoryId: string | null = null;
+
+            // Encontrar o memoryId do chat
+            for (const [mId, chats] of Object.entries(state.chatsByMemory)) {
+                if (chats.some(chat => chat.id === chatId)) {
+                    memoryId = mId;
+                    break;
+                }
+            }
+
+            if (memoryId) {
+                await get().loadChatsByMemory(memoryId);
+            }
+
+            set({ isLoading: false });
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to update chat order',
+                isLoading: false
+            });
+        }
+    },
 }));

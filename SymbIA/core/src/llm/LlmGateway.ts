@@ -1,8 +1,8 @@
 import { injectable, inject } from 'tsyringe';
 import type { LlmSetConfig, LlmRequest, LlmResponse, ModelSpec } from '@symbia/interfaces';
-import { LlmSetService } from './llm-set.service';
-import { OpenAIProvider } from './providers/openai';
-import { OllamaProvider } from './providers/ollama';
+import { LlmSetService } from './llm-set.service.js';
+import { OpenAIProvider } from './providers/openai.js';
+import { OllamaProvider } from './providers/ollama.js';
 
 @injectable()
 export class LlmGateway {
@@ -64,4 +64,18 @@ export class LlmGateway {
     getModelSpec(llmSetConfig: LlmSetConfig, purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding'): ModelSpec | null {
         return this.llmSetService.getModelSpecWithFallback(llmSetConfig, purpose);
     }
+}
+
+export async function generateChatTitle(llmGateway: LlmGateway, llmSetConfig: LlmSetConfig, messages: LlmRequest['messages']): Promise<string> {
+    // Prompt para gerar título
+    const prompt = [
+        ...messages,
+        {
+            role: 'system',
+            content: 'Gere um título curto (máx. 60 caracteres) para este chat, baseado na primeira mensagem do usuário. Responda apenas com o título.'
+        }
+    ];
+    const response = await llmGateway.invoke(llmSetConfig, 'reasoning', prompt);
+    // Extrai o texto do título
+    return response.content?.slice(0, 60) || 'Novo Chat';
 }

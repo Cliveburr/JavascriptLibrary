@@ -176,3 +176,43 @@
         }
     }
 }
+
+// Estilo para modo horizontal (novo chat)
+.chat-input.horizontal {
+    padding: 1rem;
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .input-container {
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .message-input {
+        background: var(--surface-primary);
+        border: 2px solid var(--border-subtle);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+
+        &:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.1);
+        }
+    }
+
+    .send-button {
+        width: 44px;
+        height: 44px;
+        border-radius: 0.75rem;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}

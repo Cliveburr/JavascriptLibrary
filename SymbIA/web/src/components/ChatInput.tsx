@@ -4,24 +4,29 @@ import { useChatStore } from '../stores/chat.store';
 import './ChatInput.scss';
 
 interface ChatInputProps {
-    chatId: string;
+    chatId: string | null;
+    onStartNewChat?: (firstMessage: string) => Promise<void>;
+    horizontal?: boolean;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ chatId }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ chatId, onStartNewChat, horizontal }) => {
     const [message, setMessage] = useState('');
     const { sendMessage, isLoading } = useChatStore();
+    // Detectar se é novo chat
+    const isNewChat = chatId == null;
 
     const handleSubmit = async () => {
         if (!message.trim() || isLoading) return;
-
         const messageToSend = message.trim();
         setMessage('');
-
         try {
-            await sendMessage(chatId, messageToSend);
+            if (isNewChat && onStartNewChat) {
+                await onStartNewChat(messageToSend);
+            } else if (chatId) {
+                await sendMessage(chatId, messageToSend);
+            }
         } catch (error) {
             console.error('Failed to send message:', error);
-            // Restore message on error
             setMessage(messageToSend);
         }
     };
@@ -75,13 +80,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId }) => {
     };
 
     return (
-        <div className="chat-input">
+        <div className={`chat-input${horizontal ? ' horizontal' : ''}`}>
             <div className="input-container">
                 <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
+                    placeholder={isNewChat ? "Digite a primeira mensagem para iniciar o chat..." : "Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"}
                     disabled={isLoading}
                     rows={1}
                     className="message-input"
@@ -97,7 +102,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId }) => {
                         buttonState === 'processing'
                             ? 'Pausar'
                             : buttonState === 'send'
-                                ? 'Enviar mensagem'
+                                ? (isNewChat ? 'Iniciar chat' : 'Enviar mensagem')
                                 : 'Digite uma mensagem'
                     }
                 >

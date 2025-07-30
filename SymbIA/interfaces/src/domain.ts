@@ -21,7 +21,9 @@ export interface Chat {
   id: string;
   memoryId: string;
   title: string;
+  orderIndex: number;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export type MessageRole = 'user' | 'assistant' | 'system';

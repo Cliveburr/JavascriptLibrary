@@ -19,7 +19,8 @@
       "restart": true,
       "skipFiles": [
         "<node_internals>/**"
-      ]
+      ],
+      "preLaunchTask": "Watch API"
     },
     {
       "name": "Debug Tests",

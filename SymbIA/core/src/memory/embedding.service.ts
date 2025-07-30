@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { encoding_for_model } from '@dqbd/tiktoken';
-import { LlmGateway } from '../llm/LlmGateway';
-import { LlmSetService } from '../llm/llm-set.service';
+import { LlmGateway } from '../llm/LlmGateway.js';
+import { LlmSetService } from '../llm/llm-set.service.js';
 import type { LlmSetConfig } from '@symbia/interfaces';
 
 @injectable()

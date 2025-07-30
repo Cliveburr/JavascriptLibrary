@@ -20,7 +20,6 @@ export const MemorySidebar: React.FC = () => {
         selectedChatId,
         isLoadingChats,
         loadChatsByMemory,
-        createChat,
         deleteChat,
         selectChat,
     } = useChatStore();
@@ -29,8 +28,6 @@ export const MemorySidebar: React.FC = () => {
 
     const [showCreateMemoryForm, setShowCreateMemoryForm] = useState(false);
     const [newMemoryName, setNewMemoryName] = useState('');
-    const [showCreateChatForm, setShowCreateChatForm] = useState(false);
-    const [newChatTitle, setNewChatTitle] = useState('');
 
     // Carregar memórias quando o componente monta
     useEffect(() => {
@@ -73,20 +70,6 @@ export const MemorySidebar: React.FC = () => {
         }
     };
 
-    const handleCreateChat = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newChatTitle.trim() || !currentMemoryId) return;
-
-        try {
-            const newChat = await createChat(currentMemoryId, newChatTitle.trim());
-            setNewChatTitle('');
-            setShowCreateChatForm(false);
-            selectChat(newChat.id);
-        } catch (err) {
-            // Error is handled in the store
-        }
-    };
-
     const handleDeleteChat = async (chatId: string) => {
         const confirmed = window.confirm('Tem certeza que deseja deletar este chat?');
         if (confirmed) {
@@ -102,7 +85,9 @@ export const MemorySidebar: React.FC = () => {
         }
     };
 
-    const currentMemoryChats = currentMemoryId ? chatsByMemory[currentMemoryId] || [] : [];
+    const currentMemoryChats = currentMemoryId
+        ? (chatsByMemory[currentMemoryId] || []).sort((a, b) => a.orderIndex - b.orderIndex)
+        : [];
 
     return (
         <div className="memory-sidebar">
@@ -210,7 +195,10 @@ export const MemorySidebar: React.FC = () => {
                         <h3>Chats</h3>
                         <button
                             className="add-button"
-                            onClick={() => setShowCreateChatForm(!showCreateChatForm)}
+                            onClick={() => {
+                                // Limpar seleção de chat para mostrar o input horizontal
+                                selectChat(null);
+                            }}
                             disabled={isLoadingChats}
                             title="Novo chat"
                         >
@@ -219,35 +207,6 @@ export const MemorySidebar: React.FC = () => {
                             </svg>
                         </button>
                     </div>
-
-                    {showCreateChatForm && (
-                        <form className="create-form" onSubmit={handleCreateChat}>
-                            <input
-                                type="text"
-                                value={newChatTitle}
-                                onChange={(e) => setNewChatTitle(e.target.value)}
-                                placeholder="Título do chat"
-                                autoFocus
-                                disabled={isLoadingChats}
-                            />
-                            <div className="form-actions">
-                                <button
-                                    type="submit"
-                                    disabled={isLoadingChats || !newChatTitle.trim()}
-                                    className="confirm-btn"
-                                >
-                                    Criar
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowCreateChatForm(false)}
-                                    className="cancel-btn"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        </form>
-                    )}
 
                     <div className="chats-list">
                         {isLoadingChats ? (
