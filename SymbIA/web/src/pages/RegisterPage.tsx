@@ -63,7 +63,6 @@ export const RegisterPage: React.FC = () => {
                             required
                             disabled={isLoading}
                             placeholder="Your username"
-                            data-testid="username-input"
                             minLength={3}
                         />
                     </div>

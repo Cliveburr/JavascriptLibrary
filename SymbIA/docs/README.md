@@ -71,11 +71,11 @@ pnpm --filter web build
 # Preview do build
 pnpm --filter web preview
 
-# Testes
-pnpm --filter web test
+# Build
+pnpm --filter web build
 
-# Lint
-pnpm --filter web lint
+# Desenvolvimento
+pnpm --filter web dev
 ```
 
 ## 🌟 Características
@@ -94,7 +94,7 @@ pnpm --filter web lint
 
 ### Developer Experience
 - TypeScript para type safety
-- ESLint configurado
+- Build otimizado
 - Arquitetura modular clara
 - Hooks customizados para lógica compartilhada
 

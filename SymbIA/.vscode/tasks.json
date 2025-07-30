@@ -132,69 +132,6 @@
       }
     },
     {
-      "label": "Test All",
-      "type": "shell",
-      "command": "pnpm",
-      "args": [
-        "test"
-      ],
-      "group": "test",
-      "problemMatcher": {
-        "owner": "vitest",
-        "source": "vitest",
-        "fileLocation": [
-          "relative",
-          "${workspaceFolder}"
-        ],
-        "pattern": [
-          {
-            "regexp": "^\\s*❯\\s+(.*):(\\d+):(\\d+)$",
-            "file": 1,
-            "line": 2,
-            "column": 3
-          },
-          {
-            "regexp": "^\\s*(.*)$",
-            "message": 1
-          }
-        ]
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      }
-    },
-    {
-      "label": "Lint All",
-      "type": "shell",
-      "command": "pnpm",
-      "args": [
-        "lint"
-      ],
-      "group": "build",
-      "problemMatcher": {
-        "owner": "eslint",
-        "source": "eslint",
-        "fileLocation": [
-          "relative",
-          "${workspaceFolder}"
-        ],
-        "pattern": "$eslint-stylish"
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      }
-    },
-    {
       "label": "Build Interfaces",
       "type": "shell",
       "command": "pnpm",

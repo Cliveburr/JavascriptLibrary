@@ -39,7 +39,7 @@ export const DashboardPage: React.FC = () => {
     }, [lastSelectedMemoryId, setCurrentMemory]);
 
     return (
-        <div className="dashboard-page" data-testid="dashboard">
+        <div className="dashboard-page">
             <div className="dashboard-content">
                 <MemorySidebar />
                 <ChatArea />

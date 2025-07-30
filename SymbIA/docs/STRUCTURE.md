@@ -8,7 +8,6 @@
     - Reference to /interfaces
     # Project for all the logic that backend will use
     /src
-    /tests
 
 /api
     - Reference to /interfaces
@@ -17,8 +16,6 @@
     ** Always use models and interfaces from /interfaces references
     ** Only use contollers pattner
     /src
-    /tests
-
 
 /web
     - Reference to /interfaces
@@ -26,4 +23,3 @@
     # Use custom SCSS
     # Futuristic, minimalist style
     /src
-    /tests

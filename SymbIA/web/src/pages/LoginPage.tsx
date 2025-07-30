@@ -44,7 +44,6 @@ export const LoginPage: React.FC = () => {
                             required
                             disabled={isLoading}
                             placeholder="your@email.com"
-                            data-testid="email-input"
                         />
                     </div>
 
@@ -58,7 +57,6 @@ export const LoginPage: React.FC = () => {
                             required
                             disabled={isLoading}
                             placeholder="••••••••"
-                            data-testid="password-input"
                         />
                     </div>
 
@@ -72,7 +70,6 @@ export const LoginPage: React.FC = () => {
                         type="submit"
                         className="login-button"
                         disabled={isLoading}
-                        data-testid="login-button"
                     >
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>

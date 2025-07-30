@@ -1,7 +1,19 @@
 # PLANNING.md – SymbIA v2 · **Revisão 3**
 
 > **Última atualização:** 2025-07-29  
-> Esta revisão alinha o planejamento ao documento **THOUGHT‑CYCLE.md**, que define um ciclo de pensamento com **apenas dois estágios**: **Decisão** e **Execução**. As ações próprias (MemorySearch, MemorySave, etc.) são responsáveis por responder ao usuário — não existe fase separada de “Responder” nem rotina automática de “Reflect & Save”.
+> Esta revisão alinha o planejamento ao documento **THOUGHT‑CYCLE.md**, que define um c| Sprint | Objetiv#| **9** | Melhorias de performance e estabilidade | 6. Definition of Done
+
+- Placeholder exibido < 300 ms.  
+- DecisionService com fallback.  
+- Ações enviam mensagens conforme especificação.  
+- Chat‑history flag respeitada.  
+- p95 < 2 s.-------|
+| **4** | DecisionService + ActionRegistry + ação Finalize |
+| **5** | Renderer text-for-replace + ciclo simples |
+| **6** | MemorySearch & MemorySave |
+| **7** | MemoryUpdate & MemoryDelete |
+| **8** | Observabilidade (spans por ação) |
+| **9** | Melhorias de performance e estabilidade |pensamento com **apenas dois estágios**: **Decisão** e **Execução**. As ações próprias (MemorySearch, MemorySave, etc.) são responsáveis por responder ao usuário — não existe fase separada de “Responder” nem rotina automática de “Reflect & Save”.
 
 ---
 
@@ -202,5 +214,5 @@ export function getEnabledActionNames() {
 
 1. Gerar prompts Copilot para DecisionService + ActionRegistry.  
 2. Implementar renderer `TextForReplace` na web.  
-3. Configurar mocks LLM para testes.
+3. Configurar integração com LLM providers.
 

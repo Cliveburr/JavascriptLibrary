@@ -8,11 +8,7 @@
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
-    "validate-config": "node scripts/validate-config.js",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "validate-config": "node scripts/validate-config.js"
   },
   "dependencies": {
     "@symbia/core": "workspace:*",
@@ -28,10 +24,7 @@
     "@types/dotenv": "^8.2.3",
     "@types/express": "^4.17.0",
     "@types/node": "^22.0.0",
-    "@types/supertest": "^6.0.0",
-    "supertest": "^7.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^5.5.0",
-    "vitest": "^2.0.0"
+    "typescript": "^5.5.0"
   }
 }
