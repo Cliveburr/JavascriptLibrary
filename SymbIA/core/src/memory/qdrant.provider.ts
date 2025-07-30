@@ -1,5 +1,6 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { QdrantClient } from '@qdrant/js-client-rest';
+import { ConfigService } from '../config/config.service.js';
 
 export interface QdrantConfig {
     url?: string;
@@ -33,9 +34,10 @@ export interface SearchResult {
 export class QdrantProvider {
     private client: QdrantClient;
 
-    constructor(config?: QdrantConfig) {
-        const url = config?.url || process.env.QDRANT_URL || 'http://localhost:6333';
-        const apiKey = config?.apiKey || process.env.QDRANT_API_KEY;
+    constructor(@inject(ConfigService) configService: ConfigService, config?: QdrantConfig) {
+        const qdrantConfig = configService.getQdrantConfig();
+        const url = config?.url || qdrantConfig.url;
+        const apiKey = config?.apiKey || qdrantConfig.apiKey;
 
         this.client = new QdrantClient({
             url,

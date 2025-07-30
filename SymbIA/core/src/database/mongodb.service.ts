@@ -1,19 +1,24 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import type { User, Memory, Chat, Message } from '@symbia/interfaces';
+import { ConfigService } from '../config/config.service.js';
 
 @injectable()
 export class MongoDBService {
     private client: MongoClient | null = null;
     private db: Db | null = null;
 
+    constructor(
+        @inject(ConfigService) private configService: ConfigService
+    ) { }
+
     async connect(): Promise<void> {
         if (this.client) {
             return;
         }
 
-        const uri = process.env.MONGODB_URI || 'mongodb://localhost:27018/symbia';
-        this.client = new MongoClient(uri);
+        const dbConfig = this.configService.getDatabaseConfig();
+        this.client = new MongoClient(dbConfig.mongodbUri);
 
         try {
             await this.client.connect();

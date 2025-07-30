@@ -1,5 +1,6 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
+import { ConfigService } from '../../config/config.service.js';
 
 export interface OllamaConfig {
     baseUrl?: string;
@@ -9,8 +10,9 @@ export interface OllamaConfig {
 export class OllamaProvider {
     private baseUrl: string;
 
-    constructor() {
-        this.baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    constructor(@inject(ConfigService) configService: ConfigService) {
+        const ollamaConfig = configService.getOllamaConfig();
+        this.baseUrl = ollamaConfig.baseUrl;
     }
 
     async invoke(messages: LlmRequest['messages'], options?: Partial<LlmRequest>): Promise<LlmResponse> {

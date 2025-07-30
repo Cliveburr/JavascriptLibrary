@@ -8,27 +8,30 @@
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
+    "validate-config": "node scripts/validate-config.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
-    "@symbia/interfaces": "workspace:*",
     "@symbia/core": "workspace:*",
+    "@symbia/interfaces": "workspace:*",
+    "dotenv": "^17.2.1",
     "express": "^4.18.0",
-    "zod": "^3.22.0",
-    "zod-express-middleware": "^1.4.0",
+    "reflect-metadata": "^0.2.0",
     "tsyringe": "^4.8.0",
-    "reflect-metadata": "^0.2.0"
+    "zod": "^3.22.0",
+    "zod-express-middleware": "^1.4.0"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^4.17.0",
+    "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.0",
+    "supertest": "^7.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.5.0",
-    "vitest": "^2.0.0",
-    "supertest": "^7.0.0",
-    "@types/supertest": "^6.0.0",
-    "@types/node": "^22.0.0"
+    "vitest": "^2.0.0"
   }
 }

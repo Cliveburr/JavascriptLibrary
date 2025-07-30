@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import type { User } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
+import { ConfigService } from '../config/config.service.js';
 
 interface AuthResult {
     user: User;
@@ -13,13 +14,9 @@ interface AuthResult {
 
 @injectable()
 export class AuthService {
-    private readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-    private readonly JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key';
-    private readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
-    private readonly JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
-
     constructor(
-        @inject(MongoDBService) private mongoService: MongoDBService
+        @inject(MongoDBService) private mongoService: MongoDBService,
+        @inject(ConfigService) private configService: ConfigService
     ) { }
 
     async register(username: string, email: string, password: string): Promise<AuthResult> {
@@ -108,7 +105,8 @@ export class AuthService {
 
     async validateToken(token: string): Promise<User | null> {
         try {
-            const decoded = jwt.verify(token, this.JWT_SECRET) as any;
+            const authConfig = this.configService.getAuthConfig();
+            const decoded = jwt.verify(token, authConfig.jwtSecret) as any;
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
@@ -122,7 +120,8 @@ export class AuthService {
 
     async refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string; } | null> {
         try {
-            const decoded = jwt.verify(refreshToken, this.JWT_REFRESH_SECRET) as any;
+            const authConfig = this.configService.getAuthConfig();
+            const decoded = jwt.verify(refreshToken, authConfig.jwtRefreshSecret) as any;
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
@@ -142,26 +141,24 @@ export class AuthService {
     }
 
     private generateToken(user: User): string {
-        return jwt.sign(
-            {
-                userId: user.id,
-                email: user.email,
-                username: user.username
-            },
-            this.JWT_SECRET as string,
-            { expiresIn: this.JWT_EXPIRES_IN as string }
-        );
+        const authConfig = this.configService.getAuthConfig();
+        const payload = {
+            userId: user.id,
+            email: user.email,
+            username: user.username
+        };
+
+        return (jwt.sign as any)(payload, authConfig.jwtSecret, { expiresIn: authConfig.jwtExpiresIn });
     }
 
     private generateRefreshToken(user: User): string {
-        return jwt.sign(
-            {
-                userId: user.id,
-                email: user.email,
-                username: user.username
-            },
-            this.JWT_REFRESH_SECRET as string,
-            { expiresIn: this.JWT_REFRESH_EXPIRES_IN as string }
-        );
+        const authConfig = this.configService.getAuthConfig();
+        const payload = {
+            userId: user.id,
+            email: user.email,
+            username: user.username
+        };
+
+        return (jwt.sign as any)(payload, authConfig.jwtRefreshSecret, { expiresIn: authConfig.jwtRefreshExpiresIn });
     }
 }

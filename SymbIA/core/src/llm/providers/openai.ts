@@ -1,5 +1,6 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
+import { ConfigService } from '../../config/config.service.js';
 
 export interface OpenAIConfig {
     apiKey: string;
@@ -11,9 +12,10 @@ export class OpenAIProvider {
     private apiKey: string;
     private baseUrl: string;
 
-    constructor() {
-        this.apiKey = process.env.OPENAI_API_KEY || '';
-        this.baseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+    constructor(@inject(ConfigService) configService: ConfigService) {
+        const openaiConfig = configService.getOpenAIConfig();
+        this.apiKey = openaiConfig.apiKey || '';
+        this.baseUrl = openaiConfig.baseUrl;
     }
 
     async invoke(messages: LlmRequest['messages'], options?: Partial<LlmRequest>): Promise<LlmResponse> {
