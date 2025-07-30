@@ -21,7 +21,13 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
     });
 
     if (!response.ok) {
-        throw new Error(`API call failed: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`API call failed: ${response.statusText} - ${errorText}`);
+    }
+
+    // Handle empty responses (like 204 No Content)
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return null;
     }
 
     return response.json();
@@ -158,10 +164,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 };
             });
         } catch (error) {
+            console.error('Erro ao deletar chat:', error);
             set({
                 error: error instanceof Error ? error.message : 'Failed to delete chat',
                 isLoading: false
             });
+            throw error; // Re-throw para que o componente saiba que houve erro
         }
     },
 
@@ -539,12 +547,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
                                         }
                                     };
                                 } else {
-                                    // Adicionar novo chat à lista
+                                    // Adicionar novo chat ao topo da lista
+                                    // Incrementar orderIndex de todos os chats existentes
+                                    const updatedExistingChats = memoryChats.map(chat => ({
+                                        ...chat,
+                                        orderIndex: chat.orderIndex + 1
+                                    }));
+
                                     const newChat = {
                                         id: progress.data.chatId,
                                         memoryId: memoryId,
                                         title: progress.data.title,
-                                        orderIndex: memoryChats.length,
+                                        orderIndex: 0, // Novo chat sempre no topo
                                         createdAt: new Date().toISOString(),
                                         updatedAt: new Date().toISOString()
                                     };
@@ -552,7 +566,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                                     return {
                                         chatsByMemory: {
                                             ...state.chatsByMemory,
-                                            [memoryId]: [...memoryChats, newChat]
+                                            [memoryId]: [newChat, ...updatedExistingChats]
                                         }
                                     };
                                 }

@@ -95,7 +95,6 @@ export class OllamaProvider {
                 if (done) break;
 
                 const chunk = decoder.decode(value);
-                console.log('chunk: ' + chunk);
                 const lines = chunk.split('\n').filter(line => line.trim());
 
                 for (const line of lines) {

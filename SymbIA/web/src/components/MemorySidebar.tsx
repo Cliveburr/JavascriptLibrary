@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useMemoryStore, useChatStore, useAuthStore } from '../stores';
 import { UserProfileDropdown } from './UserProfileDropdown';
+import { ConfirmModal } from './ConfirmModal';
 import './MemorySidebar.scss';
 
 export const MemorySidebar: React.FC = () => {
@@ -28,6 +29,11 @@ export const MemorySidebar: React.FC = () => {
 
     const [showCreateMemoryForm, setShowCreateMemoryForm] = useState(false);
     const [newMemoryName, setNewMemoryName] = useState('');
+    const [showDeleteChatModal, setShowDeleteChatModal] = useState(false);
+    const [chatToDelete, setChatToDelete] = useState<{ id: string; title: string; } | null>(null);
+    const [chatListKey, setChatListKey] = useState(0); // Para forçar re-render
+    const chatListRef = useRef<HTMLDivElement>(null); // Referência para a lista de chats
+    const prevChatCountRef = useRef<number>(0); // Para detectar novos chats
 
     // Carregar memórias quando o componente monta
     useEffect(() => {
@@ -47,6 +53,22 @@ export const MemorySidebar: React.FC = () => {
             setLastSelected(currentMemoryId, selectedChatId || undefined);
         }
     }, [currentMemoryId, selectedChatId, setLastSelected]);
+
+    // Scroll para o topo quando um novo chat é criado
+    useEffect(() => {
+        if (currentMemoryId && chatsByMemory[currentMemoryId]) {
+            const chats = chatsByMemory[currentMemoryId];
+            const currentChatCount = chats.length;
+
+            // Se o número de chats aumentou, um novo chat foi criado
+            if (currentChatCount > prevChatCountRef.current && chatListRef.current) {
+                chatListRef.current.scrollTop = 0;
+            }
+
+            // Atualizar o contador anterior
+            prevChatCountRef.current = currentChatCount;
+        }
+    }, [currentMemoryId, chatsByMemory]);
 
     const handleCreateMemory = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -70,17 +92,40 @@ export const MemorySidebar: React.FC = () => {
         }
     };
 
-    const handleDeleteChat = async (chatId: string) => {
-        const confirmed = window.confirm('Tem certeza que deseja deletar este chat?');
-        if (confirmed) {
-            await deleteChat(chatId);
+    const handleDeleteChat = (chatId: string, chatTitle: string) => {
+        setChatToDelete({ id: chatId, title: chatTitle });
+        setShowDeleteChatModal(true);
+    };
+
+    const confirmDeleteChat = async () => {
+        if (!chatToDelete) return;
+
+        try {
+            await deleteChat(chatToDelete.id);
+
+            // Forçar re-render da lista de chats
+            setChatListKey(prev => prev + 1);
+
+            // Forçar recarregamento da lista como fallback
+            if (currentMemoryId) {
+                await loadChatsByMemory(currentMemoryId);
+            }
+        } catch (error) {
+            console.error('Erro ao deletar chat:', error);
+        } finally {
+            setShowDeleteChatModal(false);
+            setChatToDelete(null);
         }
+    }; const cancelDeleteChat = () => {
+        setShowDeleteChatModal(false);
+        setChatToDelete(null);
     };
 
     const handleMemorySelect = (memoryId: string) => {
         setCurrentMemory(memoryId);
-        // Carregar chats da memória selecionada
-        if (!chatsByMemory[memoryId]) {
+        // Carregar chats da memória selecionada se ainda não carregados
+        const memoryChats = useChatStore.getState().chatsByMemory[memoryId];
+        if (!memoryChats || memoryChats.length === 0) {
             loadChatsByMemory(memoryId);
         }
     };
@@ -208,7 +253,7 @@ export const MemorySidebar: React.FC = () => {
                         </button>
                     </div>
 
-                    <div className="chats-list">
+                    <div className="chats-list" key={`chats-${currentMemoryId}-${chatListKey}`} ref={chatListRef}>
                         {isLoadingChats ? (
                             <div className="loading">Carregando chats...</div>
                         ) : currentMemoryChats.length === 0 ? (
@@ -225,7 +270,7 @@ export const MemorySidebar: React.FC = () => {
                                         className="delete-button"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleDeleteChat(chat.id);
+                                            handleDeleteChat(chat.id, chat.title);
                                         }}
                                         title="Deletar chat"
                                     >
@@ -239,6 +284,18 @@ export const MemorySidebar: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* Modal de confirmação para deletar chat */}
+            <ConfirmModal
+                isOpen={showDeleteChatModal}
+                title="Deletar Chat"
+                message={`Tem certeza que deseja deletar o chat "${chatToDelete?.title}"? Esta ação não pode ser desfeita.`}
+                confirmText="Deletar"
+                cancelText="Cancelar"
+                onConfirm={confirmDeleteChat}
+                onCancel={cancelDeleteChat}
+                isDestructive={true}
+            />
         </div>
     );
 };

@@ -15,14 +15,11 @@ export class ChatService {
         await this.mongoService.connect();
         const chatsCollection = this.mongoService.getChatsCollection();
 
-        // Buscar o maior orderIndex para essa memória
-        const lastChat = await chatsCollection
-            .findOne(
-                { memoryId },
-                { sort: { orderIndex: -1 } }
-            );
-
-        const nextOrderIndex = lastChat ? lastChat.orderIndex + 1 : 0;
+        // Incrementar o orderIndex de todos os chats existentes dessa memória
+        await chatsCollection.updateMany(
+            { memoryId },
+            { $inc: { orderIndex: 1 } }
+        );
 
         const chatId = uuidv4();
         const now = new Date();
@@ -31,7 +28,7 @@ export class ChatService {
             id: chatId,
             memoryId,
             title,
-            orderIndex: nextOrderIndex,
+            orderIndex: 0, // Novo chat sempre no topo
             createdAt: now,
             updatedAt: now
         };

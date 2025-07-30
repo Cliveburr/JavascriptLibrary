@@ -6,3 +6,4 @@ export { ChatMessage } from './ChatMessage';
 export { ChatInput } from './ChatInput';
 export { UserProfileDropdown } from './UserProfileDropdown';
 export { LLMSelector } from './LLMSelector';
+export { ConfirmModal } from './ConfirmModal';
