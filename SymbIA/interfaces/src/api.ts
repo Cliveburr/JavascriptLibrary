@@ -87,3 +87,19 @@ export interface SendMessageResponse {
   userMessage: MessageDTO;
   assistantMessage: MessageDTO;
 }
+
+// Stream Message Progress Enums and Types
+export enum MessageProgressModal {
+  Info = 0,               // Um texto de informação para indicar os passos da iteração
+  Text = 1,               // Um texto fixo para ficar visualmente isolado
+  TextStream = 2,         // Mensagem para ir compondo um texto
+  Error = 3,              // Quando um error acontecer
+  UpdateTitle = 4         // Mensagem para atualizar o titulo do chat
+}
+
+export interface MessageProgress {
+  modal: MessageProgressModal;
+  data?: any;    // aqui realmente precisa ser any para depois conforme o modal ser prototipada para o tipo correto
+}
+
+export type StreamProgressCallback = (progress: MessageProgress) => Promise<void> | void;

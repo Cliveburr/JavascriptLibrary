@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import type { Message, MessageRole, LlmSetConfig } from '@symbia/interfaces';
+import type { Message, MessageRole, LlmSetConfig, StreamProgressCallback } from '@symbia/interfaces';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 
@@ -10,7 +10,13 @@ export class ThoughtCycleService {
         @inject(LlmSetService) private llmSetService: LlmSetService
     ) { }
 
-    async handle(_userId: string, memoryId: string, message: string, llmSetId: string): Promise<string> {
+    async handle(
+        _userId: string,
+        memoryId: string,
+        message: string,
+        llmSetId: string,
+        streamCallback?: StreamProgressCallback
+    ): Promise<string> {
         // Get LLM set configuration
         const llmSetConfig = await this.getLlmSetForChat(llmSetId);
         if (!llmSetConfig) {
@@ -24,7 +30,12 @@ export class ThoughtCycleService {
         const contextMessages = this.buildContextMessages(recentMessages, message);
 
         // Envia ao LLM usando fast-chat
-        const response = await this.llmGateway.invoke(llmSetConfig, 'chat', contextMessages);
+        let response;
+        if (streamCallback) {
+            response = await this.llmGateway.invokeAsync(llmSetConfig, 'chat', contextMessages, streamCallback);
+        } else {
+            response = await this.llmGateway.invoke(llmSetConfig, 'chat', contextMessages);
+        }
 
         return response.content;
     }

@@ -5,28 +5,33 @@ import './ChatInput.scss';
 
 interface ChatInputProps {
     chatId: string | null;
+    memoryId: string;
     onStartNewChat?: (firstMessage: string) => Promise<void>;
     horizontal?: boolean;
     llmSetId?: string;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ chatId, onStartNewChat, horizontal, llmSetId }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ chatId, memoryId, onStartNewChat, horizontal, llmSetId }) => {
     const [message, setMessage] = useState('');
-    const { sendMessage, isLoading } = useChatStore();
+    const { sendStreamingMessage, isLoading, isStreaming } = useChatStore();
     // Detectar se é novo chat
     const isNewChat = chatId == null;
 
     const handleSubmit = async () => {
-        if (!message.trim() || isLoading) return;
+        if (!message.trim() || isLoading || isStreaming) return;
         const messageToSend = message.trim();
         setMessage('');
+
         try {
+            if (!llmSetId) {
+                throw new Error('LLM Set ID is required for sending messages');
+            }
+
             if (isNewChat && onStartNewChat) {
                 await onStartNewChat(messageToSend);
-            } else if (chatId && llmSetId) {
-                await sendMessage(chatId, messageToSend, llmSetId);
-            } else if (chatId && !llmSetId) {
-                throw new Error('LLM Set ID is required for sending messages');
+            } else {
+                // Usar nova função de streaming
+                await sendStreamingMessage(memoryId, chatId, messageToSend, llmSetId);
             }
         } catch (error) {
             console.error('Failed to send message:', error);
@@ -43,7 +48,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId, onStartNewChat, ho
 
     // Determinar o estado do botão
     const getButtonState = () => {
-        if (isLoading) return 'processing';
+        if (isLoading || isStreaming) return 'processing';
         if (message.trim()) return 'send';
         return 'disabled';
     };
@@ -90,7 +95,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId, onStartNewChat, ho
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder={isNewChat ? "Digite a primeira mensagem para iniciar o chat..." : "Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"}
-                    disabled={isLoading}
+                    disabled={isLoading || isStreaming}
                     rows={1}
                     className="message-input"
                     data-testid="chat-input"

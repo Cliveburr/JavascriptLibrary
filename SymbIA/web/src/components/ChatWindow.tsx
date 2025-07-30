@@ -2,15 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { useChatStore } from '../stores/chat.store';
 import type { MessageDTO } from '@symbia/interfaces';
+import type { StreamingMessage } from '../types/streaming';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
     chatId: string;
-    messages: MessageDTO[];
+    messages: (MessageDTO | StreamingMessage)[];
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
-    const { isLoading, isLoadingMessages } = useChatStore();
+    const { isLoading, isLoadingMessages, isStreaming } = useChatStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +34,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
                 ref={scrollContainerRef}
                 data-testid="messages-container"
             >
-                {messages.length === 0 && !isAnyLoading && (
+                {messages.length === 0 && !isAnyLoading && !isStreaming && (
                     <div className="empty-state">
                         <div className="empty-icon">💭</div>
                         <h4>Inicie uma conversa</h4>
@@ -41,14 +42,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
                     </div>
                 )}
 
-                {messages.map((message: MessageDTO) => (
+                {messages.map((message: MessageDTO | StreamingMessage) => (
                     <ChatMessage
                         key={message.id}
                         message={message}
                     />
                 ))}
 
-                {isAnyLoading && (
+                {(isAnyLoading || isStreaming) && (
                     <div className="typing-indicator" data-testid="typing-indicator">
                         <div className="typing-content">
                             <div className="typing-dots">
@@ -56,7 +57,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
                                 <span></span>
                                 <span></span>
                             </div>
-                            <div className="typing-text">IA está pensando...</div>
+                            <div className="typing-text">
+                                {isStreaming ? 'IA está respondendo...' : 'IA está pensando...'}
+                            </div>
                         </div>
                     </div>
                 )}

@@ -1,5 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, StreamProgressCallback } from '@symbia/interfaces';
+import { MessageProgressModal } from '@symbia/interfaces';
 import { ConfigService } from '../../config/config.service.js';
 
 export interface OllamaConfig {
@@ -47,6 +48,93 @@ export class OllamaProvider {
                 promptTokens: data.prompt_eval_count || 0,
                 completionTokens: data.eval_count || 0,
                 totalTokens: (data.prompt_eval_count || 0) + (data.eval_count || 0),
+            },
+        };
+    }
+
+    async invokeAsync(
+        messages: LlmRequest['messages'],
+        options: Partial<LlmRequest>,
+        streamCallback: StreamProgressCallback
+    ): Promise<LlmResponse> {
+        const requestBody = {
+            model: options?.model || 'phi3',
+            messages,
+            stream: true,
+            options: {
+                temperature: options?.temperature ?? 0.7,
+                num_predict: options?.maxTokens,
+            },
+        };
+
+        const response = await fetch(`${this.baseUrl}/api/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text().catch(() => '');
+            throw new Error(`Ollama API error: ${response.status} ${response.statusText} - ${errorData}`);
+        }
+
+        let fullContent = '';
+        let totalPromptTokens = 0;
+        let totalCompletionTokens = 0;
+
+        const reader = response.body?.getReader();
+        if (!reader) {
+            throw new Error('Failed to get response reader');
+        }
+
+        const decoder = new TextDecoder();
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n').filter(line => line.trim());
+
+                for (const line of lines) {
+                    try {
+                        const data = JSON.parse(line);
+
+                        if (data.message?.content) {
+                            fullContent += data.message.content;
+
+                            // Send stream progress
+                            await streamCallback({
+                                modal: MessageProgressModal.TextStream,
+                                data: { content: data.message.content }
+                            });
+                        }
+
+                        if (data.prompt_eval_count) {
+                            totalPromptTokens = data.prompt_eval_count;
+                        }
+                        if (data.eval_count) {
+                            totalCompletionTokens = data.eval_count;
+                        }
+                    } catch (parseError) {
+                        // Ignore malformed JSON chunks
+                        console.warn('Failed to parse Ollama stream chunk:', parseError);
+                    }
+                }
+            }
+        } finally {
+            reader.releaseLock();
+        }
+
+        return {
+            content: fullContent,
+            usage: {
+                promptTokens: totalPromptTokens,
+                completionTokens: totalCompletionTokens,
+                totalTokens: totalPromptTokens + totalCompletionTokens,
             },
         };
     }

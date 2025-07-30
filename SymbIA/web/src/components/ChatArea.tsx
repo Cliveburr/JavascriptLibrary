@@ -83,7 +83,11 @@ export const ChatArea: React.FC = () => {
                             chatId={selectedChatId}
                             messages={currentMessages}
                         />
-                        <ChatInput chatId={selectedChatId} llmSetId={selectedSetId || undefined} />
+                        <ChatInput
+                            chatId={selectedChatId}
+                            memoryId={currentMemory.id}
+                            llmSetId={selectedSetId || undefined}
+                        />
                     </>
                 ) : currentMemory ? (
                     <div className="chat-placeholder">
@@ -92,6 +96,7 @@ export const ChatArea: React.FC = () => {
                         <p>Digite a primeira mensagem para iniciar um novo chat.</p>
                         <ChatInput
                             chatId={null}
+                            memoryId={currentMemory.id}
                             horizontal
                             onStartNewChat={handleStartNewChat}
                             llmSetId={selectedSetId || undefined}

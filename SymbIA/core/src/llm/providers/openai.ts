@@ -1,5 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, StreamProgressCallback } from '@symbia/interfaces';
+import { MessageProgressModal } from '@symbia/interfaces';
 import { ConfigService } from '../../config/config.service.js';
 
 export interface OpenAIConfig {
@@ -52,6 +53,98 @@ export class OpenAIProvider {
                 promptTokens: data.usage?.prompt_tokens || 0,
                 completionTokens: data.usage?.completion_tokens || 0,
                 totalTokens: data.usage?.total_tokens || 0,
+            },
+        };
+    }
+
+    async invokeAsync(
+        messages: LlmRequest['messages'],
+        options: Partial<LlmRequest>,
+        streamCallback: StreamProgressCallback
+    ): Promise<LlmResponse> {
+        if (!this.apiKey) {
+            throw new Error('OpenAI API key is required');
+        }
+
+        const requestBody = {
+            model: options?.model || 'gpt-4o',
+            messages,
+            temperature: options?.temperature ?? 0.7,
+            max_tokens: options?.maxTokens,
+            stream: true,
+        };
+
+        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.apiKey}`,
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+        }
+
+        let fullContent = '';
+        let totalPromptTokens = 0;
+        let totalCompletionTokens = 0;
+
+        const reader = response.body?.getReader();
+        if (!reader) {
+            throw new Error('Failed to get response reader');
+        }
+
+        const decoder = new TextDecoder();
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
+
+                for (const line of lines) {
+                    const data = line.replace('data: ', '');
+                    if (data === '[DONE]') continue;
+
+                    try {
+                        const parsed = JSON.parse(data);
+                        const content = parsed.choices?.[0]?.delta?.content;
+
+                        if (content) {
+                            fullContent += content;
+
+                            // Send stream progress
+                            await streamCallback({
+                                modal: MessageProgressModal.TextStream,
+                                data: { content }
+                            });
+                        }
+
+                        if (parsed.usage) {
+                            totalPromptTokens = parsed.usage.prompt_tokens || 0;
+                            totalCompletionTokens = parsed.usage.completion_tokens || 0;
+                        }
+                    } catch (parseError) {
+                        // Ignore malformed JSON chunks
+                        console.warn('Failed to parse OpenAI stream chunk:', parseError);
+                    }
+                }
+            }
+        } finally {
+            reader.releaseLock();
+        }
+
+        return {
+            content: fullContent,
+            usage: {
+                promptTokens: totalPromptTokens,
+                completionTokens: totalCompletionTokens,
+                totalTokens: totalPromptTokens + totalCompletionTokens,
             },
         };
     }

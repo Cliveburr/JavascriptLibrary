@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import type { LlmSetConfig, LlmRequest, LlmResponse, ModelSpec } from '@symbia/interfaces';
+import type { LlmSetConfig, LlmRequest, LlmResponse, ModelSpec, StreamProgressCallback } from '@symbia/interfaces';
 import { LlmSetService } from './llm-set.service.js';
 import { OpenAIProvider } from './providers/openai.js';
 import { OllamaProvider } from './providers/ollama.js';
@@ -36,6 +36,38 @@ export class LlmGateway {
 
             case 'ollama':
                 return this.ollamaProvider.invoke(messages, requestOptions);
+
+            default:
+                throw new Error(`Unsupported LLM provider: ${modelSpec.provider}`);
+        }
+    }
+
+    async invokeAsync(
+        llmSetConfig: LlmSetConfig,
+        purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding',
+        messages: LlmRequest['messages'],
+        streamCallback: StreamProgressCallback,
+        options?: Partial<LlmRequest>
+    ): Promise<LlmResponse> {
+        const modelSpec = this.llmSetService.getModelSpecWithFallback(llmSetConfig, purpose);
+
+        if (!modelSpec) {
+            throw new Error(`No model found for purpose '${purpose}' in LLM set '${llmSetConfig.id}'`);
+        }
+
+        // Merge model from llmSetConfig with options
+        const requestOptions = {
+            ...options,
+            model: modelSpec.model,
+            stream: true
+        };
+
+        switch (modelSpec.provider) {
+            case 'openai':
+                return this.openaiProvider.invokeAsync(messages, requestOptions, streamCallback);
+
+            case 'ollama':
+                return this.ollamaProvider.invokeAsync(messages, requestOptions, streamCallback);
 
             default:
                 throw new Error(`Unsupported LLM provider: ${modelSpec.provider}`);
