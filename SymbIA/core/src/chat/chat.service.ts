@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { ObjectId } from 'mongodb';
 import type { Chat, Message, LlmRequest } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { LlmGateway } from '../llm/LlmGateway.js';
@@ -17,16 +17,16 @@ export class ChatService {
 
         // Incrementar o orderIndex de todos os chats existentes dessa memória
         await chatsCollection.updateMany(
-            { memoryId },
+            { memoryId: new ObjectId(memoryId) },
             { $inc: { orderIndex: 1 } }
         );
 
-        const chatId = uuidv4();
+        const chatId = new ObjectId();
         const now = new Date();
 
         const chat: Chat = {
-            id: chatId,
-            memoryId,
+            _id: chatId,
+            memoryId: new ObjectId(memoryId),
             title,
             orderIndex: 0, // Novo chat sempre no topo
             createdAt: now,
@@ -42,7 +42,7 @@ export class ChatService {
         const chatsCollection = this.mongoService.getChatsCollection();
 
         const chats = await chatsCollection
-            .find({ memoryId })
+            .find({ memoryId: new ObjectId(memoryId) })
             .sort({ orderIndex: 1 })
             .toArray();
 
@@ -53,7 +53,7 @@ export class ChatService {
         await this.mongoService.connect();
         const chatsCollection = this.mongoService.getChatsCollection();
 
-        const chat = await chatsCollection.findOne({ id: chatId });
+        const chat = await chatsCollection.findOne({ _id: new ObjectId(chatId) });
         return chat || null;
     }
 
@@ -62,7 +62,7 @@ export class ChatService {
         const chatsCollection = this.mongoService.getChatsCollection();
 
         const result = await chatsCollection.findOneAndUpdate(
-            { id: chatId },
+            { _id: new ObjectId(chatId) },
             {
                 $set: {
                     title: title.substring(0, 60), // Limitar a 60 caracteres
@@ -80,7 +80,7 @@ export class ChatService {
         const chatsCollection = this.mongoService.getChatsCollection();
 
         // Primeiro, buscar o chat para obter o memoryId
-        const chat = await chatsCollection.findOne({ id: chatId });
+        const chat = await chatsCollection.findOne({ _id: new ObjectId(chatId) });
         if (!chat) return null;
 
         // Reorganizar os outros chats na mesma memória
@@ -90,7 +90,7 @@ export class ChatService {
             .toArray();
 
         // Remover o chat da lista atual
-        const otherChats = chatsInMemory.filter((c: Chat) => c.id !== chatId);
+        const otherChats = chatsInMemory.filter((c: Chat) => c._id.toString() !== chatId);
 
         // Inserir o chat na nova posição
         otherChats.splice(newOrderIndex, 0, chat);
@@ -98,7 +98,7 @@ export class ChatService {
         // Atualizar os índices de todos os chats
         const bulkOps = otherChats.map((c: Chat, index: number) => ({
             updateOne: {
-                filter: { id: c.id },
+                filter: { _id: c._id },
                 update: {
                     $set: {
                         orderIndex: index,
@@ -113,7 +113,7 @@ export class ChatService {
         }
 
         // Retornar o chat atualizado
-        return await chatsCollection.findOne({ id: chatId });
+        return await chatsCollection.findOne({ _id: new ObjectId(chatId) });
     }
 
     async deleteChat(chatId: string): Promise<boolean> {
@@ -122,10 +122,10 @@ export class ChatService {
         const messagesCollection = this.mongoService.getMessagesCollection();
 
         // Deletar mensagens associadas
-        await messagesCollection.deleteMany({ chatId });
+        await messagesCollection.deleteMany({ chatId: new ObjectId(chatId) });
 
         // Deletar o chat
-        const result = await chatsCollection.deleteOne({ id: chatId });
+        const result = await chatsCollection.deleteOne({ _id: new ObjectId(chatId) });
         return result.deletedCount === 1;
     }
 
@@ -142,7 +142,7 @@ export class ChatService {
         const messagesCollection = this.mongoService.getMessagesCollection();
 
         const messages = await messagesCollection
-            .find({ chatId })
+            .find({ chatId: new ObjectId(chatId) })
             .sort({ createdAt: 1 })
             .toArray();
 
@@ -153,7 +153,7 @@ export class ChatService {
         await this.mongoService.connect();
         const messagesCollection = this.mongoService.getMessagesCollection();
 
-        const result = await messagesCollection.deleteOne({ id: messageId });
+        const result = await messagesCollection.deleteOne({ _id: new ObjectId(messageId) });
         return result.deletedCount === 1;
     }
 

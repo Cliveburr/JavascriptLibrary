@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
+import { ObjectId } from 'mongodb';
 import { ThoughtCycleService, ChatService } from '@symbia/core';
 import type { MessageProgress } from '@symbia/interfaces';
 import { MessageProgressModal } from '@symbia/interfaces';
@@ -13,7 +14,7 @@ const sendMessageSchema = z.object({
 
 // Schema de validação para os params
 const chatParamsSchema = z.object({
-    memoryId: z.string().uuid('Invalid memory ID format')
+    memoryId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid memory ID format')
 });
 
 export class ChatController {
@@ -35,8 +36,8 @@ export class ChatController {
 
             // Converter para DTO
             const chatDTOs = chats.map(chat => ({
-                id: chat.id,
-                memoryId: chat.memoryId,
+                id: chat._id.toString(),
+                memoryId: chat.memoryId.toString(),
                 title: chat.title,
                 orderIndex: chat.orderIndex,
                 createdAt: chat.createdAt.toISOString(),
@@ -63,8 +64,8 @@ export class ChatController {
 
             // Converter para DTO
             const chatDTO = {
-                id: newChat.id,
-                memoryId: newChat.memoryId,
+                id: newChat._id.toString(),
+                memoryId: newChat.memoryId.toString(),
                 title: newChat.title,
                 orderIndex: newChat.orderIndex,
                 createdAt: newChat.createdAt.toISOString(),
@@ -91,8 +92,8 @@ export class ChatController {
 
             // Converter para DTO
             const messageDTOs = messages.map(message => ({
-                id: message.id,
-                chatId: message.chatId,
+                id: message._id.toString(),
+                chatId: message.chatId.toString(),
                 role: message.role,
                 content: message.content,
                 contentType: message.contentType,
@@ -174,7 +175,7 @@ export class ChatController {
                 // Se não tem chatId, é um chat novo - criar temporariamente com título padrão
                 isNewChat = true;
                 const newChat = await this.chatService.createChat(memoryId, 'Novo Chat');
-                finalChatId = newChat.id;
+                finalChatId = newChat._id.toString();
             }
 
             // Setup streaming headers
@@ -193,8 +194,8 @@ export class ChatController {
 
             // Criar e salvar mensagem do usuário no banco imediatamente
             const userMessage = {
-                id: `msg-${Date.now()}-user`,
-                chatId: finalChatId,
+                _id: new ObjectId(),
+                chatId: new ObjectId(finalChatId),
                 role: 'user' as const,
                 content,
                 contentType: 'text' as const,
@@ -221,8 +222,8 @@ export class ChatController {
                 modal: MessageProgressModal.Text,
                 data: {
                     userMessage: {
-                        id: userMessage.id,
-                        chatId: userMessage.chatId,
+                        id: userMessage._id.toString(),
+                        chatId: userMessage.chatId.toString(),
                         role: userMessage.role,
                         content: userMessage.content,
                         contentType: userMessage.contentType,
@@ -314,8 +315,8 @@ export class ChatController {
 
             if (updatedChat) {
                 const chatDTO = {
-                    id: updatedChat.id,
-                    memoryId: updatedChat.memoryId,
+                    id: updatedChat._id.toString(),
+                    memoryId: updatedChat.memoryId.toString(),
                     title: updatedChat.title,
                     orderIndex: updatedChat.orderIndex,
                     createdAt: updatedChat.createdAt.toISOString(),
@@ -346,8 +347,8 @@ export class ChatController {
 
             if (updatedChat) {
                 const chatDTO = {
-                    id: updatedChat.id,
-                    memoryId: updatedChat.memoryId,
+                    id: updatedChat._id.toString(),
+                    memoryId: updatedChat.memoryId.toString(),
                     title: updatedChat.title,
                     orderIndex: updatedChat.orderIndex,
                     createdAt: updatedChat.createdAt.toISOString(),

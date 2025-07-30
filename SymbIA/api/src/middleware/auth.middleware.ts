@@ -34,9 +34,9 @@ export const createAuthMiddleware = (authService: AuthService) => {
             }
 
             req.user = {
-                id: user.id,
+                id: user._id.toString(),
                 email: user.email,
-                defaultMemoryId: user.defaultMemoryId
+                defaultMemoryId: user.defaultMemoryId.toString()
             };
 
             next();

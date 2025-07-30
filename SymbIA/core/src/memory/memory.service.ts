@@ -1,6 +1,6 @@
 import type { Memory } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
-import { v4 as uuidv4 } from 'uuid';
+import { ObjectId } from 'mongodb';
 
 export class MemoryValidationError extends Error {
   constructor(message: string) {
@@ -42,8 +42,8 @@ export class MemoryService {
     }
 
     const memory: Memory = {
-      id: uuidv4(),
-      userId,
+      _id: new ObjectId(),
+      userId: new ObjectId(userId),
       name: name.trim(),
       createdAt: new Date(),
     };
@@ -61,7 +61,7 @@ export class MemoryService {
 
     const collection = this.mongodbService.getMemoriesCollection();
     const userMemories = await collection.find({
-      userId: userId,
+      userId: new ObjectId(userId),
       deletedAt: { $exists: false }
     }).sort({ createdAt: -1 }).toArray();
 
@@ -75,7 +75,7 @@ export class MemoryService {
 
     const collection = this.mongodbService.getMemoriesCollection();
     const memory = await collection.findOne({
-      id: id,
+      _id: new ObjectId(id),
       deletedAt: { $exists: false }
     });
 
@@ -93,7 +93,7 @@ export class MemoryService {
 
     const collection = this.mongodbService.getMemoriesCollection();
     const memory = await collection.findOne({
-      id: id,
+      _id: new ObjectId(id),
       deletedAt: { $exists: false }
     });
 
@@ -107,7 +107,7 @@ export class MemoryService {
     };
 
     await collection.updateOne(
-      { id: id },
+      { _id: new ObjectId(id) },
       { $set: { name: name.trim() } }
     );
 
@@ -121,7 +121,7 @@ export class MemoryService {
 
     const collection = this.mongodbService.getMemoriesCollection();
     const memory = await collection.findOne({
-      id: id,
+      _id: new ObjectId(id),
       deletedAt: { $exists: false }
     });
 
@@ -130,14 +130,14 @@ export class MemoryService {
     }
 
     // Check if this is the last active memory for the user
-    const userActiveMemories = await this.getMemoriesByUser(memory.userId);
+    const userActiveMemories = await this.getMemoriesByUser(memory.userId.toString());
     if (userActiveMemories.length <= 1) {
       throw new CannotDeleteLastMemoryError('Cannot delete the last memory. Users must have at least one active memory.');
     }
 
     // Soft delete
     await collection.updateOne(
-      { id: id },
+      { _id: new ObjectId(id) },
       { $set: { deletedAt: new Date() } }
     );
 

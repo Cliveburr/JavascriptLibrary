@@ -1,25 +1,27 @@
+import { ObjectId } from 'mongodb';
+
 // Domain entities
 export interface User {
-  id: string;
+  _id: ObjectId;
   username: string;
   email: string;
   passwordHash: string;
-  defaultMemoryId: string;
+  defaultMemoryId: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface Memory {
-  id: string;
-  userId: string;
+  _id: ObjectId;
+  userId: ObjectId;
   name: string;
   createdAt: Date;
   deletedAt?: Date;
 }
 
 export interface Chat {
-  id: string;
-  memoryId: string;
+  _id: ObjectId;
+  memoryId: ObjectId;
   title: string;
   orderIndex: number;
   createdAt: Date;
@@ -31,8 +33,8 @@ export type ContentType = 'text' | 'form' | 'chart' | 'file';
 export type MessageModal = 'text' | 'text-for-replace' | 'memory';
 
 export interface Message {
-  id: string;
-  chatId: string;
+  _id: ObjectId;
+  chatId: ObjectId;
   role: MessageRole;
   content: string;
   contentType: ContentType;
@@ -44,8 +46,8 @@ export interface Message {
 }
 
 export interface VectorEntry {
-  id: string;
-  memoryId: string;
+  _id: ObjectId;
+  memoryId: ObjectId;
   embedding: number[];
   payload: {
     type: string;

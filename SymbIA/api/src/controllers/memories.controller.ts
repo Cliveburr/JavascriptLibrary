@@ -29,8 +29,8 @@ export class MemoriesController {
             const memories = await this.memoryService.getMemoriesByUser(userId);
 
             const memoriesDTO: MemoryDTO[] = memories.map(memory => ({
-                id: memory.id,
-                userId: memory.userId,
+                id: memory._id.toString(),
+                userId: memory.userId.toString(),
                 name: memory.name,
                 createdAt: memory.createdAt.toISOString(),
                 deletedAt: memory.deletedAt?.toISOString()
@@ -64,14 +64,14 @@ export class MemoriesController {
 
             const memory = await this.memoryService.getMemoryById(id);
 
-            if (!memory || memory.userId !== userId) {
+            if (!memory || memory.userId.toString() !== userId) {
                 res.status(404).json({ error: 'Memory not found' });
                 return;
             }
 
             const memoryDTO: MemoryDTO = {
-                id: memory.id,
-                userId: memory.userId,
+                id: memory._id.toString(),
+                userId: memory.userId.toString(),
                 name: memory.name,
                 createdAt: memory.createdAt.toISOString(),
                 deletedAt: memory.deletedAt?.toISOString()
@@ -102,8 +102,8 @@ export class MemoriesController {
                 const memory = await this.memoryService.createMemory(userId, name);
 
                 const memoryDTO: MemoryDTO = {
-                    id: memory.id,
-                    userId: memory.userId,
+                    id: memory._id.toString(),
+                    userId: memory.userId.toString(),
                     name: memory.name,
                     createdAt: memory.createdAt.toISOString(),
                     deletedAt: memory.deletedAt?.toISOString()
@@ -141,7 +141,7 @@ export class MemoriesController {
 
                 // First check if memory exists and belongs to user
                 const existingMemory = await this.memoryService.getMemoryById(id);
-                if (!existingMemory || existingMemory.userId !== userId) {
+                if (!existingMemory || existingMemory.userId.toString() !== userId) {
                     res.status(404).json({ error: 'Memory not found' });
                     return;
                 }
@@ -154,8 +154,8 @@ export class MemoriesController {
                 }
 
                 const memoryDTO: MemoryDTO = {
-                    id: memory.id,
-                    userId: memory.userId,
+                    id: memory._id.toString(),
+                    userId: memory.userId.toString(),
                     name: memory.name,
                     createdAt: memory.createdAt.toISOString(),
                     deletedAt: memory.deletedAt?.toISOString()
@@ -194,7 +194,7 @@ export class MemoriesController {
 
             // First check if memory exists and belongs to user
             const existingMemory = await this.memoryService.getMemoryById(id);
-            if (!existingMemory || existingMemory.userId !== userId) {
+            if (!existingMemory || existingMemory.userId.toString() !== userId) {
                 res.status(404).json({ error: 'Memory not found' });
                 return;
             }

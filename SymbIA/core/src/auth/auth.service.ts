@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
+import { ObjectId } from 'mongodb';
 import type { User } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { ConfigService } from '../config/config.service.js';
@@ -50,12 +50,12 @@ export class AuthService {
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
         // Create user
-        const userId = uuidv4();
-        const defaultMemoryId = uuidv4();
+        const userId = new ObjectId();
+        const defaultMemoryId = new ObjectId();
         const now = new Date();
 
         const user: User = {
-            id: userId,
+            _id: userId,
             username,
             email,
             passwordHash,
@@ -66,7 +66,7 @@ export class AuthService {
 
         // Create default memory
         const defaultMemory = {
-            id: defaultMemoryId,
+            _id: defaultMemoryId,
             userId,
             name: 'Default Memory',
             createdAt: now
@@ -121,7 +121,7 @@ export class AuthService {
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
-            const user = await usersCollection.findOne({ id: decoded.userId });
+            const user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
 
             return user || null;
         } catch (error) {
@@ -136,7 +136,7 @@ export class AuthService {
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
-            const user = await usersCollection.findOne({ id: decoded.userId });
+            const user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
 
             if (!user) {
                 return null;
@@ -154,7 +154,7 @@ export class AuthService {
     private generateToken(user: User): string {
         const authConfig = this.configService.getAuthConfig();
         const payload = {
-            userId: user.id
+            userId: user._id.toString()
         };
 
         return jwt.sign(payload, authConfig.jwtSecret, { expiresIn: authConfig.jwtExpiresIn });
@@ -163,8 +163,8 @@ export class AuthService {
     private generateRefreshToken(user: User): string {
         const authConfig = this.configService.getAuthConfig();
         const payload = {
-            userId: user.id,
-            tokenId: uuidv4()
+            userId: user._id.toString(),
+            tokenId: new ObjectId().toString()
         };
 
         return jwt.sign(payload, authConfig.jwtRefreshSecret, { expiresIn: authConfig.jwtRefreshExpiresIn });

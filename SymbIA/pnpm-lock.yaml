@@ -38,6 +38,9 @@ importers:
       express:
         specifier: ^4.18.0
         version: 4.21.2
+      mongodb:
+        specifier: ^6.18.0
+        version: 6.18.0
       zod:
         specifier: ^3.22.0
         version: 3.25.76
@@ -99,6 +102,10 @@ importers:
         version: 5.8.3
 
   interfaces:
+    dependencies:
+      mongodb:
+        specifier: ^6.18.0
+        version: 6.18.0
     devDependencies:
       typescript:
         specifier: ^5.5.0

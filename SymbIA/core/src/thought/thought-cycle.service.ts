@@ -1,4 +1,5 @@
 import type { Message, LlmSetConfig, StreamProgressCallback } from '@symbia/interfaces';
+import { ObjectId } from 'mongodb';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 import { ChatService } from '../chat/chat.service.js';
@@ -35,8 +36,8 @@ export class ThoughtCycleService {
 
         // Salva a mensagem do assistente no banco
         const assistantMessage = {
-            id: `msg-${Date.now()}-assistant`,
-            chatId: chatId,
+            _id: new ObjectId(),
+            chatId: new ObjectId(chatId),
             role: 'assistant' as const,
             content: response.content,
             contentType: 'text' as const,
@@ -68,7 +69,7 @@ export class ThoughtCycleService {
         const allMessages: Message[] = [];
 
         for (const chat of recentChats) {
-            const messages = await this.chatService.getMessagesByChat(chat.id);
+            const messages = await this.chatService.getMessagesByChat(chat._id.toString());
             // Filtrar apenas mensagens com chat-history = true
             const historyMessages = messages.filter(msg => msg['chat-history'] === true);
             allMessages.push(...historyMessages);
