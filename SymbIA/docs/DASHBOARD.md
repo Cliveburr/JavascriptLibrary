@@ -28,7 +28,7 @@ Tela divida em 2 partes verticalmente
         - Abaixo as memories do usuário, um botão de add, e em lista cada memories em formato de button que ao ser clicado seleciona a memories e carrega abaixo os chats relacionados a essa memories, e botão discreto para remover
         - Abaixo todos os chats relacionados a memorie selecionada, ao clicar carregar o conteudo do chat
     # Parte da direita
-        - No topo do canto esquerdo, um box seletor em modo flutuante do lado esquerdo superior para selecionar o set de modelos llm a ser usado
+        - No topo do canto esquerdo, um box seletor do lado esquerdo superior para selecionar o set de modelos llm a ser usado
         - Abaixo o conteudo do chat carregado, exibindo os diversos modais possiveis, texto-mensagem, texto-info, texto-erro, formularios, graficos, links variados e outros..
         - Abaixo o campo de texto para o usuário interagir com o chat, com o botão enviar dinamico, mudando para "pause" e "stop" quando estiver rodando
 

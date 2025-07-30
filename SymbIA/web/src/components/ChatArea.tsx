@@ -73,10 +73,10 @@ export const ChatArea: React.FC = () => {
 
     return (
         <div className="chat-area">
-            {/* LLM Selector - flutuante no canto superior esquerdo */}
-            <LLMSelector />
-
             <div className="chat-content">
+                {/* LLM Selector - posicionado normalmente no topo */}
+                <LLMSelector />
+
                 {currentMemory && selectedChatId ? (
                     <>
                         <ChatWindow
