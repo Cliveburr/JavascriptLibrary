@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import type { Request, Response, RequestHandler } from 'express';
 import { z } from 'zod';
 import { processRequestBody } from 'zod-express-middleware';
@@ -13,11 +12,10 @@ const UpdateMemoryRequestSchema = z.object({
     name: z.string().min(1)
 });
 
-@injectable()
 export class MemoriesController {
 
     constructor(
-        @inject(MemoryService) private memoryService: MemoryService
+        private memoryService: MemoryService
     ) { }
 
     getMemories: RequestHandler = async (req: Request, res: Response) => {

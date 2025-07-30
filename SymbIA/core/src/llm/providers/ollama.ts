@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, StreamProgressCallback } from '@symbia/interfaces';
 import { MessageProgressModal } from '@symbia/interfaces';
 import { ConfigService } from '../../config/config.service.js';
@@ -7,11 +6,10 @@ export interface OllamaConfig {
     baseUrl?: string;
 }
 
-@injectable()
 export class OllamaProvider {
     private baseUrl: string;
 
-    constructor(@inject(ConfigService) configService: ConfigService) {
+    constructor(configService: ConfigService) {
         const ollamaConfig = configService.getOllamaConfig();
         this.baseUrl = ollamaConfig.baseUrl;
     }

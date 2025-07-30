@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,11 +11,23 @@ interface AuthResult {
     refreshToken: string;
 }
 
-@injectable()
+interface JwtPayload {
+    userId: string;
+    iat?: number;
+    exp?: number;
+}
+
+interface RefreshTokenPayload {
+    userId: string;
+    tokenId: string;
+    iat?: number;
+    exp?: number;
+}
+
 export class AuthService {
     constructor(
-        @inject(MongoDBService) private mongoService: MongoDBService,
-        @inject(ConfigService) private configService: ConfigService
+        private mongoService: MongoDBService,
+        private configService: ConfigService
     ) { }
 
     async register(username: string, email: string, password: string): Promise<AuthResult> {
@@ -106,7 +117,7 @@ export class AuthService {
     async validateToken(token: string): Promise<User | null> {
         try {
             const authConfig = this.configService.getAuthConfig();
-            const decoded = jwt.verify(token, authConfig.jwtSecret) as any;
+            const decoded = jwt.verify(token, authConfig.jwtSecret) as JwtPayload;
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
@@ -121,7 +132,7 @@ export class AuthService {
     async refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string; } | null> {
         try {
             const authConfig = this.configService.getAuthConfig();
-            const decoded = jwt.verify(refreshToken, authConfig.jwtRefreshSecret) as any;
+            const decoded = jwt.verify(refreshToken, authConfig.jwtRefreshSecret) as RefreshTokenPayload;
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
@@ -143,22 +154,19 @@ export class AuthService {
     private generateToken(user: User): string {
         const authConfig = this.configService.getAuthConfig();
         const payload = {
-            userId: user.id,
-            email: user.email,
-            username: user.username
+            userId: user.id
         };
 
-        return (jwt.sign as any)(payload, authConfig.jwtSecret, { expiresIn: authConfig.jwtExpiresIn });
+        return jwt.sign(payload, authConfig.jwtSecret, { expiresIn: authConfig.jwtExpiresIn });
     }
 
     private generateRefreshToken(user: User): string {
         const authConfig = this.configService.getAuthConfig();
         const payload = {
             userId: user.id,
-            email: user.email,
-            username: user.username
+            tokenId: uuidv4()
         };
 
-        return (jwt.sign as any)(payload, authConfig.jwtRefreshSecret, { expiresIn: authConfig.jwtRefreshExpiresIn });
+        return jwt.sign(payload, authConfig.jwtRefreshSecret, { expiresIn: authConfig.jwtRefreshExpiresIn });
     }
 }

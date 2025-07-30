@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { ConfigService } from '../config/config.service.js';
 
@@ -30,11 +29,10 @@ export interface SearchResult {
     payload: VectorPayload;
 }
 
-@injectable()
 export class QdrantProvider {
     private client: QdrantClient;
 
-    constructor(@inject(ConfigService) configService: ConfigService, config?: QdrantConfig) {
+    constructor(configService: ConfigService, config?: QdrantConfig) {
         const qdrantConfig = configService.getQdrantConfig();
         const url = config?.url || qdrantConfig.url;
         const apiKey = config?.apiKey || qdrantConfig.apiKey;

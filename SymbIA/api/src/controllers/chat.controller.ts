@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import { injectable, inject } from 'tsyringe';
 import { z } from 'zod';
 import { ThoughtCycleService, ChatService } from '@symbia/core';
 import type { MessageProgress } from '@symbia/interfaces';
@@ -17,11 +16,10 @@ const chatParamsSchema = z.object({
     memoryId: z.string().uuid('Invalid memory ID format')
 });
 
-@injectable()
 export class ChatController {
     constructor(
-        @inject(ThoughtCycleService) private thoughtCycleService: ThoughtCycleService,
-        @inject(ChatService) private chatService: ChatService
+        private thoughtCycleService: ThoughtCycleService,
+        private chatService: ChatService
     ) { }
 
     async getChatsByMemory(req: Request, res: Response): Promise<void> {
@@ -172,13 +170,11 @@ export class ChatController {
                     res.status(404).json({ error: 'Chat não encontrado' });
                     return;
                 }
-                console.log('New iteration on chatId: ' + chatId);
             } else {
                 // Se não tem chatId, é um chat novo - criar temporariamente com título padrão
                 isNewChat = true;
                 const newChat = await this.chatService.createChat(memoryId, 'Novo Chat');
                 finalChatId = newChat.id;
-                console.log('New chat created: ' + finalChatId);
             }
 
             // Setup streaming headers
@@ -208,18 +204,20 @@ export class ChatController {
                 modal: 'text' as const
             };
 
-            await this.chatService.saveMessage(userMessage);
+            // Inicia o save dessa mensagem, e continua a processar o request em paralelo
+            const paralelTasks: Array<Promise<any>> = [
+                this.chatService.saveMessage(userMessage)
+            ];
 
             // Medir latência
             const startTime = Date.now();
 
             // Stream callback function (obrigatório)
-            const streamCallback = async (progress: MessageProgress) => {
-                console.log('Sending message progress of type ' + progress.modal);
+            const streamCallback = (progress: MessageProgress) => {
                 res.write(JSON.stringify(progress) + '\n');
             };
 
-            const userMessageProgress: MessageProgress = {
+            streamCallback({
                 modal: MessageProgressModal.Text,
                 data: {
                     userMessage: {
@@ -231,50 +229,35 @@ export class ChatController {
                         createdAt: userMessage.createdAt.toISOString()
                     }
                 }
-            };
-            streamCallback(userMessageProgress);
+            });
 
-            // Chamar ThoughtCycleService.handle SEMPRE passando streamCallback (não é opcional)
-            // Esta função não tem retorno específico, mas retorna o conteúdo da resposta
-            await this.thoughtCycleService.handle(
+            paralelTasks.push(this.thoughtCycleService.handle(
                 userId,
                 memoryId,
                 content,
                 llmSetId,
                 finalChatId,
                 streamCallback
-            );
+            ));
+
+            // Se é um chat novo, gerar título automaticamente após o thoughtCycle
+            if (isNewChat && finalChatId) {
+                paralelTasks.push(this.generateAndUpdateChatTitle(content, llmSetId, finalChatId, streamCallback));
+            }
+
+            await Promise.all(paralelTasks);
 
             const endTime = Date.now();
             const latency = endTime - startTime;
 
-            // Se é um chat novo, gerar título automaticamente após o thoughtCycle
-            if (isNewChat && finalChatId) {
-                try {
-                    const generatedTitle = await this.chatService.generateChatTitle(content, llmSetId);
-                    await this.chatService.updateChatTitle(finalChatId, generatedTitle);
-
-                    // Enviar atualização do título
-                    const titleProgress: MessageProgress = {
-                        modal: MessageProgressModal.UpdateTitle,
-                        data: { chatId: finalChatId, title: generatedTitle }
-                    };
-                    streamCallback(titleProgress);
-                } catch (error) {
-                    console.warn('Error generating chat title:', error);
-                    // Continua mesmo se falhar a geração do título
-                }
-            }
-
             // Enviar mensagem de conclusão
-            const completionProgress: MessageProgress = {
+            streamCallback({
                 modal: MessageProgressModal.Info,
                 data: {
                     message: 'Completed',
                     latency: `${latency}ms`
                 }
-            };
-            streamCallback(completionProgress);
+            });
 
             // Finalizar o stream
             res.end();
@@ -298,6 +281,22 @@ export class ChatController {
                 res.write(JSON.stringify(errorProgress) + '\n');
                 res.end();
             }
+        }
+    }
+
+    async generateAndUpdateChatTitle(content: string, llmSetId: string, chatId: string, streamCallback: (progress: MessageProgress) => void): Promise<void> {
+        try {
+            const generatedTitle = await this.chatService.generateChatTitle(content, llmSetId);
+            await this.chatService.updateChatTitle(chatId, generatedTitle);
+
+            // Enviar atualização do título
+            streamCallback({
+                modal: MessageProgressModal.UpdateTitle,
+                data: { chatId: chatId, title: generatedTitle }
+            });
+        } catch (error) {
+            console.warn('Error generating chat title:', error);
+            // Continua mesmo se falhar a geração do título
         }
     }
 

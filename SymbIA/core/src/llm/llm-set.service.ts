@@ -1,14 +1,12 @@
 import { readdir, readFile } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { injectable } from 'tsyringe';
 import type { LlmSetConfig, ModelSpec } from '@symbia/interfaces';
 
 // Get the directory path for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-@injectable()
 export class LlmSetService {
     private cachedSets: LlmSetConfig[] | null = null;
     private llmSetsPath: string;

@@ -1,14 +1,12 @@
-import { injectable, inject } from 'tsyringe';
 import { encoding_for_model } from '@dqbd/tiktoken';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 import type { LlmSetConfig } from '@symbia/interfaces';
 
-@injectable()
 export class EmbeddingService {
     constructor(
-        @inject(LlmGateway) private llmGateway: LlmGateway,
-        @inject(LlmSetService) private llmSetService: LlmSetService
+        private llmGateway: LlmGateway,
+        private llmSetService: LlmSetService
     ) { }
 
     async generateEmbedding(text: string, llmSetId?: string): Promise<number[]> {

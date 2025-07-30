@@ -15,8 +15,6 @@
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.18.0",
-    "reflect-metadata": "^0.2.2",
-    "tsyringe": "^4.10.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

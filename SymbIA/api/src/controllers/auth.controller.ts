@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import type { Request, Response, RequestHandler } from 'express';
 import { z } from 'zod';
 import { processRequestBody } from 'zod-express-middleware';
@@ -16,11 +15,10 @@ const RegisterRequestSchema = z.object({
     password: z.string().min(6)
 });
 
-@injectable()
 export class AuthController {
 
     constructor(
-        @inject(AuthService) private authService: AuthService
+        private authService: AuthService
     ) { }
 
     register: RequestHandler[] = [

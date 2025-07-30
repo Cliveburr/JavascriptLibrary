@@ -1,15 +1,13 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-import { injectable, inject } from 'tsyringe';
 import type { User, Memory, Chat, Message } from '@symbia/interfaces';
 import { ConfigService } from '../config/config.service.js';
 
-@injectable()
 export class MongoDBService {
     private client: MongoClient | null = null;
     private db: Db | null = null;
 
     constructor(
-        @inject(ConfigService) private configService: ConfigService
+        private configService: ConfigService
     ) { }
 
     async connect(): Promise<void> {

@@ -1,16 +1,14 @@
-import { injectable, inject } from 'tsyringe';
 import { v4 as uuidv4 } from 'uuid';
 import type { Chat, Message, LlmRequest } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 
-@injectable()
 export class ChatService {
     constructor(
-        @inject(MongoDBService) private mongoService: MongoDBService,
-        @inject(LlmGateway) private llmGateway: LlmGateway,
-        @inject(LlmSetService) private llmSetService: LlmSetService
+        private mongoService: MongoDBService,
+        private llmGateway: LlmGateway,
+        private llmSetService: LlmSetService
     ) { }
 
     async createChat(memoryId: string, title: string = 'Novo Chat'): Promise<Chat> {

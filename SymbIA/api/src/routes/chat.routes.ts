@@ -1,54 +1,58 @@
 import type { Router as ExpressRouter } from 'express';
 import { Router } from 'express';
-import { container } from 'tsyringe';
 import { ChatController } from '../controllers/chat.controller.js';
-import { authMiddleware } from '../middleware/auth.middleware.js';
+import { ServiceRegistry, ThoughtCycleService, ChatService, AuthService } from '@symbia/core';
+import { createAuthMiddleware } from '../middleware/auth.middleware.js';
 
-const router: ExpressRouter = Router();
+export function createChatRoutes(): ExpressRouter {
+    const router: ExpressRouter = Router();
+    const registry = ServiceRegistry.getInstance();
 
-// Apply authentication middleware to all routes
-router.use(authMiddleware);
+    // Get services from registry
+    const thoughtCycleService = registry.get<ThoughtCycleService>('ThoughtCycleService');
+    const chatService = registry.get<ChatService>('ChatService');
+    const authService = registry.get<AuthService>('AuthService');
 
-// GET /chats?memoryId=... - Listar chats de uma memória
-router.get('/', (req, res) => {
-    const chatController = container.resolve(ChatController);
-    chatController.getChatsByMemory(req, res);
-});
+    // Create controller instance
+    const chatController = new ChatController(thoughtCycleService, chatService);
 
-// GET /chats/:chatId/messages - Carregar mensagens de um chat
-router.get('/:chatId/messages', (req, res) => {
-    const chatController = container.resolve(ChatController);
-    chatController.getMessagesByChat(req, res);
-});
+    // Apply authentication middleware to all routes
+    router.use(createAuthMiddleware(authService));
 
-// POST /chats - Criar novo chat
-router.post('/', (req, res) => {
-    const chatController = container.resolve(ChatController);
-    chatController.createChat(req, res);
-});
+    // GET /chats?memoryId=... - Listar chats de uma memória
+    router.get('/', (req, res) => {
+        chatController.getChatsByMemory(req, res);
+    });
 
-// DELETE /chats/:chatId - Deletar chat
-router.delete('/:chatId', (req, res) => {
-    const chatController = container.resolve(ChatController);
-    chatController.deleteChat(req, res);
-});
+    // GET /chats/:chatId/messages - Carregar mensagens de um chat
+    router.get('/:chatId/messages', (req, res) => {
+        chatController.getMessagesByChat(req, res);
+    });
 
-// POST /chats/:memoryId/messages
-router.post('/:memoryId/messages', (req, res) => {
-    const chatController = container.resolve(ChatController);
-    chatController.sendMessage(req, res);
-});
+    // POST /chats - Criar novo chat
+    router.post('/', (req, res) => {
+        chatController.createChat(req, res);
+    });
 
-// PATCH /chats/:chatId/title
-router.patch('/:chatId/title', (req, res) => {
-    const chatController = container.resolve(ChatController);
-    chatController.updateChatTitle(req, res);
-});
+    // DELETE /chats/:chatId - Deletar chat
+    router.delete('/:chatId', (req, res) => {
+        chatController.deleteChat(req, res);
+    });
 
-// PATCH /chats/:chatId/order
-router.patch('/:chatId/order', (req, res) => {
-    const chatController = container.resolve(ChatController);
-    chatController.updateChatOrder(req, res);
-});
+    // POST /chats/:memoryId/messages
+    router.post('/:memoryId/messages', (req, res) => {
+        chatController.sendMessage(req, res);
+    });
 
-export { router as chatRoutes };
+    // PATCH /chats/:chatId/title
+    router.patch('/:chatId/title', (req, res) => {
+        chatController.updateChatTitle(req, res);
+    });
+
+    // PATCH /chats/:chatId/order
+    router.patch('/:chatId/order', (req, res) => {
+        chatController.updateChatOrder(req, res);
+    });
+
+    return router;
+}

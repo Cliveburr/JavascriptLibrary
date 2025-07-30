@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, StreamProgressCallback } from '@symbia/interfaces';
 import { MessageProgressModal } from '@symbia/interfaces';
 import { ConfigService } from '../../config/config.service.js';
@@ -8,12 +7,11 @@ export interface OpenAIConfig {
     baseUrl?: string;
 }
 
-@injectable()
 export class OpenAIProvider {
     private apiKey: string;
     private baseUrl: string;
 
-    constructor(@inject(ConfigService) configService: ConfigService) {
+    constructor(configService: ConfigService) {
         const openaiConfig = configService.getOpenAIConfig();
         this.apiKey = openaiConfig.apiKey || '';
         this.baseUrl = openaiConfig.baseUrl;

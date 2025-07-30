@@ -1,13 +1,12 @@
 import type { Request, Response } from 'express';
-import { container } from 'tsyringe';
 import { LlmSetService } from '@symbia/core';
 import type { LlmSetListResponse } from '@symbia/interfaces';
 
 export class LlmSetController {
     private llmSetService: LlmSetService;
 
-    constructor() {
-        this.llmSetService = container.resolve(LlmSetService);
+    constructor(llmSetService: LlmSetService) {
+        this.llmSetService = llmSetService;
     }
 
     /**

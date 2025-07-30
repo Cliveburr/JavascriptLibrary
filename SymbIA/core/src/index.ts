@@ -1,5 +1,4 @@
-import 'reflect-metadata';
-import { container } from 'tsyringe';
+import { ServiceRegistry } from './services/service-registry.js';
 import { MemoryService } from './memory/memory.service.js';
 import { EmbeddingService } from './memory/embedding.service.js';
 import { QdrantProvider } from './memory/qdrant.provider.js';
@@ -33,28 +32,45 @@ export * from './auth/auth.service.js';
 export * from './database/mongodb.service.js';
 export * from './chat/chat.service.js';
 export * from './config/config.service.js';
+export * from './services/service-registry.js';
 
-// Export container for external usage
-export { container };
-
-// Configure DI container
+// Configure services registry
 export function configureContainer() {
-    // Register services as singletons
-    container.registerSingleton(ConfigService);
-    container.registerSingleton(MongoDBService);
-    container.registerSingleton(MemoryService);
-    container.registerSingleton(EmbeddingService);
-    container.registerSingleton(QdrantProvider);
-    container.registerSingleton(LlmSetService);
-    container.registerSingleton(OpenAIProvider);
-    container.registerSingleton(OllamaProvider);
-    container.registerSingleton(LlmGateway);
-    container.registerSingleton(PlannerService);
-    container.registerSingleton(DecisionService);
-    container.registerSingleton(ActionService);
-    container.registerSingleton(ThoughtCycleService);
-    container.registerSingleton(AuthService);
-    container.registerSingleton(ChatService);
+    const registry = ServiceRegistry.getInstance();
 
-    return container;
+    // Create services instances in the correct order (respecting dependencies)
+    const configService = new ConfigService();
+    const mongodbService = new MongoDBService(configService);
+    const qdrantProvider = new QdrantProvider(configService);
+    const llmSetService = new LlmSetService();
+    const openaiProvider = new OpenAIProvider(configService);
+    const ollamaProvider = new OllamaProvider(configService);
+    const llmGateway = new LlmGateway(llmSetService, openaiProvider, ollamaProvider);
+    const embeddingService = new EmbeddingService(llmGateway, llmSetService);
+    const memoryService = new MemoryService(mongodbService);
+    const plannerService = new PlannerService();
+    const chatService = new ChatService(mongodbService, llmGateway, llmSetService);
+    const decisionService = new DecisionService(llmSetService, llmGateway, chatService);
+    const actionService = new ActionService();
+    const thoughtCycleService = new ThoughtCycleService(llmGateway, llmSetService, chatService);
+    const authService = new AuthService(mongodbService, configService);
+
+    // Register all services
+    registry.register('ConfigService', configService);
+    registry.register('MongoDBService', mongodbService);
+    registry.register('MemoryService', memoryService);
+    registry.register('EmbeddingService', embeddingService);
+    registry.register('QdrantProvider', qdrantProvider);
+    registry.register('LlmSetService', llmSetService);
+    registry.register('OpenAIProvider', openaiProvider);
+    registry.register('OllamaProvider', ollamaProvider);
+    registry.register('LlmGateway', llmGateway);
+    registry.register('PlannerService', plannerService);
+    registry.register('DecisionService', decisionService);
+    registry.register('ActionService', actionService);
+    registry.register('ThoughtCycleService', thoughtCycleService);
+    registry.register('AuthService', authService);
+    registry.register('ChatService', chatService);
+
+    return registry;
 }

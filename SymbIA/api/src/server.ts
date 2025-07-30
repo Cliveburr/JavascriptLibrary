@@ -1,19 +1,17 @@
-import 'reflect-metadata';
 import dotenv from 'dotenv';
 import express, { type Express } from 'express';
 import { configureContainer, ConfigService } from '@symbia/core';
-import { container } from 'tsyringe';
 
 // Load environment variables
 dotenv.config();
 
 async function startServer() {
   try {
-    // Configure DI container (this will validate all environment variables)
-    configureContainer();
+    // Configure services registry (this will validate all environment variables)
+    const registry = configureContainer();
 
     // Get config service to ensure validation passed
-    const configService = container.resolve(ConfigService);
+    const configService = registry.get<ConfigService>('ConfigService');
     const config = configService.get();
 
     console.log('✅ Configuration loaded and validated successfully');
@@ -23,10 +21,10 @@ async function startServer() {
     console.log(`🔍 Qdrant URL: ${config.qdrantUrl}`);
 
     // Import routes AFTER configuration is loaded
-    const { authRoutes } = await import('./routes/auth.routes.js');
-    const { memoriesRoutes } = await import('./routes/memories.routes.js');
-    const { chatRoutes } = await import('./routes/chat.routes.js');
-    const { llmSetsRoutes } = await import('./routes/llm-sets.routes.js');
+    const { createAuthRoutes } = await import('./routes/auth.routes.js');
+    const { createMemoriesRoutes } = await import('./routes/memories.routes.js');
+    const { createChatRoutes } = await import('./routes/chat.routes.js');
+    const { createLlmSetsRoutes } = await import('./routes/llm-sets.routes.js');
 
     const app: Express = express();
     const PORT = configService.getServerConfig().port;
@@ -53,10 +51,10 @@ async function startServer() {
     });
 
     // Routes
-    app.use('/auth', authRoutes);
-    app.use('/memories', memoriesRoutes);
-    app.use('/chats', chatRoutes);
-    app.use('/llm-sets', llmSetsRoutes);
+    app.use('/auth', createAuthRoutes());
+    app.use('/memories', createMemoriesRoutes());
+    app.use('/chats', createChatRoutes());
+    app.use('/llm-sets', createLlmSetsRoutes());
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

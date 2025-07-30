@@ -1,15 +1,13 @@
-import { injectable, inject } from 'tsyringe';
 import type { LlmSetConfig, LlmRequest, LlmResponse, ModelSpec, StreamProgressCallback } from '@symbia/interfaces';
 import { LlmSetService } from './llm-set.service.js';
 import { OpenAIProvider } from './providers/openai.js';
 import { OllamaProvider } from './providers/ollama.js';
 
-@injectable()
 export class LlmGateway {
     constructor(
-        @inject(LlmSetService) private llmSetService: LlmSetService,
-        @inject(OpenAIProvider) private openaiProvider: OpenAIProvider,
-        @inject(OllamaProvider) private ollamaProvider: OllamaProvider
+        private llmSetService: LlmSetService,
+        private openaiProvider: OpenAIProvider,
+        private ollamaProvider: OllamaProvider
     ) { }
 
     async invoke(

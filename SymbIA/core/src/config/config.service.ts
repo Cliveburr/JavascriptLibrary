@@ -1,5 +1,3 @@
-import { injectable } from 'tsyringe';
-
 export interface AppConfig {
     // Server
     port: number;
@@ -23,7 +21,6 @@ export interface AppConfig {
     openaiBaseUrl: string;
 }
 
-@injectable()
 export class ConfigService {
     private config: AppConfig;
 

@@ -1,20 +1,22 @@
 import { Router, type IRouter } from 'express';
-import { container } from 'tsyringe';
 import { AuthController } from '../controllers/auth.controller.js';
-import { AuthService } from '@symbia/core';
+import { ServiceRegistry, AuthService } from '@symbia/core';
 
-const router: IRouter = Router();
+export function createAuthRoutes(): IRouter {
+    const router: IRouter = Router();
+    const registry = ServiceRegistry.getInstance();
 
-// Ensure AuthService is registered before resolving AuthController
-container.registerSingleton(AuthService);
+    // Get services from registry
+    const authService = registry.get<AuthService>('AuthService');
 
-// Get controller instance from DI container
-const authController = container.resolve(AuthController);
+    // Create controller instance
+    const authController = new AuthController(authService);
 
-// POST /auth/register
-router.post('/register', ...authController.register);
+    // POST /auth/register
+    router.post('/register', ...authController.register);
 
-// POST /auth/login
-router.post('/login', ...authController.login);
+    // POST /auth/login
+    router.post('/login', ...authController.login);
 
-export { router as authRoutes };
+    return router;
+}

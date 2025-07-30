@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import type { Memory } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,11 +23,10 @@ export class CannotDeleteLastMemoryError extends Error {
   }
 }
 
-@injectable()
 export class MemoryService {
 
   constructor(
-    @inject(MongoDBService) private mongodbService: MongoDBService
+    private mongodbService: MongoDBService
   ) {
     // Ensure MongoDB connection
     this.mongodbService.connect().catch(console.error);

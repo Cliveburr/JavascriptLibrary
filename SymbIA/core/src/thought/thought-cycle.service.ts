@@ -1,15 +1,13 @@
-import { injectable, inject } from 'tsyringe';
 import type { Message, LlmSetConfig, StreamProgressCallback } from '@symbia/interfaces';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 import { ChatService } from '../chat/chat.service.js';
 
-@injectable()
 export class ThoughtCycleService {
     constructor(
-        @inject(LlmGateway) private llmGateway: LlmGateway,
-        @inject(LlmSetService) private llmSetService: LlmSetService,
-        @inject(ChatService) private chatService: ChatService
+        private llmGateway: LlmGateway,
+        private llmSetService: LlmSetService,
+        private chatService: ChatService
     ) { }
 
     async handle(
@@ -20,7 +18,6 @@ export class ThoughtCycleService {
         chatId: string,
         streamCallback: StreamProgressCallback
     ): Promise<string> {
-        console.log('Entering on thought cycle');
 
         // Get LLM set configuration
         const llmSetConfig = await this.getLlmSetForChat(llmSetId);
@@ -34,9 +31,6 @@ export class ThoughtCycleService {
         // Constrói o contexto para enviar ao LLM
         const contextMessages = this.buildContextMessages(recentMessages, message);
 
-        // Chama o llmGateway.invokeAsync para gerar uma resposta ao usuário em modo stream
-        // O streamCallback é obrigatório e não é opcional
-        console.log('Calling LLM on chat mode..');
         const response = await this.llmGateway.invokeAsync(llmSetConfig, 'chat', contextMessages, streamCallback);
 
         // Salva a mensagem do assistente no banco

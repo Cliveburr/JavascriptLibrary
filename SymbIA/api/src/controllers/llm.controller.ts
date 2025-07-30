@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import { container } from 'tsyringe';
 import { LlmGateway, generateChatTitle } from '@symbia/core';
 import { LlmSetService } from '@symbia/core';
 
@@ -15,6 +14,11 @@ async function getLlmSetForChat(llmSetService: LlmSetService, llmSetId?: string)
 }
 
 export class LlmController {
+    constructor(
+        private llmGateway: LlmGateway,
+        private llmSetService: LlmSetService
+    ) { }
+
     async generateTitle(req: Request, res: Response): Promise<void> {
         const { firstMessage, llmSetId } = req.body;
         if (!firstMessage || typeof firstMessage !== 'string') {
@@ -23,9 +27,7 @@ export class LlmController {
         }
         try {
             // Recupera configuração do modelo LLM igual ao thought-cycle.service.ts
-            const llmSetService = container.resolve(LlmSetService);
-            const llmGateway = container.resolve(LlmGateway);
-            const llmSetConfig = await getLlmSetForChat(llmSetService, llmSetId);
+            const llmSetConfig = await getLlmSetForChat(this.llmSetService, llmSetId);
             if (!llmSetConfig) {
                 res.status(404).json({ error: 'Nenhum modelo LLM disponível' });
                 return;
@@ -34,7 +36,7 @@ export class LlmController {
             const messages = [
                 { role: 'user', content: firstMessage }
             ];
-            const title = await generateChatTitle(llmGateway, llmSetConfig, messages);
+            const title = await generateChatTitle(this.llmGateway, llmSetConfig, messages);
             res.json({ title });
         } catch {
             res.status(500).json({ error: 'Erro ao gerar título via LLM' });

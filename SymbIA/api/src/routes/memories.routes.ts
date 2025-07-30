@@ -1,33 +1,36 @@
 import { Router, type IRouter } from 'express';
-import { container } from 'tsyringe';
 import { MemoriesController } from '../controllers/memories.controller.js';
-import { MemoryService } from '@symbia/core';
-import { authMiddleware } from '../middleware/auth.middleware.js';
+import { ServiceRegistry, MemoryService, AuthService } from '@symbia/core';
+import { createAuthMiddleware } from '../middleware/auth.middleware.js';
 
-const router: IRouter = Router();
+export function createMemoriesRoutes(): IRouter {
+    const router: IRouter = Router();
+    const registry = ServiceRegistry.getInstance();
 
-// Ensure MemoryService is registered before resolving MemoriesController
-container.registerSingleton(MemoryService);
+    // Get services from registry
+    const memoryService = registry.get<MemoryService>('MemoryService');
+    const authService = registry.get<AuthService>('AuthService');
 
-// Get controller instance from DI container
-const memoriesController = container.resolve(MemoriesController);
+    // Create controller instance
+    const memoriesController = new MemoriesController(memoryService);
 
-// All memory endpoints require authentication
-router.use(authMiddleware);
+    // All memory endpoints require authentication
+    router.use(createAuthMiddleware(authService));
 
-// GET /memories
-router.get('/', memoriesController.getMemories);
+    // GET /memories
+    router.get('/', memoriesController.getMemories);
 
-// GET /memories/:id
-router.get('/:id', memoriesController.getMemoryById);
+    // GET /memories/:id
+    router.get('/:id', memoriesController.getMemoryById);
 
-// POST /memories
-router.post('/', ...memoriesController.createMemory);
+    // POST /memories
+    router.post('/', ...memoriesController.createMemory);
 
-// PUT /memories/:id
-router.put('/:id', ...memoriesController.updateMemory);
+    // PUT /memories/:id
+    router.put('/:id', ...memoriesController.updateMemory);
 
-// DELETE /memories/:id
-router.delete('/:id', memoriesController.deleteMemory);
+    // DELETE /memories/:id
+    router.delete('/:id', memoriesController.deleteMemory);
 
-export { router as memoriesRoutes };
+    return router;
+}

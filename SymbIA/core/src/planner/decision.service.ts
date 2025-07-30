@@ -1,4 +1,3 @@
-import { injectable, inject } from 'tsyringe';
 import type { Message } from '@symbia/interfaces';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
@@ -12,12 +11,11 @@ export class DecisionServiceError extends Error {
     }
 }
 
-@injectable()
 export class DecisionService {
     constructor(
-        @inject(LlmSetService) private llmSetService: LlmSetService,
-        @inject(LlmGateway) private llmGateway: LlmGateway,
-        @inject(ChatService) private chatService: ChatService
+        private llmSetService: LlmSetService,
+        private llmGateway: LlmGateway,
+        private chatService: ChatService
     ) { }
 
     /**
