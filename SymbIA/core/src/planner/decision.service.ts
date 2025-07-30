@@ -1,9 +1,9 @@
 import { injectable, inject } from 'tsyringe';
 import type { Message } from '@symbia/interfaces';
-// import { LlmGateway } from '../llm/LlmGateway.js';
+import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
 import { getEnabledActionNames } from '../actions/action.registry.js';
-import { MongoDBService } from '../database/mongodb.service.js';
+import { ChatService } from '../chat/chat.service.js';
 
 export class DecisionServiceError extends Error {
     constructor(message: string) {
@@ -16,11 +16,9 @@ export class DecisionServiceError extends Error {
 export class DecisionService {
     constructor(
         @inject(LlmSetService) private llmSetService: LlmSetService,
-        @inject(MongoDBService) private mongodbService: MongoDBService
-    ) {
-        // Ensure MongoDB connection
-        this.mongodbService.connect().catch(console.error);
-    }
+        @inject(LlmGateway) private llmGateway: LlmGateway,
+        @inject(ChatService) private chatService: ChatService
+    ) { }
 
     /**
      * Decide which action to take based on the conversation context
@@ -72,9 +70,6 @@ export class DecisionService {
             // Build the decision prompt
             const prompt = this.buildDecisionPrompt(message, chatHistory, enabledActions);
 
-            // MOCK: Por enquanto retornar sempre "Finalize" para demonstrar o fluxo
-            // TODO: Descomentar quando Ollama estiver disponível
-            /*
             // Get the model to use (reasoningHeavy or reasoning)
             const modelToUse = llmSet.models.reasoningHeavy || llmSet.models.reasoning;
             if (!modelToUse) {
@@ -94,12 +89,6 @@ export class DecisionService {
 
             // Extract action name from response
             const actionName = this.extractActionName(response.content, enabledActions);
-            */
-
-            console.log('MOCK: Decision prompt built:', prompt.substring(0, 100) + '...');
-            console.log('MOCK: Available actions:', enabledActions);
-            console.log('MOCK: Using LLM set:', llmSet.id);
-            const actionName = 'Finalize'; // Mock sempre retorna Finalize
 
             return actionName;
         } catch (error) {
@@ -114,26 +103,24 @@ export class DecisionService {
      * Get chat history messages marked with chat-history flag
      */
     private async getChatHistory(chatId: string): Promise<Message[]> {
-        // Mock: Por enquanto retorna histórico vazio para testar o fluxo
-        // TODO: Descomentar quando MongoDB estiver disponível
-        /*
-        const db = await this.mongodbService.getDatabase();
-        const collection = db.collection<Message>('messages');
+        if (!chatId?.trim()) {
+            throw new DecisionServiceError('Chat ID is required to fetch chat history');
+        }
 
-        // Get messages for this chat
-        // Note: We'll assume there's a chatHistory field or similar mechanism
-        // For now, we'll get the recent messages (last 20)
-        const messages = await collection
-            .find({ chatId })
-            .sort({ createdAt: -1 })
-            .limit(20)
-            .toArray();
+        try {
+            // Get messages for this chat
+            const messages = await this.chatService.getMessagesByChat(chatId);
 
-        return messages.reverse(); // Return in chronological order
-        */
+            // Filter only messages with chat-history = true and get last 20
+            const historyMessages = messages
+                .filter(msg => msg['chat-history'] === true)
+                .slice(-20);
 
-        console.log('Using mock chat history for chatId:', chatId);
-        return []; // Mock: retorna histórico vazio
+            return historyMessages;
+        } catch (error) {
+            console.error('Error fetching chat history:', error);
+            throw new DecisionServiceError(`Failed to fetch chat history: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
     }
 
     /**

@@ -26,7 +26,6 @@ async function startServer() {
     const { authRoutes } = await import('./routes/auth.routes.js');
     const { memoriesRoutes } = await import('./routes/memories.routes.js');
     const { chatRoutes } = await import('./routes/chat.routes.js');
-    const { messageRoutes } = await import('./routes/message.routes.js');
     const { llmSetsRoutes } = await import('./routes/llm-sets.routes.js');
 
     const app: Express = express();
@@ -57,7 +56,6 @@ async function startServer() {
     app.use('/auth', authRoutes);
     app.use('/memories', memoriesRoutes);
     app.use('/chats', chatRoutes);
-    app.use('/messages', messageRoutes);
     app.use('/llm-sets', llmSetsRoutes);
 
     app.listen(PORT, () => {

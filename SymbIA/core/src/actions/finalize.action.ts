@@ -6,14 +6,15 @@ export class FinalizeAction implements ActionHandler {
 
     async execute(ctx: ActionContext): Promise<void> {
         try {
-            // MOCK: Por enquanto usar resposta mock para demonstrar o fluxo
-            // TODO: Descomentar quando Ollama estiver disponível com modelos
-            /*
             // Get the LLM set to use for this request
-            const llmSetId = ctx.llmSetId || 'ollama-fast-chat'; // fallback to default
+            const llmSetId = ctx.llmSetId;
+            if (!llmSetId) {
+                throw new Error('LLM set ID is required');
+            }
+
             const llmSetService = ctx.llm.llmSetService; // Access LlmSetService through gateway
             const llmSet = await llmSetService.getLlmSetById(llmSetId);
-            
+
             if (!llmSet) {
                 throw new Error(`LLM set not found: ${llmSetId}`);
             }
@@ -34,11 +35,6 @@ export class FinalizeAction implements ActionHandler {
                 temperature: 0.7,
                 maxTokens: 200
             });
-            */
-
-            const response = {
-                content: "Olá! Sistema funcionando perfeitamente. O ciclo de pensamento foi executado com sucesso!"
-            };
 
             // Send the final message to replace the "Thinking..." placeholder
             ctx.sendMessage({
@@ -50,14 +46,7 @@ export class FinalizeAction implements ActionHandler {
 
         } catch (error) {
             console.error('Error in FinalizeAction:', error);
-
-            // Fallback message in case of error
-            ctx.sendMessage({
-                "chat-history": false,
-                "modal": "text",
-                "role": "assistant",
-                "content": "Processo finalizado."
-            });
+            throw new Error(`Failed to execute Finalize action: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 }

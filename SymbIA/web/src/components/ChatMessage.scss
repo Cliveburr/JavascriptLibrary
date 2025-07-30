@@ -1,6 +1,8 @@
 .chat-message {
     margin-bottom: 1rem;
     display: flex;
+    min-width: 0;
+    width: 100%;
 
     &.user {
         justify-content: flex-end;
@@ -10,6 +12,7 @@
             color: white;
             border-radius: 18px 18px 4px 18px;
             max-width: 70%;
+            min-width: 0;
         }
     }
 
@@ -22,6 +25,7 @@
             color: white;
             border-radius: 18px 18px 18px 4px;
             max-width: 70%;
+            min-width: 0;
         }
     }
 
@@ -36,6 +40,7 @@
             font-size: 0.9rem;
             font-style: italic;
             max-width: 80%;
+            min-width: 0;
         }
     }
 
@@ -43,11 +48,17 @@
         padding: 0.75rem 1rem;
         position: relative;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        min-width: 0;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
 
     .message-text {
         line-height: 1.4;
         word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        min-width: 0;
         white-space: pre-wrap;
     }
 

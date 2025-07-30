@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useMemoryStore, useChatStore } from '../stores';
-import { useAuthStore } from '../stores/auth.store';
 import { ChatWindow } from './ChatWindow';
 import { ChatInput } from './ChatInput';
 import { LLMSelector } from './LLMSelector';
@@ -9,11 +8,17 @@ import { useLLMStore } from '../stores/llm.store';
 
 export const ChatArea: React.FC = () => {
     const { currentMemoryId, memories } = useMemoryStore();
-    const { selectedChatId, messagesByChat, clearMessages, createChat, updateChatTitle } = useChatStore();
+    const { selectedChatId, messagesByChat, clearMessages, isStreaming, streamingChatId } = useChatStore();
     const { selectedSetId } = useLLMStore();
 
     const currentMemory = memories.find(m => m.id === currentMemoryId);
-    const currentMessages = selectedChatId ? messagesByChat[selectedChatId] || [] : [];
+
+    // Durante streaming, usar streamingChatId, senão usar selectedChatId
+    const activeChatId = streamingChatId || selectedChatId;
+    const currentMessages = activeChatId ? messagesByChat[activeChatId] || [] : [];
+
+    // Detectar se estamos em modo de streaming para novo chat
+    const isStreamingNewChat = isStreaming && !selectedChatId;
 
     // Clear messages when switching memories (if no chat selected)
     useEffect(() => {
@@ -26,49 +31,14 @@ export const ChatArea: React.FC = () => {
         if (!currentMemory || !selectedSetId) return;
 
         try {
-            // Cria novo chat sem nome (título vazio temporariamente)
-            const newChat = await createChat(currentMemory.id, 'Novo Chat...');
-
-            // Seleciona o novo chat imediatamente para mostrar o progresso
-            useChatStore.getState().selectChat(newChat.id);
-
-            // Envia primeira mensagem e aguarda o término do thought-cycle
-            await useChatStore.getState().sendMessage(newChat.id, firstMessage, selectedSetId);
-
-            // APÓS o término do thought-cycle, gerar título usando LLM no modo "reasoning"
-            try {
-                const response = await fetch(`http://localhost:3002/llm-sets/generate-title`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(getAuthToken() && { 'Authorization': `Bearer ${getAuthToken()}` })
-                    },
-                    body: JSON.stringify({
-                        chatId: newChat.id,
-                        memoryId: currentMemory.id,
-                        firstMessage,
-                        llmSetId: selectedSetId
-                    })
-                }); if (response.ok) {
-                    const data = await response.json();
-                    if (data.title && data.title.trim()) {
-                        // Atualiza a tela com o nome do chat correto
-                        await updateChatTitle(newChat.id, data.title.trim());
-                    }
-                }
-            } catch (titleError) {
-                console.warn('Failed to generate chat title:', titleError);
-                // Fallback: mantém o título temporário
-            }
+            console.log('Starting new chat with message:', firstMessage);
+            // Não cria o chat antecipadamente, deixa o sendStreamingMessage criar
+            // Envia primeira mensagem que irá criar o chat automaticamente
+            await useChatStore.getState().sendStreamingMessage(currentMemory.id, null, firstMessage, selectedSetId);
         } catch (error) {
             console.error('Failed to start new chat:', error);
             throw error;
         }
-    };
-
-    // Helper para obter token de autenticação
-    const getAuthToken = () => {
-        return useAuthStore.getState().token;
     };
 
     return (
@@ -77,10 +47,10 @@ export const ChatArea: React.FC = () => {
                 {/* LLM Selector - posicionado normalmente no topo */}
                 <LLMSelector />
 
-                {currentMemory && selectedChatId ? (
+                {currentMemory && (activeChatId || isStreamingNewChat) ? (
                     <>
                         <ChatWindow
-                            chatId={selectedChatId}
+                            chatId={activeChatId}
                             messages={currentMessages}
                         />
                         <ChatInput

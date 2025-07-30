@@ -31,7 +31,7 @@ export const useStreaming = ({
         authToken?: string
     ) => {
         try {
-            const response = await fetch(`http://localhost:3002/api/memories/${memoryId}/messages`, {
+            const response = await fetch(`http://localhost:3002/chats/${memoryId}/messages`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

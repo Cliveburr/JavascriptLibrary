@@ -155,25 +155,31 @@ export class ChatController {
             const { memoryId } = paramsResult.data;
             const { content, chatId, llmSetId } = bodyResult.data;
 
+            // Extrair userId do request (precisa do middleware de auth)
+            if (!req.user?.id) {
+                res.status(401).json({ error: 'User not authenticated' });
+                return;
+            }
+            const userId = req.user.id;
+
             let finalChatId = chatId;
             let isNewChat = false;
 
-            // Verificar se o chat existe ou precisa ser criado
+            // Fazer checagem se é chat novo ou se já existe
             if (chatId) {
                 const chat = await this.chatService.getChatById(chatId);
                 if (!chat) {
                     res.status(404).json({ error: 'Chat não encontrado' });
                     return;
                 }
+                console.log('New iteration on chatId: ' + chatId);
             } else {
                 // Se não tem chatId, é um chat novo - criar temporariamente com título padrão
                 isNewChat = true;
                 const newChat = await this.chatService.createChat(memoryId, 'Novo Chat');
                 finalChatId = newChat.id;
+                console.log('New chat created: ' + finalChatId);
             }
-
-            // Extrair userId do token (mock por enquanto)
-            const userId = req.headers.authorization?.replace('Bearer ', '') || 'mock-user-id';
 
             // Setup streaming headers
             res.writeHead(200, {
@@ -184,10 +190,15 @@ export class ChatController {
                 'Connection': 'keep-alive'
             });
 
-            // Criar mensagem do usuário imediatamente
+            if (!finalChatId) {
+                res.status(500).json({ error: 'Failed to create or validate chat' });
+                return;
+            }
+
+            // Criar e salvar mensagem do usuário no banco imediatamente
             const userMessage = {
                 id: `msg-${Date.now()}-user`,
-                chatId: finalChatId || `default-${memoryId}`,
+                chatId: finalChatId,
                 role: 'user' as const,
                 content,
                 contentType: 'text' as const,
@@ -197,10 +208,17 @@ export class ChatController {
                 modal: 'text' as const
             };
 
-            // Salvar mensagem do usuário no banco
             await this.chatService.saveMessage(userMessage);
 
-            // Send user message to client
+            // Medir latência
+            const startTime = Date.now();
+
+            // Stream callback function (obrigatório)
+            const streamCallback = async (progress: MessageProgress) => {
+                console.log('Sending message progress of type ' + progress.modal);
+                res.write(JSON.stringify(progress) + '\n');
+            };
+
             const userMessageProgress: MessageProgress = {
                 modal: MessageProgressModal.Text,
                 data: {
@@ -214,76 +232,21 @@ export class ChatController {
                     }
                 }
             };
-            res.write(JSON.stringify(userMessageProgress) + '\n');
+            streamCallback(userMessageProgress);
 
-            // Send initial "thinking" message
-            const thinkingProgress: MessageProgress = {
-                modal: MessageProgressModal.Info,
-                data: { message: 'Thinking...' }
-            };
-            res.write(JSON.stringify(thinkingProgress) + '\n');
-
-            // Medir latência
-            const startTime = Date.now();
-
-            let assistantMessageId = `msg-${Date.now()}-assistant`;
-            let assistantContent = '';
-
-            // Stream callback function
-            const streamCallback = async (progress: MessageProgress) => {
-                if (progress.modal === MessageProgressModal.TextStream) {
-                    assistantContent += progress.data?.content || '';
-                }
-                res.write(JSON.stringify(progress) + '\n');
-            };
-
-            // Chamar ThoughtCycleService com streaming
-            let responseContent: string;
-            try {
-                responseContent = await this.thoughtCycleService.handle(
-                    userId,
-                    memoryId,
-                    content,
-                    llmSetId,
-                    streamCallback
-                );
-            } catch (error) {
-                console.warn('ThoughtCycleService failed, using mock response:', error);
-                responseContent = `Hello! I received your message: "${content}". This is a mock response for testing purposes.`;
-
-                // Send error progress
-                const errorProgress: MessageProgress = {
-                    modal: MessageProgressModal.Error,
-                    data: { message: 'Using fallback response due to service error' }
-                };
-                res.write(JSON.stringify(errorProgress) + '\n');
-
-                // Send mock response as stream
-                const mockStreamProgress: MessageProgress = {
-                    modal: MessageProgressModal.TextStream,
-                    data: { content: responseContent }
-                };
-                res.write(JSON.stringify(mockStreamProgress) + '\n');
-            }
+            // Chamar ThoughtCycleService.handle SEMPRE passando streamCallback (não é opcional)
+            // Esta função não tem retorno específico, mas retorna o conteúdo da resposta
+            await this.thoughtCycleService.handle(
+                userId,
+                memoryId,
+                content,
+                llmSetId,
+                finalChatId,
+                streamCallback
+            );
 
             const endTime = Date.now();
             const latency = endTime - startTime;
-
-            // Criar mensagem do assistente
-            const assistantMessage = {
-                id: assistantMessageId,
-                chatId: finalChatId || `default-${memoryId}`,
-                role: 'assistant' as const,
-                content: responseContent,
-                contentType: 'text' as const,
-                toolCall: undefined,
-                createdAt: new Date(),
-                'chat-history': true,
-                modal: 'text' as const
-            };
-
-            // Salvar mensagem do assistente no banco
-            await this.chatService.saveMessage(assistantMessage);
 
             // Se é um chat novo, gerar título automaticamente após o thoughtCycle
             if (isNewChat && finalChatId) {
@@ -291,49 +254,41 @@ export class ChatController {
                     const generatedTitle = await this.chatService.generateChatTitle(content, llmSetId);
                     await this.chatService.updateChatTitle(finalChatId, generatedTitle);
 
-                    // Send title update progress
+                    // Enviar atualização do título
                     const titleProgress: MessageProgress = {
                         modal: MessageProgressModal.UpdateTitle,
                         data: { chatId: finalChatId, title: generatedTitle }
                     };
-                    res.write(JSON.stringify(titleProgress) + '\n');
+                    streamCallback(titleProgress);
                 } catch (error) {
                     console.warn('Error generating chat title:', error);
                     // Continua mesmo se falhar a geração do título
                 }
             }
 
-            // Send final completion message
+            // Enviar mensagem de conclusão
             const completionProgress: MessageProgress = {
                 modal: MessageProgressModal.Info,
                 data: {
                     message: 'Completed',
-                    latency: `${latency}ms`,
-                    assistantMessage: {
-                        id: assistantMessage.id,
-                        chatId: assistantMessage.chatId,
-                        role: assistantMessage.role,
-                        content: assistantMessage.content,
-                        contentType: assistantMessage.contentType,
-                        createdAt: assistantMessage.createdAt.toISOString()
-                    }
+                    latency: `${latency}ms`
                 }
             };
-            res.write(JSON.stringify(completionProgress) + '\n');
+            streamCallback(completionProgress);
 
-            // End the stream
+            // Finalizar o stream
             res.end();
         } catch (error) {
             console.error('Error in sendMessage:', error);
 
-            // Try to send error through stream if headers not sent yet
+            // Tentar enviar erro através do stream se os headers ainda não foram enviados
             if (!res.headersSent) {
                 res.status(500).json({
                     error: 'Internal server error',
                     message: error instanceof Error ? error.message : 'Unknown error'
                 });
             } else {
-                // If we're in streaming mode, send error progress
+                // Se estamos em modo streaming, enviar erro como progress
                 const errorProgress: MessageProgress = {
                     modal: MessageProgressModal.Error,
                     data: {

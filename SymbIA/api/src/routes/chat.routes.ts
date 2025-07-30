@@ -2,8 +2,12 @@ import type { Router as ExpressRouter } from 'express';
 import { Router } from 'express';
 import { container } from 'tsyringe';
 import { ChatController } from '../controllers/chat.controller.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
 
 const router: ExpressRouter = Router();
+
+// Apply authentication middleware to all routes
+router.use(authMiddleware);
 
 // GET /chats?memoryId=... - Listar chats de uma memória
 router.get('/', (req, res) => {

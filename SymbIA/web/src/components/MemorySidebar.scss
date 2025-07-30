@@ -10,6 +10,8 @@
     font-size: 0.8rem; // Fonte menor conforme especificação
     width: 280px;
     flex-shrink: 0;
+    min-width: 280px;
+    max-width: 280px;
 
     // Logo Section
     .logo-section {

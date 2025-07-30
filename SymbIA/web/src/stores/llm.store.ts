@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { LlmSetConfig, LlmSetListResponse } from '../types/llm';
-// import { useAuthStore } from './auth.store';
+import { useAuthStore } from './auth.store';
 
 interface LLMState {
     availableSets: LlmSetConfig[];
@@ -14,9 +14,8 @@ interface LLMState {
 
 // Helper to get auth token (for future API integration)
 const getAuthToken = () => {
-    // const authState = useAuthStore.getState();
-    // return authState.token;
-    return null; // Auth not implemented yet
+    const authState = useAuthStore.getState();
+    return authState.token;
 };
 
 // Helper for API calls

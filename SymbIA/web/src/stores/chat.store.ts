@@ -34,6 +34,8 @@ interface ChatState {
     messagesByChat: Record<string, (MessageDTO | StreamingMessage)[]>;
     // Chat atualmente selecionado
     selectedChatId: string | null;
+    // Chat sendo usado para streaming (pode ser diferente do selectedChatId)
+    streamingChatId: string | null;
     // Estados de loading
     isLoading: boolean;
     isLoadingChats: boolean;
@@ -65,6 +67,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     chatsByMemory: {},
     messagesByChat: {},
     selectedChatId: null,
+    streamingChatId: null,
     isLoading: false,
     isLoadingChats: false,
     isLoadingMessages: false,
@@ -345,19 +348,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     sendStreamingMessage: async (memoryId: string, chatId: string | null, content: string, llmSetId: string) => {
         const token = getAuthToken();
 
-        set({ isStreaming: true, error: null });
+        console.log('Starting sendStreamingMessage:', { memoryId, chatId, content, llmSetId });
+        set({ isStreaming: true, error: null, streamingChatId: chatId });
 
         try {
-            // Se não tem chatId, precisamos criar um novo
+            // Se não tem chatId, é um novo chat - o backend irá criar automaticamente
             let actualChatId = chatId;
-            if (!actualChatId) {
-                const newChat = await get().createChat(memoryId, 'Novo Chat');
-                actualChatId = newChat.id;
-                get().selectChat(actualChatId);
-            }
 
-            // Fazer chamada de streaming diretamente
-            const response = await fetch(`http://localhost:3002/api/memories/${memoryId}/messages`, {
+            // Fazer chamada de streaming usando o endpoint correto do chat.controller
+            const response = await fetch(`http://localhost:3002/chats/${memoryId}/messages`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -366,7 +365,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 body: JSON.stringify({
                     content,
                     llmSetId,
-                    chatId: actualChatId !== 'new' ? actualChatId : undefined
+                    chatId: actualChatId || undefined // undefined para novos chats
                 }),
             });
 
@@ -382,6 +381,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             const decoder = new TextDecoder();
             let buffer = '';
             let currentStreamingMessage: StreamingMessage | null = null;
+            let isNewChat = !chatId;
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -415,82 +415,148 @@ export const useChatStore = create<ChatState>((set, get) => ({
             }
 
             async function handleStreamProgress(progress: MessageProgress) {
+                console.log('Handling stream progress:', progress.modal, progress.data);
                 const { MessageProgressModal } = await import('../types/streaming');
 
                 switch (progress.modal) {
                     case MessageProgressModal.Text:
-                        // Mensagem do usuário
+                        // Mensagem do usuário - atualizar actualChatId se for novo chat
                         if (progress.data?.userMessage) {
-                            set(state => ({
-                                messagesByChat: {
-                                    ...state.messagesByChat,
-                                    [actualChatId!]: [...(state.messagesByChat[actualChatId!] || []), progress.data.userMessage]
-                                }
-                            }));
-                        }
-                        break;
+                            console.log('Received user message:', progress.data.userMessage);
+                            if (isNewChat && progress.data.userMessage.chatId) {
+                                console.log('Setting actualChatId for new chat:', progress.data.userMessage.chatId);
+                                actualChatId = progress.data.userMessage.chatId;
+                                get().selectChat(actualChatId);
+                                set({ streamingChatId: actualChatId });
+                                isNewChat = false;
+                            }
 
-                    case MessageProgressModal.Info:
+                            // Garantir que temos um chatId válido
+                            if (actualChatId) {
+                                set(state => ({
+                                    messagesByChat: {
+                                        ...state.messagesByChat,
+                                        [actualChatId!]: [...(state.messagesByChat[actualChatId!] || []), progress.data.userMessage]
+                                    }
+                                }));
+                            }
+                        }
+                        break; case MessageProgressModal.Info:
                         // Informações de progresso (thinking, completed, etc.)
                         if (progress.data?.message === 'Thinking...') {
-                            // Criar mensagem temporária do assistente
-                            currentStreamingMessage = {
-                                id: `streaming-${Date.now()}`,
-                                chatId: actualChatId!,
-                                role: 'assistant',
-                                content: '💭 Pensando...',
-                                contentType: 'text',
-                                createdAt: new Date().toISOString(),
-                                isStreaming: true
-                            };
-                            get().updateStreamingMessage(actualChatId!, currentStreamingMessage);
+                            // Só criar mensagem de thinking se já temos um chatId
+                            if (actualChatId) {
+                                currentStreamingMessage = {
+                                    id: `streaming-${Date.now()}`,
+                                    chatId: actualChatId,
+                                    role: 'assistant',
+                                    content: '💭 Pensando...',
+                                    contentType: 'text',
+                                    createdAt: new Date().toISOString(),
+                                    isStreaming: true
+                                };
+                                get().updateStreamingMessage(actualChatId, currentStreamingMessage);
+                            }
                         } else if (progress.data?.message === 'Completed') {
                             // Finalizar streaming
-                            if (currentStreamingMessage) {
+                            if (currentStreamingMessage && actualChatId) {
                                 currentStreamingMessage.isStreaming = false;
+                                get().updateStreamingMessage(actualChatId, { ...currentStreamingMessage });
                             }
-                            if (progress.data?.assistantMessage) {
-                                const streamingId = get().currentStreamingMessageId;
-                                if (streamingId) {
-                                    get().replaceStreamingMessage(actualChatId!, streamingId, progress.data.assistantMessage);
-                                }
-                            }
-                            set({ isStreaming: false, currentStreamingMessageId: null });
+                            set({ isStreaming: false, currentStreamingMessageId: null, streamingChatId: null });
                         }
                         break;
 
                     case MessageProgressModal.TextStream:
                         // Streaming de texto do assistente
-                        if (progress.data?.content && currentStreamingMessage) {
-                            if (currentStreamingMessage.content === '💭 Pensando...') {
-                                currentStreamingMessage.content = progress.data.content;
-                            } else {
-                                currentStreamingMessage.content += progress.data.content;
+                        if (progress.data?.content) {
+                            // Se não temos actualChatId ainda, aguardar pela mensagem do usuário
+                            if (!actualChatId) {
+                                console.warn('Received TextStream before chat was created');
+                                return;
                             }
-                            get().updateStreamingMessage(actualChatId!, { ...currentStreamingMessage });
+
+                            if (!currentStreamingMessage) {
+                                // Criar mensagem de streaming se não existir
+                                currentStreamingMessage = {
+                                    id: `streaming-${Date.now()}`,
+                                    chatId: actualChatId,
+                                    role: 'assistant',
+                                    content: progress.data.content,
+                                    contentType: 'text',
+                                    createdAt: new Date().toISOString(),
+                                    isStreaming: true
+                                };
+                                get().updateStreamingMessage(actualChatId, currentStreamingMessage);
+                            } else {
+                                if (currentStreamingMessage.content === '💭 Pensando...') {
+                                    currentStreamingMessage.content = progress.data.content;
+                                } else {
+                                    currentStreamingMessage.content += progress.data.content;
+                                }
+                                get().updateStreamingMessage(actualChatId, { ...currentStreamingMessage });
+                            }
                         }
                         break;
 
                     case MessageProgressModal.Error:
                         // Erro durante o processamento
                         const errorMessage = progress.data?.message || 'Erro desconhecido';
-                        if (currentStreamingMessage) {
+                        if (currentStreamingMessage && actualChatId) {
                             currentStreamingMessage.content = `❌ Erro: ${errorMessage}`;
                             currentStreamingMessage.isError = true;
                             currentStreamingMessage.isStreaming = false;
-                            get().updateStreamingMessage(actualChatId!, { ...currentStreamingMessage });
+                            get().updateStreamingMessage(actualChatId, { ...currentStreamingMessage });
                         }
                         set({
                             error: errorMessage,
                             isStreaming: false,
-                            currentStreamingMessageId: null
+                            currentStreamingMessageId: null,
+                            streamingChatId: null
                         });
                         break;
 
                     case MessageProgressModal.UpdateTitle:
                         // Atualização do título do chat
                         if (progress.data?.chatId && progress.data?.title) {
-                            get().updateChatTitle(progress.data.chatId, progress.data.title);
+                            // Atualizar título no chat store
+                            set(state => {
+                                const memoryChats = state.chatsByMemory[memoryId] || [];
+                                const existingChat = memoryChats.find(chat => chat.id === progress.data.chatId);
+
+                                if (existingChat) {
+                                    // Atualizar chat existente
+                                    const updatedChats = memoryChats.map(chat =>
+                                        chat.id === progress.data.chatId
+                                            ? { ...chat, title: progress.data.title }
+                                            : chat
+                                    );
+
+                                    return {
+                                        chatsByMemory: {
+                                            ...state.chatsByMemory,
+                                            [memoryId]: updatedChats
+                                        }
+                                    };
+                                } else {
+                                    // Adicionar novo chat à lista
+                                    const newChat = {
+                                        id: progress.data.chatId,
+                                        memoryId: memoryId,
+                                        title: progress.data.title,
+                                        orderIndex: memoryChats.length,
+                                        createdAt: new Date().toISOString(),
+                                        updatedAt: new Date().toISOString()
+                                    };
+
+                                    return {
+                                        chatsByMemory: {
+                                            ...state.chatsByMemory,
+                                            [memoryId]: [...memoryChats, newChat]
+                                        }
+                                    };
+                                }
+                            });
                         }
                         break;
 
@@ -503,7 +569,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
             set({
                 error: error instanceof Error ? error.message : 'Failed to send streaming message',
                 isStreaming: false,
-                currentStreamingMessageId: null
+                currentStreamingMessageId: null,
+                streamingChatId: null
             });
         }
     },

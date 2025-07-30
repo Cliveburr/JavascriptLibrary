@@ -29,8 +29,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ chatId, memoryId, onStartN
 
             if (isNewChat && onStartNewChat) {
                 await onStartNewChat(messageToSend);
-            } else {
-                // Usar nova função de streaming
+            } else if (chatId) {
+                // Usar nova função de streaming para chats existentes
                 await sendStreamingMessage(memoryId, chatId, messageToSend, llmSetId);
             }
         } catch (error) {

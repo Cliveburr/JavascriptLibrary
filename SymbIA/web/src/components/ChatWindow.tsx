@@ -6,7 +6,7 @@ import type { StreamingMessage } from '../types/streaming';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
-    chatId: string;
+    chatId: string | null;
     messages: (MessageDTO | StreamingMessage)[];
 }
 

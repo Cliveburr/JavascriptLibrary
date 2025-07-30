@@ -1,14 +1,21 @@
 .chat-window {
-    height: 100%;
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .messages-container {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 0.5rem;
     scroll-behavior: smooth;
+    min-height: 0;
+    word-wrap: break-word;
+    max-width: 100%;
 
     /* Custom scrollbar */
     &::-webkit-scrollbar {

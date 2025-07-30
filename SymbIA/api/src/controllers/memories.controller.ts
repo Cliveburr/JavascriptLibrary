@@ -22,7 +22,11 @@ export class MemoriesController {
 
     getMemories: RequestHandler = async (req: Request, res: Response) => {
         try {
-            const userId = req.user?.id || 'user-1';
+            if (!req.user?.id) {
+                res.status(401).json({ error: 'User not authenticated' });
+                return;
+            }
+            const userId = req.user.id;
 
             const memories = await this.memoryService.getMemoriesByUser(userId);
 
@@ -54,7 +58,11 @@ export class MemoriesController {
                 return;
             }
 
-            const userId = req.user?.id || 'user-1';
+            if (!req.user?.id) {
+                res.status(401).json({ error: 'User not authenticated' });
+                return;
+            }
+            const userId = req.user.id;
 
             const memory = await this.memoryService.getMemoryById(id);
 
@@ -87,7 +95,11 @@ export class MemoriesController {
         async (req: Request<{}, MemoryDTO, CreateMemoryRequest>, res: Response) => {
             try {
                 const { name } = req.body;
-                const userId = req.user?.id || 'user-1';
+                if (!req.user?.id) {
+                    res.status(401).json({ error: 'User not authenticated' });
+                    return;
+                }
+                const userId = req.user.id;
 
                 const memory = await this.memoryService.createMemory(userId, name);
 
@@ -123,7 +135,11 @@ export class MemoriesController {
                     return;
                 }
 
-                const userId = req.user?.id || 'user-1';
+                if (!req.user?.id) {
+                    res.status(401).json({ error: 'User not authenticated' });
+                    return;
+                }
+                const userId = req.user.id;
 
                 // First check if memory exists and belongs to user
                 const existingMemory = await this.memoryService.getMemoryById(id);
@@ -172,7 +188,11 @@ export class MemoriesController {
                 return;
             }
 
-            const userId = req.user?.id || 'user-1';
+            if (!req.user?.id) {
+                res.status(401).json({ error: 'User not authenticated' });
+                return;
+            }
+            const userId = req.user.id;
 
             // First check if memory exists and belongs to user
             const existingMemory = await this.memoryService.getMemoryById(id);

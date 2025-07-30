@@ -3,6 +3,9 @@
     border-top: 1px solid var(--border-subtle);
     background: var(--surface-secondary);
     font-size: 0.8rem; // Fonte menor conforme especificação
+    flex-shrink: 0;
+    min-width: 0;
+    width: 100%;
 }
 
 .input-container {
@@ -10,6 +13,7 @@
     gap: 0.5rem;
     align-items: flex-end;
     max-width: 100%;
+    min-width: 0;
 }
 
 .message-input {
@@ -25,8 +29,11 @@
     min-height: 36px;
     max-height: 120px;
     overflow-y: auto;
+    overflow-x: hidden;
     font-family: inherit;
     transition: all 0.2s ease;
+    min-width: 0;
+    word-wrap: break-word;
 
     &::placeholder {
         color: var(--text-tertiary);
@@ -185,10 +192,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
+    min-width: 0;
+    width: 100%;
 
     .input-container {
         max-width: 600px;
         width: 100%;
+        min-width: 0;
     }
 
     .message-input {
@@ -198,6 +209,9 @@
         padding: 0.75rem 1rem;
         font-size: 0.9rem;
         min-height: 44px;
+        min-width: 0;
+        overflow-x: hidden;
+        word-wrap: break-word;
 
         &:focus {
             border-color: var(--accent-primary);
