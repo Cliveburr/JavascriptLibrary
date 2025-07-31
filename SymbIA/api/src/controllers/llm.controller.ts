@@ -1,16 +1,16 @@
 import type { Request, Response } from 'express';
-import { LlmGateway, generateChatTitle } from '@symbia/core';
+import { LlmGateway } from '@symbia/core';
 import { LlmSetService } from '@symbia/core';
 
 async function getLlmSetForChat(llmSetService: LlmSetService, llmSetId?: string) {
     if (llmSetId) {
         const requestedSet = await llmSetService.getLlmSetById(llmSetId);
-        if (requestedSet && (requestedSet.models.chat || requestedSet.models.reasoning)) {
+        if (requestedSet && (requestedSet.models.fastChat || requestedSet.models.reasoning)) {
             return requestedSet;
         }
     }
     const allSets = await llmSetService.loadLlmSets();
-    return allSets.find(set => set.models.chat || set.models.reasoning) || null;
+    return allSets.find(set => set.models.fastChat || set.models.reasoning) || null;
 }
 
 export class LlmController {
@@ -32,12 +32,26 @@ export class LlmController {
                 res.status(404).json({ error: 'Nenhum modelo LLM disponível' });
                 return;
             }
-            // Monta mensagem para o LLM
+            // Gerar título usando o LLM
             const messages = [
-                { role: 'user', content: firstMessage }
+                {
+                    role: 'system',
+                    content: 'Você é um assistente que gera títulos curtos e descritivos para conversas. Gere um título de máximo 60 caracteres baseado na primeira mensagem do usuário. Responda apenas com o título, sem aspas ou formatação extra.'
+                },
+                {
+                    role: 'user',
+                    content: firstMessage
+                }
             ];
-            const title = await generateChatTitle(this.llmGateway, llmSetConfig, messages);
-            res.json({ title });
+
+            const titleResponse = await this.llmGateway.invokeAsync(
+                llmSetConfig.models.reasoning,
+                messages,
+                () => { }, // firstCallback
+                () => { }  // chunkCallback
+            );
+
+            res.json({ title: titleResponse.content.trim() });
         } catch {
             res.status(500).json({ error: 'Erro ao gerar título via LLM' });
         }

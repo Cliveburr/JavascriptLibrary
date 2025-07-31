@@ -1,5 +1,8 @@
 // Main exports
-export * from './domain.js';
-export * from './llm.js';
-export * from './api.js';
-export * from './actions.js';
+export * from './domain';
+export * from './llm';
+export * from './api';
+
+export * from './chat/messages';
+export type { MessageFormat } from './chat/message-format';
+export * from './chat/chat-context';

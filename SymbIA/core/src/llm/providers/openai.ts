@@ -1,5 +1,4 @@
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, StreamProgressCallback } from '@symbia/interfaces';
-import { MessageProgressModal } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
 import { ConfigService } from '../../config/config.service.js';
 
 export interface OpenAIConfig {
@@ -58,7 +57,9 @@ export class OpenAIProvider {
     async invokeAsync(
         messages: LlmRequest['messages'],
         options: Partial<LlmRequest>,
-        streamCallback: StreamProgressCallback
+        fristCallback: (content: string) => void,
+        chunkCallback: (content: string) => void,
+        endCallback?: (content: string) => Promise<void>
     ): Promise<LlmResponse> {
         if (!this.apiKey) {
             throw new Error('OpenAI API key is required');
@@ -89,6 +90,7 @@ export class OpenAIProvider {
         let fullContent = '';
         let totalPromptTokens = 0;
         let totalCompletionTokens = 0;
+        let isFirstCall = true;
 
         const reader = response.body?.getReader();
         if (!reader) {
@@ -117,10 +119,13 @@ export class OpenAIProvider {
                             fullContent += content;
 
                             // Send stream progress
-                            await streamCallback({
-                                modal: MessageProgressModal.TextStream,
-                                data: { content }
-                            });
+                            if (isFirstCall) {
+                                fristCallback(content);
+                                isFirstCall = false;
+                            }
+                            else {
+                                chunkCallback(content);
+                            }
                         }
 
                         if (parsed.usage) {
@@ -135,6 +140,10 @@ export class OpenAIProvider {
             }
         } finally {
             reader.releaseLock();
+        }
+
+        if (endCallback) {
+            await endCallback(fullContent);
         }
 
         return {

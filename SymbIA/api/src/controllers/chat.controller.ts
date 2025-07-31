@@ -1,27 +1,15 @@
 import type { Request, Response } from 'express';
-import { z } from 'zod';
-import { ObjectId } from 'mongodb';
-import { ThoughtCycleService, ChatService } from '@symbia/core';
-import type { MessageProgress } from '@symbia/interfaces';
-import { MessageProgressModal } from '@symbia/interfaces';
-
-// Schema de validação para o body
-const sendMessageSchema = z.object({
-    content: z.string().min(1, 'Content cannot be empty'),
-    chatId: z.string().optional(),
-    llmSetId: z.string().min(1, 'LLM Set ID is required')
-});
-
-// Schema de validação para os params
-const chatParamsSchema = z.object({
-    memoryId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid memory ID format')
-});
+import { ThoughtCycleService, ChatService, LlmSetService } from '@symbia/core';
+import { ChatContext } from '../helpers/chat-context';
 
 export class ChatController {
-    constructor(
+
+    public constructor(
         private thoughtCycleService: ThoughtCycleService,
-        private chatService: ChatService
-    ) { }
+        private chatService: ChatService,
+        private llmSetService: LlmSetService
+    ) {
+    }
 
     async getChatsByMemory(req: Request, res: Response): Promise<void> {
         try {
@@ -51,34 +39,6 @@ export class ChatController {
         }
     }
 
-    async createChat(req: Request, res: Response): Promise<void> {
-        try {
-            const { memoryId, title } = req.body;
-
-            if (!memoryId) {
-                res.status(400).json({ error: 'MemoryId é obrigatório' });
-                return;
-            }
-
-            const newChat = await this.chatService.createChat(memoryId, title || 'Novo Chat');
-
-            // Converter para DTO
-            const chatDTO = {
-                id: newChat._id.toString(),
-                memoryId: newChat.memoryId.toString(),
-                title: newChat.title,
-                orderIndex: newChat.orderIndex,
-                createdAt: newChat.createdAt.toISOString(),
-                updatedAt: newChat.updatedAt?.toISOString()
-            };
-
-            res.status(201).json(chatDTO);
-        } catch (error) {
-            console.error('Error creating chat:', error);
-            res.status(500).json({ error: 'Erro ao criar chat' });
-        }
-    }
-
     async getMessagesByChat(req: Request, res: Response): Promise<void> {
         try {
             const { chatId } = req.params;
@@ -96,7 +56,7 @@ export class ChatController {
                 chatId: message.chatId.toString(),
                 role: message.role,
                 content: message.content,
-                contentType: message.contentType,
+                modal: message.modal,
                 createdAt: message.createdAt.toISOString()
             }));
 
@@ -130,55 +90,14 @@ export class ChatController {
     }
 
     async sendMessage(req: Request, res: Response): Promise<void> {
+        const ctx = new ChatContext(this.chatService, req, res);
         try {
-            // Validar params
-            const paramsResult = chatParamsSchema.safeParse(req.params);
-            if (!paramsResult.success) {
-                res.status(400).json({
-                    error: 'Invalid parameters',
-                    details: paramsResult.error.errors
-                });
+            if (!ctx.validateParams() || !ctx.validateBody() ||
+                !ctx.validateAuthenticated() || !await ctx.validateChat() ||
+                !await ctx.validateLlmSet(this.llmSetService)) {
                 return;
             }
 
-            // Validar body
-            const bodyResult = sendMessageSchema.safeParse(req.body);
-            if (!bodyResult.success) {
-                res.status(400).json({
-                    error: 'Invalid request body',
-                    details: bodyResult.error.errors
-                });
-                return;
-            }
-
-            const { memoryId } = paramsResult.data;
-            const { content, chatId, llmSetId } = bodyResult.data;
-
-            // Extrair userId do request (precisa do middleware de auth)
-            if (!req.user?.id) {
-                res.status(401).json({ error: 'User not authenticated' });
-                return;
-            }
-            const userId = req.user.id;
-
-            let finalChatId = chatId;
-            let isNewChat = false;
-
-            // Fazer checagem se é chat novo ou se já existe
-            if (chatId) {
-                const chat = await this.chatService.getChatById(chatId);
-                if (!chat) {
-                    res.status(404).json({ error: 'Chat não encontrado' });
-                    return;
-                }
-            } else {
-                // Se não tem chatId, é um chat novo - criar temporariamente com título padrão
-                isNewChat = true;
-                const newChat = await this.chatService.createChat(memoryId, 'Novo Chat');
-                finalChatId = newChat._id.toString();
-            }
-
-            // Setup streaming headers
             res.writeHead(200, {
                 'Content-Type': 'text/plain; charset=utf-8',
                 'Transfer-Encoding': 'chunked',
@@ -187,114 +106,35 @@ export class ChatController {
                 'Connection': 'keep-alive'
             });
 
-            if (!finalChatId) {
-                res.status(500).json({ error: 'Failed to create or validate chat' });
-                return;
-            }
-
-            // Criar e salvar mensagem do usuário no banco imediatamente
-            const userMessage = {
-                _id: new ObjectId(),
-                chatId: new ObjectId(finalChatId),
-                role: 'user' as const,
-                content,
-                contentType: 'text' as const,
-                toolCall: undefined,
-                createdAt: new Date(),
-                'chat-history': true,
-                modal: 'text' as const
-            };
-
-            // Inicia o save dessa mensagem, e continua a processar o request em paralelo
             const paralelTasks: Array<Promise<any>> = [
-                this.chatService.saveMessage(userMessage)
+                ctx.sendUserMessage()
             ];
 
-            // Medir latência
-            const startTime = Date.now();
+            paralelTasks.push(this.thoughtCycleService.handle(ctx));
 
-            // Stream callback function (obrigatório)
-            const streamCallback = (progress: MessageProgress) => {
-                res.write(JSON.stringify(progress) + '\n');
-            };
-
-            streamCallback({
-                modal: MessageProgressModal.Text,
-                data: {
-                    userMessage: {
-                        id: userMessage._id.toString(),
-                        chatId: userMessage.chatId.toString(),
-                        role: userMessage.role,
-                        content: userMessage.content,
-                        contentType: userMessage.contentType,
-                        createdAt: userMessage.createdAt.toISOString()
-                    }
-                }
-            });
-
-            paralelTasks.push(this.thoughtCycleService.handle(
-                userId,
-                memoryId,
-                content,
-                llmSetId,
-                finalChatId,
-                streamCallback
-            ));
-
-            // Se é um chat novo, gerar título automaticamente após o thoughtCycle
-            if (isNewChat && finalChatId) {
-                paralelTasks.push(this.generateAndUpdateChatTitle(content, llmSetId, finalChatId, streamCallback));
+            if (ctx.isNewChat) {
+                paralelTasks.push(this.generateAndUpdateChatTitle(ctx));
             }
 
             await Promise.all(paralelTasks);
 
-            const endTime = Date.now();
-            const latency = endTime - startTime;
-
-            // Enviar mensagem de conclusão
-            streamCallback({
-                modal: MessageProgressModal.Info,
-                data: {
-                    message: 'Completed',
-                    latency: `${latency}ms`
-                }
-            });
-
-            // Finalizar o stream
-            res.end();
+            ctx.sendCompleted();
         } catch (error) {
-            console.error('Error in sendMessage:', error);
-
-            // Tentar enviar erro através do stream se os headers ainda não foram enviados
-            if (!res.headersSent) {
-                res.status(500).json({
-                    error: 'Internal server error',
-                    message: error instanceof Error ? error.message : 'Unknown error'
-                });
-            } else {
-                // Se estamos em modo streaming, enviar erro como progress
-                const errorProgress: MessageProgress = {
-                    modal: MessageProgressModal.Error,
-                    data: {
-                        message: error instanceof Error ? error.message : 'Unknown error'
-                    }
-                };
-                res.write(JSON.stringify(errorProgress) + '\n');
-                res.end();
-            }
+            ctx.sendError(500, 'Internal server error', error);
         }
     }
 
-    async generateAndUpdateChatTitle(content: string, llmSetId: string, chatId: string, streamCallback: (progress: MessageProgress) => void): Promise<void> {
+    async generateAndUpdateChatTitle(ctx: ChatContext): Promise<void> {
         try {
-            const generatedTitle = await this.chatService.generateChatTitle(content, llmSetId);
-            await this.chatService.updateChatTitle(chatId, generatedTitle);
+            if (!ctx.chatId) {
+                throw 'Invalid stream.chatId';
+            }
 
-            // Enviar atualização do título
-            streamCallback({
-                modal: MessageProgressModal.UpdateTitle,
-                data: { chatId: chatId, title: generatedTitle }
-            });
+            const generatedTitle = await this.chatService.generateChatTitle(ctx.content, ctx.llmSetConfig,
+                ctx.sendStartTitleMessage.bind(ctx), ctx.sendChunkTitleMessage.bind(ctx)
+            );
+            await this.chatService.updateChatTitle(ctx.chatId, generatedTitle);
+
         } catch (error) {
             console.warn('Error generating chat title:', error);
             // Continua mesmo se falhar a geração do título

@@ -1,9 +1,4 @@
 
-export interface ModelSpec {
-  provider: string;
-  model: string;
-}
-
 export interface LlmProvider {
   name: string;
   baseUrl?: string;
@@ -67,11 +62,11 @@ export interface LlmSetConfig {
   info?: string;
   icon: LlmSetIcon;
   models: {
-    reasoning?: LlmSetModel;
-    reasoningHeavy?: LlmSetModel;
-    chat?: LlmSetModel;
-    codegen?: LlmSetModel;
-    embedding?: LlmSetModel;
+    reasoning: LlmSetModel;
+    reasoningHeavy: LlmSetModel;
+    fastChat: LlmSetModel;
+    codegen: LlmSetModel;
+    embedding: LlmSetModel;
   };
 }
 

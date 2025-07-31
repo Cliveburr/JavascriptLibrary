@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import type { Chat, Message, LlmRequest } from '@symbia/interfaces';
+import type { Chat, Message, LlmRequest, LlmSetConfig } from '@symbia/interfaces';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
@@ -11,15 +11,20 @@ export class ChatService {
         private llmSetService: LlmSetService
     ) { }
 
-    async createChat(memoryId: string, title: string = 'Novo Chat'): Promise<Chat> {
+    async createChat(userId: string, memoryId: string, title: string): Promise<Chat> {
         await this.mongoService.connect();
+        const memoriesCollection = this.mongoService.getMemoriesCollection();
         const chatsCollection = this.mongoService.getChatsCollection();
 
-        // Incrementar o orderIndex de todos os chats existentes dessa memória
-        await chatsCollection.updateMany(
-            { memoryId: new ObjectId(memoryId) },
-            { $inc: { orderIndex: 1 } }
-        );
+        const memory = await memoriesCollection.findOne({
+            _id: new ObjectId(memoryId),
+            userId: new ObjectId(userId)
+        });
+        if (!memory) {
+            throw 'Invalid memoryId'; // User trying to access other memories
+        }
+
+        const orderIndex = (await chatsCollection.countDocuments()) + 1;
 
         const chatId = new ObjectId();
         const now = new Date();
@@ -28,7 +33,7 @@ export class ChatService {
             _id: chatId,
             memoryId: new ObjectId(memoryId),
             title,
-            orderIndex: 0, // Novo chat sempre no topo
+            orderIndex,
             createdAt: now,
             updatedAt: now
         };
@@ -142,7 +147,7 @@ export class ChatService {
         const messagesCollection = this.mongoService.getMessagesCollection();
 
         const messages = await messagesCollection
-            .find({ chatId: new ObjectId(chatId) })
+            .find({ chatId: new ObjectId(chatId), chatHistory: true })
             .sort({ createdAt: 1 })
             .toArray();
 
@@ -157,35 +162,21 @@ export class ChatService {
         return result.deletedCount === 1;
     }
 
-    async generateChatTitle(userMessage: string, llmSetId: string): Promise<string> {
-        try {
-            // Get LLM set configuration
-            const llmSetConfig = await this.llmSetService.getLlmSetById(llmSetId);
-            if (!llmSetConfig) {
-                console.warn(`LLM set '${llmSetId}' not found, using default title`);
-                return 'Novo Chat';
+    async generateChatTitle(userMessage: string, llmSetConfig: LlmSetConfig,
+        fristCallback: (content: string) => void,
+        chunkCallback: (content: string) => void
+    ): Promise<string> {
+        const messages: LlmRequest['messages'] = [
+            {
+                role: 'system',
+                content: 'Você é um assistente que gera títulos curtos e descritivos para conversas. Gere um título de máximo 60 caracteres baseado na primeira mensagem do usuário. Responda apenas com o título, sem aspas ou formatação extra.'
+            },
+            {
+                role: 'user',
+                content: userMessage
             }
-
-            // Create prompt for title generation
-            const messages: LlmRequest['messages'] = [
-                {
-                    role: 'system',
-                    content: 'Você é um assistente que gera títulos curtos e descritivos para conversas. Gere um título de máximo 60 caracteres baseado na primeira mensagem do usuário. Responda apenas com o título, sem aspas ou formatação extra.'
-                },
-                {
-                    role: 'user',
-                    content: `Mensagem do usuário: "${userMessage}"`
-                }
-            ];
-
-            const response = await this.llmGateway.invoke(llmSetConfig, 'reasoning', messages);
-
-            // Clean and limit the title
-            const title = response.content?.trim().replace(/^["']|["']$/g, '') || 'Novo Chat';
-            return title.substring(0, 60);
-        } catch (error) {
-            console.warn('Error generating chat title:', error);
-            return 'Novo Chat';
-        }
+        ];
+        const response = await this.llmGateway.invokeAsync(llmSetConfig.models.reasoning, messages, fristCallback, chunkCallback);
+        return response.content;
     }
 }

@@ -1,5 +1,4 @@
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, StreamProgressCallback } from '@symbia/interfaces';
-import { MessageProgressModal } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
 import { ConfigService } from '../../config/config.service.js';
 
 export interface OllamaConfig {
@@ -53,7 +52,9 @@ export class OllamaProvider {
     async invokeAsync(
         messages: LlmRequest['messages'],
         options: Partial<LlmRequest>,
-        streamCallback: StreamProgressCallback
+        fristCallback: (content: string) => void,
+        chunkCallback: (content: string) => void,
+        endCallback?: (content: string) => Promise<void>
     ): Promise<LlmResponse> {
         const requestBody = {
             model: options.model,
@@ -81,6 +82,7 @@ export class OllamaProvider {
         let fullContent = '';
         let totalPromptTokens = 0;
         let totalCompletionTokens = 0;
+        let isFirstCall = true;
 
         const reader = response.body?.getReader();
         if (!reader) {
@@ -105,10 +107,13 @@ export class OllamaProvider {
                             fullContent += data.message.content;
 
                             // Send stream progress
-                            await streamCallback({
-                                modal: MessageProgressModal.TextStream,
-                                data: { content: data.message.content }
-                            });
+                            if (isFirstCall) {
+                                fristCallback(data.message.content);
+                                isFirstCall = false;
+                            }
+                            else {
+                                chunkCallback(data.message.content);
+                            }
                         }
 
                         if (data.prompt_eval_count) {
@@ -125,6 +130,10 @@ export class OllamaProvider {
             }
         } finally {
             reader.releaseLock();
+        }
+
+        if (endCallback) {
+            await endCallback(fullContent);
         }
 
         return {

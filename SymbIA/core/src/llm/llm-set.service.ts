@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import type { LlmSetConfig, ModelSpec } from '@symbia/interfaces';
+import type { LlmSetConfig } from '@symbia/interfaces';
 
 // Get the directory path for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -47,7 +47,9 @@ export class LlmSetService {
                     const setConfig = JSON.parse(content) as LlmSetConfig;
 
                     // Validate required fields
-                    if (setConfig.id && setConfig.display && setConfig.models) {
+                    if (setConfig.id && setConfig.display && setConfig.models &&
+                        setConfig.models.reasoning && setConfig.models.reasoningHeavy &&
+                        setConfig.models.fastChat && setConfig.models.codegen && setConfig.models.embedding) {
                         // Apply default index 999
                         setConfig.index = setConfig.index ?? 999;
 
@@ -119,59 +121,5 @@ export class LlmSetService {
         });
 
         return Array.from(providers).sort();
-    }
-
-    /**
-     * Get model specification for a specific purpose from a LLM set
-     */
-    getModelSpec(llmSetConfig: LlmSetConfig, purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding'): ModelSpec | null {
-        const model = llmSetConfig.models[purpose];
-        if (!model) {
-            return null;
-        }
-
-        return {
-            provider: model.provider,
-            model: model.model
-        };
-    }
-
-    /**
-     * Get model specification with fallback logic
-     */
-    getModelSpecWithFallback(llmSetConfig: LlmSetConfig, purpose: 'reasoning' | 'reasoningHeavy' | 'chat' | 'codegen' | 'embedding'): ModelSpec | null {
-        // Try the specific purpose first
-        let model = llmSetConfig.models[purpose];
-
-        // Fallback logic based on purpose
-        if (!model) {
-            switch (purpose) {
-                case 'reasoningHeavy':
-                    model = llmSetConfig.models.reasoning || llmSetConfig.models.chat;
-                    break;
-                case 'reasoning':
-                    model = llmSetConfig.models.chat || llmSetConfig.models.reasoningHeavy;
-                    break;
-                case 'chat':
-                    model = llmSetConfig.models.reasoning || llmSetConfig.models.reasoningHeavy;
-                    break;
-                case 'codegen':
-                    model = llmSetConfig.models.reasoning || llmSetConfig.models.chat;
-                    break;
-                case 'embedding':
-                    // Embedding usually doesn't have a fallback, but could fallback to a small model
-                    model = llmSetConfig.models.chat;
-                    break;
-            }
-        }
-
-        if (!model) {
-            return null;
-        }
-
-        return {
-            provider: model.provider,
-            model: model.model
-        };
     }
 }

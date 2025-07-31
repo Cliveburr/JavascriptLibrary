@@ -6,8 +6,7 @@ import { LlmGateway } from './llm/LlmGateway.js';
 import { LlmSetService } from './llm/llm-set.service.js';
 import { OpenAIProvider } from './llm/providers/openai.js';
 import { OllamaProvider } from './llm/providers/ollama.js';
-import { PlannerService } from './planner/planner.service.js';
-import { DecisionService } from './planner/decision.service.js';
+import { DecisionService } from './thought/decision.service.js';
 import { ActionService } from './actions/action.service.js';
 import { ThoughtCycleService } from './thought/thought-cycle.service.js';
 import { AuthService } from './auth/auth.service.js';
@@ -23,10 +22,8 @@ export * from './llm/providers/ollama.js';
 export * from './memory/memory.service.js';
 export * from './memory/embedding.service.js';
 export * from './memory/qdrant.provider.js';
-export * from './planner/planner.service.js';
-export * from './planner/decision.service.js';
+export * from './thought/decision.service.js';
 export * from './actions/action.service.js';
-export * from './actions/action.registry.js';
 export * from './thought/thought-cycle.service.js';
 export * from './auth/auth.service.js';
 export * from './database/mongodb.service.js';
@@ -45,14 +42,13 @@ export function configureContainer() {
     const llmSetService = new LlmSetService();
     const openaiProvider = new OpenAIProvider(configService);
     const ollamaProvider = new OllamaProvider(configService);
-    const llmGateway = new LlmGateway(llmSetService, openaiProvider, ollamaProvider);
+    const llmGateway = new LlmGateway(openaiProvider, ollamaProvider);
     const embeddingService = new EmbeddingService(llmGateway, llmSetService);
     const memoryService = new MemoryService(mongodbService);
-    const plannerService = new PlannerService();
     const chatService = new ChatService(mongodbService, llmGateway, llmSetService);
-    const decisionService = new DecisionService(llmSetService, llmGateway, chatService);
-    const actionService = new ActionService();
-    const thoughtCycleService = new ThoughtCycleService(llmGateway, llmSetService, chatService);
+    const actionService = new ActionService(llmGateway);
+    const decisionService = new DecisionService(actionService, llmGateway);
+    const thoughtCycleService = new ThoughtCycleService(actionService, decisionService);
     const authService = new AuthService(mongodbService, configService);
 
     // Register all services
@@ -65,7 +61,6 @@ export function configureContainer() {
     registry.register('OpenAIProvider', openaiProvider);
     registry.register('OllamaProvider', ollamaProvider);
     registry.register('LlmGateway', llmGateway);
-    registry.register('PlannerService', plannerService);
     registry.register('DecisionService', decisionService);
     registry.register('ActionService', actionService);
     registry.register('ThoughtCycleService', thoughtCycleService);

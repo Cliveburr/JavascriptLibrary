@@ -29,19 +29,14 @@ export interface Chat {
 }
 
 export type MessageRole = 'user' | 'assistant' | 'system';
-export type ContentType = 'text' | 'form' | 'chart' | 'file';
-export type MessageModal = 'text' | 'text-for-replace' | 'memory';
+export type MessageModal = 'text' | 'form' | 'chart' | 'file' | 'memory';
 
 export interface Message {
   _id: ObjectId;
   chatId: ObjectId;
   role: MessageRole;
   content: string;
-  contentType: ContentType;
-  toolCall?: object;
   createdAt: Date;
-  // THOUGHT-CYCLE specific fields
-  'chat-history': boolean;
   modal: MessageModal;
 }
 
