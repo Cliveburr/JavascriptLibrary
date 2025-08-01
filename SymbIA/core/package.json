@@ -2,13 +2,12 @@
   "name": "@symbia/core",
   "version": "1.0.0",
   "description": "Core business logic and domain services for SymbIA",
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "start": "tsc --watch",
     "build": "tsc",
-    "clean": "rmdir /s /q dist"
+    "build:dev": "tsc --watch",
+    "clean": "if exist dist rmdir /s /q dist"
   },
   "dependencies": {
     "@dqbd/tiktoken": "^1.0.21",
@@ -23,5 +22,8 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/uuid": "^10.0.0",
     "typescript": "^5.9.2"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

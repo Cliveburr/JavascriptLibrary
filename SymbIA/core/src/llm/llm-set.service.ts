@@ -1,29 +1,26 @@
 import { readdir, readFile } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
 import type { LlmSetConfig } from '../types/llm.js';
-
-// Get the directory path for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 export class LlmSetService {
     private cachedSets: LlmSetConfig[] | null = null;
     private llmSetsPath: string;
 
     constructor() {
-        // Try different possible paths for the llmsets directory
-        const possiblePaths = [
-            // When running from built/transpiled code
-            resolve(__dirname, '../../../api/src/llmsets'),
-            // When running from source during development
-            resolve(__dirname, '../../../../api/src/llmsets'),
-            // Fallback relative path
-            resolve(process.cwd(), 'api/src/llmsets'),
-        ];
+        // Determine the correct path based on the current working directory
+        const cwd = process.cwd();
+        console.log('Current working directory:', cwd);
 
-        // Use the first path that exists, or default to the first one
-        this.llmSetsPath = possiblePaths[0] || resolve(process.cwd(), 'api/src/llmsets');
+        // Check if we're already in the api directory
+        if (cwd.endsWith('api') || cwd.includes('\\api\\')) {
+            // We're in the api directory, llmsets is in src/llmsets
+            this.llmSetsPath = resolve(cwd, 'src/llmsets');
+        } else {
+            // We're in the root directory, llmsets is in api/src/llmsets
+            this.llmSetsPath = resolve(cwd, 'api/src/llmsets');
+        }
+
+        console.log('LLM sets path:', this.llmSetsPath);
     }
 
     /**

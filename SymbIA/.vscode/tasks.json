@@ -1,0 +1,124 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build All (Dev Mode)",
+			"type": "shell",
+			"command": "pnpm run build:dev",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		},
+		{
+			"label": "Build All (Production)",
+			"type": "shell",
+			"command": "pnpm run build",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			]
+		},
+		{
+			"label": "Build Core (Dev)",
+			"type": "shell",
+			"command": "pnpm --filter @symbia/core build:dev",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		},
+		{
+			"label": "Build API (Dev)",
+			"type": "shell",
+			"command": "pnpm --filter @symbia/api build:dev",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		},
+		{
+			"label": "Build Web (Dev)",
+			"type": "shell",
+			"command": "pnpm --filter @symbia/web build:dev",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		},
+		{
+			"label": "Launch API (Dev)",
+			"type": "shell",
+			"command": "pnpm --filter @symbia/api dev",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".",
+						"endsPattern": "🚀.*Server running"
+					}
+				}
+			],
+			"dependsOn": "Build Core (Dev)"
+		},
+		{
+			"label": "Launch Web (Dev)",
+			"type": "shell",
+			"command": "pnpm --filter @symbia/web dev",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".",
+						"endsPattern": "Local:.*http://localhost"
+					}
+				}
+			]
+		},
+		{
+			"label": "Launch Full Stack (Dev)",
+			"dependsOrder": "parallel",
+			"dependsOn": [
+				"Launch API (Dev)",
+				"Launch Web (Dev)"
+			],
+			"group": {
+				"isDefault": true,
+				"kind": "build"
+			},
+			"isBackground": true
+		},
+		{
+			"label": "Clean All",
+			"type": "shell",
+			"command": "pnpm run clean",
+			"group": "build",
+			"isBackground": false
+		}
+	]
+}

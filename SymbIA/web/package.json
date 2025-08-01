@@ -1,12 +1,14 @@
 {
   "name": "@symbia/web",
   "version": "1.0.0",
-  "description": "React frontend for SymbIA",
+  "description": "React frontend for SymbIA project",
   "type": "module",
   "scripts": {
-    "build": "vite build",
     "dev": "vite",
-    "preview": "vite preview"
+    "build": "tsc && vite build",
+    "build:dev": "tsc --watch",
+    "preview": "vite preview",
+    "clean": "if exist dist rmdir /s /q dist"
   },
   "dependencies": {
     "react": "^18.3.0",

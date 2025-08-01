@@ -6,6 +6,35 @@ export interface OpenAIConfig {
     baseUrl?: string;
 }
 
+interface OpenAIUsage {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+}
+
+interface OpenAIChoice {
+    message: {
+        content: string;
+    };
+}
+
+interface OpenAICompletionResponse {
+    choices: OpenAIChoice[];
+    usage: OpenAIUsage;
+}
+
+interface OpenAIEmbeddingData {
+    embedding: number[];
+}
+
+interface OpenAIEmbeddingResponse {
+    data: OpenAIEmbeddingData[];
+    usage: {
+        prompt_tokens: number;
+        total_tokens: number;
+    };
+}
+
 export class OpenAIProvider {
     private apiKey: string;
     private baseUrl: string;
@@ -42,7 +71,7 @@ export class OpenAIProvider {
             throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as OpenAICompletionResponse;
 
         return {
             content: data.choices[0]?.message?.content || '',
@@ -181,7 +210,7 @@ export class OpenAIProvider {
             throw new Error(`OpenAI Embedding API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as OpenAIEmbeddingResponse;
 
         return {
             embedding: data.data[0]?.embedding || [],

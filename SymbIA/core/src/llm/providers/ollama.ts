@@ -5,6 +5,19 @@ export interface OllamaConfig {
     baseUrl?: string;
 }
 
+interface OllamaChatResponse {
+    message?: {
+        content?: string;
+    };
+    prompt_eval_count?: number;
+    eval_count?: number;
+}
+
+interface OllamaEmbeddingResponse {
+    embedding?: number[];
+    prompt_eval_count?: number;
+}
+
 export class OllamaProvider {
     private baseUrl: string;
 
@@ -37,7 +50,7 @@ export class OllamaProvider {
             throw new Error(`Ollama API error: ${response.status} ${response.statusText} - ${errorData}`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as OllamaChatResponse;
 
         return {
             content: data.message?.content || '',
@@ -101,7 +114,7 @@ export class OllamaProvider {
 
                 for (const line of lines) {
                     try {
-                        const data = JSON.parse(line);
+                        const data = JSON.parse(line) as OllamaChatResponse;
 
                         if (data.message?.content) {
                             fullContent += data.message.content;
@@ -165,7 +178,7 @@ export class OllamaProvider {
             throw new Error(`Ollama Embedding API error: ${response.status} ${response.statusText} - ${errorData}`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as OllamaEmbeddingResponse;
 
         return {
             embedding: data.embedding || [],

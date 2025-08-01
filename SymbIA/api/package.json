@@ -1,14 +1,14 @@
 {
   "name": "@symbia/api",
   "version": "1.0.0",
-  "description": "HTTP API server for SymbIA",
-  "type": "module",
-  "main": "./dist/server.js",
+  "description": "API server for SymbIA project",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch src/server.ts",
+    "build:dev": "tsc --watch",
     "start": "node dist/server.js",
-    "validate-config": "node scripts/validate-config.js"
+    "dev": "tsx watch src/server.ts",
+    "clean": "if exist dist rmdir /s /q dist"
   },
   "dependencies": {
     "@symbia/core": "workspace:*",

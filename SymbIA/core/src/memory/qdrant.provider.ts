@@ -37,10 +37,12 @@ export class QdrantProvider {
         const url = config?.url || qdrantConfig.url;
         const apiKey = config?.apiKey || qdrantConfig.apiKey;
 
-        this.client = new QdrantClient({
-            url,
-            apiKey,
-        });
+        const clientConfig: any = { url };
+        if (apiKey) {
+            clientConfig.apiKey = apiKey;
+        }
+
+        this.client = new QdrantClient(clientConfig);
     }
 
     async upsert(

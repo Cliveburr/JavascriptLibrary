@@ -1,23 +1,28 @@
 {
-  "name": "symbia",
-  "version": "1.0.0",
-  "description": "SymbIA v2 - Multi-memory AI agent platform",
+  "name": "symbia-workspace",
+    "version": "1.0.0",
+    "description": "SymbIA AI Assistant - Monorepo",
   "private": true,
-  "type": "module",
+  "workspaces": [
+    "core",
+    "api",
+    "web"
+  ],
   "scripts": {
-    "build": "echo \"Build scripts removed - pnpm dependency removed\"",
-    "dev": "echo \"Dev scripts removed - pnpm dependency removed\"",
-    "dev:api": "echo \"API dev script removed - pnpm dependency removed\"",
-    "dev:web": "echo \"Web dev script removed - pnpm dependency removed\"",
-    "dev:parallel": "echo \"Parallel dev scripts removed - pnpm dependency removed\"",
-    "build:api": "echo \"API build script removed - pnpm dependency removed\"",
-    "build:web": "echo \"Web build script removed - pnpm dependency removed\""
+    "build": "pnpm -r build",
+    "build:dev": "pnpm -r build:dev",
+    "clean": "pnpm -r clean",
+    "dev:core": "pnpm --filter @symbia/core build:dev",
+    "dev:api": "pnpm --filter @symbia/api dev",
+    "dev:web": "pnpm --filter @symbia/web dev",
+    "start:api": "pnpm --filter @symbia/api start",
+    "start:web": "pnpm --filter @symbia/web preview"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "concurrently": "^9.0.0",
-    "prettier": "^3.3.0",
-    "ts-node": "^10.9.0",
-    "typescript": "^5.5.0"
+    "concurrently": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
   }
 }

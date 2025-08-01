@@ -1,16 +1,8 @@
 {
+    "github.copilot.chat.codeGeneration.useInstructionFiles": false,
     "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
-    },
     "typescript.preferences.quoteStyle": "single",
     "typescript.format.semicolons": "insert",
-    "eslint.workingDirectories": [
-        "interfaces",
-        "core",
-        "api",
-        "web"
-    ],
     "search.exclude": {
         "**/node_modules": true,
         "**/dist": true,
@@ -21,12 +13,12 @@
     },
     "files.exclude": {
         "**/node_modules": true,
-        "**/dist": false,
-        "**/build": false
+        "**/dist": true,
+        "**/build": true,
+        "**/tsconfig.tsbuildinfo": true
     },
     "typescript.preferences.includePackageJsonAutoImports": "on",
     "debug.openDebug": "openOnDebugBreak",
     "debug.internalConsoleOptions": "neverOpen",
-    "debug.terminal.clearBeforeReusing": true,
-    "task.autoDetect": "off"
+    "debug.terminal.clearBeforeReusing": true
 }
