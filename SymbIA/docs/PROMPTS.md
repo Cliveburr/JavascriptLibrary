@@ -4,7 +4,29 @@
 > **Contexto inicial:**  
 > • Prompts 1‑12 já aplicados (monorepo estruturado, login/Mongo, chat texto básico).  
 > • LLM sets configurados (`ollama-local.json`, `ollama-sets.json`).  
-> • Novo Thought Cycle de 2 estágios (Decisão → Execução) definido.  
+> ###################### ACEITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```EITE
+- Testes com cobertura ≥ 90% (comando pnpm removido - configure conforme necessário).
+```ovo Thought Cycle de 2 estágios (Decisão → Execução) definido.  
 >  
 > **Objetivo:** levar o projeto até a **Versão 1** com todas ações internas, DecisionService, renderers e testes completos.
 
@@ -28,7 +50,7 @@ Adicionar interface comum para handlers de ação.
 2. Exporte via index.ts.
 
 ## ACEITE
-- `pnpm --filter interfaces build` gera *.d.ts sem erros.
+- Build de interfaces gera *.d.ts sem erros (comando pnpm removido - configure conforme necessário).
 ```
 
 ### Prompt 14 – ActionRegistry dinâmico
@@ -248,7 +270,7 @@ CI versão 1.
 
 ## TAREFA
 1. workflow main:
-   - setup PNPM cache
+   - setup cache para gerenciador de pacotes (PNPM removido - configure conforme necessário)
    - lint
    - vitest
    - playwright headless

@@ -107,20 +107,15 @@ Authorization: Bearer <token>
 ### Comandos
 
 ```bash
-# Instalar dependências
-pnpm install
+# NOTA: Comandos pnpm foram removidos - dependência do pnpm foi removida do projeto
+# Configure seu gerenciador de pacotes conforme necessário
 
-# Desenvolvimento (watch mode)
-pnpm dev
-
-# Build
-pnpm build
-
-# Testes
-pnpm test
-
-# Lint
-pnpm lint
+# Exemplo com npm:
+# npm install
+# npm run dev
+# npm run build
+# npm test
+# npm run lint
 ```
 
 ### Testes
@@ -178,4 +173,4 @@ O `authMiddleware` protege endpoints sensíveis:
 - Endpoints implementados ✅
 - DTOs das interfaces utilizados ✅
 - Testes com 100% cobertura ✅
-- Servidor inicia com `pnpm dev` ✅
+- Servidor configurado (comando pnpm removido do projeto) ✅

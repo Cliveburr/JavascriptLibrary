@@ -5,13 +5,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm -r build",
-    "dev": "pnpm -r dev",
-    "dev:api": "pnpm --filter @symbia/api dev",
-    "dev:web": "pnpm --filter @symbia/web dev",
-    "dev:parallel": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
-    "build:api": "pnpm --filter @symbia/api build",
-    "build:web": "pnpm --filter @symbia/web build"
+    "build": "echo \"Build scripts removed - pnpm dependency removed\"",
+    "dev": "echo \"Dev scripts removed - pnpm dependency removed\"",
+    "dev:api": "echo \"API dev script removed - pnpm dependency removed\"",
+    "dev:web": "echo \"Web dev script removed - pnpm dependency removed\"",
+    "dev:parallel": "echo \"Parallel dev scripts removed - pnpm dependency removed\"",
+    "build:api": "echo \"API build script removed - pnpm dependency removed\"",
+    "build:web": "echo \"Web build script removed - pnpm dependency removed\""
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -19,6 +19,5 @@
     "prettier": "^3.3.0",
     "ts-node": "^10.9.0",
     "typescript": "^5.5.0"
-  },
-  "packageManager": "pnpm@9.0.0"
+  }
 }

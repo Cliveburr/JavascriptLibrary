@@ -62,20 +62,12 @@ O frontend utiliza um sistema de tema futurista dark com:
 ## 🚀 Comandos
 
 ```bash
-# Desenvolvimento (porta 3001)
-pnpm --filter web dev
+# NOTA: Comandos pnpm foram removidos - dependência do pnpm foi removida do projeto
+# Configure seu próprio gerenciador de pacotes conforme necessário
 
-# Build para produção
-pnpm --filter web build
-
-# Preview do build
-pnpm --filter web preview
-
-# Build
-pnpm --filter web build
-
-# Desenvolvimento
-pnpm --filter web dev
+# Exemplo com npm (substitua conforme necessário):
+# npm run dev (no diretório web)
+# npm run build (no diretório web)
 ```
 
 ## 🌟 Características
@@ -117,7 +109,7 @@ pnpm --filter web dev
 
 ## 🎯 Aceite
 
-✅ **CONCLUÍDO**: `pnpm --filter web dev` abre hello world estilizado na porta 3001 com:
+✅ **CONCLUÍDO**: Interface web disponível na porta 3001 com (comando pnpm removido do projeto):
 - Tema SCSS futurista completo
 - Arquitetura pages/layout/components/hooks
 - Componentes UI reutilizáveis

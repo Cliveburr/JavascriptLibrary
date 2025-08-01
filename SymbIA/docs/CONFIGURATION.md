@@ -75,14 +75,15 @@ Todos os serviços que antes usavam `process.env` diretamente foram atualizados 
 ### 1. Desenvolvimento
 ```bash
 cd api
-pnpm dev
+# NOTA: Comandos pnpm foram removidos - configure seu gerenciador de pacotes
+# Exemplo: npm run dev
 ```
 
 ### 2. Produção
 ```bash
 cd api
-pnpm build
-pnpm start
+# NOTA: Comandos pnpm foram removidos - configure seu gerenciador de pacotes
+# Exemplo: npm run build && npm start
 ```
 
 ### 3. Validação Manual
