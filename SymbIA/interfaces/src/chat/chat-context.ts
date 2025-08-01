@@ -5,9 +5,9 @@ export interface IChatContext {
     content: string;
     messages: Message[];
     llmSetConfig: LlmSetConfig;
-    sendThiking: () => void;
+    sendThinking: () => void;
     sendError: (code: number, message: string, error?: any) => void;
     sendStartTextMessage: (content: string) => void;
     sendChunkTextMessage: (content: string) => void;
-    sendEndTextMessage: (content: string) => Promise<void>;
+    sendEndTextMessage: (fullContent: string) => Promise<void>;
 }

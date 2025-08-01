@@ -1,4 +1,13 @@
-import type { ChatUserMessage, ChatCompletedMessage, ChatFirstTitleMessage, ChatChunkTitleMessage, ChatThikingMessage } from './messages';
+import type {
+    ChatUserMessage,
+    ChatCompletedMessage,
+    ChatStartTitleMessage,
+    ChatChunkTitleMessage,
+    ChatThinkingMessage,
+    ChatStartTextMessage,
+    ChatChunkTextMessage,
+    ChatEndTextMessage
+} from './messages';
 
-export type MessageFormat = ChatUserMessage | ChatCompletedMessage | ChatFirstTitleMessage | ChatChunkTitleMessage
-    | ChatThikingMessage;
+export type MessageFormat = ChatUserMessage | ChatCompletedMessage | ChatStartTitleMessage | ChatChunkTitleMessage
+    | ChatThinkingMessage | ChatStartTextMessage | ChatChunkTextMessage | ChatEndTextMessage;

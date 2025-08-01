@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { LoginResponse, RegisterResponse } from '@symbia/interfaces';
+import type { LoginResponse, RegisterResponse } from '../types/frontend';
+import { createApiUrl } from '../config/api';
 
 interface User {
     id: string;
@@ -37,7 +38,7 @@ export const useAuthStore = create<AuthState>()(
 
             login: async (credentials) => {
                 try {
-                    const response = await fetch('http://localhost:3002/auth/login', {
+                    const response = await fetch(createApiUrl('/auth/login'), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -59,7 +60,7 @@ export const useAuthStore = create<AuthState>()(
 
             register: async (registerData) => {
                 try {
-                    const response = await fetch('http://localhost:3002/auth/register', {
+                    const response = await fetch(createApiUrl('/auth/register'), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

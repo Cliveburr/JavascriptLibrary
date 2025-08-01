@@ -102,7 +102,8 @@ export class ChatContext implements IChatContext {
         // Send message to be showed as user content
         this.sendMessage({
             type: MessageType.User,
-            content: this.content
+            content: this.content,
+            chatId: this.chatId
         });
 
         // Save in chat history
@@ -140,9 +141,9 @@ export class ChatContext implements IChatContext {
         });
     }
 
-    sendThiking(): void {
+    sendThinking(): void {
         this.sendMessage({
-            type: MessageType.Thiking
+            type: MessageType.Thinking
         });
     }
 
@@ -160,13 +161,12 @@ export class ChatContext implements IChatContext {
         });
     }
 
-    sendEndTextMessage(content: string): Promise<void> {
+    sendEndTextMessage(fullContent: string): Promise<void> {
         this.sendMessage({
-            type: MessageType.EndText,
-            content
+            type: MessageType.EndText
         });
 
-        return this.saveMessage('assistant', this.content, 'text');
+        return this.saveMessage('assistant', fullContent, 'text');
     }
 
     private sendMessage(message: MessageFormat): void {

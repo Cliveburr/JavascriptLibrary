@@ -16,7 +16,15 @@
           "relative",
           "${workspaceFolder}"
         ],
-        "pattern": "$tsc"
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
       },
       "presentation": {
         "echo": true,
@@ -46,10 +54,18 @@
           "relative",
           "${workspaceFolder}/api"
         ],
-        "pattern": "$tsc",
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "^\\s*\\[.*\\]\\s*File change detected\\.|Starting compilation",
+          "beginsPattern": "^\\s*\\[.*\\]\\s*File change detected\\.|Starting compilation|Found 0 errors\\. Watching for file changes\\.",
           "endsPattern": "^\\s*\\[.*\\]\\s*Found 0 errors\\. Watching for file changes\\.|Watching for file changes\\.|waiting for file changes"
         }
       },
@@ -148,7 +164,15 @@
           "relative",
           "${workspaceFolder}/interfaces"
         ],
-        "pattern": "$tsc"
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
       },
       "presentation": {
         "echo": true,
@@ -174,7 +198,15 @@
           "relative",
           "${workspaceFolder}/core"
         ],
-        "pattern": "$tsc"
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
       },
       "dependsOn": [
         "Build Interfaces"
@@ -203,7 +235,15 @@
           "relative",
           "${workspaceFolder}/api"
         ],
-        "pattern": "$tsc"
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
       },
       "dependsOn": [
         "Build Core"
@@ -249,6 +289,81 @@
           "regexp": "^(.*)$",
           "message": 1
         }
+      }
+    },
+    {
+      "label": "Clean Build All",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "run",
+        "clean",
+        "&&",
+        "pnpm",
+        "build"
+      ],
+      "group": "build",
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      }
+    },
+    {
+      "label": "Type Check All",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "-r",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "group": "build",
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
       }
     }
   ]

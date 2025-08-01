@@ -64,3 +64,13 @@ export interface CreateChatRequest {
   memoryId: string;
   title?: string;
 }
+
+// Message DTOs
+export interface MessageDTO {
+  id: string;
+  chatId: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  contentType: 'text' | 'form' | 'chart' | 'file';
+  createdAt: string;
+}

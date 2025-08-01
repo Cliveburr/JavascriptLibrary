@@ -4,7 +4,7 @@ export enum MessageType {
     Completed,
     StartTitle,
     ChunkTitle,
-    Thiking,
+    Thinking,
     StartText,
     ChunkText,
     EndText
@@ -13,6 +13,7 @@ export enum MessageType {
 export interface ChatUserMessage {
     type: MessageType.User;
     content: string;
+    chatId?: string; // Incluir chatId para casos de novo chat
 }
 
 export interface ChatCompletedMessage {
@@ -29,8 +30,8 @@ export interface ChatChunkTitleMessage {
     content: string;
 }
 
-export interface ChatThikingMessage {
-    type: MessageType.Thiking;
+export interface ChatThinkingMessage {
+    type: MessageType.Thinking;
 }
 
 export interface ChatStartTextMessage {

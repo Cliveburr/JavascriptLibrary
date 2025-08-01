@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { LlmSetConfig, LlmSetListResponse } from '../types/llm';
 import { useAuthStore } from './auth.store';
+import { createApiUrl } from '../config/api';
 
 interface LLMState {
     availableSets: LlmSetConfig[];
@@ -48,7 +49,7 @@ export const useLLMStore = create<LLMState>()(
                     set({ isLoading: true, error: null });
 
                     // Call the real API endpoint
-                    const response: LlmSetListResponse = await apiCall('http://localhost:3002/llm-sets');
+                    const response: LlmSetListResponse = await apiCall(createApiUrl('/llm-sets'));
 
                     set({
                         availableSets: response.sets,

@@ -157,7 +157,8 @@ export class AuthService {
             userId: user._id.toString()
         };
 
-        return jwt.sign(payload, authConfig.jwtSecret, { expiresIn: authConfig.jwtExpiresIn });
+        const options: any = { expiresIn: authConfig.jwtExpiresIn };
+        return jwt.sign(payload, authConfig.jwtSecret, options);
     }
 
     private generateRefreshToken(user: User): string {
@@ -167,6 +168,7 @@ export class AuthService {
             tokenId: new ObjectId().toString()
         };
 
-        return jwt.sign(payload, authConfig.jwtRefreshSecret, { expiresIn: authConfig.jwtRefreshExpiresIn });
+        const refreshOptions: any = { expiresIn: authConfig.jwtRefreshExpiresIn };
+        return jwt.sign(payload, authConfig.jwtRefreshSecret, refreshOptions);
     }
 }

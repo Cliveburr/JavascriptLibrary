@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import type { MessageDTO, ChatDTO } from '@symbia/interfaces';
+import type { FrontendMessage, FrontendChat } from '../types/frontend';
 import type { StreamingMessage, MessageProgress } from '../types/streaming';
 import { useAuthStore } from './auth.store';
+import { createApiUrl } from '../config/api';
 
 // Helper para chamadas à API
 const getAuthToken = () => {
@@ -35,9 +36,9 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
 
 interface ChatState {
     // Chats organizados por memória
-    chatsByMemory: Record<string, ChatDTO[]>;
+    chatsByMemory: Record<string, FrontendChat[]>;
     // Mensagens organizadas por chat (inclui streaming)
-    messagesByChat: Record<string, (MessageDTO | StreamingMessage)[]>;
+    messagesByChat: Record<string, (FrontendMessage | StreamingMessage)[]>;
     // Chat atualmente selecionado
     selectedChatId: string | null;
     // Chat sendo usado para streaming (pode ser diferente do selectedChatId)
@@ -53,7 +54,7 @@ interface ChatState {
 
     // Actions para chats
     loadChatsByMemory: (memoryId: string) => Promise<void>;
-    createChat: (memoryId: string, title?: string) => Promise<ChatDTO>;
+    createChat: (memoryId: string, title?: string) => Promise<FrontendChat>;
     deleteChat: (chatId: string) => Promise<void>;
     selectChat: (chatId: string | null) => void;
     updateChatTitle: (chatId: string, title: string) => Promise<void>;
@@ -65,8 +66,13 @@ interface ChatState {
     sendStreamingMessage: (memoryId: string, chatId: string | null, content: string, llmSetId: string) => Promise<void>;
     addStreamingMessage: (chatId: string, message: StreamingMessage) => void;
     updateStreamingMessage: (chatId: string, message: StreamingMessage) => void;
-    replaceStreamingMessage: (chatId: string, streamingId: string, finalMessage: MessageDTO) => void;
+    replaceStreamingMessage: (chatId: string, streamingId: string, finalMessage: FrontendMessage) => void;
     clearMessages: (chatId?: string) => void;
+
+    // New methods for updated streaming
+    addMessage: (chatId: string, message: FrontendMessage | StreamingMessage) => void;
+    updateMessage: (chatId: string, messageId: string, message: FrontendMessage | StreamingMessage) => void;
+    addChatToMemory: (memoryId: string, chat: FrontendChat) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -85,7 +91,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         try {
             set({ isLoadingChats: true, error: null });
 
-            const chats = await apiCall(`http://localhost:3002/chats?memoryId=${memoryId}`);
+            const chats = await apiCall(createApiUrl(`/chats?memoryId=${memoryId}`));
 
             set(state => ({
                 chatsByMemory: {
@@ -107,7 +113,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         try {
             set({ isLoading: true, error: null });
 
-            const newChat = await apiCall('http://localhost:3002/chats', {
+            const newChat = await apiCall(createApiUrl('/chats'), {
                 method: 'POST',
                 body: JSON.stringify({ memoryId, title }),
             });
@@ -137,7 +143,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         try {
             set({ isLoading: true, error: null });
 
-            await apiCall(`http://localhost:3002/chats/${chatId}`, {
+            await apiCall(createApiUrl(`/chats/${chatId}`), {
                 method: 'DELETE',
             });
 
@@ -185,7 +191,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             set({ isLoadingMessages: true, error: null });
 
             // Chama API real para carregar mensagens do chat
-            const messages = await apiCall(`http://localhost:3002/chats/${chatId}/messages`);
+            const messages = await apiCall(createApiUrl(`/chats/${chatId}/messages`));
 
             set(state => ({
                 messagesByChat: {
@@ -229,7 +235,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             }
 
             // Adiciona mensagem do usuário imediatamente
-            const userMessage: MessageDTO = {
+            const userMessage: FrontendMessage = {
                 id: `temp-user-${Date.now()}`,
                 chatId,
                 role: 'user',
@@ -246,7 +252,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             }));
 
             // Chama a API real do thought-cycle
-            const response = await apiCall(`http://localhost:3002/chats/${memoryId}/messages`, {
+            const response = await apiCall(createApiUrl(`/chats/${memoryId}/messages`), {
                 method: 'POST',
                 body: JSON.stringify({ content, llmSetId }),
             });
@@ -296,7 +302,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     updateChatTitle: async (chatId: string, title: string) => {
         try {
             set({ isLoading: true, error: null });
-            const updatedChat = await apiCall(`http://localhost:3002/chats/${chatId}/title`, {
+            const updatedChat = await apiCall(createApiUrl(`/chats/${chatId}/title`), {
                 method: 'PATCH',
                 body: JSON.stringify({ title }),
             });
@@ -304,7 +310,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 const chatsByMemory = { ...state.chatsByMemory };
                 Object.keys(chatsByMemory).forEach(memoryId => {
                     if (chatsByMemory[memoryId]) {
-                        chatsByMemory[memoryId] = chatsByMemory[memoryId].map((chat: ChatDTO) =>
+                        chatsByMemory[memoryId] = chatsByMemory[memoryId].map((chat: FrontendChat) =>
                             chat.id === chatId ? { ...chat, title: updatedChat.title } : chat
                         );
                     }
@@ -322,7 +328,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     updateChatOrder: async (chatId: string, newOrderIndex: number) => {
         try {
             set({ isLoading: true, error: null });
-            await apiCall(`http://localhost:3002/chats/${chatId}/order`, {
+            await apiCall(createApiUrl(`/chats/${chatId}/order`), {
                 method: 'PATCH',
                 body: JSON.stringify({ orderIndex: newOrderIndex }),
             });
@@ -364,7 +370,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             let actualChatId = chatId;
 
             // Fazer chamada de streaming usando o endpoint correto do chat.controller
-            const response = await fetch(`http://localhost:3002/chats/${memoryId}/messages`, {
+            const response = await fetch(createApiUrl(`/chats/${memoryId}/messages`), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -625,7 +631,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         });
     },
 
-    replaceStreamingMessage: (chatId: string, streamingId: string, finalMessage: MessageDTO) => {
+    replaceStreamingMessage: (chatId: string, streamingId: string, finalMessage: FrontendMessage) => {
         set(state => {
             const messages = state.messagesByChat[chatId] || [];
             const index = messages.findIndex(m => m.id === streamingId);
@@ -642,6 +648,49 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 };
             }
             return state;
+        });
+    },
+
+    // New methods for updated streaming
+    addMessage: (chatId: string, message: FrontendMessage | StreamingMessage) => {
+        set(state => ({
+            messagesByChat: {
+                ...state.messagesByChat,
+                [chatId]: [...(state.messagesByChat[chatId] || []), message]
+            }
+        }));
+    },
+
+    updateMessage: (chatId: string, messageId: string, message: FrontendMessage | StreamingMessage) => {
+        set(state => {
+            const messages = state.messagesByChat[chatId] || [];
+            const index = messages.findIndex(m => m.id === messageId);
+
+            if (index >= 0) {
+                const newMessages = [...messages];
+                newMessages[index] = message;
+                return {
+                    messagesByChat: {
+                        ...state.messagesByChat,
+                        [chatId]: newMessages
+                    }
+                };
+            }
+            return state;
+        });
+    },
+
+    addChatToMemory: (memoryId: string, chat: FrontendChat) => {
+        set(state => {
+            const existingChats = state.chatsByMemory[memoryId] || [];
+            const updatedChats = [chat, ...existingChats.map(c => ({ ...c, orderIndex: c.orderIndex + 1 }))];
+
+            return {
+                chatsByMemory: {
+                    ...state.chatsByMemory,
+                    [memoryId]: updatedChats
+                }
+            };
         });
     },
 }));

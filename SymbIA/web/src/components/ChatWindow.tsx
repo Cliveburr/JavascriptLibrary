@@ -1,17 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { useChatStore } from '../stores/chat.store';
-import type { MessageDTO } from '@symbia/interfaces';
+import { useNewChatStreaming } from '../hooks/useNewChatStreaming';
+import type { FrontendMessage } from '../types/frontend';
 import type { StreamingMessage } from '../types/streaming';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
     chatId: string | null;
-    messages: (MessageDTO | StreamingMessage)[];
+    messages: (FrontendMessage | StreamingMessage)[];
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
-    const { isLoading, isLoadingMessages, isStreaming } = useChatStore();
+    const { isLoading, isLoadingMessages } = useChatStore();
+    const { isStreaming } = useNewChatStreaming();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -34,7 +36,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
                 ref={scrollContainerRef}
                 data-testid="messages-container"
             >
-                {messages.length === 0 && !isAnyLoading && !isStreaming && (
+                {messages.length === 0 && !isAnyLoading && (
                     <div className="empty-state">
                         <div className="empty-icon">💭</div>
                         <h4>Inicie uma conversa</h4>
@@ -42,27 +44,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
                     </div>
                 )}
 
-                {messages.map((message: MessageDTO | StreamingMessage) => (
+                {messages.map((message: FrontendMessage | StreamingMessage) => (
                     <ChatMessage
                         key={message.id}
                         message={message}
                     />
                 ))}
-
-                {(isAnyLoading || isStreaming) && (
-                    <div className="typing-indicator" data-testid="typing-indicator">
-                        <div className="typing-content">
-                            <div className="typing-dots">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                            <div className="typing-text">
-                                {isStreaming ? 'IA está respondendo...' : 'IA está pensando...'}
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 <div ref={messagesEndRef} />
             </div>

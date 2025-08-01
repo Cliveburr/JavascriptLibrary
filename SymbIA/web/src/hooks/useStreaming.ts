@@ -1,14 +1,15 @@
 import { useCallback } from 'react';
 import type { MessageProgress, StreamingMessage } from '../types/streaming';
 import { MessageProgressModal as Modal } from '../types/streaming';
-import type { MessageDTO } from '@symbia/interfaces';
+import type { FrontendMessage } from '../types/frontend';
+import { createApiUrl } from '../config/api';
 
 interface UseStreamingProps {
     chatId: string;
     memoryId: string;
     onMessageUpdate: (message: StreamingMessage) => void;
-    onUserMessage: (message: MessageDTO) => void;
-    onAssistantMessage: (message: MessageDTO) => void;
+    onUserMessage: (message: FrontendMessage) => void;
+    onAssistantMessage: (message: FrontendMessage) => void;
     onTitleUpdate: (chatId: string, title: string) => void;
     onError: (error: string) => void;
     onStreamComplete: (latency?: string) => void;
@@ -31,7 +32,7 @@ export const useStreaming = ({
         authToken?: string
     ) => {
         try {
-            const response = await fetch(`http://localhost:3002/chats/${memoryId}/messages`, {
+            const response = await fetch(createApiUrl(`/chats/${memoryId}/messages`), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

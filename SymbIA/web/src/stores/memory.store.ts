@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import type { MemoryDTO } from '@symbia/interfaces';
+import type { MemoryDTO } from '../types/frontend';
 import { useAuthStore } from './auth.store';
+import { createApiUrl } from '../config/api';
 
 interface MemoryState {
     memories: MemoryDTO[];
@@ -53,7 +54,7 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
         try {
             console.log('Iniciando busca de memórias...');
             set({ isLoading: true, error: null });
-            const memories = await apiCall('http://localhost:3002/memories');
+            const memories = await apiCall(createApiUrl('/memories'));
             console.log('Memórias recebidas:', memories);
             set({ memories, isLoading: false });
 
@@ -73,7 +74,7 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
     }, createMemory: async (name: string) => {
         try {
             set({ isLoading: true, error: null });
-            const newMemory = await apiCall('http://localhost:3002/memories', {
+            const newMemory = await apiCall(createApiUrl('/memories'), {
                 method: 'POST',
                 body: JSON.stringify({ name }),
             });
@@ -101,7 +102,7 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
             }
 
             set({ isLoading: true, error: null });
-            await apiCall(`http://localhost:3002/memories/${id}`, {
+            await apiCall(createApiUrl(`/memories/${id}`), {
                 method: 'DELETE',
             });
 

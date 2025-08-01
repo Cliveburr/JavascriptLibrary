@@ -19,7 +19,7 @@
             "model": "llama3:70b-instruct",
             "promptFormat": "text-messages"
         },
-        "chat": {
+        "fastChat": {
             "provider": "ollama",
             "model": "llama3-groq-tool-use:latest",
             "promptFormat": "full-json"

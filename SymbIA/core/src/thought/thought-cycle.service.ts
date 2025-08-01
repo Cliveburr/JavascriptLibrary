@@ -13,7 +13,7 @@ export class ThoughtCycleService {
     async handle(ctx: IChatContext): Promise<void> {
         const stallDetector = new StallDetectorEngine();
         while (true) {
-            ctx.sendThiking();
+            ctx.sendThinking();
 
             // Decidir a próxima ação
             const actionName = await this.decisionService.decideNextAction(ctx);
@@ -26,7 +26,7 @@ export class ThoughtCycleService {
                 break;
             }
 
-            const stallCheck = stallDetector.singalEndOfActionAndDetectStall(actionName);
+            const stallCheck = stallDetector.signalEndOfActionAndDetectStall(actionName);
             if (stallCheck.isStall) {
                 ctx.sendError(500, stallCheck.reason || 'Stall detected');
                 console.warn(`Stall detected: ${stallCheck.reason}`);

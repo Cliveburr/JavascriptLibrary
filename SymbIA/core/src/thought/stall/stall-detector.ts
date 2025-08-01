@@ -21,7 +21,7 @@ export class StallDetectorEngine implements IStallDetectorEngine {
     public actionStartTime = Date.now();
     public actionEndTime = Date.now();
 
-    singalEndOfActionAndDetectStall(actionName: string): StallDetectionResult {
+    signalEndOfActionAndDetectStall(actionName: string): StallDetectionResult {
         this.totalIterations++;
 
         this.actionEndTime = Date.now();

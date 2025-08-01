@@ -20,7 +20,7 @@
             "model": "llama3:8b",
             "promptFormat": "text-messages"
         },
-        "chat": {
+        "fastChat": {
             "provider": "ollama",
             "model": "phi4-mini:3.8b",
             "promptFormat": "text-messages"

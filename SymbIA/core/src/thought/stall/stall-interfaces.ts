@@ -5,6 +5,7 @@ export interface IStallDetectorEngine {
     totalIterations: number;
     actionStartTime: number;
     lastActionError?: Error;
+    signalEndOfActionAndDetectStall(actionName: string): StallDetectionResult;
 }
 
 export interface StallDetector {

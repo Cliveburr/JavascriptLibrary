@@ -1,12 +1,12 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { useChatStore } from '../stores/chat.store';
+import { useNewChatStreaming } from '../hooks/useNewChatStreaming';
 import './ChatInput.scss';
 
 interface ChatInputProps {
     chatId: string | null;
     memoryId: string;
-    onStartNewChat?: (firstMessage: string) => Promise<void>;
     horizontal?: boolean;
     llmSetId?: string;
 }
@@ -15,9 +15,10 @@ interface ChatInputRef {
     focus: () => void;
 }
 
-export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, memoryId, onStartNewChat, horizontal, llmSetId }, ref) => {
+export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, memoryId, horizontal, llmSetId }, ref) => {
     const [message, setMessage] = useState('');
-    const { sendStreamingMessage, isLoading, isStreaming } = useChatStore();
+    const { isLoading } = useChatStore();
+    const { isStreaming, sendMessage: sendStreamingMessage, pauseStream } = useNewChatStreaming();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Detectar se é novo chat
@@ -42,15 +43,21 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, mem
                 throw new Error('LLM Set ID is required for sending messages');
             }
 
-            if (isNewChat && onStartNewChat) {
-                await onStartNewChat(messageToSend);
-            } else if (chatId) {
-                // Usar nova função de streaming para chats existentes
-                await sendStreamingMessage(memoryId, chatId, messageToSend, llmSetId);
-            }
+            // Usar o novo sistema de streaming para todos os casos
+            await sendStreamingMessage(memoryId, chatId, messageToSend, llmSetId);
         } catch (error) {
             console.error('Failed to send message:', error);
             setMessage(messageToSend);
+        }
+    };
+
+    const handleButtonClick = async () => {
+        if (isStreaming) {
+            // Se está streaming, pausar
+            pauseStream();
+        } else {
+            // Se não está streaming, enviar mensagem
+            await handleSubmit();
         }
     };
 
@@ -117,7 +124,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, mem
                     data-testid="chat-input"
                 />
                 <button
-                    onClick={handleSubmit}
+                    onClick={handleButtonClick}
                     disabled={buttonState === 'disabled'}
                     className={`send-button ${buttonState}`}
                     type="button"

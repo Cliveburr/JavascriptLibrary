@@ -3,20 +3,22 @@ import { useMemoryStore, useChatStore } from '../stores';
 import { ChatWindow } from './ChatWindow';
 import { ChatInput, type ChatInputRef } from './ChatInput';
 import { LLMSelector } from './LLMSelector';
+import { useNewChatStreaming } from '../hooks/useNewChatStreaming';
 import './ChatArea.scss';
 import { useLLMStore } from '../stores/llm.store';
 
 export const ChatArea: React.FC = () => {
     const { currentMemoryId, memories } = useMemoryStore();
-    const { selectedChatId, messagesByChat, clearMessages, isStreaming, streamingChatId } = useChatStore();
+    const { selectedChatId, messagesByChat, clearMessages } = useChatStore();
+    const { isStreaming } = useNewChatStreaming();
     const { selectedSetId } = useLLMStore();
     const chatInputRef = useRef<ChatInputRef>(null);
     const wasStreamingRef = useRef(false);
 
     const currentMemory = memories.find(m => m.id === currentMemoryId);
 
-    // Durante streaming, usar streamingChatId, senão usar selectedChatId
-    const activeChatId = streamingChatId || selectedChatId;
+    // Usar o selectedChatId já que o novo sistema já atualiza ele automaticamente
+    const activeChatId = selectedChatId;
     const currentMessages = activeChatId ? messagesByChat[activeChatId] || [] : [];
 
     // Detectar se estamos em modo de streaming para novo chat
@@ -42,20 +44,6 @@ export const ChatArea: React.FC = () => {
         // Atualizar o estado anterior do streaming
         wasStreamingRef.current = isStreaming;
     }, [isStreaming]);
-
-    const handleStartNewChat = async (firstMessage: string) => {
-        if (!currentMemory || !selectedSetId) return;
-
-        try {
-            console.log('Starting new chat with message:', firstMessage);
-            // Não cria o chat antecipadamente, deixa o sendStreamingMessage criar
-            // Envia primeira mensagem que irá criar o chat automaticamente
-            await useChatStore.getState().sendStreamingMessage(currentMemory.id, null, firstMessage, selectedSetId);
-        } catch (error) {
-            console.error('Failed to start new chat:', error);
-            throw error;
-        }
-    };
 
     return (
         <div className="chat-area">
@@ -86,7 +74,6 @@ export const ChatArea: React.FC = () => {
                             chatId={null}
                             memoryId={currentMemory.id}
                             horizontal
-                            onStartNewChat={handleStartNewChat}
                             llmSetId={selectedSetId || undefined}
                         />
                     </div>

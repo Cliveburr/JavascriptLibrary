@@ -18,7 +18,7 @@
             "model": "mixtral:8x7b-instruct",
             "promptFormat": "text-messages"
         },
-        "chat": {
+        "fastChat": {
             "provider": "ollama",
             "model": "phi3-mini:3.8b",
             "promptFormat": "text-messages"

@@ -18,7 +18,7 @@
             "model": "deepseek-coder:6.7b",
             "promptFormat": "text-messages"
         },
-        "chat": {
+        "fastChat": {
             "provider": "ollama",
             "model": "codellama:7b-instruct",
             "promptFormat": "text-messages"

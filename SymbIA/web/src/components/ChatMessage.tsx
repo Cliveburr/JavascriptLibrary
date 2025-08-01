@@ -1,10 +1,10 @@
 import React from 'react';
-import type { MessageDTO } from '@symbia/interfaces';
+import type { FrontendMessage } from '../types/frontend';
 import type { StreamingMessage } from '../types/streaming';
 import './ChatMessage.scss';
 
 interface ChatMessageProps {
-    message: MessageDTO | StreamingMessage;
+    message: FrontendMessage | StreamingMessage;
 }
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {

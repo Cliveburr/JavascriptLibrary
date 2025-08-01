@@ -19,7 +19,7 @@
             "model": "llama3:8b",
             "promptFormat": "text-messages"
         },
-        "chat": {
+        "fastChat": {
             "provider": "ollama",
             "model": "mistral-openorca:7b",
             "promptFormat": "text-messages"

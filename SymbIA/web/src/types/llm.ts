@@ -1,10 +1,10 @@
-// Re-export the LLM types from the shared interfaces package
+// Re-export the LLM types from the frontend types (to avoid MongoDB dependencies)
 export type {
     LlmSetConfig,
     LlmSetIcon,
     LlmSetModel,
     LlmSetListResponse
-} from '@symbia/interfaces';
+} from './frontend';
 
 // Additional types specific to the web app
 export interface LlmSetOption {
