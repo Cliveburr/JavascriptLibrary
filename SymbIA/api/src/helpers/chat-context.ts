@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import type { ChatService, LlmSetService } from '@symbia/core';
-import type { MessageModal, MessageFormat, MessageRole, IChatContext, LlmSetConfig, Message } from '@symbia/interfaces';
-import { MessageType } from '@symbia/interfaces';
+import type { MessageModal, MessageFormat, MessageRole, IChatContext, LlmSetConfig, Message } from '@symbia/core';
+import { MessageType } from '@symbia/core';
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 

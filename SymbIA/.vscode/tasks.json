@@ -148,40 +148,6 @@
       }
     },
     {
-      "label": "Build Interfaces",
-      "type": "shell",
-      "command": "pnpm",
-      "args": [
-        "--filter",
-        "@symbia/interfaces",
-        "build"
-      ],
-      "group": "build",
-      "problemMatcher": {
-        "owner": "typescript",
-        "source": "ts",
-        "fileLocation": [
-          "relative",
-          "${workspaceFolder}/interfaces"
-        ],
-        "pattern": {
-          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+):\\s*(.*)$",
-          "file": 1,
-          "line": 2,
-          "column": 3,
-          "severity": 4,
-          "code": 5,
-          "message": 6
-        }
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "silent",
-        "focus": false,
-        "panel": "shared"
-      }
-    },
-    {
       "label": "Build Core",
       "type": "shell",
       "command": "pnpm",
@@ -208,9 +174,6 @@
           "message": 6
         }
       },
-      "dependsOn": [
-        "Build Interfaces"
-      ],
       "presentation": {
         "echo": true,
         "reveal": "silent",

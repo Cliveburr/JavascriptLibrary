@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import type { LlmSetConfig } from '@symbia/interfaces';
+import type { LlmSetConfig } from '../types/llm.js';
 
 // Get the directory path for ES modules
 const __filename = fileURLToPath(import.meta.url);

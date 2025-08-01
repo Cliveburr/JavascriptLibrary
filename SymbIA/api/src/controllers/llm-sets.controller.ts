@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { LlmSetService } from '@symbia/core';
-import type { LlmSetListResponse } from '@symbia/interfaces';
+import type { LlmSetListResponse } from '@symbia/core';
 
 export class LlmSetController {
     private llmSetService: LlmSetService;

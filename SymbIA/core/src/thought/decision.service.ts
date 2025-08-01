@@ -1,4 +1,4 @@
-import type { IChatContext, LlmRequest, Message } from '@symbia/interfaces';
+import type { IChatContext, LlmRequest, Message } from '../types/index.js';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import type { ActionService } from '../actions/action.service';
 import type { ActionHandler } from '../actions/act-defs';

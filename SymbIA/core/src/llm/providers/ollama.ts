@@ -1,4 +1,4 @@
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '../../types/llm.js';
 import { ConfigService } from '../../config/config.service.js';
 
 export interface OllamaConfig {

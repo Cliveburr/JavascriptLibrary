@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import type { User } from '@symbia/interfaces';
+import type { User } from '../types/domain.js';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { ConfigService } from '../config/config.service.js';
 

@@ -1,4 +1,4 @@
-import type { LlmRequest, LlmResponse, LlmSetModel } from '@symbia/interfaces';
+import type { LlmRequest, LlmResponse, LlmSetModel } from '../types/llm.js';
 import { OpenAIProvider } from './providers/openai.js';
 import { OllamaProvider } from './providers/ollama.js';
 

@@ -2,7 +2,7 @@ import type { Request, Response, RequestHandler } from 'express';
 import { z } from 'zod';
 import { processRequestBody } from 'zod-express-middleware';
 import { AuthService } from '@symbia/core';
-import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '@symbia/interfaces';
+import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../types/api.js';
 
 const LoginRequestSchema = z.object({
     email: z.string().email(),
@@ -33,10 +33,10 @@ export class AuthController {
                     token: authResult.token,
                     refreshToken: authResult.refreshToken,
                     user: {
-                        id: authResult.user.id,
+                        id: authResult.user._id.toString(),
                         username: authResult.user.username,
                         email: authResult.user.email,
-                        defaultMemoryId: authResult.user.defaultMemoryId
+                        defaultMemoryId: authResult.user.defaultMemoryId.toString()
                     }
                 };
 
@@ -70,9 +70,9 @@ export class AuthController {
                         token: authResult.token,
                         refreshToken: authResult.refreshToken,
                         user: {
-                            id: authResult.user.id,
+                            id: authResult.user._id.toString(),
                             email: authResult.user.email,
-                            defaultMemoryId: authResult.user.defaultMemoryId
+                            defaultMemoryId: authResult.user.defaultMemoryId.toString()
                         }
                     };
 

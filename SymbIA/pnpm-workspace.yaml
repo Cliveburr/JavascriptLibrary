@@ -1,5 +1,4 @@
 packages:
-  - 'interfaces'
-  - 'core'
-  - 'api'
-  - 'web'
+  - "core"
+  - "api"
+  - "web"

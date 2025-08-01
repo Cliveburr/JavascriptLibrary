@@ -16,9 +16,6 @@
   ],
   "references": [
     {
-      "path": "../interfaces"
-    },
-    {
       "path": "../core"
     }
   ]

@@ -1,4 +1,4 @@
-import type { IChatContext } from '@symbia/interfaces';
+import type { IChatContext } from '../types/chat-context.js';
 import { DecisionService } from './decision.service.js';
 import { StallDetectorEngine } from './stall/stall-detector.js';
 import type { ActionService } from '../actions/action.service.js';

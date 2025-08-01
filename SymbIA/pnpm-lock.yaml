@@ -29,9 +29,6 @@ importers:
       '@symbia/core':
         specifier: workspace:*
         version: link:../core
-      '@symbia/interfaces':
-        specifier: workspace:*
-        version: link:../interfaces
       dotenv:
         specifier: ^17.2.1
         version: 17.2.1
@@ -72,9 +69,6 @@ importers:
       '@qdrant/js-client-rest':
         specifier: ^1.15.0
         version: 1.15.0(typescript@5.8.3)
-      '@symbia/interfaces':
-        specifier: workspace:*
-        version: link:../interfaces
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.2
@@ -101,21 +95,8 @@ importers:
         specifier: ^5.5.0
         version: 5.8.3
 
-  interfaces:
-    dependencies:
-      mongodb:
-        specifier: ^6.18.0
-        version: 6.18.0
-    devDependencies:
-      typescript:
-        specifier: ^5.5.0
-        version: 5.8.3
-
   web:
     dependencies:
-      '@symbia/interfaces':
-        specifier: workspace:*
-        version: link:../interfaces
       react:
         specifier: ^18.3.0
         version: 18.3.1

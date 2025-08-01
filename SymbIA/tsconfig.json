@@ -1,9 +1,14 @@
 {
   "files": [],
   "references": [
-    { "path": "./interfaces" },
-    { "path": "./core" },
-    { "path": "./api" },
-    { "path": "./web" }
+    {
+      "path": "./core"
+    },
+    {
+      "path": "./api"
+    },
+    {
+      "path": "./web"
+    }
   ]
 }

@@ -1,6 +1,16 @@
-# PLANNING.md – SymbIA v2 · **Revisão 3**
+# PLANNING.md – SymbIA v2 · **Rev```mermaid
+graph TD
+  subgraph Front‑end
+    W[Web – React] -->|REST + WS| API
+  end
 
-> **Última atualização:** 2025-07-29  
+  subgraph Back‑end
+    API --> CORE
+    CORE --> MONGO[(MongoDB)]
+    CORE --> VDB[(Qdrant)]
+    CORE --> LLM["LLM Gateway (Ollama)"]
+  end
+```ltima atualização:** 2025-07-29  
 > Esta revisão alinha o planejamento ao documento **THOUGHT‑CYCLE.md**, que define um c| Sprint | Objetiv#| **9** | Melhorias de performance e estabilidade | 6. Definition of Done
 
 - Placeholder exibido < 300 ms.  

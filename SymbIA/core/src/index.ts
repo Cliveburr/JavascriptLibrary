@@ -31,6 +31,9 @@ export * from './chat/chat.service.js';
 export * from './config/config.service.js';
 export * from './services/service-registry.js';
 
+// Export types
+export * from './types/index.js';
+
 // Configure services registry
 export function configureContainer() {
     const registry = ServiceRegistry.getInstance();

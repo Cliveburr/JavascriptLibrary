@@ -1,4 +1,4 @@
-import type { Memory } from '@symbia/interfaces';
+import type { Memory } from '../types/domain.js';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { ObjectId } from 'mongodb';
 

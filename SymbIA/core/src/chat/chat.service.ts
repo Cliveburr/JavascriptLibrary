@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import type { Chat, Message, LlmRequest, LlmSetConfig } from '@symbia/interfaces';
+import type { Chat, Message, LlmRequest, LlmSetConfig } from '../types/index.js';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';

@@ -13,10 +13,5 @@
     "dist",
     "node_modules",
     "tests"
-  ],
-  "references": [
-    {
-      "path": "../interfaces"
-    }
   ]
 }

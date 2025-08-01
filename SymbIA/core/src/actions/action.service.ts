@@ -1,4 +1,4 @@
-import type { IChatContext } from '@symbia/interfaces';
+import type { IChatContext } from '../types/chat-context.js';
 import type { ActionHandler } from './act-defs';
 
 // Import all action handlers

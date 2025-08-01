@@ -1,7 +1,7 @@
 import { encoding_for_model } from '@dqbd/tiktoken';
 import { LlmGateway } from '../llm/LlmGateway.js';
 import { LlmSetService } from '../llm/llm-set.service.js';
-import type { LlmSetConfig } from '@symbia/interfaces';
+import type { LlmSetConfig } from '../types/llm.js';
 
 export class EmbeddingService {
     constructor(

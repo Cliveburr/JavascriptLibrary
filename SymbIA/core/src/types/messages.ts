@@ -1,4 +1,3 @@
-
 export enum MessageType {
     User,
     Completed,
@@ -47,3 +46,6 @@ export interface ChatChunkTextMessage {
 export interface ChatEndTextMessage {
     type: MessageType.EndText;
 }
+
+export type MessageFormat = ChatUserMessage | ChatCompletedMessage | ChatStartTitleMessage | ChatChunkTitleMessage
+    | ChatThinkingMessage | ChatStartTextMessage | ChatChunkTextMessage | ChatEndTextMessage;

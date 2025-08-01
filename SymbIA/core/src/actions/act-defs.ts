@@ -1,4 +1,4 @@
-import type { IChatContext } from '@symbia/interfaces';
+import type { IChatContext } from '../types/chat-context.js';
 import type { LlmGateway } from '../llm/LlmGateway';
 
 export interface ActionHandler {

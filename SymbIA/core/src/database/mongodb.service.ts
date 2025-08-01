@@ -1,5 +1,5 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-import type { User, Memory, Chat, Message } from '@symbia/interfaces';
+import type { User, Memory, Chat, Message } from '../types/domain.js';
 import { ConfigService } from '../config/config.service.js';
 
 export class MongoDBService {
