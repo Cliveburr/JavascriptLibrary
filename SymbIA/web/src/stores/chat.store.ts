@@ -183,16 +183,26 @@ export const useChatStore = create<ChatState>((set, get) => ({
         console.log('Store selectChat called:', { chatId });
         set({ selectedChatId: chatId });
 
-        // NUNCA carregar mensagens via API quando estivermos em streaming
-        // O novo sistema de streaming adiciona mensagens diretamente via addMessage
-        // Apenas carregar mensagens da API para chats já existentes quando o usuário clica na sidebar
-        // Por agora, vamos desabilitar completamente o loadMessages para novos chats
+        // Carregar mensagens apenas se:
+        // 1. Temos um chatId válido
+        // 2. Não estamos em streaming (para evitar sobrescrever mensagens em tempo real)
+        // 3. As mensagens ainda não foram carregadas para este chat
+        if (chatId) {
+            const state = get();
+            const hasMessages = state.messagesByChat[chatId]?.length > 0;
+            const isCurrentlyStreaming = state.isStreaming && state.streamingChatId === chatId;
 
-        // if (chatId) {
-        //     console.log('Loading messages for chat:', chatId);
-        //     get().loadMessages(chatId);
-        // }
-        console.log('selectChat: skipping loadMessages to avoid overwriting streaming messages');
+            if (!hasMessages && !isCurrentlyStreaming) {
+                console.log('Loading messages for chat:', chatId);
+                get().loadMessages(chatId);
+            } else {
+                console.log('selectChat: skipping loadMessages', {
+                    hasMessages,
+                    isCurrentlyStreaming,
+                    messagesCount: state.messagesByChat[chatId]?.length || 0
+                });
+            }
+        }
     }, loadMessages: async (chatId: string) => {
         try {
             set({ isLoadingMessages: true, error: null });

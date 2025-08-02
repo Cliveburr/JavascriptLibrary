@@ -147,7 +147,7 @@ export class ChatService {
         const messagesCollection = this.mongoService.getMessagesCollection();
 
         const messages = await messagesCollection
-            .find({ chatId: new ObjectId(chatId), chatHistory: true })
+            .find({ chatId: new ObjectId(chatId) })
             .sort({ createdAt: 1 })
             .toArray();
 

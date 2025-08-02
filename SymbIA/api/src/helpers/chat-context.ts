@@ -143,11 +143,12 @@ export class ChatContext implements IChatContext {
     sendStreamTextMessage(content: string): void {
         this.sendMessage({
             type: MessageType.StreamText,
-            content: this.content
+            content
         });
     }
 
     async saveMessage(role: MessageRole, content: string, modal: MessageModal): Promise<void> {
+        console.log(content);
         const message = await this.chatService.saveMessage({
             _id: new ObjectId(),
             chatId: new ObjectId(this.chatId),

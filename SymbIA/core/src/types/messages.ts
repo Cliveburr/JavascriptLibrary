@@ -1,11 +1,10 @@
-import { Message } from './domain';
 
 export enum MessageType {
     User = 0,
     Completed = 1,
     StreamTitle = 2,
     Thinking = 3,
-    StreamText = 5
+    StreamText = 4
 }
 
 export interface ChatUserMessage {

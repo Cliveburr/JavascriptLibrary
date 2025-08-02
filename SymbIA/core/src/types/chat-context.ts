@@ -7,6 +7,7 @@ export interface IChatContext {
     llmSetConfig: LlmSetConfig;
     sendThinking: () => void;
     sendError: (code: number, message: string, error?: unknown) => void;
+    sendStreamTitleMessage: (content: string) => void;
     sendStreamTextMessage: (content: string) => void;
     saveMessage(role: MessageRole, content: string, modal: MessageModal): Promise<void>;
 }

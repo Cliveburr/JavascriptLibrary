@@ -16,11 +16,11 @@ export class FinalizeAction implements ActionHandler {
 
         // Build messages for LLM context
         const messages = [
-            ...hystory,
             {
                 role: 'system',
                 content: 'You are a helpful AI assistant. Provide a brief, natural response to conclude the conversation based on the context provided.'
-            }
+            },
+            ...hystory
         ];
 
         const response = await llmGateway.invokeAsync(ctx.llmSetConfig.models.fastChat,

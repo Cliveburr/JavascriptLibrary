@@ -35,7 +35,6 @@ export class LlmGateway {
         streamCallback: (content: string) => void,
         options?: Partial<LlmRequest>
     ): Promise<LlmResponse> {
-        console.log(`LLM invokeAsync: ${modelSpec.model}`);
         const requestOptions = {
             ...options,
             model: modelSpec.model,
