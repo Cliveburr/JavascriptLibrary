@@ -1,4 +1,4 @@
-import type { Message } from './domain';
+import type { Message, MessageModal, MessageRole } from './domain';
 import type { LlmSetConfig } from './llm';
 
 export interface IChatContext {
@@ -7,7 +7,6 @@ export interface IChatContext {
     llmSetConfig: LlmSetConfig;
     sendThinking: () => void;
     sendError: (code: number, message: string, error?: unknown) => void;
-    sendStartTextMessage: (content: string) => void;
-    sendChunkTextMessage: (content: string) => void;
-    sendEndTextMessage: (fullContent: string) => Promise<void>;
+    sendStreamTextMessage: (content: string) => void;
+    saveMessage(role: MessageRole, content: string, modal: MessageModal): Promise<void>;
 }

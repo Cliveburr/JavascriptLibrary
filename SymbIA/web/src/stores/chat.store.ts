@@ -180,13 +180,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
     },
 
     selectChat: (chatId: string | null) => {
+        console.log('Store selectChat called:', { chatId });
         set({ selectedChatId: chatId });
-        if (chatId) {
-            get().loadMessages(chatId);
-        }
-    },
 
-    loadMessages: async (chatId: string) => {
+        // NUNCA carregar mensagens via API quando estivermos em streaming
+        // O novo sistema de streaming adiciona mensagens diretamente via addMessage
+        // Apenas carregar mensagens da API para chats já existentes quando o usuário clica na sidebar
+        // Por agora, vamos desabilitar completamente o loadMessages para novos chats
+
+        // if (chatId) {
+        //     console.log('Loading messages for chat:', chatId);
+        //     get().loadMessages(chatId);
+        // }
+        console.log('selectChat: skipping loadMessages to avoid overwriting streaming messages');
+    }, loadMessages: async (chatId: string) => {
         try {
             set({ isLoadingMessages: true, error: null });
 
@@ -286,6 +293,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     },
 
     clearMessages: (chatId?: string) => {
+        console.log('Store clearMessages called:', { chatId });
         if (chatId) {
             set(state => ({
                 messagesByChat: {
@@ -295,6 +303,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 error: null
             }));
         } else {
+            console.log('Clearing ALL messages from store');
             set({ messagesByChat: {}, error: null });
         }
     },
@@ -653,15 +662,25 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     // New methods for updated streaming
     addMessage: (chatId: string, message: FrontendMessage | StreamingMessage) => {
-        set(state => ({
-            messagesByChat: {
-                ...state.messagesByChat,
-                [chatId]: [...(state.messagesByChat[chatId] || []), message]
-            }
-        }));
+        console.log('Store addMessage called:', { chatId, messageId: message.id, content: message.content });
+        set(state => {
+            const newState = {
+                messagesByChat: {
+                    ...state.messagesByChat,
+                    [chatId]: [...(state.messagesByChat[chatId] || []), message]
+                }
+            };
+            console.log('Store addMessage - new state:', {
+                chatId,
+                messagesForChat: newState.messagesByChat[chatId]?.length || 0,
+                allChats: Object.keys(newState.messagesByChat)
+            });
+            return newState;
+        });
     },
 
     updateMessage: (chatId: string, messageId: string, message: FrontendMessage | StreamingMessage) => {
+        console.log('Store updateMessage called:', { chatId, messageId, contentLength: message.content?.length || 0 });
         set(state => {
             const messages = state.messagesByChat[chatId] || [];
             const index = messages.findIndex(m => m.id === messageId);
@@ -669,18 +688,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
             if (index >= 0) {
                 const newMessages = [...messages];
                 newMessages[index] = message;
-                return {
+                const newState = {
                     messagesByChat: {
                         ...state.messagesByChat,
                         [chatId]: newMessages
                     }
                 };
+                console.log('Store updateMessage - updated state:', {
+                    chatId,
+                    messagesForChat: newState.messagesByChat[chatId]?.length || 0,
+                    messageIndex: index,
+                    updatedContent: message.content?.substring(0, 50) + '...'
+                });
+                return newState;
             }
+            console.log('Store updateMessage - message not found, returning same state');
             return state;
         });
-    },
-
-    addChatToMemory: (memoryId: string, chat: FrontendChat) => {
+    }, addChatToMemory: (memoryId: string, chat: FrontendChat) => {
         set(state => {
             const existingChats = state.chatsByMemory[memoryId] || [];
             const updatedChats = [chat, ...existingChats.map(c => ({ ...c, orderIndex: c.orderIndex + 1 }))];

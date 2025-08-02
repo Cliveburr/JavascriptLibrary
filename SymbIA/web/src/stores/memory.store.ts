@@ -52,16 +52,13 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
 
     fetchMemories: async () => {
         try {
-            console.log('Iniciando busca de memórias...');
             set({ isLoading: true, error: null });
             const memories = await apiCall(createApiUrl('/memories'));
-            console.log('Memórias recebidas:', memories);
             set({ memories, isLoading: false });
 
             // Set current memory if none is selected
             const { currentMemoryId } = get();
             if (!currentMemoryId && memories.length > 0) {
-                console.log('Selecionando primeira memória:', memories[0]?.id);
                 set({ currentMemoryId: memories[0]?.id });
             }
         } catch (error) {

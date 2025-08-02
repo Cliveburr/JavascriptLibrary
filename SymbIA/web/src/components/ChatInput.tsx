@@ -36,12 +36,14 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, mem
     const handleSubmit = async () => {
         if (!message.trim() || isLoading || isStreaming) return;
         const messageToSend = message.trim();
-        setMessage('');
 
         try {
             if (!llmSetId) {
                 throw new Error('LLM Set ID is required for sending messages');
             }
+
+            // Limpar a mensagem só depois de iniciar o streaming
+            setMessage('');
 
             // Usar o novo sistema de streaming para todos os casos
             await sendStreamingMessage(memoryId, chatId, messageToSend, llmSetId);

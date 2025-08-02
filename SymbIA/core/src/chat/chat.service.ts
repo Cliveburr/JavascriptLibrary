@@ -163,8 +163,7 @@ export class ChatService {
     }
 
     async generateChatTitle(userMessage: string, llmSetConfig: LlmSetConfig,
-        fristCallback: (content: string) => void,
-        chunkCallback: (content: string) => void
+        streamCallback: (content: string) => void
     ): Promise<string> {
         const messages: LlmRequest['messages'] = [
             {
@@ -176,7 +175,7 @@ export class ChatService {
                 content: userMessage
             }
         ];
-        const response = await this.llmGateway.invokeAsync(llmSetConfig.models.reasoning, messages, fristCallback, chunkCallback);
+        const response = await this.llmGateway.invokeAsync(llmSetConfig.models.reasoning, messages, streamCallback);
         return response.content;
     }
 }

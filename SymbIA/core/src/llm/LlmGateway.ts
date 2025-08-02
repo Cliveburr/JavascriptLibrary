@@ -32,11 +32,10 @@ export class LlmGateway {
     async invokeAsync(
         modelSpec: LlmSetModel,
         messages: LlmRequest['messages'],
-        fristCallback: (content: string) => void,
-        chunkCallback: (content: string) => void,
-        endCallback?: (content: string) => Promise<void>,
+        streamCallback: (content: string) => void,
         options?: Partial<LlmRequest>
     ): Promise<LlmResponse> {
+        console.log(`LLM invokeAsync: ${modelSpec.model}`);
         const requestOptions = {
             ...options,
             model: modelSpec.model,
@@ -44,10 +43,10 @@ export class LlmGateway {
         };
         switch (modelSpec.provider) {
             case 'openai':
-                return this.openaiProvider.invokeAsync(messages, requestOptions, fristCallback, chunkCallback, endCallback);
+                return this.openaiProvider.invokeAsync(messages, requestOptions, streamCallback);
 
             case 'ollama':
-                return this.ollamaProvider.invokeAsync(messages, requestOptions, fristCallback, chunkCallback, endCallback);
+                return this.ollamaProvider.invokeAsync(messages, requestOptions, streamCallback);
 
             default:
                 throw new Error(`Unsupported LLM provider: ${modelSpec.provider}`);

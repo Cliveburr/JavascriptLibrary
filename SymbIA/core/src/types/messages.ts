@@ -1,13 +1,11 @@
+import { Message } from './domain';
 
 export enum MessageType {
-    User,
-    Completed,
-    StartTitle,
-    ChunkTitle,
-    Thinking,
-    StartText,
-    ChunkText,
-    EndText
+    User = 0,
+    Completed = 1,
+    StreamTitle = 2,
+    Thinking = 3,
+    StreamText = 5
 }
 
 export interface ChatUserMessage {
@@ -20,13 +18,8 @@ export interface ChatCompletedMessage {
     type: MessageType.Completed;
 }
 
-export interface ChatStartTitleMessage {
-    type: MessageType.StartTitle;
-    content: string;
-}
-
-export interface ChatChunkTitleMessage {
-    type: MessageType.ChunkTitle;
+export interface ChatStreamTitleMessage {
+    type: MessageType.StreamTitle;
     content: string;
 }
 
@@ -34,19 +27,10 @@ export interface ChatThinkingMessage {
     type: MessageType.Thinking;
 }
 
-export interface ChatStartTextMessage {
-    type: MessageType.StartText;
+export interface ChatStreamTextMessage {
+    type: MessageType.StreamText;
     content: string;
 }
 
-export interface ChatChunkTextMessage {
-    type: MessageType.ChunkText;
-    content: string;
-}
-
-export interface ChatEndTextMessage {
-    type: MessageType.EndText;
-}
-
-export type MessageFormat = ChatUserMessage | ChatCompletedMessage | ChatStartTitleMessage | ChatChunkTitleMessage
-    | ChatThinkingMessage | ChatStartTextMessage | ChatChunkTextMessage | ChatEndTextMessage;
+export type MessageFormat = ChatUserMessage | ChatCompletedMessage | ChatStreamTitleMessage
+    | ChatThinkingMessage | ChatStreamTextMessage;

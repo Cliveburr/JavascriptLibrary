@@ -120,7 +120,7 @@ export class ChatController {
 
             ctx.sendCompleted();
         } catch (error) {
-            ctx.sendError(500, 'Internal server error', error);
+            ctx.sendError(500, 'Error: ', error);
         }
     }
 
@@ -131,7 +131,7 @@ export class ChatController {
             }
 
             const generatedTitle = await this.chatService.generateChatTitle(ctx.content, ctx.llmSetConfig,
-                ctx.sendStartTitleMessage.bind(ctx), ctx.sendChunkTitleMessage.bind(ctx)
+                ctx.sendStreamTitleMessage.bind(ctx)
             );
             await this.chatService.updateChatTitle(ctx.chatId, generatedTitle);
 

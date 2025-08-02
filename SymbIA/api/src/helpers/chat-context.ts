@@ -127,16 +127,9 @@ export class ChatContext implements IChatContext {
         } catch { }
     }
 
-    sendStartTitleMessage(content: string): void {
+    sendStreamTitleMessage(content: string): void {
         this.sendMessage({
-            type: MessageType.StartTitle,
-            content
-        });
-    }
-
-    sendChunkTitleMessage(content: string): void {
-        this.sendMessage({
-            type: MessageType.ChunkTitle,
+            type: MessageType.StreamTitle,
             content
         });
     }
@@ -147,33 +140,14 @@ export class ChatContext implements IChatContext {
         });
     }
 
-    sendStartTextMessage(content: string): void {
+    sendStreamTextMessage(content: string): void {
         this.sendMessage({
-            type: MessageType.StartText,
-            content
+            type: MessageType.StreamText,
+            content: this.content
         });
     }
 
-    sendChunkTextMessage(content: string): void {
-        this.sendMessage({
-            type: MessageType.ChunkText,
-            content
-        });
-    }
-
-    sendEndTextMessage(fullContent: string): Promise<void> {
-        this.sendMessage({
-            type: MessageType.EndText
-        });
-
-        return this.saveMessage('assistant', fullContent, 'text');
-    }
-
-    private sendMessage(message: MessageFormat): void {
-        this.res.write(JSON.stringify(message) + '\n');
-    }
-
-    private async saveMessage(role: MessageRole, content: string, modal: MessageModal): Promise<void> {
+    async saveMessage(role: MessageRole, content: string, modal: MessageModal): Promise<void> {
         const message = await this.chatService.saveMessage({
             _id: new ObjectId(),
             chatId: new ObjectId(this.chatId),
@@ -183,5 +157,9 @@ export class ChatContext implements IChatContext {
             modal
         });
         this.messages.push(message);
+    }
+
+    private sendMessage(message: MessageFormat): void {
+        this.res.write(JSON.stringify(message) + '\n');
     }
 }

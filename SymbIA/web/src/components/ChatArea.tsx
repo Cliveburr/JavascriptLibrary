@@ -21,17 +21,41 @@ export const ChatArea: React.FC = () => {
     const activeChatId = selectedChatId;
     const currentMessages = activeChatId ? messagesByChat[activeChatId] || [] : [];
 
-    // Detectar se estamos em modo de streaming para novo chat
-    const isStreamingNewChat = isStreaming && !selectedChatId;
+    // Determinar se devemos mostrar a interface de chat ativa
+    // Mostrar se temos um chat selecionado OU se estamos em streaming (novo chat ou existente)
+    const shouldShowChatInterface = activeChatId || isStreaming;
+
+    // Debug logs para verificar se as mensagens estão chegando
+    console.log('ChatArea render basic:', {
+        selectedChatId,
+        messagesCount: currentMessages.length,
+        isStreaming,
+        allChatsCount: Object.keys(messagesByChat).length
+    });
+
+    console.log('ChatArea messagesByChat keys:', Object.keys(messagesByChat));
+
+    if (activeChatId) {
+        const messagesForThisChat = messagesByChat[activeChatId];
+        console.log('Messages for active chat:', {
+            chatId: activeChatId,
+            messages: messagesForThisChat,
+            messagesLength: messagesForThisChat?.length || 'undefined'
+        });
+    }
 
     // Clear messages when switching memories (if no chat selected)
     useEffect(() => {
+        console.log('ChatArea useEffect triggered:', {
+            selectedChatId,
+            currentMemoryId,
+            shouldClear: !selectedChatId
+        });
         if (!selectedChatId) {
+            console.log('Clearing messages because selectedChatId is null');
             clearMessages();
         }
-    }, [currentMemoryId, selectedChatId, clearMessages]);
-
-    // Focar no input quando o streaming terminar
+    }, [currentMemoryId, selectedChatId]); // Removed clearMessages from dependencies    // Focar no input quando o streaming terminar
     useEffect(() => {
         // Se estava em streaming e agora não está mais, focar no input
         if (wasStreamingRef.current && !isStreaming) {
@@ -51,7 +75,7 @@ export const ChatArea: React.FC = () => {
                 {/* LLM Selector - posicionado normalmente no topo */}
                 <LLMSelector />
 
-                {currentMemory && (activeChatId || isStreamingNewChat) ? (
+                {currentMemory && shouldShowChatInterface ? (
                     <>
                         <ChatWindow
                             chatId={activeChatId}

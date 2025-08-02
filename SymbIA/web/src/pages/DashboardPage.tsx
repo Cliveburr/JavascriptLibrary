@@ -13,7 +13,11 @@ export const DashboardPage: React.FC = () => {
     useEffect(() => {
         if (!isAuthenticated) {
             console.log('Usuário não autenticado, fazendo login automático...');
-            autoLoginDev();
+            autoLoginDev().then(() => {
+                console.log('Login automático concluído');
+            }).catch((error) => {
+                console.error('Erro no login automático:', error);
+            });
         } else {
             console.log('Usuário já autenticado');
         }

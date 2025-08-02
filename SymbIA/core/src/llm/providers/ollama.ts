@@ -65,9 +65,7 @@ export class OllamaProvider {
     async invokeAsync(
         messages: LlmRequest['messages'],
         options: Partial<LlmRequest>,
-        fristCallback: (content: string) => void,
-        chunkCallback: (content: string) => void,
-        endCallback?: (content: string) => Promise<void>
+        streamCallback: (content: string) => void,
     ): Promise<LlmResponse> {
         const requestBody = {
             model: options.model,
@@ -95,7 +93,6 @@ export class OllamaProvider {
         let fullContent = '';
         let totalPromptTokens = 0;
         let totalCompletionTokens = 0;
-        let isFirstCall = true;
 
         const reader = response.body?.getReader();
         if (!reader) {
@@ -118,15 +115,7 @@ export class OllamaProvider {
 
                         if (data.message?.content) {
                             fullContent += data.message.content;
-
-                            // Send stream progress
-                            if (isFirstCall) {
-                                fristCallback(data.message.content);
-                                isFirstCall = false;
-                            }
-                            else {
-                                chunkCallback(data.message.content);
-                            }
+                            streamCallback(data.message.content);
                         }
 
                         if (data.prompt_eval_count) {
@@ -143,10 +132,6 @@ export class OllamaProvider {
             }
         } finally {
             reader.releaseLock();
-        }
-
-        if (endCallback) {
-            await endCallback(fullContent);
         }
 
         return {

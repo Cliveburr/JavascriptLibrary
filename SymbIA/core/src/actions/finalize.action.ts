@@ -23,15 +23,14 @@ export class FinalizeAction implements ActionHandler {
             }
         ];
 
-        await llmGateway.invokeAsync(ctx.llmSetConfig.models.fastChat,
+        const response = await llmGateway.invokeAsync(ctx.llmSetConfig.models.fastChat,
             messages,
-            ctx.sendStartTextMessage.bind(ctx),
-            ctx.sendChunkTextMessage.bind(ctx),
-            ctx.sendEndTextMessage.bind(ctx),
+            ctx.sendStreamTextMessage.bind(ctx),
             {
                 temperature: 0.7,
                 maxTokens: 200
             });
+        await ctx.saveMessage('assistant', response.content, 'text');
     }
 }
 
