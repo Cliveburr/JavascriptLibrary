@@ -45,6 +45,7 @@ export class MemoryService {
       _id: new ObjectId(),
       userId: new ObjectId(userId),
       name: name.trim(),
+      totalChatCreated: 0,
       createdAt: new Date(),
     };
 

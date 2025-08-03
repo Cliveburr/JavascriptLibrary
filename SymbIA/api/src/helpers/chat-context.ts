@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import type { ChatService, LlmSetService } from '@symbia/core';
+import type { Chat, ChatService, LlmSetService } from '@symbia/core';
 import type { MessageModal, MessageFormat, MessageRole, IChatContext, LlmSetConfig, Message } from '@symbia/core';
 import { MessageType } from '@symbia/core';
 import { ObjectId } from 'mongodb';
@@ -24,6 +24,7 @@ export class ChatContext implements IChatContext {
     userId!: string;
     content!: string;
     chatId?: string;
+    chat?: Chat;
     isNewChat: boolean = false;
     llmSetConfig!: LlmSetConfig;
     messages!: Message[];
@@ -97,14 +98,25 @@ export class ChatContext implements IChatContext {
         return true;
     }
 
-    sendUserMessage(): Promise<void> {
+    sendInitMessage(): Promise<void> {
+        if (!this.chatId) {
+            throw 'Invalid chatId, missing validateChat';
+        }
 
         // Send message to be showed as user content
-        this.sendMessage({
-            type: MessageType.User,
-            content: this.content,
-            chatId: this.chatId
-        });
+        if (this.isNewChat) {
+            this.sendMessage({
+                type: MessageType.InitNewStream,
+                content: this.content,
+                chatId: this.chatId
+            });
+        }
+        else {
+            this.sendMessage({
+                type: MessageType.InitStream,
+                content: this.content
+            });
+        }
 
         // Save in chat history
         return this.saveMessage('user', this.content, 'text');

@@ -8,14 +8,13 @@ export const ChatSection: React.FC = () => {
     const { currentMemoryId } = useMemoryStore();
 
     const {
-        chatsByMemory,
+        chats,
         selectedChatId,
-        lastSelectedChatId,
-        isLoadingChats,
-        loadChatsByMemory,
+        isLoading,
+        fetchChats,
         deleteChat,
         selectChat,
-        setLastSelectedChat,
+        prepareNewChat,
     } = useChatStore();
 
     const { loadMessages } = useMessageStore();
@@ -31,21 +30,17 @@ export const ChatSection: React.FC = () => {
 
     // Carregar chats quando a memória atual muda
     useEffect(() => {
-        if (currentMemoryId && !chatsByMemory[currentMemoryId]) {
-            loadChatsByMemory(currentMemoryId);
+        if (currentMemoryId) {
+            fetchChats(currentMemoryId);
         }
-    }, [currentMemoryId, loadChatsByMemory]);
+    }, [currentMemoryId, fetchChats]);
 
-    // Restaurar último chat selecionado quando os chats estão carregados
+    // Preparar novo chat quando não há chats na memória selecionada
     useEffect(() => {
-        if (currentMemoryId && chatsByMemory[currentMemoryId] && lastSelectedChatId && !selectedChatId) {
-            const chats = chatsByMemory[currentMemoryId];
-            const chatExists = chats.some(chat => chat.id === lastSelectedChatId);
-            if (chatExists) {
-                selectChat(lastSelectedChatId);
-            }
+        if (currentMemoryId && chats.length === 0 && !isLoading) {
+            prepareNewChat();
         }
-    }, [currentMemoryId, lastSelectedChatId, selectedChatId, selectChat]);
+    }, [currentMemoryId, chats.length, isLoading, prepareNewChat]);
 
     // Carregar mensagens quando um chat é selecionado
     useEffect(() => {
@@ -57,17 +52,9 @@ export const ChatSection: React.FC = () => {
         }
     }, [selectedChatId, loadMessages]);
 
-    // Salvar última seleção do chat quando muda
-    useEffect(() => {
-        if (selectedChatId) {
-            setLastSelectedChat(selectedChatId);
-        }
-    }, [selectedChatId, setLastSelectedChat]);
-
     // Scroll para o topo quando um novo chat é criado
     useEffect(() => {
-        if (currentMemoryId && chatsByMemory[currentMemoryId]) {
-            const chats = chatsByMemory[currentMemoryId];
+        if (currentMemoryId && chats.length > 0) {
             const currentChatCount = chats.length;
 
             // Se o número de chats aumentou, um novo chat foi criado
@@ -78,7 +65,7 @@ export const ChatSection: React.FC = () => {
             // Atualizar o contador anterior
             prevChatCountRef.current = currentChatCount;
         }
-    }, [currentMemoryId, chatsByMemory]);
+    }, [currentMemoryId, chats]);
 
     const handleDeleteChat = (chatId: string, chatTitle: string) => {
         setChatToDelete({ id: chatId, title: chatTitle });
@@ -97,7 +84,7 @@ export const ChatSection: React.FC = () => {
 
             // Forçar recarregamento da lista como fallback
             if (currentMemoryId) {
-                await loadChatsByMemory(currentMemoryId);
+                await fetchChats(currentMemoryId);
             }
         } catch (err) {
             handleError(err, 'Deletando chat');
@@ -114,7 +101,7 @@ export const ChatSection: React.FC = () => {
     };
 
     const currentMemoryChats = currentMemoryId
-        ? (chatsByMemory[currentMemoryId] || []).sort((a, b) => a.orderIndex - b.orderIndex)
+        ? chats.sort((a, b) => a.orderIndex - b.orderIndex)
         : [];
 
     if (!currentMemoryId) {
@@ -129,10 +116,10 @@ export const ChatSection: React.FC = () => {
                     <button
                         className="add-button"
                         onClick={() => {
-                            // Limpar seleção de chat para mostrar o input horizontal
-                            selectChat(null);
+                            // Chamar prepareNewChat para preparar o estado para novo chat
+                            prepareNewChat();
                         }}
-                        disabled={isLoadingChats}
+                        disabled={isLoading}
                         title="Novo chat"
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16">
@@ -142,7 +129,7 @@ export const ChatSection: React.FC = () => {
                 </div>
 
                 <div className="chats-list" key={`chats-${currentMemoryId}-${chatListKey}`} ref={chatListRef}>
-                    {isLoadingChats ? (
+                    {isLoading ? (
                         <div className="loading">Carregando chats...</div>
                     ) : currentMemoryChats.length === 0 ? (
                         <div className="empty-state">Nenhum chat nesta memória</div>

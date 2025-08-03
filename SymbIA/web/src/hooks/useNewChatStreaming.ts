@@ -6,7 +6,6 @@ import { MessageType } from '../types/frontend';
 import { createApiUrl } from '../config/api';
 import { validateObjectId } from '../utils/objectId';
 import type {
-    FrontendChat,
     MessageFormat
 } from '../types/frontend';
 
@@ -21,7 +20,7 @@ interface StreamingState {
 
 export const useNewChatStreaming = () => {
     const { token } = useAuthStore();
-    const { selectChat, addChatToMemory, updateChatTitle } = useChatStore();
+    const { selectChat, initNewChat, appendChatTitle } = useChatStore();
     const { addMessage, appendMessage } = useMessageStore();
 
     const [streamingState, setStreamingState] = useState<StreamingState>({
@@ -160,13 +159,19 @@ export const useNewChatStreaming = () => {
         async function handleMessage(message: MessageFormat, memoryId: string, _chatId: string | null, isNew: boolean) {
             console.log('HandleMessage called with:', { message, memoryId, isNew, actualChatId });
             switch (message.type) {
-                case MessageType.User:
+                case MessageType.Init:
+
+                    // criar uma msg para InitStream e InitNewStream
+                    // 
+
                     console.log('Processing MessageType.User');
-                    // Se é um chat novo, usar o chatId da mensagem e selecionar o chat
+                    // Se é um chat novo, inicializar o chat e usar o chatId da mensagem
                     if (isNew && 'chatId' in message && message.chatId) {
+                        // Inicializar o novo chat no store
+                        initNewChat(memoryId);
                         actualChatId = message.chatId;
                         isNewChat = false;
-                        console.log('Selecting new chat:', actualChatId);
+                        console.log('Initializing new chat:', actualChatId);
                         selectChat(actualChatId);
                     }
 
@@ -204,6 +209,11 @@ export const useNewChatStreaming = () => {
                                 ...prev,
                                 currentChatTitle: prev.currentChatTitle + message.content
                             }));
+                        }
+
+                        // Se já temos um chatId, adicionar o conteúdo ao título do chat
+                        if (actualChatId) {
+                            appendChatTitle(actualChatId, message.content);
                         }
                     }
                     break;
@@ -275,23 +285,9 @@ export const useNewChatStreaming = () => {
 
                 case MessageType.Completed:
                     console.log('Processing MessageType.Completed');
-                    const currentState = streamingStateRef.current;
 
                     // A mensagem já está finalizada via appendMessage, apenas marcar como não-streaming
-                    // não precisamos mais fazer updateMessage pois o conteúdo já está completo
-
-                    // Sinaliza final da iteração
-                    if (isNew && actualChatId && currentState.currentChatTitle) {
-                        updateChatTitle(actualChatId, currentState.currentChatTitle);
-                        addChatToMemory(memoryId, {
-                            id: actualChatId,
-                            memoryId,
-                            title: currentState.currentChatTitle,
-                            orderIndex: 0,
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString()
-                        } as FrontendChat);
-                    }
+                    // O chat já foi inicializado e o título já está sendo atualizado via StreamTitle
 
                     setStreamingState(prev => ({
                         ...prev,
@@ -308,7 +304,7 @@ export const useNewChatStreaming = () => {
                     break;
             }
         }
-    }, [token, addMessage, appendMessage, selectChat, addChatToMemory, updateChatTitle, streamingState]);
+    }, [token, addMessage, appendMessage, selectChat, initNewChat, appendChatTitle, streamingState]);
 
     const pauseStream = useCallback(() => {
         setStreamingState(prev => ({ ...prev, isPaused: true }));

@@ -107,7 +107,7 @@ export class ChatController {
             });
 
             const paralelTasks: Array<Promise<any>> = [
-                ctx.sendUserMessage()
+                ctx.sendInitMessage()
             ];
 
             paralelTasks.push(this.thoughtCycleService.handle(ctx));

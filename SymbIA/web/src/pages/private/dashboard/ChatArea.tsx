@@ -23,24 +23,8 @@ export const ChatArea: React.FC = () => {
     const currentMessages = activeChatId ? messages : [];
 
     // Determinar se devemos mostrar a interface de chat ativa
-    // Mostrar se temos um chat selecionado OU se estamos em streaming (novo chat ou existente)
-    const shouldShowChatInterface = activeChatId || isStreaming;
-
-    // Debug logs para verificar se as mensagens estão chegando
-    console.log('ChatArea render basic:', {
-        selectedChatId,
-        messagesCount: currentMessages.length,
-        isStreaming,
-        hasMessages: messages.length > 0
-    });
-
-    if (activeChatId) {
-        console.log('Messages for active chat:', {
-            chatId: activeChatId,
-            messages: messages,
-            messagesLength: messages.length
-        });
-    }
+    // Mostrar se temos um chat selecionado OU se estamos em streaming OU se selectedChatId é null (preparando novo chat)
+    const shouldShowChatInterface = activeChatId || isStreaming || (!selectedChatId && currentMemory);
 
     // Clear messages when switching memories (if no chat selected)
     // Usar um ref para evitar loops causados por mudanças nas dependências
@@ -83,18 +67,38 @@ export const ChatArea: React.FC = () => {
 
                 {currentMemory && shouldShowChatInterface ? (
                     <>
-                        <ChatWindow
-                            chatId={activeChatId}
-                            messages={currentMessages}
-                        />
-                        <ChatInput
-                            ref={chatInputRef}
-                            chatId={selectedChatId}
-                            memoryId={currentMemory.id}
-                            llmSetId={selectedSetId || undefined}
-                        />
+                        {!selectedChatId ? (
+                            // Interface de preparação para novo chat com input centralizado
+                            <div className="chat-placeholder">
+                                <div className="placeholder-icon">💬</div>
+                                <h4>Iniciar novo chat</h4>
+                                <p>Digite a primeira mensagem para iniciar um novo chat.</p>
+                                <ChatInput
+                                    ref={chatInputRef}
+                                    chatId={null}
+                                    memoryId={currentMemory.id}
+                                    horizontal
+                                    llmSetId={selectedSetId || undefined}
+                                />
+                            </div>
+                        ) : (
+                            // Interface normal de chat
+                            <>
+                                <ChatWindow
+                                    chatId={activeChatId}
+                                    messages={currentMessages}
+                                />
+                                <ChatInput
+                                    ref={chatInputRef}
+                                    chatId={selectedChatId}
+                                    memoryId={currentMemory.id}
+                                    llmSetId={selectedSetId || undefined}
+                                />
+                            </>
+                        )}
                     </>
                 ) : currentMemory ? (
+                    // Estado quando há memory mas não há chats
                     <div className="chat-placeholder">
                         <div className="placeholder-icon">💬</div>
                         <h4>Iniciar novo chat</h4>

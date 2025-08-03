@@ -14,7 +14,7 @@ export const MemorySection: React.FC = () => {
         setCurrentMemory,
     } = useMemoryStore();
 
-    const { loadChatsByMemory, selectChat } = useChatStore();
+    const { prepareNewChat, selectChat } = useChatStore();
 
     const { success, error, warning } = useNotification();
     const { handleError } = useError();
@@ -65,12 +65,9 @@ export const MemorySection: React.FC = () => {
 
     const handleMemorySelect = (memoryId: string) => {
         setCurrentMemory(memoryId);
-        // Carregar chats da memória selecionada se ainda não carregados
-        const memoryChats = useChatStore.getState().chatsByMemory[memoryId];
-        if (!memoryChats || memoryChats.length === 0) {
-            loadChatsByMemory(memoryId);
-        }
+        // Limpar seleção de chat e preparar para novo chat
         selectChat(null);
+        prepareNewChat();
     };
 
     return (

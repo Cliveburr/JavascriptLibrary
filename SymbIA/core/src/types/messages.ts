@@ -1,16 +1,22 @@
 
 export enum MessageType {
-    User = 0,
-    Completed = 1,
-    StreamTitle = 2,
-    Thinking = 3,
-    StreamText = 4
+    InitStream = 0,
+    InitNewStream = 1,
+    Completed = 2,
+    StreamTitle = 3,
+    Thinking = 4,
+    StreamText = 5
 }
 
-export interface ChatUserMessage {
-    type: MessageType.User;
+export interface ChatInitStreamMessage {
+    type: MessageType.InitStream;
     content: string;
-    chatId?: string; // Incluir chatId para casos de novo chat
+}
+
+export interface ChatInitNewStreamMessage {
+    type: MessageType.InitNewStream;
+    content: string;
+    chatId: string;
 }
 
 export interface ChatCompletedMessage {
@@ -31,5 +37,5 @@ export interface ChatStreamTextMessage {
     content: string;
 }
 
-export type MessageFormat = ChatUserMessage | ChatCompletedMessage | ChatStreamTitleMessage
+export type MessageFormat = ChatInitStreamMessage | ChatInitNewStreamMessage | ChatCompletedMessage | ChatStreamTitleMessage
     | ChatThinkingMessage | ChatStreamTextMessage;

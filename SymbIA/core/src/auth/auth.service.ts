@@ -69,6 +69,7 @@ export class AuthService {
             _id: defaultMemoryId,
             userId,
             name: 'Default Memory',
+            totalChatCreated: 0,
             createdAt: now
         };
 

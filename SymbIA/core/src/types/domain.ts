@@ -15,6 +15,7 @@ export interface Memory {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
+    totalChatCreated: number;
     createdAt: Date;
     deletedAt?: Date;
 }
