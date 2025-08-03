@@ -10,7 +10,7 @@ import { useLLMStore } from '../../../stores/llm.store';
 export const ChatArea: React.FC = () => {
     const { currentMemoryId, memories } = useMemoryStore();
     const { selectedChatId } = useChatStore();
-    const { messagesByChat } = useMessageStore();
+    const { messages } = useMessageStore();
     const { isStreaming } = useNewChatStreaming();
     const { selectedSetId } = useLLMStore();
     const chatInputRef = useRef<ChatInputRef>(null);
@@ -20,7 +20,7 @@ export const ChatArea: React.FC = () => {
 
     // Usar o selectedChatId já que o novo sistema já atualiza ele automaticamente
     const activeChatId = selectedChatId;
-    const currentMessages = activeChatId ? messagesByChat[activeChatId] || [] : [];
+    const currentMessages = activeChatId ? messages : [];
 
     // Determinar se devemos mostrar a interface de chat ativa
     // Mostrar se temos um chat selecionado OU se estamos em streaming (novo chat ou existente)
@@ -31,15 +31,14 @@ export const ChatArea: React.FC = () => {
         selectedChatId,
         messagesCount: currentMessages.length,
         isStreaming,
-        allChatsCount: Object.keys(messagesByChat).length
+        hasMessages: messages.length > 0
     });
 
     if (activeChatId) {
-        const messagesForThisChat = messagesByChat[activeChatId];
         console.log('Messages for active chat:', {
             chatId: activeChatId,
-            messages: messagesForThisChat,
-            messagesLength: messagesForThisChat?.length || 'undefined'
+            messages: messages,
+            messagesLength: messages.length
         });
     }
 

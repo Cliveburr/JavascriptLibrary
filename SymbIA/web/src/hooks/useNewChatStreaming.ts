@@ -22,7 +22,7 @@ interface StreamingState {
 export const useNewChatStreaming = () => {
     const { token } = useAuthStore();
     const { selectChat, addChatToMemory, updateChatTitle } = useChatStore();
-    const { addMessage, updateMessage } = useMessageStore();
+    const { addMessage, appendMessage } = useMessageStore();
 
     const [streamingState, setStreamingState] = useState<StreamingState>({
         isStreaming: false,
@@ -176,7 +176,7 @@ export const useNewChatStreaming = () => {
                         console.log('Adding user message to chat');
                         console.log('ChatId:', actualChatId);
                         console.log('Message content:', message.content);
-                        addMessage(actualChatId, {
+                        addMessage({
                             id: `user-${Date.now()}`,
                             chatId: actualChatId,
                             role: 'user',
@@ -220,7 +220,7 @@ export const useNewChatStreaming = () => {
                             currentAssistantMessageId: thinkingId
                         }));
 
-                        addMessage(actualChatId, {
+                        addMessage({
                             id: thinkingId,
                             chatId: actualChatId,
                             role: 'assistant',
@@ -238,33 +238,20 @@ export const useNewChatStreaming = () => {
                     if (actualChatId && 'content' in message) {
                         const currentState = streamingStateRef.current;
 
-                        // No primeiro StreamText, substituir thinking ou criar nova mensagem
+                        // No primeiro StreamText, criar nova mensagem (substitui thinking automaticamente)
                         if (!currentState.currentAssistantMessageId || currentState.isShowingThinking) {
                             const assistantId = `assistant-${Date.now()}`;
 
-                            // Remove thinking message if exists
-                            if (currentState.isShowingThinking && currentState.currentAssistantMessageId) {
-                                // Replace thinking with actual content
-                                updateMessage(actualChatId, currentState.currentAssistantMessageId, {
-                                    id: assistantId,
-                                    chatId: actualChatId,
-                                    role: 'assistant',
-                                    content: message.content,
-                                    contentType: 'text',
-                                    createdAt: new Date().toISOString(),
-                                    isStreaming: true
-                                });
-                            } else {
-                                addMessage(actualChatId, {
-                                    id: assistantId,
-                                    chatId: actualChatId,
-                                    role: 'assistant',
-                                    content: message.content,
-                                    contentType: 'text',
-                                    createdAt: new Date().toISOString(),
-                                    isStreaming: true
-                                });
-                            }
+                            // Adicionar nova mensagem (irá substituir a thinking se existir)
+                            addMessage({
+                                id: assistantId,
+                                chatId: actualChatId,
+                                role: 'assistant',
+                                content: message.content,
+                                contentType: 'text',
+                                createdAt: new Date().toISOString(),
+                                isStreaming: true
+                            });
 
                             setStreamingState(prev => ({
                                 ...prev,
@@ -273,23 +260,13 @@ export const useNewChatStreaming = () => {
                                 isShowingThinking: false
                             }));
                         } else {
-                            // Para os próximos chunks, adicionar ao conteúdo
-                            const newContent = currentState.currentAssistantMessage + message.content;
-                            console.log('Updating message content. New length:', newContent.length);
-
-                            updateMessage(actualChatId, currentState.currentAssistantMessageId, {
-                                id: currentState.currentAssistantMessageId,
-                                chatId: actualChatId,
-                                role: 'assistant',
-                                content: newContent,
-                                contentType: 'text',
-                                createdAt: new Date().toISOString(),
-                                isStreaming: true
-                            });
+                            // Para os próximos chunks, anexar ao conteúdo
+                            console.log('Appending to existing message:', message.content);
+                            appendMessage(message.content);
 
                             setStreamingState(prev => ({
                                 ...prev,
-                                currentAssistantMessage: newContent
+                                currentAssistantMessage: prev.currentAssistantMessage + message.content
                             }));
                         }
                         console.log('StreamText processed successfully');
@@ -300,18 +277,8 @@ export const useNewChatStreaming = () => {
                     console.log('Processing MessageType.Completed');
                     const currentState = streamingStateRef.current;
 
-                    // Finalizar a mensagem do assistente
-                    if (actualChatId && currentState.currentAssistantMessageId) {
-                        updateMessage(actualChatId, currentState.currentAssistantMessageId, {
-                            id: currentState.currentAssistantMessageId,
-                            chatId: actualChatId,
-                            role: 'assistant',
-                            content: currentState.currentAssistantMessage,
-                            contentType: 'text',
-                            createdAt: new Date().toISOString(),
-                            isStreaming: false
-                        });
-                    }
+                    // A mensagem já está finalizada via appendMessage, apenas marcar como não-streaming
+                    // não precisamos mais fazer updateMessage pois o conteúdo já está completo
 
                     // Sinaliza final da iteração
                     if (isNew && actualChatId && currentState.currentChatTitle) {
@@ -341,7 +308,7 @@ export const useNewChatStreaming = () => {
                     break;
             }
         }
-    }, [token, addMessage, updateMessage, selectChat, addChatToMemory, updateChatTitle, streamingState]);
+    }, [token, addMessage, appendMessage, selectChat, addChatToMemory, updateChatTitle, streamingState]);
 
     const pauseStream = useCallback(() => {
         setStreamingState(prev => ({ ...prev, isPaused: true }));

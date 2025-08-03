@@ -1,5 +1,5 @@
 export { Header, type HeaderProps } from './header/Header';
-export { MemorySidebar } from '../pages/private/dashboard/MemorySidebar';
+export { MemorySidebar } from '../pages/private/dashboard/leftside/LeftSidebar';
 export { ChatArea } from '../pages/private/dashboard/ChatArea';
 export { ChatWindow } from '../pages/private/dashboard/ChatWindow';
 export { ChatMessage } from '../pages/private/dashboard/ChatMessage';

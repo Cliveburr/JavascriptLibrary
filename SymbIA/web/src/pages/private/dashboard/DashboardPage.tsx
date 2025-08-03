@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLLMStore } from '../../../stores';
 import { useError } from '../../../hooks';
-import { MemorySidebar } from './MemorySidebar';
+import { MemorySidebar } from './leftside/LeftSidebar';
 import { ChatArea } from './ChatArea';
 import './DashboardPage.scss';
 

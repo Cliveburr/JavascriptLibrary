@@ -1,17 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { useChatStore } from '../../../stores/chat.store';
+import { useMessageStore } from '../../../stores/message.store';
 import type { FrontendMessage } from '../../../types/frontend';
-import type { StreamingMessage } from '../../../types/streaming';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
     chatId: string | null;
-    messages: (FrontendMessage | StreamingMessage)[];
+    messages: FrontendMessage[];
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
-    const { isLoading, isLoadingMessages } = useChatStore();
+    const { isLoading } = useChatStore();
+    const { isLoading: isLoadingMessages } = useMessageStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +43,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
                     </div>
                 )}
 
-                {messages.map((message: FrontendMessage | StreamingMessage) => (
+                {messages.map((message: FrontendMessage) => (
                     <ChatMessage
                         key={message.id}
                         message={message}
