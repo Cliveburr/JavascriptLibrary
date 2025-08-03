@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './layouts';
-import { Header } from './components';
+import { Header, NotificationContainer } from './components';
 import { HomePage, LoginPage, RegisterPage, DashboardPage } from './pages';
 import { useTheme } from './hooks';
 import { useAuthStore } from './stores';
@@ -69,6 +69,9 @@ function App() {
             element={<Navigate to="/" replace />}
           />
         </Routes>
+
+        {/* Container de notificações - sempre presente */}
+        <NotificationContainer />
       </Router>
     </div>
   );

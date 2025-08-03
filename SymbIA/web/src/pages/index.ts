@@ -1,4 +1,4 @@
-export { HomePage } from './HomePage';
-export { LoginPage } from './LoginPage';
-export { RegisterPage } from './RegisterPage';
-export { DashboardPage } from './DashboardPage';
+export { HomePage } from './public/HomePage';
+export { LoginPage } from './public/LoginPage';
+export { RegisterPage } from './public/RegisterPage';
+export { DashboardPage } from './private/dashboard/DashboardPage';

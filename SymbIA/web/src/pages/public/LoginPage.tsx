@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../stores';
+import { useAuthStore } from '../../stores';
 import './LoginPage.scss';
 
 export const LoginPage: React.FC = () => {

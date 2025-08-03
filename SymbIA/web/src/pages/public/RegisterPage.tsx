@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../stores';
+import { useAuthStore } from '../../stores';
 import './RegisterPage.scss';
 
 interface ApiError {

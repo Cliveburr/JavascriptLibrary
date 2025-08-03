@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { useMemoryStore, useChatStore } from '../stores';
+import { useMemoryStore, useChatStore } from '../../../stores';
 import { ChatWindow } from './ChatWindow';
 import { ChatInput, type ChatInputRef } from './ChatInput';
 import { LLMSelector } from './LLMSelector';
-import { useNewChatStreaming } from '../hooks/useNewChatStreaming';
+import { useNewChatStreaming } from '../../../hooks/useNewChatStreaming';
 import './ChatArea.scss';
-import { useLLMStore } from '../stores/llm.store';
+import { useLLMStore } from '../../../stores/llm.store';
 
 export const ChatArea: React.FC = () => {
     const { currentMemoryId, memories } = useMemoryStore();

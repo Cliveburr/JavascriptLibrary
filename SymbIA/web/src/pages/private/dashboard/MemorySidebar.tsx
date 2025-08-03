@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useMemoryStore, useChatStore, useAuthStore } from '../stores';
+import { useMemoryStore, useChatStore } from '../../../stores';
+import { useNotification } from '../../../hooks/useNotification';
 import { UserProfileDropdown } from './UserProfileDropdown';
-import { ConfirmModal } from './ConfirmModal';
+import { ConfirmModal } from '../../../components/ui/modal/ConfirmModal';
 import './MemorySidebar.scss';
 
 export const MemorySidebar: React.FC = () => {
@@ -9,23 +10,25 @@ export const MemorySidebar: React.FC = () => {
         memories,
         currentMemoryId,
         isLoading: isLoadingMemories,
-        error: memoriesError,
         fetchMemories,
         createMemory,
         deleteMemory,
         setCurrentMemory,
+        setLastSelectedMemory,
     } = useMemoryStore();
 
     const {
         chatsByMemory,
         selectedChatId,
+        lastSelectedChatId,
         isLoadingChats,
         loadChatsByMemory,
         deleteChat,
         selectChat,
+        setLastSelectedChat,
     } = useChatStore();
 
-    const { setLastSelected } = useAuthStore();
+    const { success, error, warning } = useNotification();
 
     const [showCreateMemoryForm, setShowCreateMemoryForm] = useState(false);
     const [newMemoryName, setNewMemoryName] = useState('');
@@ -47,12 +50,24 @@ export const MemorySidebar: React.FC = () => {
         }
     }, [currentMemoryId, chatsByMemory, loadChatsByMemory]);
 
+    // Restaurar último chat selecionado quando os chats estão carregados
+    useEffect(() => {
+        if (currentMemoryId && chatsByMemory[currentMemoryId] && lastSelectedChatId && !selectedChatId) {
+            const chats = chatsByMemory[currentMemoryId];
+            const chatExists = chats.some(chat => chat.id === lastSelectedChatId);
+            if (chatExists) {
+                selectChat(lastSelectedChatId);
+            }
+        }
+    }, [currentMemoryId, chatsByMemory, lastSelectedChatId, selectedChatId, selectChat]);
+
     // Salvar última seleção quando muda
     useEffect(() => {
         if (currentMemoryId) {
-            setLastSelected(currentMemoryId, selectedChatId || undefined);
+            setLastSelectedMemory(currentMemoryId);
+            setLastSelectedChat(selectedChatId || null);
         }
-    }, [currentMemoryId, selectedChatId, setLastSelected]);
+    }, [currentMemoryId, selectedChatId, setLastSelectedMemory, setLastSelectedChat]);
 
     // Scroll para o topo quando um novo chat é criado
     useEffect(() => {
@@ -78,17 +93,26 @@ export const MemorySidebar: React.FC = () => {
             await createMemory(newMemoryName.trim());
             setNewMemoryName('');
             setShowCreateMemoryForm(false);
-        } catch {
-            // Error is handled in the store
+            success('Memória criada com sucesso!');
+        } catch (err) {
+            error('Erro ao criar memória. Tente novamente.');
         }
     };
 
     const handleDeleteMemory = async (id: string) => {
-        if (memories.length <= 1) return;
+        if (memories.length <= 1) {
+            warning('Não é possível deletar a última memória');
+            return;
+        }
 
         const confirmed = window.confirm('Tem certeza que deseja deletar esta memória?');
         if (confirmed) {
-            await deleteMemory(id);
+            try {
+                await deleteMemory(id);
+                success('Memória deletada com sucesso');
+            } catch (err) {
+                error('Erro ao deletar memória. Tente novamente.');
+            }
         }
     };
 
@@ -102,6 +126,7 @@ export const MemorySidebar: React.FC = () => {
 
         try {
             await deleteChat(chatToDelete.id);
+            success('Chat deletado com sucesso');
 
             // Forçar re-render da lista de chats
             setChatListKey(prev => prev + 1);
@@ -110,8 +135,9 @@ export const MemorySidebar: React.FC = () => {
             if (currentMemoryId) {
                 await loadChatsByMemory(currentMemoryId);
             }
-        } catch (error) {
-            console.error('Erro ao deletar chat:', error);
+        } catch (err) {
+            error('Erro ao deletar chat. Tente novamente.');
+            console.error('Erro ao deletar chat:', err);
         } finally {
             setShowDeleteChatModal(false);
             setChatToDelete(null);
@@ -128,6 +154,7 @@ export const MemorySidebar: React.FC = () => {
         if (!memoryChats || memoryChats.length === 0) {
             loadChatsByMemory(memoryId);
         }
+        selectChat(null);
     };
 
     const currentMemoryChats = currentMemoryId
@@ -195,12 +222,6 @@ export const MemorySidebar: React.FC = () => {
                             </button>
                         </div>
                     </form>
-                )}
-
-                {memoriesError && (
-                    <div className="error-message">
-                        {memoriesError}
-                    </div>
                 )}
 
                 <div className="memories-list">

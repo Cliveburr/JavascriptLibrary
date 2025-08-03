@@ -32,26 +32,6 @@
 			]
 		},
 		{
-			"label": "Build API (Dev)",
-			"type": "shell",
-			"command": "pnpm --filter @symbia/api build:dev",
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": [
-				"$tsc-watch"
-			]
-		},
-		{
-			"label": "Build Web (Dev)",
-			"type": "shell",
-			"command": "pnpm --filter @symbia/web build:dev",
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": [
-				"$tsc-watch"
-			]
-		},
-		{
 			"label": "Launch API (Dev)",
 			"type": "shell",
 			"command": "pnpm --filter @symbia/api dev",

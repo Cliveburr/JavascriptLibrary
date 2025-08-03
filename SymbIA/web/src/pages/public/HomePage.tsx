@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card } from '../components/ui';
+import { Button, Card } from '../../components/ui';
 import './HomePage.scss';
 
 export const HomePage: React.FC = () => {

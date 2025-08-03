@@ -1,4 +1,6 @@
-@use '../styles/variables' as *;
+@use '../../styles/_variables' as *;
+
+/* Test CSS hot reload working! */
 
 .home-page {
     min-height: 100vh;

@@ -1,6 +1,6 @@
 import React from 'react';
-import type { FrontendMessage } from '../types/frontend';
-import type { StreamingMessage } from '../types/streaming';
+import type { FrontendMessage } from '../../../types/frontend';
+import type { StreamingMessage } from '../../../types/streaming';
 import './ChatMessage.scss';
 
 interface ChatMessageProps {

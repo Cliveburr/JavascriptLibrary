@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
-import { useChatStore } from '../stores/chat.store';
-import { useNewChatStreaming } from '../hooks/useNewChatStreaming';
-import type { FrontendMessage } from '../types/frontend';
-import type { StreamingMessage } from '../types/streaming';
+import { useChatStore } from '../../../stores/chat.store';
+import type { FrontendMessage } from '../../../types/frontend';
+import type { StreamingMessage } from '../../../types/streaming';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
@@ -13,7 +12,6 @@ interface ChatWindowProps {
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
     const { isLoading, isLoadingMessages } = useChatStore();
-    const { isStreaming } = useNewChatStreaming();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from './ui';
-import { useAuthStore } from '../stores';
+import { Button } from '../ui';
+import { useAuthStore } from '../../stores';
 import './Header.scss';
 
 export interface HeaderProps {

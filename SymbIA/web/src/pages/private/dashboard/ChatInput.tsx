@@ -1,7 +1,7 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import type { KeyboardEvent } from 'react';
-import { useChatStore } from '../stores/chat.store';
-import { useNewChatStreaming } from '../hooks/useNewChatStreaming';
+import { useChatStore } from '../../../stores/chat.store';
+import { useNewChatStreaming } from '../../../hooks/useNewChatStreaming';
 import './ChatInput.scss';
 
 interface ChatInputProps {
