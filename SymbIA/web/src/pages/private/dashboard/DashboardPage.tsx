@@ -1,24 +1,20 @@
 import React, { useEffect } from 'react';
-import { useMemoryStore, useLLMStore } from '../../../stores';
+import { useLLMStore } from '../../../stores';
+import { useError } from '../../../hooks';
 import { MemorySidebar } from './MemorySidebar';
 import { ChatArea } from './ChatArea';
 import './DashboardPage.scss';
 
 export const DashboardPage: React.FC = () => {
-    const { setCurrentMemory, lastSelectedMemoryId } = useMemoryStore();
     const { loadSets } = useLLMStore();
+    const { handleError } = useError();
 
     // Carregar dados iniciais (apenas LLM sets, memórias são carregadas pelo MemorySidebar)
     useEffect(() => {
-        loadSets();
-    }, [loadSets]);
-
-    // Restaurar última seleção quando os dados estiverem carregados
-    useEffect(() => {
-        if (lastSelectedMemoryId) {
-            setCurrentMemory(lastSelectedMemoryId);
-        }
-    }, [lastSelectedMemoryId, setCurrentMemory]);
+        loadSets().catch((err) => {
+            handleError(err, 'Carregando configurações LLM');
+        });
+    }, [loadSets, handleError]);
 
     return (
         <div className="dashboard-page">

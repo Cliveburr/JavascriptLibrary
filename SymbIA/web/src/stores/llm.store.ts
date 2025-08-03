@@ -1,13 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { LlmSetConfig, LlmSetListResponse } from '../types/llm';
-import { useApi } from '../hooks/useApi';
+import { apiService } from '../utils/apiService';
 
 interface LLMState {
     availableSets: LlmSetConfig[];
     selectedSetId: string | null;
     isLoading: boolean;
-    error: string | null;
     loadSets: () => Promise<void>;
     setSelectedSet: (setId: string) => void;
 }
@@ -15,20 +14,16 @@ interface LLMState {
 export const useLLMStore = create<LLMState>()(
     persist(
         (set, get) => {
-            const api = useApi();
-
             return {
                 availableSets: [],
                 selectedSetId: null,
                 isLoading: false,
-                error: null,
 
                 loadSets: async () => {
+                    set({ isLoading: true });
                     try {
-                        set({ isLoading: true, error: null });
-
                         // Call the real API endpoint
-                        const response: LlmSetListResponse = await api.llm.fetchSets();
+                        const response: LlmSetListResponse = await apiService.llm.fetchSets();
 
                         set({
                             availableSets: response.sets,
@@ -42,10 +37,8 @@ export const useLLMStore = create<LLMState>()(
                         }
 
                     } catch (error) {
-                        set({
-                            error: error instanceof Error ? error.message : 'Failed to load LLM sets',
-                            isLoading: false
-                        });
+                        set({ isLoading: false });
+                        throw error;
                     }
                 },
 

@@ -1,38 +1,31 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { MemoryDTO } from '../types/frontend';
-import { useApi } from '../hooks/useApi';
+import { apiService } from '../utils/apiService';
 
 interface MemoryState {
     memories: MemoryDTO[];
     currentMemoryId: string | null;
-    lastSelectedMemoryId: string | null;
     isLoading: boolean;
-    error: string | null;
     fetchMemories: () => Promise<void>;
     createMemory: (name: string) => Promise<void>;
     deleteMemory: (id: string) => Promise<void>;
     setCurrentMemory: (id: string) => void;
-    setLastSelectedMemory: (memoryId: string) => void;
 }
 
 export const useMemoryStore = create<MemoryState>()(
     persist(
         (set, get) => {
-            const api = useApi();
-
             return {
                 memories: [],
                 currentMemoryId: null,
-                lastSelectedMemoryId: null,
                 isLoading: false,
-                error: null,
 
                 fetchMemories: async () => {
                     try {
-                        set({ isLoading: true, error: null });
-                        const memories = await api.memory.fetch();
-                        set({ memories, isLoading: false });
+                        set({ isLoading: true });
+                        const memories = await apiService.memory.fetchAll();
+                        set({ memories });
 
                         // Set current memory if none is selected
                         const { currentMemoryId } = get();
@@ -40,18 +33,16 @@ export const useMemoryStore = create<MemoryState>()(
                             set({ currentMemoryId: memories[0]?.id });
                         }
                     } catch (error) {
-                        console.error('Erro ao buscar memórias:', error);
-                        set({
-                            error: error instanceof Error ? error.message : 'Failed to fetch memories',
-                            isLoading: false
-                        });
+                        console.error(error);
+                        set({ isLoading: false });
+                        throw error;
                     }
                 },
 
                 createMemory: async (name: string) => {
                     try {
-                        set({ isLoading: true, error: null });
-                        const newMemory = await api.memory.create({ name });
+                        set({ isLoading: true });
+                        const newMemory = await apiService.memory.create({ name });
 
                         const { memories } = get();
                         set({
@@ -59,10 +50,8 @@ export const useMemoryStore = create<MemoryState>()(
                             isLoading: false
                         });
                     } catch (error) {
-                        set({
-                            error: error instanceof Error ? error.message : 'Failed to create memory',
-                            isLoading: false
-                        });
+                        set({ isLoading: false });
+                        throw error;
                     }
                 },
 
@@ -75,8 +64,8 @@ export const useMemoryStore = create<MemoryState>()(
                             throw new Error('Cannot delete the last memory');
                         }
 
-                        set({ isLoading: true, error: null });
-                        await api.memory.delete(id);
+                        set({ isLoading: true });
+                        await apiService.memory.delete(id);
 
                         const updatedMemories = memories.filter(m => m.id !== id);
                         const newCurrentMemoryId = currentMemoryId === id
@@ -89,28 +78,20 @@ export const useMemoryStore = create<MemoryState>()(
                             isLoading: false
                         });
                     } catch (error) {
-                        set({
-                            error: error instanceof Error ? error.message : 'Failed to delete memory',
-                            isLoading: false
-                        });
+                        set({ isLoading: false });
+                        throw error;
                     }
                 },
 
                 setCurrentMemory: (id: string) => {
                     set({ currentMemoryId: id });
                 },
-
-                setLastSelectedMemory: (memoryId: string) => {
-                    set({
-                        lastSelectedMemoryId: memoryId,
-                    });
-                },
             };
         },
         {
             name: 'memory-storage',
             partialize: (state) => ({
-                lastSelectedMemoryId: state.lastSelectedMemoryId,
+                currentMemoryId: state.currentMemoryId,
             }),
         }
     )

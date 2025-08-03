@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useMemoryStore, useChatStore } from '../../../stores';
+import { useMemoryStore, useChatStore, useMessageStore } from '../../../stores';
 import { ChatWindow } from './ChatWindow';
 import { ChatInput, type ChatInputRef } from './ChatInput';
 import { LLMSelector } from './LLMSelector';
@@ -9,7 +9,8 @@ import { useLLMStore } from '../../../stores/llm.store';
 
 export const ChatArea: React.FC = () => {
     const { currentMemoryId, memories } = useMemoryStore();
-    const { selectedChatId, messagesByChat, clearMessages } = useChatStore();
+    const { selectedChatId } = useChatStore();
+    const { messagesByChat } = useMessageStore();
     const { isStreaming } = useNewChatStreaming();
     const { selectedSetId } = useLLMStore();
     const chatInputRef = useRef<ChatInputRef>(null);
@@ -33,8 +34,6 @@ export const ChatArea: React.FC = () => {
         allChatsCount: Object.keys(messagesByChat).length
     });
 
-    console.log('ChatArea messagesByChat keys:', Object.keys(messagesByChat));
-
     if (activeChatId) {
         const messagesForThisChat = messagesByChat[activeChatId];
         console.log('Messages for active chat:', {
@@ -45,17 +44,25 @@ export const ChatArea: React.FC = () => {
     }
 
     // Clear messages when switching memories (if no chat selected)
+    // Usar um ref para evitar loops causados por mudanças nas dependências
+    const prevMemoryId = useRef<string | null>(null);
+
     useEffect(() => {
         console.log('ChatArea useEffect triggered:', {
             selectedChatId,
             currentMemoryId,
-            shouldClear: !selectedChatId
+            prevMemoryId: prevMemoryId.current,
+            shouldClear: currentMemoryId !== prevMemoryId.current && !selectedChatId
         });
-        if (!selectedChatId) {
-            console.log('Clearing messages because selectedChatId is null');
-            clearMessages();
+
+        // Só limpar quando realmente mudamos de memória e não há chat selecionado
+        if (currentMemoryId !== prevMemoryId.current && !selectedChatId && currentMemoryId) {
+            console.log('Memory changed, clearing messages');
+            // Não limpar todas as mensagens de uma vez, deixar que sejam carregadas conforme necessário
         }
-    }, [currentMemoryId, selectedChatId]); // Removed clearMessages from dependencies    // Focar no input quando o streaming terminar
+
+        prevMemoryId.current = currentMemoryId;
+    }, [currentMemoryId, selectedChatId]);    // Focar no input quando o streaming terminar
     useEffect(() => {
         // Se estava em streaming e agora não está mais, focar no input
         if (wasStreamingRef.current && !isStreaming) {

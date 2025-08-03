@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { useChatStore } from '../stores/chat.store';
+import { useMessageStore } from '../stores/message.store';
 import { useAuthStore } from '../stores/auth.store';
 import { MessageType } from '../types/frontend';
 import { createApiUrl } from '../config/api';
@@ -20,7 +21,8 @@ interface StreamingState {
 
 export const useNewChatStreaming = () => {
     const { token } = useAuthStore();
-    const { addMessage, updateMessage, selectChat, addChatToMemory, updateChatTitle } = useChatStore();
+    const { selectChat, addChatToMemory, updateChatTitle } = useChatStore();
+    const { addMessage, updateMessage } = useMessageStore();
 
     const [streamingState, setStreamingState] = useState<StreamingState>({
         isStreaming: false,

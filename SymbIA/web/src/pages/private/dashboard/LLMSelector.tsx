@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLLMStore } from '../../../stores';
+import { useError } from '../../../hooks';
 import type { LlmSetIcon } from '../../../types/llm';
 import './LLMSelector.scss';
 
 export const LLMSelector: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const { handleError } = useError();
     const {
         availableSets,
         selectedSetId,
         isLoading,
-        error,
         loadSets,
         setSelectedSet
     } = useLLMStore();
@@ -18,9 +19,11 @@ export const LLMSelector: React.FC = () => {
     // Load sets on initialization
     useEffect(() => {
         if (availableSets.length === 0) {
-            loadSets();
+            loadSets().catch((err) => {
+                handleError(err, 'Carregando configurações LLM');
+            });
         }
-    }, [availableSets.length, loadSets]);
+    }, [availableSets.length, loadSets, handleError]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -79,14 +82,6 @@ export const LLMSelector: React.FC = () => {
                 );
         }
     };
-
-    if (error) {
-        return (
-            <div className="llm-selector error">
-                <span>Erro ao carregar conjuntos LLM</span>
-            </div>
-        );
-    }
 
     return (
         <div className="llm-selector" ref={dropdownRef}>

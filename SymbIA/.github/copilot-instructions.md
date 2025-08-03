@@ -6,3 +6,5 @@
 ** Nunca considerar fallback, somete se for explicitamente solicitado
 
 ** Corrija todos os erros de build e runtime antes de finalizar uma iteração
+
+** Use a task "Launch Web (Dev)" para pegar os erros do Web
