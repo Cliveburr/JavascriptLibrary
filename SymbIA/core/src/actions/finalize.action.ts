@@ -4,7 +4,7 @@ import type { LlmGateway } from '../llm/LlmGateway';
 
 export class FinalizeAction implements ActionHandler {
     readonly name = "Finalize";
-    readonly whenToUse = "Após analisar todo histórico de mensagens, decidir que nenhuma das outras ações disponíveis é valida";
+    readonly whenToUse = "After reviewing the entire conversation history, determine that none of the other available actions are applicable and there is no further useful action to take.";
     readonly enabled = true;
 
     async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {
@@ -33,6 +33,8 @@ export class FinalizeAction implements ActionHandler {
                 maxTokens: 200
             });
         await ctx.sendCompleteStreamTextMessage(message, response.content);
+
+        ctx.finalizeIteration = true;
     }
 }
 

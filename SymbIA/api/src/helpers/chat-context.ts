@@ -29,6 +29,7 @@ export class ChatContext implements IChatContext {
     isNewChat: boolean = false;
     llmSetConfig!: LlmSetConfig;
     messages!: Message[];
+    finalizeIteration: boolean = false;
 
     constructor(
         private chatService: ChatService,

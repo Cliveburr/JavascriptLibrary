@@ -5,6 +5,7 @@ export interface IChatContext {
     content: string;
     messages: Message[];
     llmSetConfig: LlmSetConfig;
+    finalizeIteration: boolean;
     sendThinking: () => Promise<void>;
     sendError: (code: number, message: string, error?: unknown) => void;
     sendStreamTitleMessage: (content: string) => Promise<void>;

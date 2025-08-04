@@ -19,16 +19,19 @@ export class DecisionService {
 
         // Build the decision prompt
         const messages = this.buildDecisionPrompt(ctx.messages, actions);
+        //messages.forEach(m => console.log(`${m.role}: ${m.content}`));
 
         // Call LLM to get decision using the LLM set configuration
         const response = await this.llmGateway.invoke(
             ctx.llmSetConfig.models.reasoningHeavy,
             messages,
             {
-                temperature: 0.1, // Low temperature for consistent decisions
+                temperature: 0.2, // Low temperature for consistent decisions
                 maxTokens: 50, // Short response expected
             }
         );
+        //console.log(response.content);
+        //TODO: ir diminuindo a temperatura progressivamente e a precisão
 
         // Extract action name from response
         const actionName = this.extractActionName(response.content, actions);
@@ -45,21 +48,21 @@ export class DecisionService {
                 return { role: msg.role, content: msg.content };
             });
 
-        const systemPrompt = `You are an AI assistant that must decide which action to take next to anwser what user wants. Based on the conversation history and the user's current message, respond with ONLY the exact name of one action from the available actions list.
+        const systemPrompt = `You are an AI assistant that must decide which action to take next to answer what the user wants. 
+Based on the conversation history and the user's current message, respond with ONLY the exact name of one action from the available actions list.
 
 Available Actions (respond with EXACT name only):
-${actions.map(a => `- ${a.name}, when to use: ${a.whenToUse}`).join('\n')}
+
+${actions.map(a => `- ${a.name}\n  When to use: ${a.whenToUse}`).join('\n')}
 
 Instructions:
 - Respond with ONLY the action name, nothing else
-- Choose the most appropriate action based on the context
-- Always need to respond to some action, if no further action is required, respond "Finalize"
-
-Action:`;
+- Always select the action that will best allow you to fulfill the user's request
+- If no further action is possible or needed, choose "Finalize"`;
 
         return [
-            ...history,
             { role: 'system', content: systemPrompt },
+            ...history,
         ];
     }
 

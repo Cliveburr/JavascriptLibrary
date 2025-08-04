@@ -1,58 +1,44 @@
-// import type { ActionHandler, IChatContext } from '@symbia/interfaces';
+import type { IChatContext } from '../types/chat-types.js';
+import type { ActionHandler } from './act-defs';
+import type { LlmGateway } from '../llm/LlmGateway';
 
-// export class QuestionAction implements ActionHandler {
-//     readonly name = "Question";
-//     readonly enabled = true;
+export class QuestionAction implements ActionHandler {
+    readonly name = "Question";
+    readonly whenToUse = `If the user's request requires information that is not currently available in memory, tools, or prior context — including cases where:
+    • You have never obtained this information before, or  
+    • You attempted to retrieve it from memory or tools but failed.  
+  In these cases, the best choice is to explicitly ask the user for the missing information.`;
+    readonly enabled = true;
 
-//     async execute(ctx: IChatContext): Promise<void> {
-//         try {
-//             // Get the LLM set to use for this request
-//             const llmSetId = ctx.llmSetId;
-//             if (!llmSetId) {
-//                 throw new Error('LLM set ID is required');
-//             }
+    async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {
+        console.log("Running question action...");
 
-//             const llmSetService = ctx.llm.llmSetService; // Access LlmSetService through gateway
-//             const llmSet = await llmSetService.getLlmSetById(llmSetId);
+        const hystory = ctx.messages
+            .map(msg => {
+                return { role: msg.role, content: msg.content };
+            });
 
-//             if (!llmSet) {
-//                 throw new Error(`LLM set not found: ${llmSetId}`);
-//             }
+        const messages = [
+            {
+                role: 'system',
+                content: 'You are a helpful AI assistant. Based on the conversation context, ask a clarifying question to get more information from the user. Keep your question concise and specific.'
+            },
+            ...hystory
+        ];
 
-//             // Build messages for LLM context to generate a question
-//             const messages = [
-//                 {
-//                     role: 'system',
-//                     content: 'You are a helpful AI assistant. Based on the conversation context, ask a clarifying question to get more information from the user. Keep your question concise and specific.'
-//                 },
-//                 {
-//                     role: 'user',
-//                     content: `Based on the conversation, what question should I ask the user to get the information I need to help them better?`
-//                 }
-//             ];
+        const message = await ctx.sendPrepareStreamTextMessage('assistant', 'text');
+        const response = await llmGateway.invokeAsync(ctx.llmSetConfig.models.fastChat,
+            messages,
+            ctx.sendStreamTextMessage.bind(ctx),
+            {
+                temperature: 0.7,
+                maxTokens: 200
+            });
+        await ctx.sendCompleteStreamTextMessage(message, response.content);
 
-//             const response = await ctx.llm.invoke(llmSet, 'chat', messages, {
-//                 temperature: 0.7,
-//                 maxTokens: 150
-//             });
+        ctx.finalizeIteration = true;
+    }
+}
 
-//             // Send the question message (this will be part of chat history)
-//             ctx.sendMessage({
-//                 modal: 1, // MessageProgressModal.Text
-//                 data: {
-//                     "chat-history": true,
-//                     "modal": "text",
-//                     "role": "assistant",
-//                     "content": response.content || "Could you provide more details about what you're looking for?"
-//                 }
-//             });
-
-//         } catch (error) {
-//             console.error('Error in QuestionAction:', error);
-//             throw new Error(`Failed to execute Question action: ${error instanceof Error ? error.message : 'Unknown error'}`);
-//         }
-//     }
-// }
-
-// // Export instance for registry
-// export const questionAction = new QuestionAction();
+// Export instance for registry
+export const questionAction = new QuestionAction();

@@ -17,7 +17,7 @@ export class ThoughtCycleService {
 
             const actionName = await this.decisionService.decideNextAction(ctx);
             await this.actionService.executeAction(actionName, ctx);
-            if (actionName === 'Finalize') {
+            if (ctx.finalizeIteration) {
                 break;
             }
 
