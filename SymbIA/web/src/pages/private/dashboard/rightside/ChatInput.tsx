@@ -1,28 +1,26 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import type { KeyboardEvent } from 'react';
-import { useChatStore } from '../../../stores/chat.store';
-import { useNewChatStreaming } from '../../../hooks/useNewChatStreaming';
+import { useChatStore } from '../../../../stores/chat.store';
+import { useChatStreaming } from '../../../../hooks/useChatStreaming';
 import './ChatInput.scss';
+import { useNotification } from '../../../../hooks/useNotification';
 
 interface ChatInputProps {
-    chatId: string | null;
-    memoryId: string;
     horizontal?: boolean;
-    llmSetId?: string;
 }
 
 interface ChatInputRef {
     focus: () => void;
 }
 
-export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, memoryId, horizontal, llmSetId }, ref) => {
+export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ horizontal }, ref) => {
     const [message, setMessage] = useState('');
-    const { isLoading } = useChatStore();
-    const { isStreaming, sendMessage: sendStreamingMessage, pauseStream } = useNewChatStreaming();
+    const { isLoading, selectedChatId } = useChatStore();
+    const { isStreaming, sendMessage, pauseStream } = useChatStreaming();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const { error } = useNotification();
 
-    // Detectar se é novo chat
-    const isNewChat = chatId == null;
+    const isNewChat = selectedChatId!!;
 
     // Expor função de foco para o componente pai
     useImperativeHandle(ref, () => ({
@@ -38,27 +36,21 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ chatId, mem
         const messageToSend = message.trim();
 
         try {
-            if (!llmSetId) {
-                throw new Error('LLM Set ID is required for sending messages');
-            }
-
-            // Limpar a mensagem só depois de iniciar o streaming
+            await sendMessage(messageToSend);
             setMessage('');
-
-            // Usar o novo sistema de streaming para todos os casos
-            await sendStreamingMessage(memoryId, chatId, messageToSend, llmSetId);
-        } catch (error) {
-            console.error('Failed to send message:', error);
+            if (textareaRef.current) {
+                textareaRef.current.focus();
+            }
+        } catch (err) {
+            error('Failed to send message! ' + error.toString());
             setMessage(messageToSend);
         }
     };
 
     const handleButtonClick = async () => {
         if (isStreaming) {
-            // Se está streaming, pausar
             pauseStream();
         } else {
-            // Se não está streaming, enviar mensagem
             await handleSubmit();
         }
     };

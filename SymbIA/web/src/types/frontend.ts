@@ -1,63 +1,8 @@
-// Frontend-specific types (without MongoDB dependencies)
-
-// Message Types Enum (copy from interfaces to avoid MongoDB dependencies)
-export enum MessageType {
-    InitStream = 0,
-    InitNewStream = 1,
-    Completed = 2,
-    StreamTitle = 3,
-    Thinking = 4,
-    StreamText = 5
-}
-
-// Message Format Types (copy from interfaces to avoid MongoDB dependencies)
-export interface ChatInitStreamMessage {
-    type: MessageType.InitStream;
-    content: string;
-}
-
-export interface ChatInitNewStreamMessage {
-    type: MessageType.InitNewStream;
-    content: string;
-    chatId: string;
-}
-
-export interface ChatCompletedMessage {
-    type: MessageType.Completed;
-}
-
-export interface ChatStreamTitleMessage {
-    type: MessageType.StreamTitle;
-    content: string;
-}
-
-export interface ChatThinkingMessage {
-    type: MessageType.Thinking;
-}
-
-export interface ChatStreamTextMessage {
-    type: MessageType.StreamText;
-    content: string;
-}
-
-export type MessageFormat = ChatInitStreamMessage | ChatInitNewStreamMessage | ChatCompletedMessage | ChatStreamTitleMessage
-    | ChatThinkingMessage | ChatStreamTextMessage;
-
-// Frontend Data Types
-export interface FrontendMessage {
-    id: string;
-    chatId: string;
-    role: 'user' | 'assistant' | 'system';
-    content: string;
-    contentType: 'text' | 'form' | 'chart' | 'file';
-    createdAt: string;
-    isStreaming?: boolean;
-    isError?: boolean;
-}
 
 export interface FrontendChat {
     id: string;
     title: string;
+    orderIndex: number;
 }
 
 export interface FrontendMemory {

@@ -1,4 +1,4 @@
-import type { IChatContext } from '../types/chat-context.js';
+import type { IChatContext } from '../types/chat-types.js';
 import type { ActionHandler } from './act-defs';
 import type { LlmGateway } from '../llm/LlmGateway';
 
@@ -8,6 +8,7 @@ export class FinalizeAction implements ActionHandler {
     readonly enabled = true;
 
     async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {
+        console.log("Running finalize action...");
 
         const hystory = ctx.messages
             .map(msg => {
@@ -23,6 +24,7 @@ export class FinalizeAction implements ActionHandler {
             ...hystory
         ];
 
+        const message = await ctx.sendPrepareStreamTextMessage('assistant', 'text');
         const response = await llmGateway.invokeAsync(ctx.llmSetConfig.models.fastChat,
             messages,
             ctx.sendStreamTextMessage.bind(ctx),
@@ -30,7 +32,7 @@ export class FinalizeAction implements ActionHandler {
                 temperature: 0.7,
                 maxTokens: 200
             });
-        await ctx.saveMessage('assistant', response.content, 'text');
+        await ctx.sendCompleteStreamTextMessage(message, response.content);
     }
 }
 

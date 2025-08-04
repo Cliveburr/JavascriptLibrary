@@ -6,7 +6,7 @@ import { useError } from '../../../../hooks';
 export const MemorySection: React.FC = () => {
     const {
         memories,
-        currentMemoryId,
+        selectedMemoryId,
         isLoading,
         fetchMemories,
         createMemory,
@@ -14,7 +14,7 @@ export const MemorySection: React.FC = () => {
         setCurrentMemory,
     } = useMemoryStore();
 
-    const { prepareNewChat, selectChat } = useChatStore();
+    const { selectChat } = useChatStore();
 
     const { success, error, warning } = useNotification();
     const { handleError } = useError();
@@ -65,9 +65,7 @@ export const MemorySection: React.FC = () => {
 
     const handleMemorySelect = (memoryId: string) => {
         setCurrentMemory(memoryId);
-        // Limpar seleção de chat e preparar para novo chat
         selectChat(null);
-        prepareNewChat();
     };
 
     return (
@@ -122,7 +120,7 @@ export const MemorySection: React.FC = () => {
                     memories.map((memory) => (
                         <div
                             key={memory.id}
-                            className={`memory-item ${currentMemoryId === memory.id ? 'active' : ''}`}
+                            className={`memory-item ${selectedMemoryId === memory.id ? 'active' : ''}`}
                             onClick={() => handleMemorySelect(memory.id)}
                         >
                             <span className="memory-name">{memory.name}</span>

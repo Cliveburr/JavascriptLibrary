@@ -1,4 +1,4 @@
-import type { IChatContext } from '../types/chat-context';
+import type { IChatContext } from '../types/chat-types';
 import type { LlmGateway } from '../llm/LlmGateway';
 
 export interface ActionHandler {

@@ -19,8 +19,6 @@ interface AuthState {
     register: (data: { username: string; email: string; password: string; }) => Promise<void>;
     logout: () => void;
     setAuth: (data: LoginResponse | RegisterResponse) => void;
-    // Função para login automático de desenvolvimento
-    autoLoginDev: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -92,18 +90,7 @@ export const useAuthStore = create<AuthState>()(
                     refreshToken: data.refreshToken,
                     isAuthenticated: true,
                 });
-            },
-
-            autoLoginDev: async () => {
-                try {
-                    await get().login({
-                        email: 'teste@exemplo.com',
-                        password: '123456'
-                    });
-                } catch (error) {
-                    console.error('Auto login failed:', error);
-                }
-            },
+            }
         }),
         {
             name: 'auth-storage',

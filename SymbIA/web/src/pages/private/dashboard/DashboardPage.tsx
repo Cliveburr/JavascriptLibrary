@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useLLMStore } from '../../../stores';
 import { useError } from '../../../hooks';
 import { MemorySidebar } from './leftside/LeftSidebar';
-import { ChatArea } from './ChatArea';
+import { ChatArea } from './rightside/ChatArea';
 import './DashboardPage.scss';
 
 export const DashboardPage: React.FC = () => {

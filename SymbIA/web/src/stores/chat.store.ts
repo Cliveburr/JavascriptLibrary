@@ -4,28 +4,22 @@ import type { FrontendChat } from '../types/frontend';
 import { apiService } from '../utils/apiService';
 
 interface ChatState {
-    // Lista de chats da memory selecionada
     chats: Array<FrontendChat>;
-    // Chat atualmente selecionado (persistido)
     selectedChatId: string | null;
-    // Estados de loading
     isLoading: boolean;
-
-    // Actions para chats
     fetchChats: (memoryId: string) => Promise<void>;
-    prepareNewChat: () => void;
-    initNewChat: (memoryId: string) => FrontendChat;
-    appendChatTitle: (chatId: string, content: string) => void;
+    initNewChat: (chat: FrontendChat) => void;
+    appendChatTitle: (content: string) => void;
     deleteChat: (chatId: string) => Promise<void>;
     selectChat: (chatId: string | null) => void;
-    updateChatOrder: (chatId: string, newOrderIndex: number) => Promise<void>;
+    //updateChatOrder: (chatId: string, newOrderIndex: number) => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>()(
     persist(
         (set, get) => {
             return {
-                chats: [],
+                chats: [] as Array<FrontendChat>,
                 selectedChatId: null,
                 isLoading: false,
 
@@ -43,32 +37,20 @@ export const useChatStore = create<ChatState>()(
                     }
                 },
 
-                prepareNewChat: () => {
-                    set({
-                        selectedChatId: null
-                    });
-                },
-
-                initNewChat: (chatId: string) => {
-                    const newChat: FrontendChat = {
-                        id: chatId,
-                        title: ''
-                    };
-
+                initNewChat: (chat: FrontendChat) => {
                     set(state => {
                         return {
-                            chats: [newChat, ...state.chats],
-                            selectedChatId: newChat.id
+                            chats: ([chat, ...state.chats] as Array<FrontendChat>)
+                                .sort((a, b) => a.orderIndex - b.orderIndex),
+                            selectedChatId: chat.id
                         };
                     });
-
-                    return newChat;
                 },
 
-                appendChatTitle: (chatId: string, content: string) => {
+                appendChatTitle: (content: string) => {
                     set(state => ({
                         chats: state.chats.map(chat =>
-                            chat.id === chatId
+                            chat.id === state.selectedChatId
                                 ? { ...chat, title: chat.title + content }
                                 : chat
                         )
@@ -95,24 +77,24 @@ export const useChatStore = create<ChatState>()(
                     set({ selectedChatId: chatId });
                 },
 
-                updateChatOrder: async (chatId: string, newOrderIndex: number) => {
-                    set({ isLoading: true });
-                    try {
-                        await apiService.chat.updateOrder(chatId, { orderIndex: newOrderIndex });
+                // updateChatOrder: async (chatId: string, newOrderIndex: number) => {
+                //     set({ isLoading: true });
+                //     try {
+                //         await apiService.chat.updateOrder(chatId, { orderIndex: newOrderIndex });
 
-                        // Recarregar os chats para ter a ordem atualizada do servidor
-                        const state = get();
-                        const currentChat = state.chats.find(chat => chat.id === chatId);
-                        if (currentChat) {
-                            await get().fetchChats(currentChat.memoryId);
-                        }
+                //         // Recarregar os chats para ter a ordem atualizada do servidor
+                //         const state = get();
+                //         const currentChat = state.chats.find(chat => chat.id === chatId);
+                //         if (currentChat) {
+                //             await get().fetchChats(currentChat.memoryId);
+                //         }
 
-                        set({ isLoading: false });
-                    } catch (error) {
-                        set({ isLoading: false });
-                        throw error;
-                    }
-                },
+                //         set({ isLoading: false });
+                //     } catch (error) {
+                //         set({ isLoading: false });
+                //         throw error;
+                //     }
+                // },
             };
         },
         {

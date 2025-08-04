@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLLMStore } from '../../../stores';
-import { useError } from '../../../hooks';
-import type { LlmSetIcon } from '../../../types/llm';
+import { useLLMStore } from '../../../../stores';
+import { useError } from '../../../../hooks';
+import type { LlmSetIcon } from '../../../../types/llm';
 import './LLMSelector.scss';
 
 export const LLMSelector: React.FC = () => {

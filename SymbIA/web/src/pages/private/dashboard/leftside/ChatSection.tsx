@@ -5,7 +5,7 @@ import { useError } from '../../../../hooks';
 import { ConfirmModal } from '../../../../components/ui/modal/ConfirmModal';
 
 export const ChatSection: React.FC = () => {
-    const { currentMemoryId } = useMemoryStore();
+    const { selectedMemoryId } = useMemoryStore();
 
     const {
         chats,
@@ -13,8 +13,7 @@ export const ChatSection: React.FC = () => {
         isLoading,
         fetchChats,
         deleteChat,
-        selectChat,
-        prepareNewChat,
+        selectChat
     } = useChatStore();
 
     const { loadMessages } = useMessageStore();
@@ -30,17 +29,17 @@ export const ChatSection: React.FC = () => {
 
     // Carregar chats quando a memória atual muda
     useEffect(() => {
-        if (currentMemoryId) {
-            fetchChats(currentMemoryId);
+        if (selectedMemoryId) {
+            fetchChats(selectedMemoryId);
         }
-    }, [currentMemoryId, fetchChats]);
+    }, [selectedMemoryId, fetchChats]);
 
     // Preparar novo chat quando não há chats na memória selecionada
     useEffect(() => {
-        if (currentMemoryId && chats.length === 0 && !isLoading) {
-            prepareNewChat();
+        if (selectedMemoryId && chats.length === 0 && !isLoading) {
+            selectChat(null);
         }
-    }, [currentMemoryId, chats.length, isLoading, prepareNewChat]);
+    }, [selectedMemoryId, chats.length, isLoading, selectChat]);
 
     // Carregar mensagens quando um chat é selecionado
     useEffect(() => {
@@ -54,7 +53,7 @@ export const ChatSection: React.FC = () => {
 
     // Scroll para o topo quando um novo chat é criado
     useEffect(() => {
-        if (currentMemoryId && chats.length > 0) {
+        if (selectedMemoryId && chats.length > 0) {
             const currentChatCount = chats.length;
 
             // Se o número de chats aumentou, um novo chat foi criado
@@ -65,7 +64,7 @@ export const ChatSection: React.FC = () => {
             // Atualizar o contador anterior
             prevChatCountRef.current = currentChatCount;
         }
-    }, [currentMemoryId, chats]);
+    }, [selectedMemoryId, chats]);
 
     const handleDeleteChat = (chatId: string, chatTitle: string) => {
         setChatToDelete({ id: chatId, title: chatTitle });
@@ -83,8 +82,8 @@ export const ChatSection: React.FC = () => {
             setChatListKey(prev => prev + 1);
 
             // Forçar recarregamento da lista como fallback
-            if (currentMemoryId) {
-                await fetchChats(currentMemoryId);
+            if (selectedMemoryId) {
+                await fetchChats(selectedMemoryId);
             }
         } catch (err) {
             handleError(err, 'Deletando chat');
@@ -100,11 +99,11 @@ export const ChatSection: React.FC = () => {
         setChatToDelete(null);
     };
 
-    const currentMemoryChats = currentMemoryId
+    const currentMemoryChats = selectedMemoryId
         ? chats.sort((a, b) => a.orderIndex - b.orderIndex)
         : [];
 
-    if (!currentMemoryId) {
+    if (!selectedMemoryId) {
         return null;
     }
 
@@ -116,8 +115,7 @@ export const ChatSection: React.FC = () => {
                     <button
                         className="add-button"
                         onClick={() => {
-                            // Chamar prepareNewChat para preparar o estado para novo chat
-                            prepareNewChat();
+                            selectChat(null);
                         }}
                         disabled={isLoading}
                         title="Novo chat"
@@ -128,7 +126,7 @@ export const ChatSection: React.FC = () => {
                     </button>
                 </div>
 
-                <div className="chats-list" key={`chats-${currentMemoryId}-${chatListKey}`} ref={chatListRef}>
+                <div className="chats-list" key={`chats-${selectedMemoryId}-${chatListKey}`} ref={chatListRef}>
                     {isLoading ? (
                         <div className="loading">Carregando chats...</div>
                     ) : currentMemoryChats.length === 0 ? (

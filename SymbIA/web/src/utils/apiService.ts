@@ -1,7 +1,8 @@
 import { useAuthStore } from '../stores/auth.store';
 import { createApiUrl } from '../config/api';
-import type { FrontendMessage, FrontendChat, MemoryDTO } from '../types/frontend';
+import type { FrontendChat, MemoryDTO } from '../types/frontend';
 import type { LlmSetListResponse } from '../types/llm';
+import { FrontendMessage } from '../types/chat-frontend-types';
 
 // Tipos para as requisições da API
 interface CreateMemoryRequest {
@@ -22,13 +23,9 @@ interface UpdateChatOrderRequest {
 }
 
 interface SendMessageRequest {
-    content: string;
+    chatId?: string;
     llmSetId: string;
-}
-
-interface MessageResponse {
-    userMessage: FrontendMessage;
-    assistantMessage: FrontendMessage;
+    content: string;
 }
 
 // Versão não-hook da API para usar nos stores
@@ -56,6 +53,19 @@ export const apiService = {
         }
 
         return response.json();
+    },
+
+    streamCall: async (url: string, options: RequestInit = {}) => {
+        const token = useAuthStore.getState().token;
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+                ...options.headers,
+            },
+        });
+        return response;
     },
 
     // === MEMORY ENDPOINTS ===
@@ -118,8 +128,8 @@ export const apiService = {
             return await apiService.call(createApiUrl(`/chats/${chatId}/messages`));
         },
 
-        send: async (memoryId: string, data: SendMessageRequest): Promise<MessageResponse> => {
-            return await apiService.call(createApiUrl(`/chats/${memoryId}/messages`), {
+        send: async (memoryId: string, data: SendMessageRequest): Promise<Response> => {
+            return await apiService.streamCall(createApiUrl(`/chats/${memoryId}/messages`), {
                 method: 'POST',
                 body: JSON.stringify(data),
             });

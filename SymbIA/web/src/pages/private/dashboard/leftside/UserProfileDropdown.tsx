@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAuthStore } from '../../../stores';
+import { useAuthStore } from '../../../../stores';
 import './UserProfileDropdown.scss';
 
 export const UserProfileDropdown: React.FC = () => {

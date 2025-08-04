@@ -1,18 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { ChatMessage } from './ChatMessage';
-import { useChatStore } from '../../../stores/chat.store';
-import { useMessageStore } from '../../../stores/message.store';
-import type { FrontendMessage } from '../../../types/frontend';
+import { ChatMessage } from '../ChatMessage';
+import { useChatStore } from '../../../../stores/chat.store';
+import { useMessageStore } from '../../../../stores/message.store';
 import './ChatWindow.scss';
+import { FrontendMessage } from '../../../../types/chat-frontend-types';
 
 interface ChatWindowProps {
-    chatId: string | null;
-    messages: FrontendMessage[];
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
     const { isLoading } = useChatStore();
-    const { isLoading: isLoadingMessages } = useMessageStore();
+    const { messages, isLoading: isLoadingMessages } = useMessageStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 

@@ -1,10 +1,9 @@
 import React from 'react';
-import type { FrontendMessage } from '../../../types/frontend';
-import type { StreamingMessage } from '../../../types/streaming';
 import './ChatMessage.scss';
+import { FrontendMessage } from '../../../types/chat-frontend-types';
 
 interface ChatMessageProps {
-    message: FrontendMessage | StreamingMessage;
+    message: FrontendMessage;
 }
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
@@ -22,21 +21,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             <div className="message-content">
                 <div className="message-text">
                     {message.content}
-                    {isStreaming && !isError && (
-                        <span className="streaming-cursor">|</span>
-                    )}
-                </div>
-                <div className="message-time">
-                    {new Date(message.createdAt).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}
-                    {isStreaming && !isError && (
-                        <span className="streaming-indicator">⚡</span>
-                    )}
-                    {isError && (
-                        <span className="error-indicator">❌</span>
-                    )}
                 </div>
             </div>
         </div>

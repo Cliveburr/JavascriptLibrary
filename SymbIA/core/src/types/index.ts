@@ -1,5 +1,4 @@
 // Export all types from core
-export * from './domain.js';
-export * from './llm.js';
-export * from './chat-context.js';
-export * from './messages.js';
+export * from './domain';
+export * from './llm';
+export * from './chat-types';

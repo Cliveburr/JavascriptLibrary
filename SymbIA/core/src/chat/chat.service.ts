@@ -24,7 +24,7 @@ export class ChatService {
             throw 'Invalid memoryId'; // User trying to access other memories
         }
 
-        const orderIndex = memory.totalChatCreated++;
+        const orderIndex = memory.totalChatCreated = (memory.totalChatCreated || 0) + 1;
 
         // Update memory.totalChatCreated in the database
         await memoriesCollection.updateOne(

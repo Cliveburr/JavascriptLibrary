@@ -36,9 +36,9 @@ export interface Message {
     _id: ObjectId;
     chatId: ObjectId;
     role: MessageRole;
+    modal: MessageModal;
     content: string;
     createdAt: Date;
-    modal: MessageModal;
 }
 
 export interface VectorEntry {

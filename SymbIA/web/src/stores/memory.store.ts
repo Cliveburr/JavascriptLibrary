@@ -5,7 +5,7 @@ import { apiService } from '../utils/apiService';
 
 interface MemoryState {
     memories: MemoryDTO[];
-    currentMemoryId: string | null;
+    selectedMemoryId: string;
     isLoading: boolean;
     fetchMemories: () => Promise<void>;
     createMemory: (name: string) => Promise<void>;
@@ -18,22 +18,35 @@ export const useMemoryStore = create<MemoryState>()(
         (set, get) => {
             return {
                 memories: [],
-                currentMemoryId: null,
+                selectedMemoryId: '',
                 isLoading: false,
 
                 fetchMemories: async () => {
                     try {
                         set({ isLoading: true });
                         const memories = await apiService.memory.fetchAll();
-                        set({ memories });
-
-                        // Set current memory if none is selected
-                        const { currentMemoryId } = get();
-                        if (!currentMemoryId && memories.length > 0) {
-                            set({ currentMemoryId: memories[0]?.id });
+                        const { selectedMemoryId } = get();
+                        const existSelectedMemory = memories
+                            .filter(m => m.id == selectedMemoryId)[0];
+                        if (!existSelectedMemory) {
+                            if (memories.length > 0) {
+                                set({
+                                    memories,
+                                    selectedMemoryId: memories[0]?.id,
+                                    isLoading: false
+                                });
+                            }
+                            else {
+                                throw 'Invalid memory state: No Memories!';
+                            }
+                        }
+                        else {
+                            set({
+                                memories,
+                                isLoading: false
+                            });
                         }
                     } catch (error) {
-                        console.error(error);
                         set({ isLoading: false });
                         throw error;
                     }
@@ -57,7 +70,7 @@ export const useMemoryStore = create<MemoryState>()(
 
                 deleteMemory: async (id: string) => {
                     try {
-                        const { memories, currentMemoryId } = get();
+                        const { memories, selectedMemoryId } = get();
 
                         // Don't allow deletion if it's the last memory
                         if (memories.length <= 1) {
@@ -68,13 +81,13 @@ export const useMemoryStore = create<MemoryState>()(
                         await apiService.memory.delete(id);
 
                         const updatedMemories = memories.filter(m => m.id !== id);
-                        const newCurrentMemoryId = currentMemoryId === id
-                            ? (updatedMemories[0]?.id || null)
-                            : currentMemoryId;
+                        const newselectedMemoryId = selectedMemoryId === id
+                            ? (updatedMemories[0].id!)
+                            : selectedMemoryId;
 
                         set({
                             memories: updatedMemories,
-                            currentMemoryId: newCurrentMemoryId,
+                            selectedMemoryId: newselectedMemoryId,
                             isLoading: false
                         });
                     } catch (error) {
@@ -84,14 +97,14 @@ export const useMemoryStore = create<MemoryState>()(
                 },
 
                 setCurrentMemory: (id: string) => {
-                    set({ currentMemoryId: id });
+                    set({ selectedMemoryId: id });
                 },
             };
         },
         {
             name: 'memory-storage',
             partialize: (state) => ({
-                currentMemoryId: state.currentMemoryId,
+                selectedMemoryId: state.selectedMemoryId,
             }),
         }
     )

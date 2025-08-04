@@ -106,11 +106,11 @@ export class ChatController {
                 'Connection': 'keep-alive'
             });
 
-            const paralelTasks: Array<Promise<any>> = [
-                ctx.sendInitMessage()
-            ];
+            await ctx.sendInitMessage();
 
-            paralelTasks.push(this.thoughtCycleService.handle(ctx));
+            const paralelTasks: Array<Promise<any>> = [
+                this.thoughtCycleService.handle(ctx)
+            ];
 
             if (ctx.isNewChat) {
                 paralelTasks.push(this.generateAndUpdateChatTitle(ctx));

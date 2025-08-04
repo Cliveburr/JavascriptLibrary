@@ -1,4 +1,4 @@
-import type { IChatContext } from '../types/chat-context.js';
+import type { IChatContext } from '../types/chat-types.js';
 import { DecisionService } from './decision.service.js';
 import { StallDetectorEngine } from './stall/stall-detector.js';
 import type { ActionService } from '../actions/action.service.js';
@@ -13,15 +13,10 @@ export class ThoughtCycleService {
     async handle(ctx: IChatContext): Promise<void> {
         const stallDetector = new StallDetectorEngine();
         while (true) {
-            ctx.sendThinking();
+            await ctx.sendThinking();
 
-            // Decidir a próxima ação
             const actionName = await this.decisionService.decideNextAction(ctx);
-
-            // Executa a ação
             await this.actionService.executeAction(actionName, ctx);
-
-            // Se a ação foi "Finalize", quebra o loop
             if (actionName === 'Finalize') {
                 break;
             }

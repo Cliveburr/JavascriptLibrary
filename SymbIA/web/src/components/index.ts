@@ -1,11 +1,11 @@
 export { Header, type HeaderProps } from './header/Header';
 export { MemorySidebar } from '../pages/private/dashboard/leftside/LeftSidebar';
-export { ChatArea } from '../pages/private/dashboard/ChatArea';
-export { ChatWindow } from '../pages/private/dashboard/ChatWindow';
+export { ChatArea } from '../pages/private/dashboard/rightside/ChatArea';
+export { ChatWindow } from '../pages/private/dashboard/rightside/ChatWindow';
 export { ChatMessage } from '../pages/private/dashboard/ChatMessage';
-export { ChatInput } from '../pages/private/dashboard/ChatInput';
-export { UserProfileDropdown } from '../pages/private/dashboard/UserProfileDropdown';
-export { LLMSelector } from '../pages/private/dashboard/LLMSelector';
+export { ChatInput } from '../pages/private/dashboard/rightside/ChatInput';
+export { UserProfileDropdown } from '../pages/private/dashboard/leftside/UserProfileDropdown';
+export { LLMSelector } from '../pages/private/dashboard/rightside/LLMSelector';
 export { ConfirmModal } from './ui/modal/ConfirmModal';
 export { NotificationContainer } from './ui/notification/NotificationContainer';
 export { NotificationItem } from './ui/notification/NotificationItem';

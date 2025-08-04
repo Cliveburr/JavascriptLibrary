@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserProfileDropdown } from '../UserProfileDropdown';
+import { UserProfileDropdown } from './UserProfileDropdown';
 
 export const LeftHeader: React.FC = () => {
     return (

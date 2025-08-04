@@ -53,7 +53,7 @@ ${actions.map(a => `- ${a.name}, when to use: ${a.whenToUse}`).join('\n')}
 Instructions:
 - Respond with ONLY the action name, nothing else
 - Choose the most appropriate action based on the context
-- If no specific action is needed, choose "Finalize"
+- Always need to respond to some action, if no further action is required, respond "Finalize"
 
 Action:`;
 
@@ -68,7 +68,8 @@ Action:`;
      */
     private extractActionName(response: string, actions: ActionHandler[]): string {
         if (!response?.trim()) {
-            throw 'Empty response from LLM';
+            console.warn('Empty response from LLM for decision!');
+            return 'Finalize';
         }
 
         const cleanedResponse = response.trim();
