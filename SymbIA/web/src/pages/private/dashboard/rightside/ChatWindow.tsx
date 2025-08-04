@@ -9,8 +9,7 @@ interface ChatWindowProps {
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
-    const { isLoading } = useChatStore();
-    const { messages, isLoading: isLoadingMessages } = useMessageStore();
+    const { messages } = useMessageStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -24,8 +23,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
         }
     }, [messages]);
 
-    const isAnyLoading = isLoading || isLoadingMessages;
-
     return (
         <div className="chat-window">
             <div
@@ -33,13 +30,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
                 ref={scrollContainerRef}
                 data-testid="messages-container"
             >
-                {messages.length === 0 && !isAnyLoading && (
-                    <div className="empty-state">
-                        <div className="empty-icon">💭</div>
-                        <h4>Inicie uma conversa</h4>
-                        <p>Envie uma mensagem para começar a conversar com seu assistente IA.</p>
-                    </div>
-                )}
 
                 {messages.map((message: FrontendMessage) => (
                     <ChatMessage

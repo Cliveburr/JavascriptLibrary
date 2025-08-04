@@ -9,3 +9,4 @@ export { LLMSelector } from '../pages/private/dashboard/rightside/LLMSelector';
 export { ConfirmModal } from './ui/modal/ConfirmModal';
 export { NotificationContainer } from './ui/notification/NotificationContainer';
 export { NotificationItem } from './ui/notification/NotificationItem';
+export { AuthLoadingScreen } from './ui/loading/AuthLoadingScreen';

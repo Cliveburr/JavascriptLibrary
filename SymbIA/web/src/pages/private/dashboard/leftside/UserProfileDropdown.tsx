@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../../../../stores';
 import './UserProfileDropdown.scss';
 
@@ -19,22 +19,22 @@ export const UserProfileDropdown: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         logout();
         setIsOpen(false);
-    };
+    }, [logout]);
 
     if (!user) return null;
 
     // Gerar iniciais do usuário para o avatar
-    const getInitials = (name: string) => {
+    const getInitials = useCallback((name: string) => {
         return name
             .split(' ')
             .map(part => part.charAt(0))
             .join('')
             .toUpperCase()
             .slice(0, 2);
-    };
+    }, []);
 
     const displayName = user.username || user.email.split('@')[0];
     const initials = getInitials(displayName || 'U');

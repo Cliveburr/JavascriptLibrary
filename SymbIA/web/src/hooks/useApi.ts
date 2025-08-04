@@ -1,7 +1,8 @@
 import { useAuthStore } from '../stores/auth.store';
 import { createApiUrl } from '../config/api';
-import type { FrontendMessage, FrontendChat, MemoryDTO } from '../types/frontend';
+import type { FrontendChat, MemoryDTO } from '../types/frontend';
 import type { LlmSetListResponse } from '../types/llm';
+import { FrontendMessage } from '../types/chat-frontend-types';
 
 // Tipos para as requisições da API
 interface CreateMemoryRequest {
@@ -38,9 +39,51 @@ export const useApi = () => {
         return authState.token;
     };
 
+    const getRefreshToken = () => {
+        const authState = useAuthStore.getState();
+        return authState.refreshToken;
+    };
+
+    const setAuth = (data: any) => {
+        const authState = useAuthStore.getState();
+        authState.setAuth(data);
+    };
+
+    const logout = () => {
+        const authState = useAuthStore.getState();
+        authState.logout();
+    };
+
+    const tryRefreshToken = async (): Promise<boolean> => {
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) {
+            return false;
+        }
+
+        try {
+            const response = await fetch(createApiUrl('/auth/refresh'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refreshToken }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setAuth(data);
+                return true;
+            }
+        } catch (error) {
+            console.warn('Erro ao fazer refresh do token:', error);
+        }
+
+        return false;
+    };
+
     const apiCall = async (url: string, options: RequestInit = {}) => {
         const token = getAuthToken();
-        const response = await fetch(url, {
+        let response = await fetch(url, {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
@@ -48,6 +91,28 @@ export const useApi = () => {
                 ...options.headers,
             },
         });
+
+        // Se retornou 401, tentar refresh do token
+        if (response.status === 401) {
+            const refreshSuccess = await tryRefreshToken();
+
+            if (refreshSuccess) {
+                // Tentar novamente com o novo token
+                const newToken = getAuthToken();
+                response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(newToken && { 'Authorization': `Bearer ${newToken}` }),
+                        ...options.headers,
+                    },
+                });
+            } else {
+                // Refresh falhou, fazer logout
+                logout();
+                throw new Error('Authentication failed - please login again');
+            }
+        }
 
         if (!response.ok) {
             const errorText = await response.text();

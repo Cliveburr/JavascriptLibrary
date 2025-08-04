@@ -15,12 +15,7 @@ interface MessageState {
 export const useMessageStore = create<MessageState>((set) => {
 
     function clearThinking(messages: FrontendMessage[]): FrontendMessage[] {
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage && lastMessage.id == 'Thinking') {
-            return messages.slice(0, -1);
-        } else {
-            return [...messages];
-        }
+        return messages.filter(msg => msg.id !== 'Thinking');
     }
 
     return {

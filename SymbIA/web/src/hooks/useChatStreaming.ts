@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { useChatStore } from '../stores/chat.store';
 import { useMessageStore } from '../stores/message.store';
+import { useStreamingStore } from '../stores/streaming.store';
 import { apiService } from '../utils/apiService';
 import type {
     MessageFormat,
@@ -11,40 +12,32 @@ import type {
     ChatPrepareStreamTextMessage,
     ChatStreamTextMessage,
     ChatCompleteStreamTextMessage,
-    ChatCompletedMessage,
-    FrontendMessageModal,
-    FrontendMessageRole
+    ChatCompletedMessage
 } from '../types/chat-frontend-types';
 import { useLLMStore, useMemoryStore } from '../stores';
 import { MessageType } from '../types/chat-frontend-types';
 
-interface PreparedForStream {
-    role: FrontendMessageRole;
-    modal: FrontendMessageModal;
-}
-
-interface StreamingState {
-    isStreaming: boolean;
-    isPaused: boolean;
-    prepared?: PreparedForStream;
-}
-
 export const useChatStreaming = () => {
-    const { selectedChatId, initNewChat, appendChatTitle } = useChatStore();
+    const { initNewChat, appendChatTitle } = useChatStore();
     const { selectedMemoryId } = useMemoryStore();
     const { selectedSetId } = useLLMStore();
-    const { addMessage, streamTextMessage, updateMessage } = useMessageStore();
+    const { addMessage, streamTextMessage, updateMessage, clearMessages } = useMessageStore();
 
-    const [streamingState, setStreamingState] = useState<StreamingState>({
-        isStreaming: false,
-        isPaused: false
-    });
-
-    // Ref para manter o estado atual acessível nos callbacks
-    const streamingStateRef = useRef(streamingState);
-    streamingStateRef.current = streamingState;
+    // Usar a store centralizada ao invés do estado local
+    const {
+        isStreaming,
+        isPaused,
+        prepared,
+        setStreaming,
+        setPaused,
+        setPrepared,
+        getState
+    } = useStreamingStore();
 
     const sendMessage = useCallback(async (content: string) => {
+        // Obter selectedChatId atualizado da store
+        const currentSelectedChatId = useChatStore.getState().selectedChatId;
+
         // Validar content primeiro (validação rápida)
         if (!content || content.trim().length === 0) {
             return;
@@ -56,15 +49,12 @@ export const useChatStreaming = () => {
         }
 
         // Mudar para estado de streaming IMEDIATAMENTE após validações básicas
-        setStreamingState(prev => ({
-            ...prev,
-            isStreaming: true,
-            isPaused: false
-        }));
+        setStreaming(true);
+        setPaused(false);
 
         try {
             const response = await apiService.message.send(selectedMemoryId!, {
-                chatId: typeof selectedChatId === 'string' ? selectedChatId : undefined,
+                chatId: typeof currentSelectedChatId === 'string' ? currentSelectedChatId : undefined,
                 llmSetId: selectedSetId,
                 content
             });
@@ -114,7 +104,7 @@ export const useChatStreaming = () => {
             }
 
         } catch (error) {
-            setStreamingState(prev => ({ ...prev, isStreaming: false }));
+            setStreaming(false);
             throw error;
         }
 
@@ -145,6 +135,7 @@ export const useChatStreaming = () => {
 
         async function handleMessage(message: MessageFormat) {
             if (isInitNewStream(message)) {
+                clearMessages();
                 initNewChat({
                     id: message.chatId,
                     title: '',
@@ -167,24 +158,21 @@ export const useChatStreaming = () => {
                 });
             }
             else if (isPrepareStreamText(message)) {
-                setStreamingState(prev => ({
-                    ...prev, prepared: {
-                        role: message.role,
-                        modal: message.modal
-                    }
-                }));
+                setPrepared({
+                    role: message.role,
+                    modal: message.modal
+                });
             }
             else if (isStreamText(message)) {
-                if (streamingStateRef.current.prepared) {
+                const streamState = getState();
+                if (streamState.prepared) {
                     addMessage({
                         id: 'steaming',
-                        role: streamingStateRef.current.prepared.role,
+                        role: streamState.prepared.role,
                         content: message.content,
-                        modal: streamingStateRef.current.prepared.modal
+                        modal: streamState.prepared.modal
                     });
-                    setStreamingState(prev => ({
-                        ...prev, prepared: undefined
-                    }));
+                    setPrepared(undefined);
                 }
                 else {
                     streamTextMessage(message.content);
@@ -194,27 +182,26 @@ export const useChatStreaming = () => {
                 updateMessage(message.id);
             }
             else if (isCompleted(message)) {
-                setStreamingState(prev => ({
-                    ...prev,
-                    isStreaming: false
-                }));
+                setStreaming(false);
             }
             else {
                 throw 'Unknown message type: ' + (message as any).type;
             }
         }
-    }, [addMessage, streamTextMessage, initNewChat, appendChatTitle]);
+    }, [addMessage, streamTextMessage, initNewChat, appendChatTitle, getState, clearMessages, selectedMemoryId, selectedSetId, updateMessage, setPrepared, setStreaming, setPaused]);
 
     const pauseStream = useCallback(() => {
-        setStreamingState(prev => ({ ...prev, isPaused: true }));
-    }, []);
+        setPaused(true);
+    }, [setPaused]);
 
     const resumeStream = useCallback(() => {
-        setStreamingState(prev => ({ ...prev, isPaused: false }));
-    }, []);
+        setPaused(false);
+    }, [setPaused]);
 
     return {
-        ...streamingState,
+        isStreaming,
+        isPaused,
+        prepared,
         sendMessage,
         pauseStream,
         resumeStream

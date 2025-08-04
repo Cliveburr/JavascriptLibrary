@@ -130,7 +130,7 @@ export class AuthService {
         }
     }
 
-    async refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string; } | null> {
+    async refreshToken(refreshToken: string): Promise<AuthResult | null> {
         try {
             const authConfig = this.configService.getAuthConfig();
             const decoded = jwt.verify(refreshToken, authConfig.jwtRefreshSecret) as RefreshTokenPayload;
@@ -144,6 +144,7 @@ export class AuthService {
             }
 
             return {
+                user,
                 token: this.generateToken(user),
                 refreshToken: this.generateRefreshToken(user)
             };

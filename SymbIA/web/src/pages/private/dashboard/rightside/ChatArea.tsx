@@ -28,7 +28,6 @@ export const ChatArea: React.FC = () => {
             <div className="chat-content">
                 <LLMSelector />
                 {!isChatState ? (
-                    // Interface de preparação para novo chat com input centralizado
                     <div className="chat-placeholder">
                         <div className="placeholder-icon">💬</div>
                         <h4>Iniciar novo chat</h4>
@@ -39,7 +38,6 @@ export const ChatArea: React.FC = () => {
                         />
                     </div>
                 ) : (
-                    // Interface normal de chat
                     <>
                         <ChatWindow />
                         <ChatInput

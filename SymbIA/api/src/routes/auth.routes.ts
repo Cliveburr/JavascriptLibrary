@@ -12,6 +12,12 @@ export function createAuthRoutes(): IRouter {
     // Create controller instance
     const authController = new AuthController(authService);
 
+    // GET /auth/validate - Validar token
+    router.get('/validate', ...authController.validate);
+
+    // POST /auth/refresh - Refresh token
+    router.post('/refresh', ...authController.refresh);
+
     // POST /auth/register
     router.post('/register', ...authController.register);
 

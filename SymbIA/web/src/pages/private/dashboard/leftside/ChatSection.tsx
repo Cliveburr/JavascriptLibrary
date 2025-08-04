@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useMemoryStore, useChatStore, useMessageStore } from '../../../../stores';
+import { useStreamingStore } from '../../../../stores/streaming.store';
 import { useNotification } from '../../../../hooks/useNotification';
 import { useError } from '../../../../hooks';
 import { ConfirmModal } from '../../../../components/ui/modal/ConfirmModal';
@@ -17,6 +18,7 @@ export const ChatSection: React.FC = () => {
     } = useChatStore();
 
     const { loadMessages } = useMessageStore();
+    const { isStreaming } = useStreamingStore();
 
     const { success, error } = useNotification();
     const { handleError } = useError();
@@ -41,15 +43,15 @@ export const ChatSection: React.FC = () => {
         }
     }, [selectedMemoryId, chats.length, isLoading, selectChat]);
 
-    // Carregar mensagens quando um chat é selecionado
+    // Carregar mensagens quando um chat é selecionado (mas NÃO durante streaming)
     useEffect(() => {
-        if (selectedChatId) {
+        if (selectedChatId && !isStreaming) {
             loadMessages(selectedChatId).catch((err) => {
                 handleError(err, 'Carregando mensagens do chat');
                 error('Erro ao carregar mensagens do chat');
             });
         }
-    }, [selectedChatId, loadMessages]);
+    }, [selectedChatId, loadMessages, isStreaming]);
 
     // Scroll para o topo quando um novo chat é criado
     useEffect(() => {
@@ -64,19 +66,18 @@ export const ChatSection: React.FC = () => {
             // Atualizar o contador anterior
             prevChatCountRef.current = currentChatCount;
         }
-    }, [selectedMemoryId, chats]);
+    }, [selectedMemoryId, chats.length]);
 
-    const handleDeleteChat = (chatId: string, chatTitle: string) => {
+    const handleDeleteChat = useCallback((chatId: string, chatTitle: string) => {
         setChatToDelete({ id: chatId, title: chatTitle });
         setShowDeleteChatModal(true);
-    };
+    }, []);
 
-    const confirmDeleteChat = async () => {
+    const confirmDeleteChat = useCallback(async () => {
         if (!chatToDelete) return;
 
         try {
             await deleteChat(chatToDelete.id);
-            success('Chat deletado com sucesso');
 
             // Forçar re-render da lista de chats
             setChatListKey(prev => prev + 1);
@@ -92,15 +93,17 @@ export const ChatSection: React.FC = () => {
             setShowDeleteChatModal(false);
             setChatToDelete(null);
         }
-    };
+    }, [chatToDelete, deleteChat, success, selectedMemoryId, fetchChats, handleError, error]);
 
-    const cancelDeleteChat = () => {
+    const cancelDeleteChat = useCallback(() => {
         setShowDeleteChatModal(false);
         setChatToDelete(null);
-    };
+    }, []);
 
     const currentMemoryChats = selectedMemoryId
-        ? chats.sort((a, b) => a.orderIndex - b.orderIndex)
+        ? chats
+            .filter(m => m.title.length > 0)
+            .sort((a, b) => b.orderIndex - a.orderIndex)
         : [];
 
     if (!selectedMemoryId) {

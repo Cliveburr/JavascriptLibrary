@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../stores';
 import './LoginPage.scss';
@@ -11,7 +11,7 @@ export const LoginPage: React.FC = () => {
 
     const login = useAuthStore(state => state.login);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
@@ -23,7 +23,15 @@ export const LoginPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [email, password, login]);
+
+    const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+    }, []);
+
+    const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+    }, []);
 
     return (
         <div className="login-page">
@@ -40,7 +48,7 @@ export const LoginPage: React.FC = () => {
                             id="email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={handleEmailChange}
                             required
                             disabled={isLoading}
                             placeholder="your@email.com"
@@ -53,7 +61,7 @@ export const LoginPage: React.FC = () => {
                             id="password"
                             type="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={handlePasswordChange}
                             required
                             disabled={isLoading}
                             placeholder="••••••••"

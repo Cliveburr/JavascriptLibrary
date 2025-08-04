@@ -1,4 +1,4 @@
-import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useState, useRef, useImperativeHandle, forwardRef, useCallback, useMemo } from 'react';
 import type { KeyboardEvent } from 'react';
 import { useChatStore } from '../../../../stores/chat.store';
 import { useChatStreaming } from '../../../../hooks/useChatStreaming';
@@ -29,9 +29,9 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ horizontal 
                 textareaRef.current.focus();
             }
         }
-    }));
+    }), []);
 
-    const handleSubmit = async () => {
+    const handleSubmit = useCallback(async () => {
         if (!message.trim() || isLoading || isStreaming) return;
         const messageToSend = message.trim();
 
@@ -45,33 +45,31 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ horizontal 
             error('Failed to send message! ' + error.toString());
             setMessage(messageToSend);
         }
-    };
+    }, [message, isLoading, isStreaming, sendMessage, error]);
 
-    const handleButtonClick = async () => {
+    const handleButtonClick = useCallback(async () => {
         if (isStreaming) {
             pauseStream();
         } else {
             await handleSubmit();
         }
-    };
+    }, [isStreaming, pauseStream, handleSubmit]);
 
-    const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const handleKeyPress = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSubmit();
         }
-    };
+    }, [handleSubmit]);
 
     // Determinar o estado do botão
-    const getButtonState = () => {
+    const buttonState = useMemo(() => {
         if (isLoading || isStreaming) return 'processing';
         if (message.trim()) return 'send';
         return 'disabled';
-    };
+    }, [isLoading, isStreaming, message]);
 
-    const buttonState = getButtonState();
-
-    const renderButtonIcon = () => {
+    const renderButtonIcon = useCallback(() => {
         switch (buttonState) {
             case 'processing':
                 return (
@@ -101,7 +99,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ horizontal 
                     </svg>
                 );
         }
-    };
+    }, [buttonState]);
 
     return (
         <div className={`chat-input${horizontal ? ' horizontal' : ''}`}>

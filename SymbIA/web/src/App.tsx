@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './layouts';
-import { Header, NotificationContainer } from './components';
+import { Header, NotificationContainer, AuthLoadingScreen } from './components';
 import { HomePage, LoginPage, RegisterPage, DashboardPage } from './pages';
-import { useTheme } from './hooks';
+import { useTheme, useTokenValidation } from './hooks';
 import { useAuthStore } from './stores';
 import './styles/globals.scss';
 
@@ -20,6 +20,14 @@ const PublicRoute: React.FC<{ children: React.ReactNode; }> = ({ children }) => 
 
 function App() {
   const { theme } = useTheme();
+
+  // Validar token na inicialização da aplicação
+  const { isValidating } = useTokenValidation();
+
+  // Mostrar tela de loading enquanto valida o token
+  if (isValidating) {
+    return <AuthLoadingScreen />;
+  }
 
   return (
     <div className="App" data-theme={theme} data-testid="app">

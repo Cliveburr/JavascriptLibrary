@@ -40,8 +40,7 @@ export const useChatStore = create<ChatState>()(
                 initNewChat: (chat: FrontendChat) => {
                     set(state => {
                         return {
-                            chats: ([chat, ...state.chats] as Array<FrontendChat>)
-                                .sort((a, b) => a.orderIndex - b.orderIndex),
+                            chats: [chat, ...state.chats],
                             selectedChatId: chat.id
                         };
                     });
@@ -51,7 +50,7 @@ export const useChatStore = create<ChatState>()(
                     set(state => ({
                         chats: state.chats.map(chat =>
                             chat.id === state.selectedChatId
-                                ? { ...chat, title: chat.title + content }
+                                ? { ...chat, title: (chat.title || '') + content }
                                 : chat
                         )
                     }));
@@ -101,6 +100,8 @@ export const useChatStore = create<ChatState>()(
             name: 'chat-storage',
             partialize: (state) => ({
                 selectedChatId: state.selectedChatId,
+                // Optionally persist recent chats for better UX
+                // chats: state.chats.slice(0, 10), // Keep only the 10 most recent
             }),
         }
     )

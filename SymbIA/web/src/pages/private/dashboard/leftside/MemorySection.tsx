@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useMemoryStore, useChatStore } from '../../../../stores';
 import { useNotification } from '../../../../hooks/useNotification';
 import { useError } from '../../../../hooks';
@@ -21,16 +21,20 @@ export const MemorySection: React.FC = () => {
 
     const [showCreateMemoryForm, setShowCreateMemoryForm] = useState(false);
     const [newMemoryName, setNewMemoryName] = useState('');
+    const hasInitialized = useRef(false);
 
-    // Carregar memórias quando o componente monta
+    // Carregar memórias quando o componente monta (apenas uma vez)
     useEffect(() => {
-        fetchMemories().catch((err) => {
-            handleError(err, 'Carregando memórias');
-            error('Erro carregando memorias!');
-        });
-    }, [fetchMemories]);
+        if (!hasInitialized.current) {
+            hasInitialized.current = true;
+            fetchMemories().catch((err) => {
+                handleError(err, 'Carregando memórias');
+                error('Erro carregando memorias!');
+            });
+        }
+    }, []); // Array vazio - executa apenas uma vez
 
-    const handleCreateMemory = async (e: React.FormEvent) => {
+    const handleCreateMemory = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMemoryName.trim()) return;
 
@@ -43,9 +47,9 @@ export const MemorySection: React.FC = () => {
             handleError(err, 'Criando memória');
             error('Erro ao criar memória. Tente novamente.');
         }
-    };
+    }, [newMemoryName, createMemory, success, handleError, error]);
 
-    const handleDeleteMemory = async (id: string) => {
+    const handleDeleteMemory = useCallback(async (id: string) => {
         if (memories.length <= 1) {
             warning('Não é possível deletar a última memória');
             return;
@@ -61,12 +65,12 @@ export const MemorySection: React.FC = () => {
                 error('Erro ao deletar memória. Tente novamente.');
             }
         }
-    };
+    }, [memories.length, warning, deleteMemory, success, handleError, error]);
 
-    const handleMemorySelect = (memoryId: string) => {
+    const handleMemorySelect = useCallback((memoryId: string) => {
         setCurrentMemory(memoryId);
         selectChat(null);
-    };
+    }, [setCurrentMemory, selectChat]);
 
     return (
         <div className="memories-section">

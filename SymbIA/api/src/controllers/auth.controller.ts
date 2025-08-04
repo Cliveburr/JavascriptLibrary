@@ -15,11 +15,48 @@ const RegisterRequestSchema = z.object({
     password: z.string().min(6)
 });
 
+const RefreshTokenRequestSchema = z.object({
+    refreshToken: z.string().min(1)
+});
+
 export class AuthController {
 
     constructor(
         private authService: AuthService
     ) { }
+
+    validate: RequestHandler[] = [
+        async (req: Request, res: Response) => {
+            try {
+                const authHeader = req.headers.authorization;
+
+                if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                    res.status(401).json({ error: 'No token provided' });
+                    return;
+                }
+
+                const token = authHeader.substring(7);
+                const user = await this.authService.validateToken(token);
+
+                if (!user) {
+                    res.status(401).json({ error: 'Invalid token' });
+                    return;
+                }
+
+                res.json({
+                    valid: true,
+                    user: {
+                        id: user._id.toString(),
+                        email: user.email,
+                        defaultMemoryId: user.defaultMemoryId.toString()
+                    }
+                });
+            } catch (error) {
+                console.error('Token validation error:', error);
+                res.status(500).json({ error: 'Internal server error' });
+            }
+        }
+    ];
 
     register: RequestHandler[] = [
         processRequestBody(RegisterRequestSchema),
@@ -85,6 +122,41 @@ export class AuthController {
             } catch {
                 res.status(500).json({
                     error: 'Login failed',
+                    message: 'Internal server error'
+                });
+            }
+        }
+    ];
+
+    refresh: RequestHandler[] = [
+        processRequestBody(RefreshTokenRequestSchema),
+        async (req: Request<{}, LoginResponse, { refreshToken: string; }>, res: Response) => {
+            try {
+                const { refreshToken } = req.body;
+
+                const refreshResult = await this.authService.refreshToken(refreshToken);
+
+                if (refreshResult) {
+                    const response: LoginResponse = {
+                        token: refreshResult.token,
+                        refreshToken: refreshResult.refreshToken,
+                        user: {
+                            id: refreshResult.user._id.toString(),
+                            email: refreshResult.user.email,
+                            defaultMemoryId: refreshResult.user.defaultMemoryId.toString()
+                        }
+                    };
+
+                    res.json(response);
+                } else {
+                    res.status(401).json({
+                        error: 'Invalid refresh token'
+                    });
+                }
+            } catch (error) {
+                console.error('Refresh token error:', error);
+                res.status(500).json({
+                    error: 'Token refresh failed',
                     message: 'Internal server error'
                 });
             }

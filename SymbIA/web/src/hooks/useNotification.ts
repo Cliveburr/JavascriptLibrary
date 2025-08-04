@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useNotificationStore } from '../stores/notification.store';
 import type { NotificationType, NotificationAction } from '../types/notification';
 
@@ -10,7 +11,7 @@ interface UseNotificationOptions {
 export const useNotification = () => {
     const { addNotification, removeNotification, clearAll } = useNotificationStore();
 
-    const notify = (
+    const notify = useCallback((
         type: NotificationType,
         message: string,
         options?: UseNotificationOptions
@@ -22,31 +23,31 @@ export const useNotification = () => {
             timeout: options?.timeout,
             actions: options?.actions,
         });
-    };
+    }, [addNotification]);
 
-    const success = (message: string, options?: UseNotificationOptions) => {
+    const success = useCallback((message: string, options?: UseNotificationOptions) => {
         return notify('success', message, options);
-    };
+    }, [notify]);
 
-    const error = (message: string, options?: UseNotificationOptions) => {
+    const error = useCallback((message: string, options?: UseNotificationOptions) => {
         return notify('error', message, options);
-    };
+    }, [notify]);
 
-    const warning = (message: string, options?: UseNotificationOptions) => {
+    const warning = useCallback((message: string, options?: UseNotificationOptions) => {
         return notify('warning', message, options);
-    };
+    }, [notify]);
 
-    const info = (message: string, options?: UseNotificationOptions) => {
+    const info = useCallback((message: string, options?: UseNotificationOptions) => {
         return notify('info', message, options);
-    };
+    }, [notify]);
 
-    const close = (id: string) => {
+    const close = useCallback((id: string) => {
         removeNotification(id);
-    };
+    }, [removeNotification]);
 
-    const closeAll = () => {
+    const closeAll = useCallback(() => {
         clearAll();
-    };
+    }, [clearAll]);
 
     return {
         notify,

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLLMStore } from '../../../../stores';
 import { useError } from '../../../../hooks';
 import type { LlmSetIcon } from '../../../../types/llm';
@@ -39,12 +39,12 @@ export const LLMSelector: React.FC = () => {
 
     const selectedSet = availableSets.find(set => set.id === selectedSetId);
 
-    const handleSetSelect = (setId: string) => {
+    const handleSetSelect = useCallback((setId: string) => {
         setSelectedSet(setId);
         setIsOpen(false);
-    };
+    }, [setSelectedSet]);
 
-    const renderIcon = (icon: LlmSetIcon, size = 16) => {
+    const renderIcon = useCallback((icon: LlmSetIcon, size = 16) => {
         switch (icon.type) {
             case 'emoji':
                 return (
@@ -81,7 +81,7 @@ export const LLMSelector: React.FC = () => {
                     </svg>
                 );
         }
-    };
+    }, []);
 
     return (
         <div className="llm-selector" ref={dropdownRef}>

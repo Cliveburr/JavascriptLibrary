@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../stores';
 import './RegisterPage.scss';
@@ -17,7 +17,7 @@ export const RegisterPage: React.FC = () => {
 
     const register = useAuthStore(state => state.register);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
@@ -42,7 +42,23 @@ export const RegisterPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [username, email, password, confirmPassword, register]);
+
+    const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setUsername(e.target.value);
+    }, []);
+
+    const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+    }, []);
+
+    const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+    }, []);
+
+    const handleConfirmPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setConfirmPassword(e.target.value);
+    }, []);
 
     return (
         <div className="register-page">
@@ -59,7 +75,7 @@ export const RegisterPage: React.FC = () => {
                             id="username"
                             type="text"
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={handleUsernameChange}
                             required
                             disabled={isLoading}
                             placeholder="Your username"
@@ -73,7 +89,7 @@ export const RegisterPage: React.FC = () => {
                             id="email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={handleEmailChange}
                             required
                             disabled={isLoading}
                             placeholder="your@email.com"
@@ -87,7 +103,7 @@ export const RegisterPage: React.FC = () => {
                             id="password"
                             type="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={handlePasswordChange}
                             required
                             disabled={isLoading}
                             placeholder="At least 6 characters"
@@ -102,7 +118,7 @@ export const RegisterPage: React.FC = () => {
                             id="confirmPassword"
                             type="password"
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={handleConfirmPasswordChange}
                             required
                             disabled={isLoading}
                             placeholder="Confirm your password"
