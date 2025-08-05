@@ -34,6 +34,7 @@ export class QuestionAction implements ActionHandler {
                 temperature: 0.7,
                 maxTokens: 200
             });
+        console.log(response.usage);
         await ctx.sendCompleteStreamTextMessage(message, response.content);
 
         ctx.finalizeIteration = true;

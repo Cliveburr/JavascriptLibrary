@@ -117,8 +117,6 @@ export class ChatController {
             }
 
             await Promise.all(paralelTasks);
-
-            ctx.sendCompleted();
         } catch (error) {
             ctx.sendError(500, 'Error: ', error);
         }

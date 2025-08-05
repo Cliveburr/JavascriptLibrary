@@ -37,8 +37,29 @@ export interface Message {
     chatId: ObjectId;
     role: MessageRole;
     modal: MessageModal;
+
+    // Conteúdo
     content: string;
     createdAt: Date;
+
+    // Provedor / modelo
+    // provider: 'openai' | 'ollama' | 'azureOpenAI';
+    // modelName: string;
+    // providerRequestId?: string;
+    // systemFingerprint?: string;
+
+    // Métricas de uso
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+    // pricePer1kTokensUSD?: number;
+    // costUSD?: number;
+
+    // Performance
+    latencyMs?: number;
+    // finishReason?: 'stop' | 'length' | 'tool_call' | 'error';
+    // status: 'success' | 'retry' | 'timeout' | 'rate_limited' | 'error';
+    // errorMessage?: string;
 }
 
 export interface VectorEntry {

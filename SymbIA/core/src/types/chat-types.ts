@@ -12,6 +12,7 @@ export interface IChatContext {
     sendPrepareStreamTextMessage: (role: MessageRole, modal: MessageModal) => Promise<Message>;
     sendStreamTextMessage: (content: string) => Promise<void>;
     sendCompleteStreamTextMessage: (message: Message, fullContent: string) => Promise<void>;
+    sendCompleted: () => Promise<void>;
 }
 
 export enum MessageType {

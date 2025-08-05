@@ -30,5 +30,7 @@ export class ThoughtCycleService {
 
             //TODO: serviço para resumir as mensagens
         }
+
+        await ctx.sendCompleted();
     }
 }

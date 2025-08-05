@@ -35,20 +35,16 @@ export const useChatStreaming = () => {
     } = useStreamingStore();
 
     const sendMessage = useCallback(async (content: string) => {
-        // Obter selectedChatId atualizado da store
         const currentSelectedChatId = useChatStore.getState().selectedChatId;
 
-        // Validar content primeiro (validação rápida)
         if (!content || content.trim().length === 0) {
             return;
         }
 
-        // Validar llmSetId (validação rápida)
         if (!selectedSetId) {
             throw new Error('LLM Set ID is required');
         }
 
-        // Mudar para estado de streaming IMEDIATAMENTE após validações básicas
         setStreaming(true);
         setPaused(false);
 
