@@ -8,7 +8,7 @@ interface ChatState {
     selectedChatId: string | null;
     isLoading: boolean;
     fetchChats: (memoryId: string) => Promise<void>;
-    initNewChat: (chat: FrontendChat) => void;
+    initNewChat: (chatId: string, orderIndex: number) => void;
     appendChatTitle: (content: string) => void;
     deleteChat: (chatId: string) => Promise<void>;
     selectChat: (chatId: string | null) => void;
@@ -37,11 +37,16 @@ export const useChatStore = create<ChatState>()(
                     }
                 },
 
-                initNewChat: (chat: FrontendChat) => {
+                initNewChat: (chatId: string, orderIndex: number) => {
                     set(state => {
+                        const chat = {
+                            chatId,
+                            title: '',
+                            orderIndex
+                        };
                         return {
                             chats: [chat, ...state.chats],
-                            selectedChatId: chat.id
+                            selectedChatId: chat.chatId
                         };
                     });
                 },
@@ -49,7 +54,7 @@ export const useChatStore = create<ChatState>()(
                 appendChatTitle: (content: string) => {
                     set(state => ({
                         chats: state.chats.map(chat =>
-                            chat.id === state.selectedChatId
+                            chat.chatId === state.selectedChatId
                                 ? { ...chat, title: (chat.title || '') + content }
                                 : chat
                         )
@@ -61,7 +66,7 @@ export const useChatStore = create<ChatState>()(
                     try {
                         await apiService.chat.delete(chatId);
                         set(state => ({
-                            chats: state.chats.filter(chat => chat.id !== chatId),
+                            chats: state.chats.filter(chat => chat.chatId !== chatId),
                             selectedChatId: state.selectedChatId === chatId ? null : state.selectedChatId,
                             isLoading: false
                         }));

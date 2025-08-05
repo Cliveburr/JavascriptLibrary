@@ -19,10 +19,14 @@
     "composite": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "tests/helpers/parseMarkdown.test.ts",
+    "tests/helpers/parseMarkdown.example.ts",
+    "tests/helpers/test-simple.js"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "tests"
   ]
 }

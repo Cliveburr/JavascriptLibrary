@@ -1,21 +1,35 @@
 import { create } from 'zustand';
-import type { FrontendMessage } from '../types/chat-frontend-types';
+import type { ChatStreamMessage, MessageModalType, MessageReflectionModal } from '../types';
 import { apiService } from '../utils/apiService';
+import { contentCast } from '../utils';
 
 interface MessageState {
-    messages: FrontendMessage[];
+    messages: ChatStreamMessage[];
     isLoading: boolean;
     loadMessages: (chatId: string) => Promise<void>;
-    addMessage: (message: FrontendMessage) => void;
-    streamTextMessage: (content: string) => void;
-    updateMessage: (id: string) => void;
+    addMessage: (message: ChatStreamMessage) => void;
+    updateContentMessage: (message: ChatStreamMessage) => void;
+    updateIdMessage: (messageId: string) => void;
     clearMessages: () => void;
 }
 
 export const useMessageStore = create<MessageState>((set) => {
 
-    function clearThinking(messages: FrontendMessage[]): FrontendMessage[] {
-        return messages.filter(msg => msg.id !== 'Thinking');
+    function appendContent(message: ChatStreamMessage, content: MessageModalType): MessageModalType {
+        if (message.content) {
+            if (contentCast.isText(message, content)) {
+                const contentString = message.content as string;
+                return contentString + content;
+            }
+            else if (contentCast.isReflection(message, content)) {
+                const contentReflection = message.content as MessageReflectionModal;
+                return {
+                    title: contentReflection.title + content.title,
+                    content: contentReflection.content + content.content
+                };
+            }
+        }
+        return content;
     }
 
     return {
@@ -36,36 +50,44 @@ export const useMessageStore = create<MessageState>((set) => {
             }
         },
 
-        addMessage: (message: FrontendMessage) => {
+        addMessage: (message: ChatStreamMessage) => {
             set(state => {
-                const newMessages = clearThinking(state.messages);
-                newMessages.push(message);
-                return { messages: newMessages };
+                return { messages: [...state.messages, message] };
             });
         },
 
-        streamTextMessage: (content: string) => {
+        updateContentMessage: (message: ChatStreamMessage) => {
             set(state => {
                 const newMessages = [...state.messages];
                 const lastMessage = newMessages[newMessages.length - 1];
                 if (lastMessage) {
-                    newMessages[newMessages.length - 1] = {
-                        ...lastMessage,
-                        content: lastMessage.content + content
-                    };
+                    if (lastMessage.inPrepare) {
+                        newMessages[newMessages.length - 1] = {
+                            messageId: lastMessage.messageId,
+                            modal: lastMessage.originModal,
+                            role: lastMessage.role,
+                            content: message.content
+                        };
+                    }
+                    else if (message.content) {
+                        newMessages[newMessages.length - 1] = {
+                            ...lastMessage,
+                            content: appendContent(lastMessage, message.content)
+                        };
+                    }
                 }
                 return { messages: newMessages };
             });
         },
 
-        updateMessage: (id: string) => {
+        updateIdMessage: (messageId: string) => {
             set(state => {
                 const newMessages = [...state.messages];
                 const lastMessage = newMessages[newMessages.length - 1];
                 if (lastMessage) {
                     newMessages[newMessages.length - 1] = {
                         ...lastMessage,
-                        id
+                        messageId
                     };
                 }
                 return { messages: newMessages };

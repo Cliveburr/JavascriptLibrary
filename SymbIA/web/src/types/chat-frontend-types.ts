@@ -1,65 +1,42 @@
 
-export type FrontendMessageRole = 'user' | 'assistant' | 'system';
-export type FrontendMessageModal = 'text' | 'form' | 'chart' | 'file' | 'memory';
+export type MessageRole = 'user' | 'assistant';
+export type MessageModal = 'text' | 'reflection';
+export type MessageModalType = string | MessageReflectionModal;
 
-export enum MessageType {
+export interface MessageReflectionModal {
+    title: string;
+    content: string;
+}
+
+export enum ChatStreamType {
     InitStream = 0,
     InitNewStream = 1,
     Completed = 2,
     StreamTitle = 3,
-    Thinking = 4,
-    PrepareStreamText = 5,
-    StreamText = 6,
-    CompleteStreamText = 7
+    PrepareMessage = 4,
+    StreamMessage = 5,
+    CompleteMessage = 6
 }
 
-export interface FrontendMessage {
-    id: string;
-    role: FrontendMessageRole;
-    modal: FrontendMessageModal;
-    content: string;
+export interface ChatStream {
+    type: ChatStreamType;
+    message?: ChatStreamMessage;
+    chat?: ChatStreamChat;
 }
 
-export interface ChatInitNewStreamMessage {
-    type: MessageType.InitNewStream;
-    userMessage: FrontendMessage;
-    chatId: string;
-    orderIndex: number;
+export interface ChatStreamMessage {
+    messageId?: string;
+    role?: MessageRole;
+    modal?: MessageModal;
+    content?: MessageModalType;
+
+    // Only used in frontend
+    inPrepare?: boolean;
+    originModal?: MessageModal;
 }
 
-export interface ChatInitStreamMessage {
-    type: MessageType.InitStream;
-    userMessage: FrontendMessage;
+export interface ChatStreamChat {
+    chatId?: string;
+    title?: string;
+    orderIndex?: number;
 }
-
-export interface ChatCompletedMessage {
-    type: MessageType.Completed;
-}
-
-export interface ChatStreamTitleMessage {
-    type: MessageType.StreamTitle;
-    content: string;
-}
-
-export interface ChatThinkingMessage {
-    type: MessageType.Thinking;
-}
-
-export interface ChatPrepareStreamTextMessage {
-    type: MessageType.PrepareStreamText;
-    role: FrontendMessageRole;
-    modal: FrontendMessageModal;
-}
-
-export interface ChatStreamTextMessage {
-    type: MessageType.StreamText;
-    content: string;
-}
-
-export interface ChatCompleteStreamTextMessage {
-    type: MessageType.CompleteStreamText;
-    id: string;
-}
-
-export type MessageFormat = ChatInitStreamMessage | ChatInitNewStreamMessage | ChatCompletedMessage | ChatStreamTitleMessage
-    | ChatThinkingMessage | ChatPrepareStreamTextMessage | ChatStreamTextMessage | ChatCompleteStreamTextMessage;

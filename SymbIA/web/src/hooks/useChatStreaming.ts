@@ -3,36 +3,16 @@ import { useChatStore } from '../stores/chat.store';
 import { useMessageStore } from '../stores/message.store';
 import { useStreamingStore } from '../stores/streaming.store';
 import { apiService } from '../utils/apiService';
-import type {
-    MessageFormat,
-    ChatInitNewStreamMessage,
-    ChatInitStreamMessage,
-    ChatStreamTitleMessage,
-    ChatThinkingMessage,
-    ChatPrepareStreamTextMessage,
-    ChatStreamTextMessage,
-    ChatCompleteStreamTextMessage,
-    ChatCompletedMessage
-} from '../types/chat-frontend-types';
 import { useLLMStore, useMemoryStore } from '../stores';
-import { MessageType } from '../types/chat-frontend-types';
+import type { ChatStream } from '../types/chat-frontend-types';
+import { ChatStreamType } from '../types/chat-frontend-types';
 
 export const useChatStreaming = () => {
     const { initNewChat, appendChatTitle } = useChatStore();
     const { selectedMemoryId } = useMemoryStore();
     const { selectedSetId } = useLLMStore();
-    const { addMessage, streamTextMessage, updateMessage, clearMessages } = useMessageStore();
-
-    // Usar a store centralizada ao invés do estado local
-    const {
-        isStreaming,
-        isPaused,
-        prepared,
-        setStreaming,
-        setPaused,
-        setPrepared,
-        getState
-    } = useStreamingStore();
+    const { addMessage, updateContentMessage, updateIdMessage, clearMessages } = useMessageStore();
+    const { isStreaming, isPaused, setStreaming, setPaused } = useStreamingStore();
 
     const sendMessage = useCallback(async (content: string) => {
         const currentSelectedChatId = useChatStore.getState().selectedChatId;
@@ -80,10 +60,10 @@ export const useChatStreaming = () => {
                 for (const line of lines) {
                     if (line.trim()) {
                         try {
-                            const message: MessageFormat = JSON.parse(line);
+                            const message: ChatStream = JSON.parse(line);
                             await handleMessage(message);
                         } catch (e) {
-                            console.warn('Failed to parse streaming line:', line, e);
+                            console.error('Failed to parse streaming line:', line, e);
                         }
                     }
                 }
@@ -92,10 +72,10 @@ export const useChatStreaming = () => {
             // Process remaining buffer
             if (buffer.trim()) {
                 try {
-                    const message: MessageFormat = JSON.parse(buffer);
+                    const message: ChatStream = JSON.parse(buffer);
                     await handleMessage(message);
                 } catch (e) {
-                    console.warn('Failed to parse final buffer:', buffer, e);
+                    console.error('Failed to parse final buffer:', buffer, e);
                 }
             }
 
@@ -104,87 +84,64 @@ export const useChatStreaming = () => {
             throw error;
         }
 
-        function isInitNewStream(message: MessageFormat): message is ChatInitNewStreamMessage {
-            return message.type == MessageType.InitNewStream;
-        }
-        function isInitStream(message: MessageFormat): message is ChatInitStreamMessage {
-            return message.type == MessageType.InitStream;
-        }
-        function isStreamTitle(message: MessageFormat): message is ChatStreamTitleMessage {
-            return message.type == MessageType.StreamTitle;
-        }
-        function isThinking(message: MessageFormat): message is ChatThinkingMessage {
-            return message.type == MessageType.Thinking;
-        }
-        function isPrepareStreamText(message: MessageFormat): message is ChatPrepareStreamTextMessage {
-            return message.type == MessageType.PrepareStreamText;
-        }
-        function isStreamText(message: MessageFormat): message is ChatStreamTextMessage {
-            return message.type == MessageType.StreamText;
-        }
-        function isCompleteStreamText(message: MessageFormat): message is ChatCompleteStreamTextMessage {
-            return message.type == MessageType.CompleteStreamText;
-        }
-        function isCompleted(message: MessageFormat): message is ChatCompletedMessage {
-            return message.type == MessageType.Completed;
-        }
+        async function handleMessage(stream: ChatStream) {
+            switch (stream.type) {
+                case ChatStreamType.InitNewStream:
+                    if (!stream.chat?.chatId
+                        || !stream.chat?.orderIndex
+                        || !stream.message) {
+                        throw 'Invalid InitNewStream message!';
+                    }
+                    initNewChat(stream.chat.chatId, stream.chat.orderIndex);
+                    clearMessages();
+                    addMessage(stream.message);
+                    break;
+                case ChatStreamType.InitStream:
+                    if (!stream.message) {
+                        throw 'Invalid InitStream message!';
+                    }
+                    addMessage(stream.message);
+                    break;
+                case ChatStreamType.StreamTitle:
+                    if (!stream.chat?.title) {
+                        throw 'Invalid StreamTitle message!';
+                    }
+                    appendChatTitle(stream.chat.title);
+                    break;
+                case ChatStreamType.PrepareMessage:
+                    if (!stream.message) {
+                        throw 'Invalid PrepareMessage message!';
+                    }
+                    if (stream.message.role == 'assistant') {
+                        stream.message.originModal = stream.message.modal;
+                        stream.message.inPrepare = true;
+                        stream.message.modal = 'text';
+                        stream.message.content = '💭 IA is thiking...';
+                    }
+                    addMessage(stream.message);
+                    break;
+                case ChatStreamType.StreamMessage:
+                    if (!stream.message) {
+                        throw 'Invalid StreamMessage message!';
+                    }
+                    updateContentMessage(stream.message);
+                    break;
+                case ChatStreamType.CompleteMessage:
+                    if (!stream.message?.messageId) {
+                        throw 'Invalid CompleteMessage message!';
+                    }
+                    updateIdMessage(stream.message.messageId);
+                    break;
+                case ChatStreamType.Completed:
+                    setStreaming(false);
+                    break;
+                default:
+                    throw 'Unknown message type: ' + stream.type;
+            }
 
-        async function handleMessage(message: MessageFormat) {
-            if (isInitNewStream(message)) {
-                clearMessages();
-                initNewChat({
-                    id: message.chatId,
-                    title: '',
-                    orderIndex: message.orderIndex
-                });
-                addMessage(message.userMessage);
-            }
-            else if (isInitStream(message)) {
-                addMessage(message.userMessage);
-            }
-            else if (isStreamTitle(message)) {
-                appendChatTitle(message.content);
-            }
-            else if (isThinking(message)) {
-                addMessage({
-                    id: 'Thinking',
-                    role: 'assistant',
-                    content: '💭 Pensando...',
-                    modal: 'text'
-                });
-            }
-            else if (isPrepareStreamText(message)) {
-                setPrepared({
-                    role: message.role,
-                    modal: message.modal
-                });
-            }
-            else if (isStreamText(message)) {
-                const streamState = getState();
-                if (streamState.prepared) {
-                    addMessage({
-                        id: 'steaming',
-                        role: streamState.prepared.role,
-                        content: message.content,
-                        modal: streamState.prepared.modal
-                    });
-                    setPrepared(undefined);
-                }
-                else {
-                    streamTextMessage(message.content);
-                }
-            }
-            else if (isCompleteStreamText(message)) {
-                updateMessage(message.id);
-            }
-            else if (isCompleted(message)) {
-                setStreaming(false);
-            }
-            else {
-                throw 'Unknown message type: ' + (message as any).type;
-            }
+
         }
-    }, [addMessage, streamTextMessage, initNewChat, appendChatTitle, getState, clearMessages, selectedMemoryId, selectedSetId, updateMessage, setPrepared, setStreaming, setPaused]);
+    }, [initNewChat, appendChatTitle, selectedMemoryId, selectedSetId, addMessage, updateContentMessage, updateIdMessage, clearMessages, isStreaming, isPaused, setStreaming, setPaused]);
 
     const pauseStream = useCallback(() => {
         setPaused(true);
@@ -197,7 +154,6 @@ export const useChatStreaming = () => {
     return {
         isStreaming,
         isPaused,
-        prepared,
         sendMessage,
         pauseStream,
         resumeStream

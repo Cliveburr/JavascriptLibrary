@@ -137,16 +137,16 @@ export const ChatSection: React.FC = () => {
                     ) : (
                         currentMemoryChats.map((chat) => (
                             <div
-                                key={chat.id}
-                                className={`chat-item ${selectedChatId === chat.id ? 'active' : ''}`}
-                                onClick={() => selectChat(chat.id)}
+                                key={chat.chatId}
+                                className={`chat-item ${selectedChatId === chat.chatId ? 'active' : ''}`}
+                                onClick={() => selectChat(chat.chatId)}
                             >
                                 <span className="chat-title">{chat.title}</span>
                                 <button
                                     className="delete-button"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleDeleteChat(chat.id, chat.title);
+                                        handleDeleteChat(chat.chatId, chat.title);
                                     }}
                                     title="Deletar chat"
                                 >

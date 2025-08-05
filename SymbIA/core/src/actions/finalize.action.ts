@@ -1,6 +1,7 @@
-import type { IChatContext } from '../types/chat-types.js';
+import type { IChatContext } from '../types/chat-types';
 import type { ActionHandler } from './act-defs';
 import type { LlmGateway } from '../llm/LlmGateway';
+import { parseMessageForPrompt } from '../helpers/index';
 
 export class FinalizeAction implements ActionHandler {
     readonly name = "Finalize";
@@ -10,10 +11,8 @@ export class FinalizeAction implements ActionHandler {
     async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {
         console.log("Running finalize action...");
 
-        const hystory = ctx.messages
-            .map(msg => {
-                return { role: msg.role, content: msg.content };
-            });
+        const history = ctx.messages
+            .map(msg => parseMessageForPrompt(msg));
 
         // Build messages for LLM context
         const messages = [
@@ -21,18 +20,26 @@ export class FinalizeAction implements ActionHandler {
                 role: 'system',
                 content: 'You are a helpful AI assistant. Provide a brief, natural response to conclude the conversation based on the context provided.'
             },
-            ...hystory
+            ...history
         ];
 
-        const message = await ctx.sendPrepareStreamTextMessage('assistant', 'text');
+        const message = await ctx.sendPrepareMessage('assistant', 'text');
         const response = await llmGateway.invokeAsync(ctx.llmSetConfig.models.fastChat,
             messages,
-            ctx.sendStreamTextMessage.bind(ctx),
+            ctx.sendStreamMessage.bind(ctx),
             {
                 temperature: 0.7,
                 maxTokens: 200
             });
-        await ctx.sendCompleteStreamTextMessage(message, response.content);
+
+        message.content = response.content;
+
+        if (response.usage) {
+            message.promptTokens = response.usage.promptTokens;
+            message.completionTokens = response.usage.completionTokens;
+            message.totalTokens = response.usage.totalTokens;
+        }
+        await ctx.sendCompleteMessage(message);
 
         ctx.finalizeIteration = true;
     }

@@ -2,7 +2,7 @@ import { useAuthStore } from '../stores/auth.store';
 import { createApiUrl } from '../config/api';
 import type { FrontendChat, MemoryDTO } from '../types/frontend';
 import type { LlmSetListResponse } from '../types/llm';
-import { FrontendMessage } from '../types/chat-frontend-types';
+import { ChatStreamMessage } from '../types';
 
 // Tipos para as requisições da API
 interface CreateMemoryRequest {
@@ -124,7 +124,7 @@ export const apiService = {
 
     // === MESSAGE ENDPOINTS ===
     message: {
-        fetch: async (chatId: string): Promise<FrontendMessage[]> => {
+        fetch: async (chatId: string): Promise<ChatStreamMessage[]> => {
             return await apiService.call(createApiUrl(`/chats/${chatId}/messages`));
         },
 

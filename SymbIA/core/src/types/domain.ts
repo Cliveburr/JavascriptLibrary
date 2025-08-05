@@ -30,7 +30,14 @@ export interface Chat {
 }
 
 export type MessageRole = 'user' | 'assistant' | 'system';
-export type MessageModal = 'text' | 'form' | 'chart' | 'file' | 'memory';
+export type MessageModal = 'text' | 'reflection' | 'form' | 'chart' | 'file' | 'memory';
+export type MessageModalType = string | MessageReflectionModal;
+
+export interface MessageReflectionModal {
+    title: string;
+    content: string;
+}
+
 
 export interface Message {
     _id: ObjectId;
@@ -39,7 +46,7 @@ export interface Message {
     modal: MessageModal;
 
     // Conteúdo
-    content: string;
+    content: MessageModalType;
     createdAt: Date;
 
     // Provedor / modelo

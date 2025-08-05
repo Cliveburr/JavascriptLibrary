@@ -144,7 +144,10 @@ export class ChatService {
         await this.mongoService.connect();
         const messagesCollection = this.mongoService.getMessagesCollection();
 
-        await messagesCollection.insertOne(message);
+        delete (<any>message)._id; // NÃO REMOVER, limpar o _id para garantir um _id correto
+
+        const result = await messagesCollection.insertOne(message);
+        message._id = result.insertedId;
         return message;
     }
 

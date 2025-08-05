@@ -4,11 +4,13 @@ export interface LlmProvider {
     apiKey?: string;
 }
 
+export interface LlmRequestMessage {
+    role: string;
+    content: string;
+}
+
 export interface LlmRequest {
-    messages: Array<{
-        role: string;
-        content: string;
-    }>;
+    messages: Array<LlmRequestMessage>;
     model: string;
     temperature?: number;
     maxTokens?: number;

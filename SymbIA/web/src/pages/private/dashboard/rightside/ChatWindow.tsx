@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from '../ChatMessage';
-import { useChatStore } from '../../../../stores/chat.store';
 import { useMessageStore } from '../../../../stores/message.store';
+import { ChatStreamMessage } from '../../../../types';
 import './ChatWindow.scss';
-import { FrontendMessage } from '../../../../types/chat-frontend-types';
 
 interface ChatWindowProps {
 }
@@ -31,9 +30,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
                 data-testid="messages-container"
             >
 
-                {messages.map((message: FrontendMessage) => (
+                {messages.map((message: ChatStreamMessage) => (
                     <ChatMessage
-                        key={message.id}
+                        key={message.messageId}
                         message={message}
                     />
                 ))}

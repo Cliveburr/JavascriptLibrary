@@ -6,7 +6,7 @@ import { LlmGateway } from './llm/LlmGateway.js';
 import { LlmSetService } from './llm/llm-set.service.js';
 import { OpenAIProvider } from './llm/providers/openai.js';
 import { OllamaProvider } from './llm/providers/ollama.js';
-import { DecisionService } from './thought/decision.service.js';
+import { ReflectionService } from './thought/reflection.service.js';
 import { ActionService } from './actions/action.service.js';
 import { ThoughtCycleService } from './thought/thought-cycle.service.js';
 import { AuthService } from './auth/auth.service.js';
@@ -22,7 +22,7 @@ export * from './llm/providers/ollama.js';
 export * from './memory/memory.service.js';
 export * from './memory/embedding.service.js';
 export * from './memory/qdrant.provider.js';
-export * from './thought/decision.service.js';
+export * from './thought/reflection.service.js';
 export * from './actions/action.service.js';
 export * from './thought/thought-cycle.service.js';
 export * from './auth/auth.service.js';
@@ -50,8 +50,8 @@ export function configureContainer() {
     const memoryService = new MemoryService(mongodbService);
     const chatService = new ChatService(mongodbService, llmGateway, llmSetService);
     const actionService = new ActionService(llmGateway);
-    const decisionService = new DecisionService(actionService, llmGateway);
-    const thoughtCycleService = new ThoughtCycleService(actionService, decisionService);
+    const reflectionService = new ReflectionService(actionService, llmGateway);
+    const thoughtCycleService = new ThoughtCycleService(actionService, reflectionService);
     const authService = new AuthService(mongodbService, configService);
 
     // Register all services
@@ -64,7 +64,7 @@ export function configureContainer() {
     registry.register('OpenAIProvider', openaiProvider);
     registry.register('OllamaProvider', ollamaProvider);
     registry.register('LlmGateway', llmGateway);
-    registry.register('DecisionService', decisionService);
+    registry.register('ReflectionService', reflectionService);
     registry.register('ActionService', actionService);
     registry.register('ThoughtCycleService', thoughtCycleService);
     registry.register('AuthService', authService);

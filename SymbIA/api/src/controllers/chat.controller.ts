@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
-import { ThoughtCycleService, ChatService, LlmSetService } from '@symbia/core';
+import { ThoughtCycleService, ChatService, LlmSetService, ChatStreamMessage } from '@symbia/core';
 import { ChatContext } from '../helpers/chat-context';
+import { chatValidation } from '../helpers/chat-validation';
 
 export class ChatController {
 
@@ -50,14 +51,11 @@ export class ChatController {
 
             const messages = await this.chatService.getMessagesByChat(chatId);
 
-            // Converter para DTO
-            const messageDTOs = messages.map(message => ({
-                id: message._id.toString(),
-                chatId: message.chatId.toString(),
+            const messageDTOs = messages.map<ChatStreamMessage>(message => ({
+                messageId: message._id.toString(),
                 role: message.role,
                 content: message.content,
-                modal: message.modal,
-                createdAt: message.createdAt.toISOString()
+                modal: message.modal
             }));
 
             res.json(messageDTOs);
@@ -90,13 +88,14 @@ export class ChatController {
     }
 
     async sendMessage(req: Request, res: Response): Promise<void> {
-        const ctx = new ChatContext(this.chatService, req, res);
+        const data = await chatValidation.validate(this.chatService, this.llmSetService, req);
+        if (chatValidation.isError(data)) {
+            ChatContext.sendStaticError(res, data);
+            return;
+        }
+
         try {
-            if (!ctx.validateParams() || !ctx.validateBody() ||
-                !ctx.validateAuthenticated() || !await ctx.validateChat() ||
-                !await ctx.validateLlmSet(this.llmSetService)) {
-                return;
-            }
+            const ctx = new ChatContext(this.chatService, data, res);
 
             res.writeHead(200, {
                 'Content-Type': 'text/plain; charset=utf-8',
@@ -112,26 +111,32 @@ export class ChatController {
                 this.thoughtCycleService.handle(ctx)
             ];
 
-            if (ctx.isNewChat) {
+            if (ctx.data.isNewChat) {
                 paralelTasks.push(this.generateAndUpdateChatTitle(ctx));
             }
 
             await Promise.all(paralelTasks);
+            await ctx.sendCompleted();
         } catch (error) {
-            ctx.sendError(500, 'Error: ', error);
+            ChatContext.sendStaticError(res, {
+                isError: true,
+                code: 500,
+                message: 'Internal Error',
+                error
+            });
         }
     }
 
     async generateAndUpdateChatTitle(ctx: ChatContext): Promise<void> {
         try {
-            if (!ctx.chatId) {
+            if (!ctx.data.chatId) {
                 throw 'Invalid stream.chatId';
             }
 
-            const generatedTitle = await this.chatService.generateChatTitle(ctx.content, ctx.llmSetConfig,
-                ctx.sendStreamTitleMessage.bind(ctx)
+            const generatedTitle = await this.chatService.generateChatTitle(ctx.data.userMessage, ctx.data.llmSetConfig,
+                ctx.sendStreamTitle.bind(ctx)
             );
-            await this.chatService.updateChatTitle(ctx.chatId, generatedTitle);
+            await this.chatService.updateChatTitle(ctx.data.chatId, generatedTitle);
 
         } catch (error) {
             console.warn('Error generating chat title:', error);

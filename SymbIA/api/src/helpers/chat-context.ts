@@ -1,120 +1,53 @@
-import type { Request, Response } from 'express';
-import type { Chat, ChatService, LlmSetService } from '@symbia/core';
-import type { MessageModal, MessageFormat, MessageRole, IChatContext, LlmSetConfig, Message } from '@symbia/core';
-import { MessageType } from '@symbia/core';
+import type { Response } from 'express';
+import { ChatStreamType, type ChatService, type ChatStream, type MessageModalType } from '@symbia/core';
+import type { MessageModal, MessageRole, IChatContext, Message, ChatStreamMessage } from '@symbia/core';
 import { ObjectId } from 'mongodb';
-import { z } from 'zod';
-
-// Schema de validação para o body
-const sendMessageSchema = z.object({
-    content: z.string().min(1, 'Content cannot be empty'),
-    chatId: z.string().optional(),
-    llmSetId: z.string().min(1, 'LLM Set ID is required')
-});
-
-// Schema de validação para os params
-const chatParamsSchema = z.object({
-    memoryId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid memory ID format')
-});
+import { ChatContextError, ChatContextData } from './chat-validation';
 
 export class ChatContext implements IChatContext {
 
-    memoryId!: string;
-    llmSetIdStr?: string;
-    userId!: string;
-    content!: string;
-    chatId?: string;
-    orderIndex?: number;
-    chat?: Chat;
-    isNewChat: boolean = false;
-    llmSetConfig!: LlmSetConfig;
-    messages!: Message[];
+    get userMessage() { return this.data.userMessage; }
+    get messages() { return this.data.messages; }
+    get llmSetConfig() { return this.data.llmSetConfig; }
     finalizeIteration: boolean = false;
 
     constructor(
         private chatService: ChatService,
-        private req: Request,
+        public data: ChatContextData,
         private res: Response
     ) {
     }
 
-    validateParams(): boolean {
-        const paramsResult = chatParamsSchema.safeParse(this.req.params);
-        if (!paramsResult.success) {
-            this.sendError(400, 'Invalid parameters', paramsResult.error.errors);
-            return false;
-        }
-        const { memoryId } = paramsResult.data;
-        this.memoryId = memoryId;
-        return true;
+    static async sendStaticError(res: Response, data: ChatContextError): Promise<void> {
+        this.sendStaticErrorFor(res, data.code, data.message, data.error);
     }
 
-    validateBody(): boolean {
-        const bodyResult = sendMessageSchema.safeParse(this.req.body);
-        if (!bodyResult.success) {
-            this.sendError(400, 'Invalid request body', bodyResult.error.errors);
-            return false;
+    private static sendStaticErrorFor(res: Response, code: number, message: string, error?: any): void {
+        // If not error, means that is user error and not system
+        if (error) {
+            console.error(message, error); //TODO: maybe log in db, future error handler service
         }
-        const { content, chatId, llmSetId } = bodyResult.data;
-        this.content = content;
-        this.chatId = chatId;
-        this.llmSetIdStr = llmSetId;
-        return true;
+        try {
+            res.status(code).json(message);
+        } catch { }
     }
 
-    validateAuthenticated(): boolean {
-        // Extrair userId do request (precisa do middleware de auth)
-        if (!this.req.user?.id) {
-            this.sendError(401, 'User not authenticated');
-            return false;
-        }
-        this.userId = this.req.user.id;
-        return true;
-    }
-
-    async validateChat(): Promise<boolean> {
-        if (this.chatId) {
-            const chat = await this.chatService.getChatById(this.chatId);
-            if (!chat) {
-                this.sendError(404, 'Chat não encontrado');
-                return false;
-            }
-            this.orderIndex = chat.orderIndex;
-            this.messages = await this.chatService.getMessagesByChat(this.chatId);
-        } else {
-            this.isNewChat = true;
-            const newChat = await this.chatService.createChat(this.userId, this.memoryId, 'Novo Chat');
-            this.orderIndex = newChat.orderIndex;
-            this.chatId = newChat._id.toString();
-            this.messages = [];
-        }
-        return true;
-    }
-
-    async validateLlmSet(llmSetService: LlmSetService): Promise<boolean> {
-        const llmSetConfig = await llmSetService.getLlmSetById(this.llmSetIdStr || '');
-        if (!llmSetConfig) {
-            this.sendError(404, `LLM set '${this.llmSetIdStr}' not found`);
-            return false;
-        }
-        this.llmSetConfig = llmSetConfig;
-        return true;
+    sendError(code: number, message: string, error?: any): void {
+        ChatContext.sendStaticErrorFor(this.res, code, message, error);
     }
 
     async sendInitMessage(): Promise<void> {
-        if (!this.chatId || !this.orderIndex) {
-            throw 'Invalid chatId, missing validateChat';
-        }
+        const userMessage = await this.saveMessageFor('user', this.data.userMessage, 'text');
 
-        const userMessage = await this.saveMessageBy('user', this.content, 'text');
-
-        if (this.isNewChat) {
-            await this.sendMessage({
-                type: MessageType.InitNewStream,
-                chatId: this.chatId,
-                orderIndex: this.orderIndex,
-                userMessage: {
-                    id: userMessage._id.toString(),
+        if (this.data.isNewChat) {
+            await this.sendStream({
+                type: ChatStreamType.InitNewStream,
+                chat: {
+                    chatId: this.data.chatId,
+                    orderIndex: this.data.orderIndex
+                },
+                message: {
+                    messageId: userMessage._id.toString(),
                     modal: userMessage.modal,
                     role: userMessage.role,
                     content: userMessage.content
@@ -122,10 +55,10 @@ export class ChatContext implements IChatContext {
             });
         }
         else {
-            await this.sendMessage({
-                type: MessageType.InitStream,
-                userMessage: {
-                    id: userMessage._id.toString(),
+            await this.sendStream({
+                type: ChatStreamType.InitStream,
+                message: {
+                    messageId: userMessage._id.toString(),
                     modal: userMessage.modal,
                     role: userMessage.role,
                     content: userMessage.content
@@ -135,77 +68,72 @@ export class ChatContext implements IChatContext {
     }
 
     async sendCompleted(): Promise<void> {
-        await this.sendMessage({
-            type: MessageType.Completed
+        await this.sendStream({
+            type: ChatStreamType.Completed
         });
         this.res.end();
     }
 
-    sendError(code: number, message: string, error?: any): void {
-        // If not error, means that is user error and not system
-        if (error) {
-            console.error(message, error); //TODO: maybe log in db, future error handler service
-        }
-        try {
-            this.res.status(code).json(message);
-        } catch { }
-    }
-
-    async sendStreamTitleMessage(content: string): Promise<void> {
-        await this.sendMessage({
-            type: MessageType.StreamTitle,
-            content
+    async sendStreamTitle(content: string): Promise<void> {
+        await this.sendStream({
+            type: ChatStreamType.StreamTitle,
+            chat: {
+                title: content
+            }
         });
     }
 
-    async sendThinking(): Promise<void> {
-        await this.sendMessage({
-            type: MessageType.Thinking
-        });
-    }
-
-    async sendPrepareStreamTextMessage(role: MessageRole, modal: MessageModal): Promise<Message> {
-        await this.sendMessage({
-            type: MessageType.PrepareStreamText,
-            role,
-            modal
-        });
-        return {
+    async sendPrepareMessage(role: MessageRole, modal: MessageModal): Promise<Message> {
+        const message = {
             _id: new ObjectId(),
-            chatId: new ObjectId(this.chatId),
+            chatId: new ObjectId(this.data.chatId),
             role,
-            modal,
             content: '',
+            modal,
             createdAt: new Date()
         };
+        await this.sendStream({
+            type: ChatStreamType.PrepareMessage,
+            message: {
+                messageId: message._id.toString(),
+                role,
+                modal
+            }
+        });
+        return message;
     }
 
-    async sendStreamTextMessage(content: string): Promise<void> {
-        await this.sendMessage({
-            type: MessageType.StreamText,
-            content
+    sendStreamMessage(content: MessageModalType): Promise<void> {
+        return this.sendStream({
+            type: ChatStreamType.StreamMessage,
+            message: {
+                content
+            }
         });
     }
 
-    async sendCompleteStreamTextMessage(message: Message, fullContent: string): Promise<void> {
-        message.content = fullContent;
+    async sendCompleteMessage(message: Message): Promise<void> {
+
         const savedMessage = await this.saveMessage(message);
-        await this.sendMessage({
-            type: MessageType.CompleteStreamText,
-            id: savedMessage._id.toString()
+
+        await this.sendStream({
+            type: ChatStreamType.CompleteMessage,
+            message: {
+                messageId: savedMessage._id.toString()
+            }
         });
     }
 
     private async saveMessage(message: Message): Promise<Message> {
         const savedMessage = await this.chatService.saveMessage(message);
-        this.messages.push(savedMessage);
+        this.data.messages.push(savedMessage);
         return savedMessage;
     }
 
-    private saveMessageBy(role: MessageRole, content: string, modal: MessageModal): Promise<Message> {
+    private saveMessageFor(role: MessageRole, content: string, modal: MessageModal): Promise<Message> {
         return this.saveMessage({
             _id: new ObjectId(),
-            chatId: new ObjectId(this.chatId),
+            chatId: new ObjectId(this.data.chatId),
             role,
             content,
             createdAt: new Date(),
@@ -213,7 +141,7 @@ export class ChatContext implements IChatContext {
         });
     }
 
-    private sendMessage(message: MessageFormat): Promise<void> {
+    private sendStream(message: ChatStream): Promise<void> {
         return new Promise((resolve, reject) => {
             this.res.write(JSON.stringify(message) + '\n', 'utf8', (error) => {
                 if (error) {

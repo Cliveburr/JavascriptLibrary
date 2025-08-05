@@ -1,5 +1,5 @@
 import type { IChatContext } from '../types/chat-types.js';
-import { DecisionService } from './decision.service.js';
+import { ReflectionService } from './reflection.service.js';
 import { StallDetectorEngine } from './stall/stall-detector.js';
 import type { ActionService } from '../actions/action.service.js';
 
@@ -7,15 +7,14 @@ export class ThoughtCycleService {
 
     constructor(
         private actionService: ActionService,
-        private decisionService: DecisionService
+        private reflectionService: ReflectionService
     ) { }
 
     async handle(ctx: IChatContext): Promise<void> {
         const stallDetector = new StallDetectorEngine();
         while (true) {
-            await ctx.sendThinking();
 
-            const actionName = await this.decisionService.decideNextAction(ctx);
+            const actionName = await this.reflectionService.reflectNextAction(ctx);
             await this.actionService.executeAction(actionName, ctx);
             if (ctx.finalizeIteration) {
                 break;
@@ -30,7 +29,5 @@ export class ThoughtCycleService {
 
             //TODO: serviço para resumir as mensagens
         }
-
-        await ctx.sendCompleted();
     }
 }

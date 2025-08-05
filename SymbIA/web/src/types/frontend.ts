@@ -1,6 +1,6 @@
 
 export interface FrontendChat {
-    id: string;
+    chatId: string;
     title: string;
     orderIndex: number;
 }
