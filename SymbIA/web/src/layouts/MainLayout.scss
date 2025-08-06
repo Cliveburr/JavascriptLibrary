@@ -10,9 +10,9 @@
         position: sticky;
         top: 0;
         z-index: $z-index-sticky;
-        background-color: rgba($color-bg-secondary, 0.9);
+        background-color: var(--header-bg);
         backdrop-filter: blur(10px);
-        border-bottom: 1px solid $color-border;
+        border-bottom: 1px solid var(--header-border);
         box-shadow: $shadow-sm;
     }
 
@@ -24,8 +24,8 @@
 
     &__sidebar {
         width: $sidebar-width;
-        background-color: $color-bg-secondary;
-        border-right: 1px solid $color-border;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid var(--sidebar-border);
         overflow-y: auto;
 
         // Scrollbar styling
@@ -38,11 +38,11 @@
         }
 
         &::-webkit-scrollbar-thumb {
-            background: $color-border;
+            background: var(--scrollbar-general-thumb);
             border-radius: $border-radius-sm;
 
             &:hover {
-                background: $color-primary;
+                background: var(--scrollbar-general-hover);
             }
         }
 

@@ -4,14 +4,15 @@ import type { ActionHandler } from './act-defs';
 // Import all action handlers
 import { finalizeAction } from './finalize.action';
 import type { LlmGateway } from '../llm/LlmGateway';
-import { questionAction } from './question.action.js';
+import { replyAction } from './reply.action.js';
 // import { memorySearchAction } from './memory-search.action.js';
 
 export class ActionService {
 
     private allActions: ActionHandler[] = [
-        finalizeAction,
-        questionAction,
+        replyAction
+        // finalizeAction,
+        // questionAction,
         //memorySearchAction,
         // Add new actions here as they are created
     ];

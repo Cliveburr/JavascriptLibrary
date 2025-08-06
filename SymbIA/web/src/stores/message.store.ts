@@ -69,7 +69,7 @@ export const useMessageStore = create<MessageState>((set) => {
                             role: lastMessage.role,
                             content: message.content
                         };
-                        if (lastMessage.modal == 'reflection') {
+                        if (newMessage.modal == 'reflection') {
                             newMessage.isExpanded = true;
                         }
                         newMessages[newMessages.length - 1] = newMessage;
@@ -95,7 +95,7 @@ export const useMessageStore = create<MessageState>((set) => {
                         messageId
                     };
                     if (lastMessage.modal == 'reflection') {
-                        //newMessage.isExpanded = false;
+                        newMessage.isExpanded = false;
                     }
                     newMessages[newMessages.length - 1] = newMessage;
                 }

@@ -1,43 +1,49 @@
-// THEME VARIABLES - Futuristic Dark Theme
+// THEME SYSTEM - SymbIA
 // ==================================================
+// Importa os temas disponíveis
+@use 'theme-futuristic-dark' as futuristic;
+@use 'theme-blue-twilight' as blue;
 
-// Color Palette
-$color-primary: #00ffff; // Cyan
-$color-primary-light: #66ffff; // Light Cyan
-$color-primary-dark: #00cccc; // Dark Cyan
+// TEMA ATIVO: Blue Twilight (padrão)
+// Para mudar o tema, altere as variáveis abaixo ou use o tema desejado
 
-$color-secondary: #ff6b6b; // Coral Red
-$color-secondary-light: #ff9999; // Light Coral
-$color-secondary-dark: #cc5555; // Dark Coral
+// Color Palette - Blue Twilight Theme (Ativo)
+$color-primary: #1e4ba6; // Blue Primary (derivado de #143697)
+$color-primary-light: #4a7bc8; // Light Blue
+$color-primary-dark: #143697; // Original Dark Blue
 
-$color-accent: #ffd93d; // Electric Yellow
-$color-accent-light: #ffe066; // Light Yellow
-$color-accent-dark: #ccad33; // Dark Yellow
+$color-secondary: #6366f1; // Indigo
+$color-secondary-light: #8b8bff; // Light Indigo
+$color-secondary-dark: #4338ca; // Dark Indigo
 
-// Background Colors
-$color-bg-primary: #0a0a0a; // Deep Black
-$color-bg-secondary: #1a1a1a; // Dark Gray
-$color-bg-tertiary: #2a2a2a; // Medium Gray
-$color-bg-surface: #1e1e1e; // Surface Gray
+$color-accent: #0ea5e9; // Sky Blue
+$color-accent-light: #38bdf8; // Light Sky
+$color-accent-dark: #0284c7; // Dark Sky
 
-// Text Colors
-$color-text-primary: #ffffff; // White
-$color-text-secondary: #b3b3b3; // Light Gray
-$color-text-muted: #666666; // Muted Gray
-$color-text-accent: $color-primary; // Cyan Text
+// Background Colors - Tons azulados suaves
+$color-bg-primary: #0f1629; // Deep Blue Dark (baseado em #143697 mais escuro)
+$color-bg-secondary: #1a2642; // Medium Blue Dark
+$color-bg-tertiary: #243356; // Lighter Blue Dark
+$color-bg-surface: #143697; // Surface usando a cor base
+
+// Text Colors - Contraste adequado
+$color-text-primary: #e2e8f0; // Soft White
+$color-text-secondary: #cbd5e1; // Light Blue Gray
+$color-text-muted: #94a3b8; // Blue Gray
+$color-text-accent: $color-accent; // Sky Blue Text
 
 // Border & Divider Colors
-$color-border: #333333; // Border Gray
-$color-border-light: #404040; // Light Border
-$color-border-accent: $color-primary; // Accent Border
+$color-border: #334155; // Blue Gray Border
+$color-border-light: #475569; // Lighter Blue Border
+$color-border-accent: $color-primary; // Primary Border
 
 // Status Colors
-$color-success: #00ff88; // Neon Green
-$color-warning: #ffaa00; // Orange
-$color-error: #ff4444; // Red
-$color-info: $color-primary; // Cyan
+$color-success: #22c55e; // Green
+$color-warning: #f59e0b; // Amber
+$color-error: #ef4444; // Red  
+$color-info: $color-primary; // Blue Primary
 
-// Gradients
+// Gradients - Tons azuis suaves
 $gradient-primary: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
 $gradient-accent: linear-gradient(135deg, $color-accent 0%, $color-accent-dark 100%);
 $gradient-surface: linear-gradient(135deg, $color-bg-secondary 0%, $color-bg-tertiary 100%);
@@ -81,16 +87,33 @@ $border-radius-lg: 0.75rem; // 12px
 $border-radius-xl: 1rem; // 16px
 $border-radius-full: 9999px; // Full circle
 
-// Shadows & Glows
-$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
-$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.25);
+// Shadows & Glows - Ajustados para o tema azul
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.25);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
 
-$glow-primary: 0 0 20px rgba($color-primary, 0.5);
-$glow-accent: 0 0 20px rgba($color-accent, 0.5);
-$glow-success: 0 0 20px rgba($color-success, 0.5);
-$glow-error: 0 0 20px rgba($color-error, 0.5);
+$glow-primary: 0 0 20px rgba($color-primary, 0.4);
+$glow-accent: 0 0 20px rgba($color-accent, 0.4);
+$glow-success: 0 0 20px rgba($color-success, 0.4);
+$glow-error: 0 0 20px rgba($color-error, 0.4);
+
+// Theme Mixins - Para aplicar temas via CSS
+// Tema ativo (Blue Twilight)
+@mixin apply-active-theme {
+    @include blue.apply-blue-twilight-theme;
+}
+
+// Para alternar entre temas no futuro
+@mixin apply-theme($theme-name) {
+    @if $theme-name =='futuristic-dark' {
+        @include futuristic.apply-futuristic-dark-theme;
+    }
+
+    @else if $theme-name =='blue-twilight' {
+        @include blue.apply-blue-twilight-theme;
+    }
+}
 
 // Transitions
 $transition-fast: 0.15s ease-in-out;

@@ -5,7 +5,8 @@
     min-height: 0;
     min-width: 0;
     position: relative;
-    background: var(--surface-primary);
+    background: var(--chat-area-bg); // Usa variável CSS para área de chat
+    background-image: var(--chat-area-pattern, none); // Padrão opcional definido no tema
     overflow: hidden;
 
     .chat-content {

@@ -24,7 +24,8 @@
     }
 
     &--success {
-        background: #10b981;
+        background: var(--notification-success-bg);
+        border: 1px solid var(--notification-success-border);
 
         .notification-item__icon {
             color: white;
@@ -49,7 +50,8 @@
     }
 
     &--error {
-        background: #ef4444;
+        background: var(--notification-error-bg);
+        border: 1px solid var(--notification-error-border);
 
         .notification-item__icon {
             color: white;

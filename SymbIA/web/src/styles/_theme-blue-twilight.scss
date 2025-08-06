@@ -1,0 +1,176 @@
+// BLUE TWILIGHT THEME - Meio termo entre Dark e Light
+// ==================================================
+
+// Color Palette - Baseado em #143697
+$theme-blue-primary: #1e4ba6; // Blue Primary (derivado de #143697)
+$theme-blue-primary-light: #4a7bc8; // Light Blue
+$theme-blue-primary-dark: #143697; // Original Dark Blue
+
+$theme-blue-secondary: #6366f1; // Indigo
+$theme-blue-secondary-light: #8b8bff; // Light Indigo
+$theme-blue-secondary-dark: #4338ca; // Dark Indigo
+
+$theme-blue-accent: #0ea5e9; // Sky Blue
+$theme-blue-accent-light: #38bdf8; // Light Sky
+$theme-blue-accent-dark: #0284c7; // Dark Sky
+
+// Background Colors - Tons azulados suaves
+$theme-blue-bg-primary: #0f1629; // Deep Blue Dark (baseado em #143697 mais escuro)
+$theme-blue-bg-secondary: #1a2642; // Medium Blue Dark
+$theme-blue-bg-tertiary: #243356; // Lighter Blue Dark
+$theme-blue-bg-surface: #143697; // Surface usando a cor base
+
+// Text Colors - Contraste adequado
+$theme-blue-text-primary: #e2e8f0; // Soft White
+$theme-blue-text-secondary: #cbd5e1; // Light Blue Gray
+$theme-blue-text-muted: #94a3b8; // Blue Gray
+$theme-blue-text-accent: $theme-blue-accent; // Sky Blue Text
+
+// Border & Divider Colors
+$theme-blue-border: #334155; // Blue Gray Border
+$theme-blue-border-light: #475569; // Lighter Blue Border
+$theme-blue-border-accent: $theme-blue-primary; // Primary Border
+
+// Status Colors
+$theme-blue-success: #22c55e; // Green
+$theme-blue-warning: #f59e0b; // Amber
+$theme-blue-error: #ef4444; // Red  
+$theme-blue-info: $theme-blue-primary; // Blue Primary
+
+// Gradients - Tons azuis suaves
+$theme-blue-gradient-primary: linear-gradient(135deg, $theme-blue-primary 0%, $theme-blue-primary-dark 100%);
+$theme-blue-gradient-accent: linear-gradient(135deg, $theme-blue-accent 0%, $theme-blue-accent-dark 100%);
+$theme-blue-gradient-surface: linear-gradient(135deg, $theme-blue-bg-secondary 0%, $theme-blue-bg-tertiary 100%);
+
+// Shadows & Glows - Ajustados para o tema azul
+$theme-blue-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+$theme-blue-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.25);
+$theme-blue-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+$theme-blue-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+$theme-blue-glow-primary: 0 0 20px rgba($theme-blue-primary, 0.4);
+$theme-blue-glow-accent: 0 0 20px rgba($theme-blue-accent, 0.4);
+$theme-blue-glow-success: 0 0 20px rgba($theme-blue-success, 0.4);
+$theme-blue-glow-error: 0 0 20px rgba($theme-blue-error, 0.4);
+
+// CSS Variables for Blue Twilight Theme
+@mixin apply-blue-twilight-theme {
+    // Color Variables
+    --color-primary: #{$theme-blue-primary};
+    --color-primary-light: #{$theme-blue-primary-light};
+    --color-primary-dark: #{$theme-blue-primary-dark};
+    --color-secondary: #{$theme-blue-secondary};
+    --color-accent: #{$theme-blue-accent};
+    --accent-primary: #{$theme-blue-primary}; // Alias for accent
+
+    // Background Colors
+    --surface-primary: #{$theme-blue-bg-primary};
+    --surface-secondary: #{$theme-blue-bg-secondary};
+    --surface-tertiary: #{$theme-blue-bg-tertiary};
+    --surface-dark: #{$theme-blue-bg-surface};
+
+    // Text Colors
+    --text-primary: #{$theme-blue-text-primary};
+    --text-secondary: #{$theme-blue-text-secondary};
+    --text-tertiary: #{$theme-blue-text-muted};
+    --text-on-accent: #{$theme-blue-text-primary};
+
+    // Border Colors
+    --border-subtle: #{$theme-blue-border};
+    --border-primary: #{$theme-blue-border-accent};
+
+    // Status Colors
+    --color-success: #{$theme-blue-success};
+    --color-warning: #{$theme-blue-warning};
+    --color-error: #{$theme-blue-error};
+    --color-info: #{$theme-blue-info};
+
+    // Chat specific variables
+    --chat-area-bg: #{$theme-blue-bg-surface};
+    --chat-area-pattern: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(30, 75, 166, 0.1) 0%, transparent 50%);
+    --chat-input-bg: rgba(15, 22, 41, 0.8);
+    --chat-input-border: rgba(30, 75, 166, 0.3);
+    --chat-message-input-bg: rgba(20, 54, 151, 0.3);
+    --chat-message-input-border: rgba(30, 75, 166, 0.4);
+    --chat-message-input-focus-border: #{$theme-blue-primary};
+    --chat-user-message-bg: linear-gradient(135deg, #2a4699 0%, #103373 100%);
+    --chat-assistant-message-bg: rgba(22, 31, 51, 0.18);
+    --chat-assistant-message-border: rgba(30, 75, 166, 0.3);
+    --chat-system-message-bg: rgba(14, 165, 233, 0.2);
+    --chat-system-message-border: rgba(14, 165, 233, 0.4);
+    --chat-system-message-color: #{$theme-blue-accent};
+
+    // Send button variables
+    --send-btn-disabled-bg: rgba(36, 51, 86, 0.5);
+    --send-btn-disabled-color: rgba(226, 232, 240, 0.5);
+    --send-btn-active-bg: #{$theme-blue-primary};
+    --send-btn-active-color: #{$theme-blue-text-primary};
+    --send-btn-hover-bg: #{$theme-blue-primary-light};
+    --send-btn-shadow: 0 4px 12px rgba(30, 75, 166, 0.4);
+
+    // Processing button variables
+    --send-btn-processing-bg: #{$theme-blue-warning};
+    --send-btn-processing-color: #{$theme-blue-text-primary};
+
+    // Sidebar variables
+    --sidebar-bg: rgba(15, 22, 41, 0.95);
+    --sidebar-border: rgba(30, 75, 166, 0.3);
+    --sidebar-hover-bg: rgba(30, 75, 166, 0.15);
+
+    // Header variables
+    --header-bg: rgba(15, 22, 41, 0.95);
+    --header-border: rgba(30, 75, 166, 0.3);
+
+    // Button variables
+    --btn-primary-bg: #{$theme-blue-gradient-primary};
+    --btn-primary-color: #{$theme-blue-text-primary};
+    --btn-primary-shadow: #{$theme-blue-glow-primary};
+    --btn-primary-hover-shadow: 0 0 30px rgba(30, 75, 166, 0.7);
+    --btn-secondary-bg: rgba(36, 51, 86, 0.8);
+    --btn-secondary-color: #{$theme-blue-text-primary};
+    --btn-secondary-border: rgba(30, 75, 166, 0.4);
+    --btn-secondary-hover-bg: rgba(36, 51, 86, 1);
+    --btn-secondary-hover-border: rgba(30, 75, 166, 0.6);
+
+    // Card variables
+    --card-bg: rgba(26, 38, 66, 0.9);
+    --card-border: rgba(30, 75, 166, 0.3);
+    --card-hover-border: rgba(30, 75, 166, 0.5);
+    --card-outlined-border: rgba(30, 75, 166, 0.4);
+    --card-outlined-hover-bg: rgba(30, 75, 166, 0.1);
+    --card-glass-bg: rgba(26, 38, 66, 0.8);
+    --card-glass-border: rgba(30, 75, 166, 0.3);
+
+    // Modal variables
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6);
+    --modal-bg: rgba(15, 22, 41, 0.95);
+    --modal-border: rgba(30, 75, 166, 0.4);
+
+    // Scrollbar variables - Chat Window
+    --scrollbar-track: rgba(30, 75, 166, 0.15);
+    --scrollbar-thumb: rgba(30, 75, 166, 0.4);
+    --scrollbar-thumb-hover: rgba(30, 75, 166, 0.7);
+
+    // Scrollbar variables - Sidebar/General
+    --scrollbar-general-thumb: rgba(30, 75, 166, 0.5);
+    --scrollbar-general-hover: #{$theme-blue-primary};
+
+    // Empty state variables
+    --empty-state-color: rgba(226, 232, 240, 0.7);
+
+    // Notification variables
+    --notification-success-bg: rgba(34, 197, 94, 0.9);
+    --notification-success-border: rgba(34, 197, 94, 0.6);
+    --notification-error-bg: rgba(239, 68, 68, 0.9);
+    --notification-error-border: rgba(239, 68, 68, 0.6);
+
+    // Loading screen variables
+    --loading-bg: linear-gradient(135deg, #{$theme-blue-bg-primary} 0%, #{$theme-blue-bg-surface} 100%);
+
+    // Input placeholder
+    --input-placeholder-color: rgba(226, 232, 240, 0.5);
+
+    // Warning colors for processing state
+    --warning-primary: #{$theme-blue-warning};
+    --warning-secondary: #{lighten($theme-blue-warning, 10%)};
+}

@@ -44,6 +44,7 @@ export class QuestionAction implements ActionHandler {
         await ctx.sendCompleteMessage(message);
 
         ctx.finalizeIteration = true;
+        console.log("End of question!");
     }
 }
 

@@ -1,0 +1,131 @@
+// FUTURISTIC DARK THEME
+// ==================================================
+
+// Color Palette
+$theme-futuristic-primary: #00ffff; // Cyan
+$theme-futuristic-primary-light: #66ffff; // Light Cyan
+$theme-futuristic-primary-dark: #00cccc; // Dark Cyan
+
+$theme-futuristic-secondary: #ff6b6b; // Coral Red
+$theme-futuristic-secondary-light: #ff9999; // Light Coral
+$theme-futuristic-secondary-dark: #cc5555; // Dark Coral
+
+$theme-futuristic-accent: #ffd93d; // Electric Yellow
+$theme-futuristic-accent-light: #ffe066; // Light Yellow
+$theme-futuristic-accent-dark: #ccad33; // Dark Yellow
+
+// Background Colors
+$theme-futuristic-bg-primary: #0a0a0a; // Deep Black
+$theme-futuristic-bg-secondary: #1a1a1a; // Dark Gray
+$theme-futuristic-bg-tertiary: #2a2a2a; // Medium Gray
+$theme-futuristic-bg-surface: #1e1e1e; // Surface Gray
+
+// Text Colors
+$theme-futuristic-text-primary: #ffffff; // White
+$theme-futuristic-text-secondary: #b3b3b3; // Light Gray
+$theme-futuristic-text-muted: #666666; // Muted Gray
+$theme-futuristic-text-accent: $theme-futuristic-primary; // Cyan Text
+
+// Border & Divider Colors
+$theme-futuristic-border: #333333; // Border Gray
+$theme-futuristic-border-light: #404040; // Light Border
+$theme-futuristic-border-accent: $theme-futuristic-primary; // Accent Border
+
+// Status Colors
+$theme-futuristic-success: #00ff88; // Neon Green
+$theme-futuristic-warning: #ffaa00; // Orange
+$theme-futuristic-error: #ff4444; // Red
+$theme-futuristic-info: $theme-futuristic-primary; // Cyan
+
+// Gradients
+$theme-futuristic-gradient-primary: linear-gradient(135deg, $theme-futuristic-primary 0%, $theme-futuristic-primary-dark 100%);
+$theme-futuristic-gradient-accent: linear-gradient(135deg, $theme-futuristic-accent 0%, $theme-futuristic-accent-dark 100%);
+$theme-futuristic-gradient-surface: linear-gradient(135deg, $theme-futuristic-bg-secondary 0%, $theme-futuristic-bg-tertiary 100%);
+
+// Shadows & Glows
+$theme-futuristic-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+$theme-futuristic-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+$theme-futuristic-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+$theme-futuristic-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.25);
+
+$theme-futuristic-glow-primary: 0 0 20px rgba($theme-futuristic-primary, 0.5);
+$theme-futuristic-glow-accent: 0 0 20px rgba($theme-futuristic-accent, 0.5);
+$theme-futuristic-glow-success: 0 0 20px rgba($theme-futuristic-success, 0.5);
+$theme-futuristic-glow-error: 0 0 20px rgba($theme-futuristic-error, 0.5);
+
+// CSS Variables for Futuristic Dark Theme
+@mixin apply-futuristic-dark-theme {
+    // Color Variables
+    --color-primary: #{$theme-futuristic-primary};
+    --color-primary-light: #{$theme-futuristic-primary-light};
+    --color-primary-dark: #{$theme-futuristic-primary-dark};
+    --color-secondary: #{$theme-futuristic-secondary};
+    --color-accent: #{$theme-futuristic-accent};
+    --accent-primary: #{$theme-futuristic-primary}; // Alias for accent
+
+    // Background Colors
+    --surface-primary: #{$theme-futuristic-bg-primary};
+    --surface-secondary: #{$theme-futuristic-bg-secondary};
+    --surface-tertiary: #{$theme-futuristic-bg-tertiary};
+    --surface-dark: #{$theme-futuristic-bg-surface};
+
+    // Text Colors
+    --text-primary: #{$theme-futuristic-text-primary};
+    --text-secondary: #{$theme-futuristic-text-secondary};
+    --text-tertiary: #{$theme-futuristic-text-muted};
+    --text-on-accent: #{$theme-futuristic-text-primary};
+
+    // Border Colors
+    --border-subtle: #{$theme-futuristic-border};
+    --border-primary: #{$theme-futuristic-border-accent};
+
+    // Status Colors
+    --color-success: #{$theme-futuristic-success};
+    --color-warning: #{$theme-futuristic-warning};
+    --color-error: #{$theme-futuristic-error};
+    --color-info: #{$theme-futuristic-info};
+
+    // Chat specific variables
+    --chat-area-bg: #{$theme-futuristic-bg-surface};
+    --chat-input-bg: #{$theme-futuristic-bg-secondary};
+    --chat-input-border: #{$theme-futuristic-border};
+    --chat-user-message-bg: linear-gradient(135deg, #4c5bb8 0%, #3d2975 100%);
+    --chat-assistant-message-bg: rgba(255, 255, 255, 0.1);
+    --chat-system-message-bg: rgba(255, 193, 7, 0.2);
+    --chat-system-message-border: rgba(255, 193, 7, 0.4);
+    --chat-system-message-color: #ffc107;
+
+    // Sidebar variables
+    --sidebar-bg: #{$theme-futuristic-bg-surface};
+    --sidebar-border: #{$theme-futuristic-border};
+
+    // Header variables
+    --header-bg: rgba(#{red($theme-futuristic-bg-secondary)}, #{green($theme-futuristic-bg-secondary)}, #{blue($theme-futuristic-bg-secondary)}, 0.95);
+    --header-border: #{$theme-futuristic-border};
+
+    // Button variables
+    --btn-primary-bg: #{$theme-futuristic-gradient-primary};
+    --btn-primary-color: #{$theme-futuristic-bg-primary};
+    --btn-secondary-bg: #{$theme-futuristic-bg-secondary};
+    --btn-secondary-border: #{$theme-futuristic-border};
+
+    // Card variables
+    --card-bg: #{$theme-futuristic-bg-secondary};
+    --card-border: #{$theme-futuristic-border};
+
+    // Modal variables
+    --modal-bg: #{$theme-futuristic-bg-surface};
+    --modal-border: #{$theme-futuristic-border};
+
+    // Scrollbar variables
+    --scrollbar-track: rgba(255, 255, 255, 0.1);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.3);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.5);
+
+    // Notification variables
+    --notification-success-bg: #10b981;
+    --notification-error-bg: #ef4444;
+
+    // Loading screen variables
+    --loading-bg: #{$theme-futuristic-bg-primary};
+}

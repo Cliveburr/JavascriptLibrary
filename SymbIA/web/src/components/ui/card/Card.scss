@@ -8,20 +8,20 @@
 
     // Default variant
     &--default {
-        background-color: $color-bg-secondary;
-        border: 1px solid $color-border;
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
         box-shadow: $shadow-sm;
 
         &:hover {
-            border-color: $color-border-light;
+            border-color: var(--card-hover-border);
             box-shadow: $shadow-md;
         }
     }
 
     // Elevated variant
     &--elevated {
-        background-color: $color-bg-secondary;
-        border: 1px solid $color-border;
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
         box-shadow: $shadow-lg;
 
         &:hover {
@@ -33,19 +33,19 @@
     // Outlined variant
     &--outlined {
         background-color: transparent;
-        border: 2px solid $color-border;
+        border: 2px solid var(--card-outlined-border);
 
         &:hover {
-            border-color: $color-primary;
-            background-color: rgba($color-primary, 0.05);
+            border-color: var(--color-primary);
+            background-color: var(--card-outlined-hover-bg);
         }
     }
 
     // Glass variant (glassmorphism effect)
     &--glass {
-        background: rgba($color-bg-secondary, 0.8);
+        background: var(--card-glass-bg);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba($color-border, 0.3);
+        border: 1px solid var(--card-glass-border);
 
         &::before {
             content: '';

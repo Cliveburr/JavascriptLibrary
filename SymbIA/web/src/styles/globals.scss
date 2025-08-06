@@ -3,37 +3,9 @@
 
 @use 'variables' as *;
 
-// CSS Custom Properties (CSS Variables)
+// CSS Custom Properties (CSS Variables) - Tema Blue Twilight (Ativo)
 :root {
-    // Color Variables
-    --color-primary: #{$color-primary};
-    --color-primary-light: #{$color-primary-light};
-    --color-primary-dark: #{$color-primary-dark};
-    --color-secondary: #{$color-secondary};
-    --color-accent: #{$color-accent};
-    --accent-primary: #{$color-primary}; // Alias for accent
-
-    // Background Colors
-    --surface-primary: #{$color-bg-primary};
-    --surface-secondary: #{$color-bg-secondary};
-    --surface-tertiary: #{$color-bg-tertiary};
-    --surface-dark: #{$color-bg-surface};
-
-    // Text Colors
-    --text-primary: #{$color-text-primary};
-    --text-secondary: #{$color-text-secondary};
-    --text-tertiary: #{$color-text-muted};
-    --text-on-accent: #{$color-text-primary};
-
-    // Border Colors
-    --border-subtle: #{$color-border};
-    --border-primary: #{$color-border-accent};
-
-    // Status Colors
-    --color-success: #{$color-success};
-    --color-warning: #{$color-warning};
-    --color-error: #{$color-error};
-    --color-info: #{$color-info};
+    @include apply-active-theme;
 
     // Spacing
     --spacing-xs: #{$spacing-xs};
@@ -75,15 +47,15 @@ body {
     font-size: $font-size-base;
     font-weight: $font-weight-normal;
     line-height: $line-height-normal;
-    color: $color-text-primary !important; // Force white text
-    background-color: $color-bg-primary !important; // Force dark background
+    color: var(--text-primary) !important;
+    background-color: var(--surface-primary) !important;
     overflow-x: hidden;
 
-    // Futuristic background pattern
+    // Suave background pattern com tons azuis
     background-image:
-        radial-gradient(circle at 20% 50%, rgba($color-primary, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba($color-accent, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba($color-secondary, 0.05) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba($color-primary, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba($color-accent, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba($color-secondary, 0.04) 0%, transparent 50%);
 
     // Smooth scrolling
     scroll-behavior: smooth;

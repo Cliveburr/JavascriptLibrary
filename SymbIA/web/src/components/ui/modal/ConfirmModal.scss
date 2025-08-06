@@ -4,22 +4,22 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--modal-overlay-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 .confirm-modal {
-    background: var(--sidebar-bg, #1e1e1e);
+    background: var(--modal-bg);
     border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     max-width: 400px;
     width: 90%;
     margin: 0 20px;
-    border: 1px solid var(--border-color, #333);
+    border: 1px solid var(--modal-border);
 }
 
 .confirm-modal-header {

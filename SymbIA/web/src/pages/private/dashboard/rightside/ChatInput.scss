@@ -1,7 +1,7 @@
 .chat-input {
     padding: 0.5rem; // Padding curtíssimo conforme especificação
-    border-top: 1px solid var(--border-subtle);
-    background: var(--surface-secondary);
+    border-top: 1px solid var(--chat-input-border);
+    background: var(--chat-input-bg);
     font-size: 0.8rem; // Fonte menor conforme especificação
     flex-shrink: 0;
     min-width: 0;
@@ -18,8 +18,8 @@
 
 .message-input {
     flex: 1;
-    background: var(--surface-primary);
-    border: 1px solid var(--border-subtle);
+    background: var(--chat-message-input-bg);
+    border: 1px solid var(--chat-message-input-border);
     border-radius: 0.5rem;
     color: var(--text-primary);
     padding: 0.5rem 0.75rem;
@@ -36,14 +36,14 @@
     word-wrap: break-word;
 
     &::placeholder {
-        color: var(--text-tertiary);
+        color: var(--input-placeholder-color);
     }
 
     &:focus {
         outline: none;
-        border-color: var(--accent-primary);
-        background: var(--surface-primary);
-        box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.1);
+        border-color: var(--chat-message-input-focus-border);
+        background: var(--chat-message-input-bg);
+        box-shadow: 0 0 0 2px rgba(30, 75, 166, 0.2);
     }
 
     &:disabled {
@@ -55,7 +55,7 @@
 .send-button {
     width: 36px;
     height: 36px;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--chat-message-input-border);
     border-radius: 0.375rem;
     display: flex;
     align-items: center;
@@ -66,8 +66,8 @@
 
     // Estado disabled (padrão)
     &.disabled {
-        background: var(--surface-tertiary);
-        color: var(--text-tertiary);
+        background: var(--send-btn-disabled-bg);
+        color: var(--send-btn-disabled-color);
         cursor: not-allowed;
 
         .send-icon {
@@ -77,14 +77,14 @@
 
     // Estado send (mensagem digitada)
     &.send {
-        background: var(--accent-primary);
-        color: var(--text-on-accent);
-        border-color: var(--accent-primary);
+        background: var(--send-btn-active-bg);
+        color: var(--send-btn-active-color);
+        border-color: var(--send-btn-active-bg);
 
         &:hover:not(:disabled) {
-            background: var(--accent-secondary);
+            background: var(--send-btn-hover-bg);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(var(--accent-primary-rgb), 0.3);
+            box-shadow: var(--send-btn-shadow);
         }
 
         &:active:not(:disabled) {
@@ -102,9 +102,9 @@
 
     // Estado processing (enviando)
     &.processing {
-        background: var(--warning-primary);
-        color: var(--text-on-accent);
-        border-color: var(--warning-primary);
+        background: var(--send-btn-processing-bg);
+        color: var(--send-btn-processing-color);
+        border-color: var(--send-btn-processing-bg);
 
         &:hover {
             background: var(--warning-secondary);

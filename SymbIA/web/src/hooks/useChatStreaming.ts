@@ -116,7 +116,7 @@ export const useChatStreaming = () => {
                         stream.message.originModal = stream.message.modal;
                         stream.message.inPrepare = true;
                         stream.message.modal = 'text';
-                        stream.message.content = '💭 IA is thiking...';
+                        stream.message.content = '💭 IA está pensando...';
                     }
                     addMessage(stream.message);
                     break;

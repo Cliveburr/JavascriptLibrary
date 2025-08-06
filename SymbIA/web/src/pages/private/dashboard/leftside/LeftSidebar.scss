@@ -2,8 +2,8 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: var(--surface-dark);
-    border-right: 1px solid var(--border-subtle);
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
     padding: 0.5rem;
     gap: 0.5rem;
     overflow: hidden;
@@ -16,7 +16,7 @@
     // Logo Section
     .logo-section {
         padding: 0.25rem 0;
-        border-bottom: 1px solid var(--border-subtle);
+        border-bottom: 1px solid var(--sidebar-border);
 
         .logo-link {
             display: flex;
@@ -27,7 +27,7 @@
             transition: background-color 0.2s ease;
 
             &:hover {
-                background: var(--surface-secondary);
+                background: var(--sidebar-hover-bg);
             }
 
             .logo-image {
@@ -39,7 +39,7 @@
     // User Profile Section
     .user-section {
         padding: 0.25rem 0;
-        border-bottom: 1px solid var(--border-subtle);
+        border-bottom: 1px solid var(--sidebar-border);
     }
 
     // Section Headers

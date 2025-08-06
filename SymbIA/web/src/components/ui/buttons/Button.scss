@@ -66,35 +66,35 @@
 
     // Variants
     &--primary {
-        background: $gradient-primary;
-        color: $color-bg-primary;
-        border-color: $color-primary;
-        box-shadow: $glow-primary;
+        background: var(--btn-primary-bg);
+        color: var(--btn-primary-color);
+        border-color: var(--color-primary);
+        box-shadow: var(--btn-primary-shadow);
 
         &:hover:not(:disabled) {
-            box-shadow: 0 0 30px rgba($color-primary, 0.7);
+            box-shadow: var(--btn-primary-hover-shadow);
             transform: translateY(-2px);
         }
 
         &:active:not(:disabled) {
             transform: translateY(0);
-            box-shadow: $glow-primary;
+            box-shadow: var(--btn-primary-shadow);
         }
     }
 
     &--secondary {
-        background-color: $color-bg-secondary;
-        color: $color-text-primary;
-        border-color: $color-border;
+        background-color: var(--btn-secondary-bg);
+        color: var(--btn-secondary-color);
+        border-color: var(--btn-secondary-border);
 
         &:hover:not(:disabled) {
-            background-color: $color-bg-tertiary;
-            border-color: $color-border-light;
+            background-color: var(--btn-secondary-hover-bg);
+            border-color: var(--btn-secondary-hover-border);
             box-shadow: $shadow-md;
         }
 
         &:active:not(:disabled) {
-            background-color: $color-bg-secondary;
+            background-color: var(--btn-secondary-bg);
         }
     }
 

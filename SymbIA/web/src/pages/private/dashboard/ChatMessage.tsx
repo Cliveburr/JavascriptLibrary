@@ -17,8 +17,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     const isError = 'isError' in message && message.isError;
     const isReflection = message.modal === 'reflection';
 
-    //const isExpanded = message.isExpanded ?? false;
-    const isExpanded = true;
+    const isExpanded = message.isExpanded ?? false;
 
     const toggleExpanded = () => {
         if (message.messageId) {
@@ -42,7 +41,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                         className="reflection-header"
                         onClick={toggleExpanded}
                     >
-                        <span className="reflection-title">{message.content.title}</span>
+                        <span className="reflection-title">💭 {message.content.title}</span>
                         <span className="expand-icon">{isExpanded ? '▲' : '▼'}</span>
                     </div>
                     {isExpanded && (
@@ -59,7 +58,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
     return (
         <div
-            className={`chat-message ${isUser ? 'user' : isSystem ? 'system' : 'assistant'} ${isStreaming ? 'streaming' : ''} ${isError ? 'error' : ''} ${isReflection ? 'reflection' : ''}`}
+            className={`chat-message ${isUser ? 'user' : isSystem ? 'system' : 'assistant'} ${isStreaming ? 'streaming' : ''} ${isError ? 'error' : ''} ${isReflection ? 'reflection' : ''} ${isReflection && !isExpanded ? 'reflection-collapsed' : ''}`}
             data-testid="message"
             data-role={message.role}
         >

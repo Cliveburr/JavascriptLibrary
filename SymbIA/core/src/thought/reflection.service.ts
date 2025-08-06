@@ -112,7 +112,7 @@ export class ReflectionService {
         }
         await chatCtx.sendCompleteMessage(message);
 
-        console.log('End of reflection');
+        console.log('End of reflection!');
         //return ctx.action || 'Finalize';
         return action;
     }
