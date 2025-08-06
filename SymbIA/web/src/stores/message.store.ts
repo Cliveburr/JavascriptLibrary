@@ -10,6 +10,7 @@ interface MessageState {
     addMessage: (message: ChatStreamMessage) => void;
     updateContentMessage: (message: ChatStreamMessage) => void;
     updateIdMessage: (messageId: string) => void;
+    updateMessage: (messageId: string, updates: Partial<ChatStreamMessage>) => void;
     clearMessages: () => void;
 }
 
@@ -62,12 +63,16 @@ export const useMessageStore = create<MessageState>((set) => {
                 const lastMessage = newMessages[newMessages.length - 1];
                 if (lastMessage) {
                     if (lastMessage.inPrepare) {
-                        newMessages[newMessages.length - 1] = {
+                        const newMessage: ChatStreamMessage = {
                             messageId: lastMessage.messageId,
                             modal: lastMessage.originModal,
                             role: lastMessage.role,
                             content: message.content
                         };
+                        if (lastMessage.modal == 'reflection') {
+                            newMessage.isExpanded = true;
+                        }
+                        newMessages[newMessages.length - 1] = newMessage;
                     }
                     else if (message.content) {
                         newMessages[newMessages.length - 1] = {
@@ -85,11 +90,26 @@ export const useMessageStore = create<MessageState>((set) => {
                 const newMessages = [...state.messages];
                 const lastMessage = newMessages[newMessages.length - 1];
                 if (lastMessage) {
-                    newMessages[newMessages.length - 1] = {
+                    const newMessage: ChatStreamMessage = {
                         ...lastMessage,
                         messageId
                     };
+                    if (lastMessage.modal == 'reflection') {
+                        //newMessage.isExpanded = false;
+                    }
+                    newMessages[newMessages.length - 1] = newMessage;
                 }
+                return { messages: newMessages };
+            });
+        },
+
+        updateMessage: (messageId: string, updates: Partial<ChatStreamMessage>) => {
+            set(state => {
+                const newMessages = state.messages.map(message =>
+                    message.messageId === messageId
+                        ? { ...message, ...updates }
+                        : message
+                );
                 return { messages: newMessages };
             });
         },

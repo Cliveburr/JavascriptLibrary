@@ -25,12 +25,10 @@ export class ChatController {
 
             // Converter para DTO
             const chatDTOs = chats.map(chat => ({
-                id: chat._id.toString(),
+                chatId: chat._id.toString(),
                 memoryId: chat.memoryId.toString(),
                 title: chat.title,
-                orderIndex: chat.orderIndex,
-                createdAt: chat.createdAt.toISOString(),
-                updatedAt: chat.updatedAt?.toISOString()
+                orderIndex: chat.orderIndex
             }));
 
             res.json(chatDTOs);

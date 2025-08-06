@@ -5,10 +5,10 @@ import { parseMessageForPrompt } from '../helpers/index';
 
 export class QuestionAction implements ActionHandler {
     readonly name = "Question";
-    readonly whenToUse = `If the user's request requires information that is not currently available in memory, tools, or prior context — including cases where:
-    • You have never obtained this information before, or  
-    • You attempted to retrieve it from memory or tools but failed.  
-  In these cases, the best choice is to explicitly ask the user for the missing information.`;
+    readonly whenToUse = `Use this if the user's request cannot be completed because information is missing, including cases where:
+  • You have never obtained this information before, OR
+  • You tried to retrieve it from memory/tools but failed.
+  In this case, ask the user for the missing info.`;
     readonly enabled = true;
 
     async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {

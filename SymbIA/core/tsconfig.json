@@ -22,7 +22,7 @@
     "src/**/*",
     "tests/helpers/parseMarkdown.test.ts",
     "tests/helpers/parseMarkdown.example.ts",
-    "tests/helpers/test-simple.js"
+    "tests/helpers/test-simple2.js"
   ],
   "exclude": [
     "node_modules",

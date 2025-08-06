@@ -124,7 +124,7 @@ export const ChatSection: React.FC = () => {
                         title="Novo chat"
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16">
-                            <path d="M8 3.5V8h4.5a.5.5 0 0 1 0 1H8v4.5a.5.5 0 0 1-1 0V9H2.5a.5.5 0 0 1 0-1H7V3.5a.5.5 0 0 1 1 0z" fill="currentColor" />
+                            <path key="add-icon" d="M8 3.5V8h4.5a.5.5 0 0 1 0 1H8v4.5a.5.5 0 0 1-1 0V9H2.5a.5.5 0 0 1 0-1H7V3.5a.5.5 0 0 1 1 0z" fill="currentColor" />
                         </svg>
                     </button>
                 </div>
@@ -151,7 +151,7 @@ export const ChatSection: React.FC = () => {
                                     title="Deletar chat"
                                 >
                                     <svg width="12" height="12" viewBox="0 0 12 12">
-                                        <path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                                        <path key="delete-icon" d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.5" fill="none" />
                                     </svg>
                                 </button>
                             </div>

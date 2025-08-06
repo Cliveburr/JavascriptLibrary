@@ -2,7 +2,7 @@ import type { IChatContext, LlmRequestMessage, Message, MessageModalType, Messag
 import { LlmGateway } from '../llm/LlmGateway';
 import type { ActionService } from '../actions/action.service';
 import type { ActionHandler } from '../actions/act-defs';
-import { parseMarkdown, parseMessageForPrompt, MessageQueue } from '../helpers/index';
+import { parseMarkdown, parseXml, parseMessageForPrompt, MessageQueue } from '../helpers/index';
 
 enum ReflectionStage {
     Undefined,
@@ -11,23 +11,24 @@ enum ReflectionStage {
     Action
 }
 
-const responseSections = [
-    { text: '### Title: ', name: 'title' },
-    { text: '### Reflection: ', name: 'content' },
-    { text: '### Action: ', name: 'action' }
-] as const;
+// const responseSections = [
+//     { text: '##Title:', name: 'title' },
+//     { text: '##Reflection:', name: 'content' },
+//     { text: '##Action:', name: 'action' }
+// ] as const;
 
 interface ReflectionContext {
     stage: ReflectionStage;
     chatCtx: IChatContext;
     message: Message;
     content: MessageReflectionModal;
-    parser: (content: string) => {
-        title: string;
-        content: string;
-        action: string;
-    };
-    action?: string;
+    // parser: (content: string) => {
+    //     title: string;
+    //     content: string;
+    //     action: string;
+    // };
+    parser: (content: string) => void,
+    //action?: string;
     messageQueue: MessageQueue<MessageModalType>;
 }
 
@@ -38,6 +39,7 @@ export class ReflectionService {
     ) { }
 
     async reflectNextAction(chatCtx: IChatContext): Promise<string> {
+        console.log('Reflecting...');
 
         const actions = this.actionService.getActions();
         if (actions.length === 0) {
@@ -51,12 +53,39 @@ export class ReflectionService {
         };
         message.content = content;
 
+        let action = '';
+
         const ctx: ReflectionContext = {
             stage: ReflectionStage.Undefined,
             chatCtx,
             message,
             content,
-            parser: parseMarkdown(responseSections),
+            //parser: parseMarkdown(responseSections),
+            parser: parseXml([
+                {
+                    tag: 'title', callback: (content) => {
+                        ctx.content.title += content;
+                        ctx.messageQueue.add({
+                            title: content,
+                            content: ''
+                        });
+                    }
+                },
+                {
+                    tag: 'reflection', callback: (content) => {
+                        ctx.content.content += content;
+                        ctx.messageQueue.add({
+                            title: '',
+                            content: content
+                        });
+                    }
+                },
+                {
+                    tag: 'action', callback: (content) => {
+                        action += content;
+                    }
+                }
+            ]),
             messageQueue: new MessageQueue(chatCtx.sendStreamMessage.bind(chatCtx))
         };
 
@@ -70,7 +99,7 @@ export class ReflectionService {
             this.parseStream.bind(this, ctx),
             {
                 temperature: 0.2, // Low temperature for consistent decisions
-                maxTokens: 50, // Short response expected
+                maxTokens: 200, // Short response expected
             }
         );
         //console.log(response.content);
@@ -83,52 +112,78 @@ export class ReflectionService {
         }
         await chatCtx.sendCompleteMessage(message);
 
-        return ctx.action || 'Finalize';
+        console.log('End of reflection');
+        //return ctx.action || 'Finalize';
+        return action;
     }
 
     private parseStream(ctx: ReflectionContext, content: string): void {
 
-        const parsed = ctx.parser(content);
-        let needSend = false;
+        ctx.parser(content);
 
-        if (parsed.title.length > 0) {
-            ctx.content.title += parsed.title;
-            needSend = true;
-        }
-        if (parsed.content.length > 0) {
-            ctx.content.content += parsed.content;
-            needSend = true;
-        }
-        if (parsed.action.length > 0) {
-            ctx.action += parsed.action;
-        }
+        // const parsed = ctx.parser(content);
+        // let needSend = false;
 
-        if (needSend) {
-            ctx.content.title += parsed.title;
-            ctx.content.content += parsed.content;
+        // if (parsed.title.length > 0) {
+        //     ctx.content.title += parsed.title;
+        //     needSend = true;
+        // }
+        // if (parsed.content.length > 0) {
+        //     ctx.content.content += parsed.content;
+        //     needSend = true;
+        // }
+        // if (parsed.action.length > 0) {
+        //     ctx.action += parsed.action;
+        // }
 
-            ctx.messageQueue.add({
-                title: parsed.title,
-                content: parsed.content
-            });
-        }
+        // if (needSend) {
+        //     console.log(parsed);
+        //     ctx.content.title += parsed.title;
+        //     ctx.content.content += parsed.content;
+
+        //     ctx.messageQueue.add({
+        //         title: parsed.title,
+        //         content: parsed.content
+        //     });
+        // }
     }
 
     private buildReflectionPrompt(messages: Message[], actions: ActionHandler[]): Array<LlmRequestMessage> {
         const history = messages
             .map(msg => parseMessageForPrompt(msg));
 
-        const systemPrompt = `You are an AI assistant that must reflect on what the user is saying and decide which actions to take to satisfy the user.
+        const systemPrompt = `You are an AI assistant that reflects on the user's message and selects exactly one action to satisfy the user's request.
 
 Available Actions
 
 ${actions.map(a => `- ${a.name}
   ${a.whenToUse}`).join('\n')}
 
-Obey **exactly** this output format:
-### Title: a short sentence (≤ 10 words) about the reflection
-### Reflection: a concise sentence (≤ 150 words) explaining why this action is best
-### Action: EXACT action name here`;
+CRUCIAL RULES
+
+1. You MUST output exactly three XML-like tags in this exact order:
+   <title>...</title>
+   <reflection>...</reflection>
+   <action>...</action>
+
+2. Do NOT output anything outside these three tags.
+
+3. Title: Short, ≤ 10 words, summarizes your reflection.
+
+4. Reflection: Concise reasoning, ≤ 150 words, why this action is the best choice.
+
+5. Action: Must be exactly one of listed above.
+
+6. Never add explanations, markdown, or other commentary outside the required tags.`;
+
+        // Obey **exactly** this output format:
+        // ##Title: a short sentence (≤ 10 words) about the reflection
+        // ##Reflection: a concise sentence (≤ 150 words) explaining why this action is best
+        // ##Action: EXACT action name here`;
+
+        // <title>a short sentence (≤ 10 words) about the reflection</title>
+        // <reflection>a concise sentence (≤ 150 words) explaining why this action is best</reflection>
+        // <action>EXACT action name here</action>`;
 
         return [
             { role: 'system', content: systemPrompt },

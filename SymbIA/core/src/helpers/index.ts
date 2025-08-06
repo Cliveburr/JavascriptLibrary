@@ -1,3 +1,4 @@
 export * from './messageContentParser';
-export * from './parseMarkdown';
+export * from './parseMarkdownNew';
 export * from './message-queue';
+export * from './parseXmlNew';

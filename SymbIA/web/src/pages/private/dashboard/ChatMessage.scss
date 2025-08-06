@@ -8,10 +8,10 @@
         justify-content: flex-end;
 
         .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #644ba2 100%);
             color: white;
-            border-radius: 18px 18px 4px 18px;
-            max-width: 70%;
+            border-radius: 4px;
+            max-width: 80%;
             min-width: 0;
         }
     }
@@ -21,10 +21,9 @@
 
         .message-content {
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            border-radius: 18px 18px 18px 4px;
-            max-width: 70%;
+            border-radius: 4px;
+            max-width: 80%;
             min-width: 0;
         }
     }
@@ -36,7 +35,7 @@
             background: rgba(255, 193, 7, 0.2);
             border: 1px solid rgba(255, 193, 7, 0.4);
             color: #ffc107;
-            border-radius: 12px;
+            border-radius: 4px;
             font-size: 0.9rem;
             font-style: italic;
             max-width: 80%;
@@ -45,7 +44,7 @@
     }
 
     .message-content {
-        padding: 0.75rem 1rem;
+        padding: 0.3rem;
         position: relative;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         min-width: 0;
@@ -105,6 +104,47 @@
 
         .error-indicator {
             margin-left: 4px;
+        }
+    }
+
+    // Reflection styles
+    &.reflection {
+        .message-content {
+            background: rgba(167 164 164 / 24%) !important;
+        }
+
+        .reflection-content {
+            .reflection-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                padding: 0.25rem 0;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    background: rgba(128, 128, 128, 0.1);
+                }
+
+                .reflection-title {
+                    font-weight: 500;
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.95rem;
+                }
+
+                .expand-icon {
+                    color: rgba(128, 128, 128, 0.7);
+                    font-size: 0.8rem;
+                    transition: transform 0.2s ease;
+                }
+            }
+
+            .reflection-body {
+                animation: expand-in 0.3s ease-out;
+                color: rgba(255, 255, 255, 0.8);
+                white-space: pre-wrap;
+                font-size: 0.85rem;
+            }
         }
     }
 }
@@ -168,5 +208,19 @@
     60%,
     80% {
         transform: translateX(2px);
+    }
+}
+
+@keyframes expand-in {
+    0% {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
     }
 }

@@ -18,7 +18,7 @@ export function parseMessageForPrompt(message: Message): LlmRequestMessage {
     else if (isReflection(message, message.content)) {
         return {
             role: message.role,
-            content: `Reflection title: ${message.content.title}\n\n${message.content.content}`
+            content: `Reflection: ${message.content.content}`
         };
     }
     else {

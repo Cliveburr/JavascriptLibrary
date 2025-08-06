@@ -5,7 +5,7 @@ import { parseMessageForPrompt } from '../helpers/index';
 
 export class FinalizeAction implements ActionHandler {
     readonly name = "Finalize";
-    readonly whenToUse = "After reviewing the entire conversation history, determine that none of the other available actions are applicable and there is no further useful action to take.";
+    readonly whenToUse = "Use this when none of the other actions are applicable and there is no further useful action to take.";
     readonly enabled = true;
 
     async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {

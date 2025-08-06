@@ -33,6 +33,7 @@ export interface ChatStreamMessage {
     // Only used in frontend
     inPrepare?: boolean;
     originModal?: MessageModal;
+    isExpanded?: boolean;
 }
 
 export interface ChatStreamChat {
