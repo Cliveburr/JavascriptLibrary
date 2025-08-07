@@ -27,6 +27,11 @@ export interface TagCallback {
     temp?: string;
 }
 
+export interface OpenTagCallback {
+    tag: string;
+    callback: () => void;
+}
+
 enum ParseState {
     None,
     OpenTag,
@@ -34,7 +39,7 @@ enum ParseState {
     CloseTag
 }
 
-export function parseXml(tagCallbacks: TagCallback[]): (content: string) => void {
+export function parseXml(tagCallbacks: TagCallback[], onOpenTagCallbacks?: OpenTagCallback[]): (content: string) => void {
     // Estado interno do parser
     let buffer = '';
     let actualTag = '';
@@ -70,6 +75,10 @@ export function parseXml(tagCallbacks: TagCallback[]): (content: string) => void
                         actualTag = temp;
                         state = ParseState.Content;
                         i++;
+                        const openTagCallback = onOpenTagCallbacks?.find(tc => tc.tag === actualTag);
+                        if (openTagCallback) {
+                            openTagCallback.callback();
+                        }
                     } else {
                         // Se não vai concatenando no temp
                         temp += char;

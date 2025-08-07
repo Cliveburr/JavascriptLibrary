@@ -1,8 +1,8 @@
-import type { IChatContext, LlmRequestMessage, Message, MessageModalType, MessageReflectionModal } from '../types/index';
+import type { IChatContext, LlmRequestMessage, Message, MessageReflectionModal } from '../types/index';
 import { LlmGateway } from '../llm/LlmGateway';
 import type { ActionService } from '../actions/action.service';
 import type { ActionHandler } from '../actions/act-defs';
-import { parseMarkdown, parseXml, parseMessageForPrompt, MessageQueue } from '../helpers/index';
+import { parseXml, parseMessageForPrompt, MessageQueue } from '../helpers/index';
 
 enum ReflectionStage {
     Undefined,
@@ -11,25 +11,13 @@ enum ReflectionStage {
     Action
 }
 
-// const responseSections = [
-//     { text: '##Title:', name: 'title' },
-//     { text: '##Reflection:', name: 'content' },
-//     { text: '##Action:', name: 'action' }
-// ] as const;
-
 interface ReflectionContext {
     stage: ReflectionStage;
     chatCtx: IChatContext;
     message: Message;
     content: MessageReflectionModal;
-    // parser: (content: string) => {
-    //     title: string;
-    //     content: string;
-    //     action: string;
-    // };
     parser: (content: string) => void,
-    //action?: string;
-    messageQueue: MessageQueue<MessageModalType>;
+    messageQueue: MessageQueue<MessageReflectionModal>;
 }
 
 export class ReflectionService {
@@ -86,7 +74,7 @@ export class ReflectionService {
                     }
                 }
             ]),
-            messageQueue: new MessageQueue(chatCtx.sendStreamMessage.bind(chatCtx))
+            messageQueue: new MessageQueue<MessageReflectionModal>(chatCtx.sendStreamMessage.bind(chatCtx))
         };
 
         const messages = this.buildReflectionPrompt(ctx.chatCtx.messages, actions);
@@ -96,57 +84,32 @@ export class ReflectionService {
         const response = await this.llmGateway.invokeAsync(
             ctx.chatCtx.llmSetConfig.models.reasoningHeavy,
             messages,
-            this.parseStream.bind(this, ctx),
+            //this.parseStream.bind(this, ctx),
+            ctx.parser,
             {
                 temperature: 0.2, // Low temperature for consistent decisions
                 maxTokens: 200, // Short response expected
             }
         );
         //console.log(response.content);
-        //TODO: ir diminuindo a temperatura progressivamente e a precisão
+        //TODO: criar uns 3 o umais tipos de reflexão que vai aumentando o grau da reflexão se não retornar uma action
 
         if (response.usage) {
             message.promptTokens = response.usage.promptTokens;
             message.completionTokens = response.usage.completionTokens;
-            message.totalTokens = response.usage.totalTokens;
         }
         await chatCtx.sendCompleteMessage(message);
 
-        console.log('End of reflection!');
+        console.log('End of Reflection!');
         //return ctx.action || 'Finalize';
         return action;
     }
 
-    private parseStream(ctx: ReflectionContext, content: string): void {
+    // private parseStream(ctx: ReflectionContext, content: string): void {
 
-        ctx.parser(content);
+    //     ctx.parser(content);
 
-        // const parsed = ctx.parser(content);
-        // let needSend = false;
-
-        // if (parsed.title.length > 0) {
-        //     ctx.content.title += parsed.title;
-        //     needSend = true;
-        // }
-        // if (parsed.content.length > 0) {
-        //     ctx.content.content += parsed.content;
-        //     needSend = true;
-        // }
-        // if (parsed.action.length > 0) {
-        //     ctx.action += parsed.action;
-        // }
-
-        // if (needSend) {
-        //     console.log(parsed);
-        //     ctx.content.title += parsed.title;
-        //     ctx.content.content += parsed.content;
-
-        //     ctx.messageQueue.add({
-        //         title: parsed.title,
-        //         content: parsed.content
-        //     });
-        // }
-    }
+    // }
 
     private buildReflectionPrompt(messages: Message[], actions: ActionHandler[]): Array<LlmRequestMessage> {
         const history = messages

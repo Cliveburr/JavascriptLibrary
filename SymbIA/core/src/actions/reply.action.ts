@@ -12,7 +12,7 @@ export class ReplyAction implements ActionHandler {
     readonly enabled = true;
 
     async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {
-        console.log("Running reply action...");
+        console.log("Running Reply action...");
 
         const history = ctx.messages
             .map(msg => parseMessageForPrompt(msg));
@@ -50,7 +50,7 @@ Your response should be short and natural. Speak directly to the user.`
         await ctx.sendCompleteMessage(message);
 
         ctx.finalizeIteration = true;
-        console.log("End of reply!");
+        console.log("End of Reply!");
     }
 }
 

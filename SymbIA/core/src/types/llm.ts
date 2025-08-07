@@ -26,15 +26,14 @@ export interface LlmResponse {
 }
 
 export interface EmbeddingRequest {
-    text: string;
     model: string;
+    input: string[];
 }
 
 export interface EmbeddingResponse {
-    embedding: number[];
+    embeddings: number[][];
     usage?: {
         promptTokens: number;
-        totalTokens: number;
     };
 }
 

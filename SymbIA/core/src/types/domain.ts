@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { VectorPayload } from '../memory/qdrant.provider';
 
 // Domain entities
 export interface User {
@@ -15,6 +16,7 @@ export interface Memory {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
+    vectorDatabase: string;
     totalChatCreated: number;
     createdAt: Date;
     deletedAt?: Date;
@@ -30,12 +32,26 @@ export interface Chat {
 }
 
 export type MessageRole = 'user' | 'assistant' | 'system';
-export type MessageModal = 'text' | 'reflection' | 'form' | 'chart' | 'file' | 'memory';
-export type MessageModalType = string | MessageReflectionModal;
+export type MessageModal = 'text' | 'reflection' | 'memory' | 'form' | 'chart' | 'file';
+export type MessageModalType = string | MessageReflectionModal | MessageMemoryModal;
 
 export interface MessageReflectionModal {
     title: string;
     content: string;
+}
+
+export type MessageMemoryContentType = string;
+
+export interface MessageMemoryModal {
+    title: string;
+    content: string;
+    memories: Array<{
+        keyWords: string;
+        vectorId?: string;
+        content?: VectorPayload;
+        embeeding?: number[];
+    }>;
+    error?: string;
 }
 
 
@@ -58,7 +74,8 @@ export interface Message {
     // Métricas de uso
     promptTokens?: number;
     completionTokens?: number;
-    totalTokens?: number;
+    embeedingPromptTokens?: number;
+
     // pricePer1kTokensUSD?: number;
     // costUSD?: number;
 

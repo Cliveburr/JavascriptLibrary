@@ -1,6 +1,6 @@
-import type { LlmRequest, LlmResponse, LlmSetModel } from '../types/llm.js';
-import { OpenAIProvider } from './providers/openai.js';
-import { OllamaProvider } from './providers/ollama.js';
+import type { EmbeddingRequest, EmbeddingResponse, LlmRequest, LlmResponse, LlmSetConfig, LlmSetModel } from '../types/llm';
+import { OpenAIProvider } from './providers/openai';
+import { OllamaProvider } from './providers/ollama';
 
 export class LlmGateway {
     constructor(
@@ -52,4 +52,26 @@ export class LlmGateway {
         }
     }
 
+    async generateEmbedding(
+        llmSetConfig: LlmSetConfig,
+        texts: Array<string>
+    ): Promise<EmbeddingResponse> {
+
+        const embeddingModel = llmSetConfig.models.embedding;
+        const requestOptions: EmbeddingRequest = {
+            input: texts,
+            model: embeddingModel.model,
+        };
+
+        switch (embeddingModel.provider) {
+            case 'openai':
+                return this.openaiProvider.generateEmbedding(requestOptions);
+
+            case 'ollama':
+                return this.ollamaProvider.generateEmbedding(requestOptions);
+
+            default:
+                throw new Error(`Unsupported LLM provider for embeddings: ${embeddingModel.provider}`);
+        }
+    }
 }

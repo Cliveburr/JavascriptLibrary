@@ -2,6 +2,7 @@ import type { Message, MessageModal, MessageModalType, MessageRole } from './dom
 import type { LlmSetConfig } from './llm';
 
 export interface IChatContext {
+    memoryId: string;
     userMessage: string;
     messages: Message[];
     llmSetConfig: LlmSetConfig;

@@ -1,6 +1,5 @@
 import { ServiceRegistry } from './services/service-registry.js';
 import { MemoryService } from './memory/memory.service.js';
-import { EmbeddingService } from './memory/embedding.service.js';
 import { QdrantProvider } from './memory/qdrant.provider.js';
 import { LlmGateway } from './llm/LlmGateway.js';
 import { LlmSetService } from './llm/llm-set.service.js';
@@ -20,7 +19,6 @@ export * from './llm/llm-set.service.js';
 export * from './llm/providers/openai.js';
 export * from './llm/providers/ollama.js';
 export * from './memory/memory.service.js';
-export * from './memory/embedding.service.js';
 export * from './memory/qdrant.provider.js';
 export * from './thought/reflection.service.js';
 export * from './actions/action.service.js';
@@ -46,7 +44,6 @@ export function configureContainer() {
     const openaiProvider = new OpenAIProvider(configService);
     const ollamaProvider = new OllamaProvider(configService);
     const llmGateway = new LlmGateway(openaiProvider, ollamaProvider);
-    const embeddingService = new EmbeddingService(llmGateway, llmSetService);
     const memoryService = new MemoryService(mongodbService);
     const chatService = new ChatService(mongodbService, llmGateway, llmSetService);
     const actionService = new ActionService(llmGateway);
@@ -58,7 +55,6 @@ export function configureContainer() {
     registry.register('ConfigService', configService);
     registry.register('MongoDBService', mongodbService);
     registry.register('MemoryService', memoryService);
-    registry.register('EmbeddingService', embeddingService);
     registry.register('QdrantProvider', qdrantProvider);
     registry.register('LlmSetService', llmSetService);
     registry.register('OpenAIProvider', openaiProvider);

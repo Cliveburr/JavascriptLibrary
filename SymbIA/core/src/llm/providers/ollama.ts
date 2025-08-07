@@ -1,5 +1,5 @@
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '../../types/llm.js';
-import { ConfigService } from '../../config/config.service.js';
+import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '../../types/llm';
+import { ConfigService } from '../../config/config.service';
 
 export interface OllamaConfig {
     baseUrl?: string;
@@ -14,7 +14,7 @@ interface OllamaChatResponse {
 }
 
 interface OllamaEmbeddingResponse {
-    embedding?: number[];
+    embeddings?: number[][];
     prompt_eval_count?: number;
 }
 
@@ -147,10 +147,10 @@ export class OllamaProvider {
     async generateEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
         const requestBody = {
             model: request.model,
-            prompt: request.text,
+            input: request.input,
         };
 
-        const response = await fetch(`${this.baseUrl}/api/embeddings`, {
+        const response = await fetch(`${this.baseUrl}/api/embed`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -166,10 +166,9 @@ export class OllamaProvider {
         const data = await response.json() as OllamaEmbeddingResponse;
 
         return {
-            embedding: data.embedding || [],
+            embeddings: data.embeddings || [],
             usage: {
-                promptTokens: data.prompt_eval_count || 0,
-                totalTokens: data.prompt_eval_count || 0,
+                promptTokens: data.prompt_eval_count || 0
             },
         };
     }

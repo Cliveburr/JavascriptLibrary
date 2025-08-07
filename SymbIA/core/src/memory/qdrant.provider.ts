@@ -6,12 +6,16 @@ export interface QdrantConfig {
     apiKey?: string;
 }
 
+export enum VectorContentType {
+    PlainText
+}
+
+export type VectorContentTypes = string;
+
 export interface VectorPayload {
-    type: string;
-    tags?: string[];
+    type: VectorContentType;
     timestamp: string;
-    content?: string;
-    metadata?: Record<string, any>;
+    content?: VectorContentTypes;
     [key: string]: any; // Index signature for Qdrant compatibility
 }
 

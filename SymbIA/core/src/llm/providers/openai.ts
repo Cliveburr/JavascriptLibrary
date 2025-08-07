@@ -176,7 +176,7 @@ export class OpenAIProvider {
         }
 
         const requestBody = {
-            input: request.text,
+            input: request.input, // Pode ser string ou array de strings
             model: request.model || 'text-embedding-ada-002',
             encoding_format: 'float',
         };
@@ -197,11 +197,13 @@ export class OpenAIProvider {
 
         const data = await response.json() as OpenAIEmbeddingResponse;
 
+        // Extrair todos os embeddings da resposta
+        const embeddings = data.data.map(item => item.embedding);
+
         return {
-            embedding: data.data[0]?.embedding || [],
+            embeddings,
             usage: {
                 promptTokens: data.usage?.prompt_tokens || 0,
-                totalTokens: data.usage?.total_tokens || 0,
             },
         };
     }

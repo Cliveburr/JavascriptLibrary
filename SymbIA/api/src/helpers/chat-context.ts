@@ -6,6 +6,7 @@ import { ChatContextError, ChatContextData } from './chat-validation';
 
 export class ChatContext implements IChatContext {
 
+    get memoryId() { return this.data.memoryId; }
     get userMessage() { return this.data.userMessage; }
     get messages() { return this.data.messages; }
     get llmSetConfig() { return this.data.llmSetConfig; }

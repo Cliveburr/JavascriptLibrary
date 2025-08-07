@@ -1,6 +1,7 @@
 import type { Memory } from '../types/domain.js';
 import { MongoDBService } from '../database/mongodb.service.js';
 import { ObjectId } from 'mongodb';
+import { v6 } from 'uuid';
 
 export class MemoryValidationError extends Error {
   constructor(message: string) {
@@ -45,6 +46,7 @@ export class MemoryService {
       _id: new ObjectId(),
       userId: new ObjectId(userId),
       name: name.trim(),
+      vectorDatabase: `${userId}_${v6(undefined, undefined, Date.now())}`,
       totalChatCreated: 0,
       createdAt: new Date(),
     };
