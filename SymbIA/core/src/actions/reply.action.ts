@@ -45,7 +45,6 @@ Your response should be short and natural. Speak directly to the user.`
         if (response.usage) {
             message.promptTokens = response.usage.promptTokens;
             message.completionTokens = response.usage.completionTokens;
-            message.totalTokens = response.usage.totalTokens;
         }
         await ctx.sendCompleteMessage(message);
 

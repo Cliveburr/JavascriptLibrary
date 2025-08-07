@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import type { User } from '../types/domain.js';
-import { MongoDBService } from '../database/mongodb.service.js';
-import { ConfigService } from '../config/config.service.js';
+import type { User } from '../types/domain';
+import { MongoDBService } from '../database/mongodb.service';
+import { ConfigService } from '../config/config.service';
+import { v6 } from 'uuid';
 
 interface AuthResult {
     user: User;
@@ -69,6 +70,7 @@ export class AuthService {
             _id: defaultMemoryId,
             userId,
             name: 'Default Memory',
+            vectorDatabase: `${userId}_${v6(undefined, undefined, Date.now())}`,
             totalChatCreated: 0,
             createdAt: now
         };

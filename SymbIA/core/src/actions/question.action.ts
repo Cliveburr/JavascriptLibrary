@@ -39,7 +39,6 @@ export class QuestionAction implements ActionHandler {
         if (response.usage) {
             message.promptTokens = response.usage.promptTokens;
             message.completionTokens = response.usage.completionTokens;
-            message.totalTokens = response.usage.totalTokens;
         }
         await ctx.sendCompleteMessage(message);
 

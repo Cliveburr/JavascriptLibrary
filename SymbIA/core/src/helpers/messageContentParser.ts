@@ -13,30 +13,35 @@ function isMemory(message: Message, content: MessageModalType): content is Messa
 }
 
 export function parseMessageForPrompt(message: Message): LlmRequestMessage {
-    if (isText(message, message.content)) {
-        return {
-            role: message.role,
-            content: message.content
-        };
-    }
-    else if (isReflection(message, message.content)) {
-        return {
-            role: message.role,
-            content: `Reflection: ${message.content.content}`
-        };
-    }
-    else if (isMemory(message, message.content)) {
-        return {
-            role: message.role,
-            content: `# Memories
+    const messageContent = message.content;
+    switch (message.modal) {
+        case 'text':
+            if (isText(message, messageContent)) {
+                return {
+                    role: message.role,
+                    content: messageContent
+                };
+            }
+        case 'reflection':
+            if (isReflection(message, messageContent)) {
+                return {
+                    role: message.role,
+                    content: `Reflection: ${messageContent}`
+                };
+            }
+        case 'memory':
+            if (isMemory(message, messageContent)) {
 
-${message.content.memories.map((m => `- Memory:
+                return {
+                    role: message.role,
+                    content: `# Memories
+
+${messageContent.memories.map((m => `- Memory:
     .Key words: ${m.keyWords}
     .VectorId: ${m.vectorId}
     .Content: ${m.content}`)).join('\n\n')}`
-        };
+                };
+            }
     }
-    else {
-        throw `MessageId ${message._id} has invalid modal ${message.modal}!`;
-    }
+    throw `MessageId ${message._id} has invalid modal ${message.modal}!`;
 };

@@ -50,6 +50,7 @@ export class MemorySearchAction implements ActionHandler {
         const message = await chatCtx.sendPrepareMessage('assistant', 'memory');
         const content: MessageMemoryModal = {
             title: '',
+            status: 'prepare',
             content: '',
             memories: []
         };
@@ -145,7 +146,12 @@ export class MemorySearchAction implements ActionHandler {
         const texts = ctx.content.memories
             .map(m => m.keyWords);
 
-        // msg avisando q vai chamar o embeeding
+        ctx.messageQueue.add({
+            title: '',
+            status: 'embedding',
+            content: '',
+            memories: []
+        });
 
         const response = await ctx.llmGateway.generateEmbedding(ctx.chatCtx.llmSetConfig, texts);
 
@@ -158,22 +164,27 @@ export class MemorySearchAction implements ActionHandler {
         }
 
         for (let i = 0; i < texts.length; i++) {
-            ctx.content.memories[i].embeeding = response.embeddings[i];
+            ctx.content.memories[i].embedding = response.embeddings[i];
         }
     }
 
     private async searchMemoryContent(ctx: MemoryContext): Promise<void> {
 
+        ctx.messageQueue.add({
+            title: '',
+            status: 'searching',
+            content: '',
+            memories: []
+        });
+
         for (const memory of ctx.content.memories) {
-            if (!memory.embeeding) {
+            if (!memory.embedding) {
                 continue;
             }
 
-            //await ctx.sendStreamMessage(`🔍 Procurando por: "${keywords}"`);
-
             const searchResults = await ctx.qdrantProvider.search(
                 ctx.chatCtx.memoryId,
-                memory.embeeding,
+                memory.embedding,
                 1,
                 { type: 'text' }
             );

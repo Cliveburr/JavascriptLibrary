@@ -42,14 +42,17 @@ export interface MessageReflectionModal {
 
 export type MessageMemoryContentType = string;
 
+export type MessageMemoryStatus = 'prepare' | 'embedding' | 'searching';
+
 export interface MessageMemoryModal {
     title: string;
+    status?: MessageMemoryStatus;
     content: string;
     memories: Array<{
         keyWords: string;
         vectorId?: string;
         content?: VectorPayload;
-        embeeding?: number[];
+        embedding?: number[];
     }>;
     error?: string;
 }
