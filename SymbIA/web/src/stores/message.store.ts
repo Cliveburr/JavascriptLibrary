@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ChatStreamMessage, MessageModalType, MessageReflectionModal } from '../types';
+import type { ChatStreamMessage, MessageModalType, MessageReflectionModal, MessageMemoryModal } from '../types';
 import { apiService } from '../utils/apiService';
 import { contentCast } from '../utils';
 
@@ -28,6 +28,18 @@ export const useMessageStore = create<MessageState>((set) => {
                     title: contentReflection.title + content.title,
                     content: contentReflection.content + content.content
                 };
+            }
+            else if (contentCast.isMemory(message, content)) {
+                const current = message.content as MessageMemoryModal;
+                const incoming = content as MessageMemoryModal;
+                return {
+                    ...current,
+                    title: (current.title || '') + (incoming.title || ''),
+                    explanation: (current.explanation || '') + (incoming.explanation || ''),
+                    status: incoming.status ?? current.status,
+                    memories: (incoming.memories && incoming.memories.length > 0) ? incoming.memories : current.memories,
+                    error: incoming.error ?? current.error
+                } as MessageMemoryModal;
             }
         }
         return content;
@@ -69,7 +81,7 @@ export const useMessageStore = create<MessageState>((set) => {
                             role: lastMessage.role,
                             content: message.content
                         };
-                        if (newMessage.modal == 'reflection') {
+                        if (newMessage.modal == 'reflection' || newMessage.modal == 'memory') {
                             newMessage.isExpanded = true;
                         }
                         newMessages[newMessages.length - 1] = newMessage;
@@ -94,7 +106,7 @@ export const useMessageStore = create<MessageState>((set) => {
                         ...lastMessage,
                         messageId
                     };
-                    if (lastMessage.modal == 'reflection') {
+                    if (lastMessage.modal == 'reflection' || lastMessage.modal == 'memory') {
                         newMessage.isExpanded = false;
                     }
                     newMessages[newMessages.length - 1] = newMessage;

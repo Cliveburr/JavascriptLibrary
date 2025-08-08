@@ -1,3 +1,4 @@
+@use "sass:color";
 // BLUE TWILIGHT THEME - Meio termo entre Dark e Light
 // ==================================================
 
@@ -172,5 +173,5 @@ $theme-blue-glow-error: 0 0 20px rgba($theme-blue-error, 0.4);
 
     // Warning colors for processing state
     --warning-primary: #{$theme-blue-warning};
-    --warning-secondary: #{lighten($theme-blue-warning, 10%)};
+    --warning-secondary: #{color.adjust($theme-blue-warning, $lightness: 10%)};
 }

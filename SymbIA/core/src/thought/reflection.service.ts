@@ -115,29 +115,25 @@ export class ReflectionService {
         const history = messages
             .map(msg => parseMessageForPrompt(msg));
 
-        const systemPrompt = `You are an AI assistant that reflects on the user's message and selects exactly one action to satisfy the user's request.
+        if (history[history.length - 1]?.role != 'user') {
+            history.push({ role: 'user', content: 'Anwser the system!' });
+        }
+
+        const systemPrompt = `You are an AI assistant that must reflect on the user's message and select exactly one action from the list below.
 
 Available Actions
 
 ${actions.map(a => `- ${a.name}
   ${a.whenToUse}`).join('\n')}
 
-CRUCIAL RULES
-
-1. You MUST output exactly three XML-like tags in this exact order:
+CRUCIAL RULES:
+1. Even if you think you already know the answer, you MUST choose MemorySearch if there is ANY chance memory could help.
+2. If you skip MemorySearch when it is applicable, your answer will be considered WRONG.
+3. Output exactly three XML-like tags in this exact order:
    <title>...</title>
    <reflection>...</reflection>
    <action>...</action>
-
-2. Do NOT output anything outside these three tags.
-
-3. Title: Short, ≤ 10 words, summarizes your reflection.
-
-4. Reflection: Concise reasoning, ≤ 150 words, why this action is the best choice.
-
-5. Action: Must be exactly one of listed above.
-
-6. Never add explanations, markdown, or other commentary outside the required tags.`;
+4. Do not output anything else, no explanations, no markdown.`;
 
         // Obey **exactly** this output format:
         // ##Title: a short sentence (≤ 10 words) about the reflection

@@ -20,7 +20,12 @@ interface MemoryContext {
 
 export class MemorySearchAction implements ActionHandler {
     readonly name = "MemorySearch";
-    readonly whenToUse = `Use this action when you need to search for some type of information to take another action, it could be something the user is asking, something they need before using a tool, or something they have no idea what it is.`;
+    readonly whenToUse = `Use this action in ALL OTHER CASES, including:
+    ** Whenever there is any possibility that the answer or relevant context might exist in memory
+    ** Before asking the user anything
+    ** Before stating that you do not know something
+    ** Before selecting MemorySearch, check any previous Memories in assistnt messages that explanation is the same or semantically equivalent to what you would search now. Normalize text (lowercase, trim, remove punctuation) and consider explanations equivalent if meaning similarity ≥ 0.85. If such a match exists, DO NOT select MemorySearch;`;
+
     readonly enabled = true;
 
     async execute(chatCtx: IChatContext, llmGateway: LlmGateway): Promise<void> {
@@ -34,6 +39,7 @@ export class MemorySearchAction implements ActionHandler {
 
         await this.searchMemoryContent(ctx);
 
+        delete ctx.content.status;
         await chatCtx.sendCompleteMessage(ctx.message);
 
         ctx.chatCtx.finalizeIteration = false;
@@ -115,9 +121,11 @@ export class MemorySearchAction implements ActionHandler {
         // Prepare messages for reasoning
         const messages = ctx.chatCtx.messages.map(parseMessageForPrompt);
         const reasoningMessages = [
-            { role: 'system' as const, content: this.getReasoningPrompt() },
-            ...messages
+            { role: 'system', content: this.getReasoningPrompt() },
+            ...messages,
+            { role: 'user', content: 'Generate the search contexts now.' }
         ];
+        //reasoningMessages.forEach(m => console.log(`${m.role}: ${m.content}`));
 
         // Send preparation message and get LLM response
         const response = await llmGateway.invokeAsync(
@@ -125,9 +133,9 @@ export class MemorySearchAction implements ActionHandler {
             reasoningMessages,
             ctx.parser,
             {
-                temperature: 0.3,
-                maxTokens: 500
+                temperature: 0.3
             });
+        //.log(`Memory generate key result ${response.content.length}: `, response.content);
 
         if (response.usage) {
             ctx.message.promptTokens = response.usage.promptTokens;
@@ -201,19 +209,16 @@ export class MemorySearchAction implements ActionHandler {
 
 CRUCIAL RULES:
 
-1. You MUST output exactly three XML-like tags in this exact order:
+1. Title: Short, ≤ 10 words, summarizes your explanation.
+2. Explanation: Concise text explaining the purpose of the memories, ≤ 150 words, why you need this information.
+4. Keywords: Each keywords tag can contains more than one word and refers to a particular memory to search.
+5. You MUST output exactly XML-like tags below:
    <title>...</title>
    <explanation>...</explanation>
-   <keywords>...</keywords>
+   <contexts>
+     <keywords>...</keywords>
+   </contexts>`;
 
-2. Do NOT output anything outside these three tags.
-
-3. Title: Short, ≤ 10 words, summarizes your explanation.
-
-4. Explanation: Concise text explaining the purpose of the memories, ≤ 150 words, why you need this information.
-
-5. Keywords: Can have multiple <keywords> tags, each tag refers to a particular memory to search
-`;
     }
 }
 

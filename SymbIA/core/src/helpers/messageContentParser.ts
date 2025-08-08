@@ -26,7 +26,7 @@ export function parseMessageForPrompt(message: Message): LlmRequestMessage {
             if (isReflection(message, messageContent)) {
                 return {
                     role: message.role,
-                    content: `Reflection: ${messageContent}`
+                    content: `Reflection: ${messageContent.content}`
                 };
             }
         case 'memory':
@@ -35,6 +35,8 @@ export function parseMessageForPrompt(message: Message): LlmRequestMessage {
                 return {
                     role: message.role,
                     content: `# Memories
+
+Explanation: **${messageContent.explanation}**
 
 ${messageContent.memories.map((m => `- Memory:
     .Key Words: ${m.keyWords}

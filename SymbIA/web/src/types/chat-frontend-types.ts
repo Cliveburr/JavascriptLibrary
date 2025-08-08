@@ -1,7 +1,7 @@
 
 export type MessageRole = 'user' | 'assistant';
 export type MessageModal = 'text' | 'reflection' | 'memory';
-export type MessageModalType = string | MessageReflectionModal;
+export type MessageModalType = string | MessageReflectionModal | MessageMemoryModal;
 
 export interface MessageReflectionModal {
     title: string;
@@ -17,8 +17,8 @@ export enum VectorContentType {
 
 export interface MessageMemoryModal {
     title: string;
+    explanation?: string;
     status?: MessageMemoryStatus;
-    content: MessageMemoryContentType;
     memories: Array<{
         keyWords: string;
         vectorId?: string;

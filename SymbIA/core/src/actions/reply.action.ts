@@ -5,10 +5,9 @@ import { parseMessageForPrompt } from '../helpers/index';
 
 export class ReplyAction implements ActionHandler {
     readonly name = "Reply";
-    readonly whenToUse = `Use this action when the agent needs to send a direct response to the user without performing any other internal action. This includes the following cases:
-  ** To answer the user's request when enough information is available
-  ** To ask the user a clarifying question when essential information is missing
-  ** To conclude the conversation when no further action is needed`;
+    readonly whenToUse = `Use this action ONLY when:
+    ** There is absolutely no chance the answer or relevant context exists in memory
+    ** You already have enough information to fully satisfy the user's request`;
     readonly enabled = true;
 
     async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {

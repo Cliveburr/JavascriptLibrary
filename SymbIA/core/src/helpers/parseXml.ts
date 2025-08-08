@@ -1,147 +1,152 @@
-// /*
-// Example XML structure expected from LLM:
-// ```xml
-// <title>a short sentence (≤ 10 words) about the reflection</title>
-// <reflection>a concise sentence (≤ 150 words) explaining why this action is best</reflection>
-// <action>EXACT action name here</action>
-// ```
+/*
+Example XML structure expected from LLM:
+```xml
+<title>a short sentence (≤ 10 words) about the reflection</title>
+<reflection>a concise sentence (≤ 150 words) explaining why this action is best</reflection>
+<action>EXACT action name here</action>
+```
 
-// Usage:
-// ```typescript
-// const parse = parseXml([
-//     { tag: 'title', callback: (newContent) => console.log('Title:', newContent) },
-//     { tag: 'reflection', callback: (newContent) => console.log('Reflection:', newContent) },
-//     { tag: 'action', callback: (newContent) => console.log('Action:', newContent) }
-// ]);
+Usage:
+```typescript
+const parse = parseXml([
+    { tag: 'title', callback: (newContent) => console.log('Title:', newContent) },
+    { tag: 'reflection', callback: (newContent) => console.log('Reflection:', newContent) },
+    { tag: 'action', callback: (newContent) => console.log('Action:', newContent) }
+]);
 
-// // Process streaming content
-// parse('<title>Hello'); // Calls title callback with "Hello"
-// parse(' World</title>'); // Calls title callback with " World"
-// parse('<action>Question</action>'); // Calls action callback with "Question"
-// ```
-// */
+// Process streaming content
+parse('<title>Hello'); // Calls title callback with "Hello"
+parse(' World</title>'); // Calls title callback with " World"
+parse('<action>Question</action>'); // Calls action callback with "Question"
+```
+*/
 
-// export interface TagCallback {
-//     tag: string;
-//     callback: (newContent: string) => void;
-// }
+export interface TagCallback {
+    tag: string;
+    callback: (newContent: string) => void;
+    temp?: string;
+}
 
-// // Tipo utilitário para extrair os nomes das tags e criar um tipo objeto
-// type ParsedTags<T extends readonly TagCallback[]> = {
-//     [K in T[number]['tag']]: string;
-// };
+export interface OpenTagCallback {
+    tag: string;
+    callback: () => void;
+}
 
-// export function parseXml<T extends readonly TagCallback[]>(
-//     tagCallbacks: T
-// ): (content: string) => ParsedTags<T> {
-//     // Estado interno do parser
-//     let buffer = '';
-//     let result: Record<string, string> = {};
-//     let previousResult: Record<string, string> = {};
+enum ParseState {
+    None,
+    OpenTag,
+    Content,
+    CloseTag
+}
 
-//     // Inicializa o resultado com todas as tags vazias
-//     tagCallbacks.forEach(tagCallback => {
-//         result[tagCallback.tag] = '';
-//         previousResult[tagCallback.tag] = '';
-//     });
+export function parseXml(tagCallbacks: TagCallback[], onOpenTagCallbacks?: OpenTagCallback[]): (content: string) => void {
+    // Estado interno do parser
+    let buffer = '';
+    let openedTags: Array<string> = [];
+    let temp = '';
+    let state = ParseState.None;
 
-//     return function parse(content: string): ParsedTags<T> {
-//         // Adiciona o novo conteúdo ao buffer
-//         buffer += content;
+    return function process(content: string): void {
+        // Clear temps
+        tagCallbacks.forEach(t => t.temp = '');
 
-//         // Reprocessa todo o buffer a cada chamada
-//         const tempResult: Record<string, string> = {};
-//         tagCallbacks.forEach(tagCallback => {
-//             tempResult[tagCallback.tag] = '';
-//         });
+        // Adiciona o novo conteúdo ao buffer
+        buffer += content;
 
-//         // Processa cada tag
-//         tagCallbacks.forEach(tagCallback => {
-//             const openTag = `<${tagCallback.tag}>`;
-//             const closeTag = `</${tagCallback.tag}>`;
+        let i = 0;
+        while (i < buffer.length) {
+            const char = buffer[i];
 
-//             const openIndex = buffer.indexOf(openTag);
-//             if (openIndex !== -1) {
-//                 const contentStart = openIndex + openTag.length;
-//                 const closeIndex = buffer.indexOf(closeTag, contentStart);
+            switch (state) {
+                case ParseState.None:
+                    // Se for None, verifica por <
+                    if (char === '<') {
+                        // Se detectar muda o state para OpenTag, temp = ''
+                        state = ParseState.OpenTag;
+                        temp = '';
+                    }
+                    i++;
+                    break;
 
-//                 if (closeIndex !== -1) {
-//                     // Tag completa encontrada
-//                     tempResult[tagCallback.tag] = buffer.substring(contentStart, closeIndex);
-//                 } else {
-//                     // Tag aberta mas não fechada ainda - pega todo o conteúdo após a abertura
-//                     // mas remove outros XML tags que podem ter sido iniciados
-//                     let content = buffer.substring(contentStart);
+                case ParseState.OpenTag:
+                    // Se for OpenTag
+                    if (char === '>') {
+                        // Se for > passa o conteudo do temp para actualTag e muda o state para Content
+                        const thisTag = temp;
+                        openedTags.push(thisTag);
+                        state = ParseState.Content;
+                        i++;
+                        const openTagCallback = onOpenTagCallbacks?.find(tc => tc.tag === thisTag);
+                        if (openTagCallback) {
+                            openTagCallback.callback();
+                        }
+                    } else {
+                        // Se não vai concatenando no temp
+                        temp += char;
+                        i++;
+                    }
+                    break;
 
-//                     // Remove qualquer tag XML que possa ter se misturado
-//                     const nextTagStart = content.indexOf('<');
-//                     if (nextTagStart !== -1) {
-//                         // Verifica se é uma tag de fechamento COMPLETA da tag atual
-//                         const remainingContent = content.substring(nextTagStart);
-//                         if (remainingContent.startsWith(closeTag)) {
-//                             // É a tag de fechamento completa, não inclui no conteúdo
-//                             content = content.substring(0, nextTagStart);
-//                         } else {
-//                             // Verifica se pode ser o INÍCIO de uma tag de fechamento válida
-//                             const isPartialCloseTag = closeTag.startsWith(remainingContent);
-//                             if (!isPartialCloseTag) {
-//                                 // Não é relacionado à tag de fechamento, corta aqui
-//                                 content = content.substring(0, nextTagStart);
-//                             }
-//                             // Se for início de tag de fechamento, mantém o conteúdo completo
-//                         }
-//                     }
+                case ParseState.Content:
+                    // Se for Content
+                    if (char === '<') {
+                        // Se for < verifica se é início de tag de fechamento
+                        if (i + 1 < buffer.length && buffer[i + 1] === '/') {
+                            // Se tiver mais no buffer e for '</' 
+                            // muda o state para CloseTag, temp = '' e avança o i
+                            state = ParseState.CloseTag;
+                            temp = '';
+                            i += 2; // pula o '</'
+                        } else if (i + 1 >= buffer.length) {
+                            // Se for < e for final do buffer, para de processar (aguarda mais conteúdo)
+                            // Não incrementa i para ficar no mesmo lugar
+                            return;
+                        } else {
+                            // Se for < mas não for '</', abre tag filha
+                            state = ParseState.OpenTag;
+                            temp = '';
+                            i++;
+                        }
+                    } else {
+                        // Else, envia o content pelo callBack do actualTag
+                        const tagCallback = tagCallbacks.find(tc => tc.tag === openedTags[openedTags.length - 1]);
+                        if (tagCallback) {
+                            tagCallback.temp += char;
+                        }
+                        i++;
+                    }
+                    break;
 
-//                     tempResult[tagCallback.tag] = content;
-//                 }
-//             }
-//         });
+                case ParseState.CloseTag:
+                    // Se for CloseTag
+                    if (char === '>') {
+                        const lastTag = openedTags.pop();
+                        // Se for > verifica se o temp == lastTag, se não for vai dar throw
+                        if (temp !== lastTag) {
+                            throw new Error(`Mismatched closing tag: expected '</${lastTag}>' but found '</${temp}>'`);
+                        }
+                        // Muda o state para None
+                        state = ParseState.None;
+                        temp = '';
+                        i++;
+                    } else {
+                        // Se não vai concatenando no temp
+                        temp += char;
+                        i++;
+                    }
+                    break;
+            }
+        }
 
-//         // Chama os callbacks apenas com o novo conteúdo (diferença)
-//         tagCallbacks.forEach(tagCallback => {
-//             const currentContent = tempResult[tagCallback.tag];
-//             const previousContent = previousResult[tagCallback.tag];
+        // Remove caracteres processados do buffer para evitar crescimento ilimitado
+        if (i > 0) {
+            buffer = buffer.substring(i);
+        }
 
-//             if (currentContent !== previousContent) {
-//                 // Calcula apenas o novo conteúdo adicionado
-//                 if (currentContent.startsWith(previousContent)) {
-//                     const newContent = currentContent.substring(previousContent.length);
-//                     if (newContent) {
-//                         // Verifica se o novo conteúdo contém início de tag de fechamento
-//                         const closeTag = `</${tagCallback.tag}>`;
-//                         const closeTagStart = newContent.indexOf('<');
-
-//                         if (closeTagStart !== -1) {
-//                             const potentialCloseTag = newContent.substring(closeTagStart);
-//                             const isPartialCloseTag = closeTag.startsWith(potentialCloseTag);
-
-//                             if (isPartialCloseTag) {
-//                                 // Se é início de tag de fechamento, envia apenas a parte antes dela
-//                                 const contentBeforeCloseTag = newContent.substring(0, closeTagStart);
-//                                 if (contentBeforeCloseTag) {
-//                                     tagCallback.callback(contentBeforeCloseTag);
-//                                 }
-//                                 // Não envia a parte da tag de fechamento parcial
-//                             } else {
-//                                 // Não é tag de fechamento, envia normalmente
-//                                 tagCallback.callback(newContent);
-//                             }
-//                         } else {
-//                             // Não tem '<', envia normalmente
-//                             tagCallback.callback(newContent);
-//                         }
-//                     }
-//                 } else {
-//                     // Se o conteúdo mudou completamente (ex: tag foi fechada), envia tudo
-//                     if (currentContent) {
-//                         tagCallback.callback(currentContent);
-//                     }
-//                 }
-//             }
-//         });        // Atualiza os resultados
-//         result = { ...tempResult };
-//         previousResult = { ...tempResult };
-
-//         return result as ParsedTags<T>;
-//     };
-// }
+        tagCallbacks.forEach(m => {
+            if (m.temp && m.temp.length > 0) {
+                m.callback(m.temp);
+            }
+        });
+    };
+}
