@@ -50,8 +50,8 @@ export class MemorySearchAction implements ActionHandler {
         const message = await chatCtx.sendPrepareMessage('assistant', 'memory');
         const content: MessageMemoryModal = {
             title: '',
+            explanation: '',
             status: 'prepare',
-            content: '',
             memories: []
         };
         message.content = content;
@@ -60,7 +60,6 @@ export class MemorySearchAction implements ActionHandler {
 
         const onTagOpenKeywords = (): void => {
             content.memories.push({
-                vectorId: '',
                 keyWords: ''
             });
         };
@@ -69,16 +68,16 @@ export class MemorySearchAction implements ActionHandler {
             content.title += partialContent;
             messageQueue.add({
                 title: partialContent,
-                content: '',
+                explanation: '',
                 memories: []
             });
         };
 
         const onExplanation = (partialContent: string) => {
-            content.content += partialContent;
+            content.explanation += partialContent;
             messageQueue.add({
                 title: '',
-                content: partialContent,
+                explanation: partialContent,
                 memories: []
             });
         };
@@ -138,18 +137,13 @@ export class MemorySearchAction implements ActionHandler {
 
     private async generateEmbeeding(ctx: MemoryContext): Promise<void> {
 
-        const memory = ctx.memoryService.getMemoryById(ctx.chatCtx.memoryId);
-        if (!memory) {
-            throw 'Memory not found: ' + ctx.chatCtx.memoryId;
-        }
-
         const texts = ctx.content.memories
             .map(m => m.keyWords);
 
         ctx.messageQueue.add({
             title: '',
+            explanation: '',
             status: 'embedding',
-            content: '',
             memories: []
         });
 
@@ -170,10 +164,16 @@ export class MemorySearchAction implements ActionHandler {
 
     private async searchMemoryContent(ctx: MemoryContext): Promise<void> {
 
+        const vectorDatabase = (await ctx.memoryService.getMemoryById(ctx.chatCtx.memoryId))
+            ?.vectorDatabase;
+        if (!vectorDatabase) {
+            throw 'Memory not found: ' + ctx.chatCtx.memoryId;
+        }
+
         ctx.messageQueue.add({
             title: '',
+            explanation: '',
             status: 'searching',
-            content: '',
             memories: []
         });
 
@@ -183,18 +183,15 @@ export class MemorySearchAction implements ActionHandler {
             }
 
             const searchResults = await ctx.qdrantProvider.search(
-                ctx.chatCtx.memoryId,
+                vectorDatabase,
                 memory.embedding,
-                1,
-                { type: 'text' }
+                1
             );
 
             const memoryContent = searchResults[0];
             if (memoryContent) {
                 memory.vectorId = memoryContent.id;
-                if (memoryContent.payload) {
-                    memory.content = memoryContent.payload;
-                }
+                memory.content = memoryContent.payload.content;
             }
         }
     }

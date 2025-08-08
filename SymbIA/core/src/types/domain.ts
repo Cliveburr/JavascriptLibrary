@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { VectorPayload } from '../memory/qdrant.provider';
+import { VectorContentType, VectorContentTypes } from '../memory/qdrant.provider';
 
 // Domain entities
 export interface User {
@@ -7,7 +7,6 @@ export interface User {
     username: string;
     email: string;
     passwordHash: string;
-    defaultMemoryId: ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -40,18 +39,19 @@ export interface MessageReflectionModal {
     content: string;
 }
 
-export type MessageMemoryContentType = string;
-
 export type MessageMemoryStatus = 'prepare' | 'embedding' | 'searching';
 
 export interface MessageMemoryModal {
     title: string;
+    explanation: string;
     status?: MessageMemoryStatus;
-    content: string;
     memories: Array<{
         keyWords: string;
         vectorId?: string;
-        content?: VectorPayload;
+        content?: {
+            type: VectorContentType,
+            value: VectorContentTypes;
+        },
         embedding?: number[];
     }>;
     error?: string;

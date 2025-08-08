@@ -13,9 +13,12 @@ export enum VectorContentType {
 export type VectorContentTypes = string;
 
 export interface VectorPayload {
-    type: VectorContentType;
+    keywords: string;
     timestamp: string;
-    content?: VectorContentTypes;
+    content?: {
+        type: VectorContentType,
+        value: VectorContentTypes;
+    },
     [key: string]: any; // Index signature for Qdrant compatibility
 }
 
@@ -50,87 +53,66 @@ export class QdrantProvider {
     }
 
     async upsert(
-        memoryId: string,
+        vectorDatabase: string,
         id: string,
         vector: number[],
         payload: VectorPayload
     ): Promise<void> {
-        try {
-            // Ensure collection exists
-            await this.ensureCollection(memoryId, vector.length);
+        await this.ensureCollection(vectorDatabase, vector.length);
 
-            // Upsert point
-            await this.client.upsert(memoryId, {
-                wait: true,
-                points: [
-                    {
-                        id,
-                        vector,
-                        payload,
-                    },
-                ],
-            });
-        } catch (error) {
-            throw new Error(`Failed to upsert vector to Qdrant: ${error instanceof Error ? error.message : String(error)}`);
-        }
+        await this.client.upsert(vectorDatabase, {
+            wait: true,
+            points: [
+                {
+                    id,
+                    vector,
+                    payload,
+                },
+            ],
+        });
     }
 
     async search(
-        memoryId: string,
+        vectorDatabase: string,
         vector: number[],
         topK: number = 10,
         filter?: SearchFilter
     ): Promise<SearchResult[]> {
-        try {
-            // Check if collection exists
-            const collections = await this.client.getCollections();
-            const collectionExists = collections.collections.some(
-                (collection: { name: string; }) => collection.name === memoryId
-            );
 
-            if (!collectionExists) {
-                return []; // Return empty results if collection doesn't exist
-            }
+        await this.ensureCollection(vectorDatabase, vector.length);
 
-            // Build Qdrant filter
-            const qdrantFilter = this.buildQdrantFilter(filter);
+        // Build Qdrant filter
+        const qdrantFilter = filter ? this.buildQdrantFilter(filter) : undefined;
 
-            const searchResult = await this.client.search(memoryId, {
-                vector,
-                limit: topK,
-                with_payload: true,
-                filter: qdrantFilter,
-            });
+        const searchResult = await this.client.search(vectorDatabase, {
+            vector,
+            limit: topK,
+            with_payload: true,
+            filter: qdrantFilter,
+        });
 
-            return searchResult.map((point: any) => ({
-                id: String(point.id),
-                score: point.score || 0,
-                payload: point.payload as VectorPayload,
-            }));
-        } catch (error) {
-            throw new Error(`Failed to search vectors in Qdrant: ${error instanceof Error ? error.message : String(error)}`);
-        }
+        return searchResult.map((point: any) => ({
+            id: String(point.id),
+            score: point.score || 0,
+            payload: point.payload as VectorPayload,
+        }));
     }
 
     private async ensureCollection(collectionName: string, vectorSize: number): Promise<void> {
-        try {
-            // Check if collection exists
-            const collections = await this.client.getCollections();
-            const collectionExists = collections.collections.some(
-                (collection: { name: string; }) => collection.name === collectionName
-            );
+        // Check if collection exists
+        const collections = await this.client.getCollections();
+        const collectionExists = collections.collections.some(
+            (collection: { name: string; }) => collection.name === collectionName
+        );
 
-            if (!collectionExists) {
-                // Create collection with the specified vector size
-                await this.client.createCollection(collectionName, {
-                    vectors: {
-                        size: vectorSize,
-                        distance: 'Cosine', // Use cosine similarity
-                    },
-                });
-            }
-        } catch (error) {
-            throw new Error(`Failed to ensure collection exists: ${error instanceof Error ? error.message : String(error)}`);
+        if (!collectionExists) {
+            // Create collection with the specified vector size
+            await this.client.createCollection(collectionName, {
+                vectors: {
+                    size: vectorSize,
+                    distance: 'Cosine', // Use cosine similarity
+                },
+            });
         }
     }
 

@@ -1,11 +1,34 @@
 
 export type MessageRole = 'user' | 'assistant';
-export type MessageModal = 'text' | 'reflection';
+export type MessageModal = 'text' | 'reflection' | 'memory';
 export type MessageModalType = string | MessageReflectionModal;
 
 export interface MessageReflectionModal {
     title: string;
     content: string;
+}
+
+export type MessageMemoryContentType = string;
+export type MessageMemoryStatus = 'prepare' | 'embedding' | 'searching';
+export type VectorContentTypes = string;
+export enum VectorContentType {
+    PlainText
+}
+
+export interface MessageMemoryModal {
+    title: string;
+    status?: MessageMemoryStatus;
+    content: MessageMemoryContentType;
+    memories: Array<{
+        keyWords: string;
+        vectorId?: string;
+        content?: {
+            type: VectorContentType,
+            value: VectorContentTypes;
+        },
+        embedding?: number[];
+    }>;
+    error?: string;
 }
 
 export enum ChatStreamType {

@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import type { User } from '../types/domain';
+import type { Memory, User } from '../types/domain';
 import { MongoDBService } from '../database/mongodb.service';
 import { ConfigService } from '../config/config.service';
 import { v6 } from 'uuid';
@@ -52,7 +52,6 @@ export class AuthService {
 
         // Create user
         const userId = new ObjectId();
-        const defaultMemoryId = new ObjectId();
         const now = new Date();
 
         const user: User = {
@@ -60,14 +59,13 @@ export class AuthService {
             username,
             email,
             passwordHash,
-            defaultMemoryId,
             createdAt: now,
             updatedAt: now
         };
 
         // Create default memory
-        const defaultMemory = {
-            _id: defaultMemoryId,
+        const defaultMemory: Memory = {
+            _id: <any>undefined,
             userId,
             name: 'Default Memory',
             vectorDatabase: `${userId}_${v6(undefined, undefined, Date.now())}`,

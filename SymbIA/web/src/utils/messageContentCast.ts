@@ -8,6 +8,10 @@ export const contentCast = {
 
     isReflection(message: ChatStreamMessage, content: MessageModalType): content is MessageReflectionModal {
         return message.modal == 'reflection';
+    },
+
+    isMemory(message: ChatStreamMessage, content: MessageModalType): content is MessageReflectionModal {
+        return message.modal == 'memory';
     }
 
 };

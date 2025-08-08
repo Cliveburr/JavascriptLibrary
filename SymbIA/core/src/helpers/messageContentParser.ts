@@ -37,9 +37,9 @@ export function parseMessageForPrompt(message: Message): LlmRequestMessage {
                     content: `# Memories
 
 ${messageContent.memories.map((m => `- Memory:
-    .Key words: ${m.keyWords}
+    .Key Words: ${m.keyWords}
     .VectorId: ${m.vectorId}
-    .Content: ${m.content}`)).join('\n\n')}`
+    .Content: ${m.content?.value}`)).join('\n\n')}`
                 };
             }
     }

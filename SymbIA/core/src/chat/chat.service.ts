@@ -32,11 +32,10 @@ export class ChatService {
             { $set: { totalChatCreated: memory.totalChatCreated, updatedAt: new Date() } }
         );
 
-        const chatId = new ObjectId();
         const now = new Date();
 
         const chat: Chat = {
-            _id: chatId,
+            _id: <any>undefined,
             memoryId: new ObjectId(memoryId),
             title,
             orderIndex,
