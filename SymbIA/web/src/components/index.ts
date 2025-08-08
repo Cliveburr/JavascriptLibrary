@@ -10,3 +10,4 @@ export { ConfirmModal } from './ui/modal/ConfirmModal';
 export { NotificationContainer } from './ui/notification/NotificationContainer';
 export { NotificationItem } from './ui/notification/NotificationItem';
 export { AuthLoadingScreen } from './ui/loading/AuthLoadingScreen';
+export { ChatDebug } from './debug/ChatDebug';

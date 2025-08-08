@@ -34,14 +34,25 @@ export function parseMessageForPrompt(message: Message): LlmRequestMessage {
 
                 return {
                     role: message.role,
-                    content: `# Memories
+                    content: `# MemorySearch Result
 
 Explanation: **${messageContent.explanation}**
 
-${messageContent.memories.map((m => `- Memory:
+Memories found:
+${messageContent.memories
+                            .filter(m => m.vectorId)
+                            .map((m => `- Memory:
     .Key Words: ${m.keyWords}
     .VectorId: ${m.vectorId}
-    .Content: ${m.content?.value}`)).join('\n\n')}`
+    .Content: ${m.content?.value}`)
+                            ).join('\n')}
+    
+Memories NOT FOUND:
+${messageContent.memories
+                            .filter(m => !m.vectorId)
+                            .map((m => `- Memory:
+    .Key Words: ${m.keyWords}`)
+                            ).join('\n')}`
                 };
             }
     }

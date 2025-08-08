@@ -19,6 +19,9 @@ export interface AppConfig {
     ollamaBaseUrl: string;
     openaiApiKey?: string;
     openaiBaseUrl: string;
+
+    // Debug
+    debug: boolean;
 }
 
 export class ConfigService {
@@ -89,7 +92,8 @@ export class ConfigService {
             qdrantApiKey: process.env.QDRANT_API_KEY,
             ollamaBaseUrl: process.env.OLLAMA_BASE_URL!,
             openaiApiKey: process.env.OPENAI_API_KEY,
-            openaiBaseUrl: process.env.OPENAI_BASE_URL!
+            openaiBaseUrl: process.env.OPENAI_BASE_URL!,
+            debug: String(process.env.DEBUG).toLowerCase() === 'true' || process.env.DEBUG === '1'
         };
     }
 
@@ -137,5 +141,9 @@ export class ConfigService {
             apiKey: this.config.openaiApiKey,
             baseUrl: this.config.openaiBaseUrl
         };
+    }
+
+    isDebugEnabled(): boolean {
+        return this.config.debug;
     }
 }

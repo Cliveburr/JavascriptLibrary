@@ -3,6 +3,8 @@ import { LlmGateway } from '../llm/LlmGateway';
 import type { ActionService } from '../actions/action.service';
 import type { ActionHandler } from '../actions/act-defs';
 import { parseXml, parseMessageForPrompt, MessageQueue } from '../helpers/index';
+import { ServiceRegistry } from '../services/service-registry';
+import { DebugService } from '../debug/debug.service';
 
 enum ReflectionStage {
     Undefined,
@@ -78,7 +80,6 @@ export class ReflectionService {
         };
 
         const messages = this.buildReflectionPrompt(ctx.chatCtx.messages, actions);
-        //messages.forEach(m => console.log(`${m.role}: ${m.content}`));
 
         // Call LLM to get decision using the LLM set configuration
         const response = await this.llmGateway.invokeAsync(
@@ -91,7 +92,10 @@ export class ReflectionService {
                 maxTokens: 200, // Short response expected
             }
         );
-        //console.log(response.content);
+        const debugService = ServiceRegistry.getInstance().getOptional<DebugService>('DebugService');
+        if (debugService) {
+            debugService.addRequest(ctx.chatCtx.chatId, messages, response.content);
+        }
         //TODO: criar uns 3 o umais tipos de reflexão que vai aumentando o grau da reflexão se não retornar uma action
 
         if (response.usage) {

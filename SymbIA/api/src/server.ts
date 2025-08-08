@@ -25,6 +25,7 @@ async function startServer() {
     const { createMemoriesRoutes } = await import('./routes/memories.routes.js');
     const { createChatRoutes } = await import('./routes/chat.routes.js');
     const { createLlmSetsRoutes } = await import('./routes/llm-sets.routes.js');
+    const { createDebugRoutes } = await import('./routes/debug.routes.js');
 
     const app: Express = express();
     const PORT = configService.getServerConfig().port;
@@ -55,6 +56,11 @@ async function startServer() {
     app.use('/memories', createMemoriesRoutes());
     app.use('/chats', createChatRoutes());
     app.use('/llm-sets', createLlmSetsRoutes());
+    const debugRoutes = createDebugRoutes();
+    if (debugRoutes) {
+      app.use('/debug', debugRoutes);
+      console.log('🐞 Debug routes enabled at /debug');
+    }
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

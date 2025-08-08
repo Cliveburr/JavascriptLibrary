@@ -6,6 +6,7 @@ import { ServiceRegistry } from '../services/service-registry';
 import type { QdrantProvider, SearchResult } from '../memory/qdrant.provider';
 import type { Message, MessageMemoryModal } from '../types/domain';
 import { MemoryService } from '../memory/memory.service';
+import { DebugService } from '../debug/debug.service';
 
 interface MemoryContext {
     chatCtx: IChatContext;
@@ -16,6 +17,7 @@ interface MemoryContext {
     messageQueue: MessageQueue<MessageMemoryModal>;
     qdrantProvider: QdrantProvider;
     memoryService: MemoryService;
+    debugService?: DebugService;
 }
 
 export class MemorySearchAction implements ActionHandler {
@@ -52,6 +54,7 @@ export class MemorySearchAction implements ActionHandler {
 
         const qdrantProvider = serviceRegistry.get<QdrantProvider>('QdrantProvider');
         const memoryService = serviceRegistry.get<MemoryService>('MemoryService');
+        const debugService = serviceRegistry.getOptional<DebugService>('DebugService');
 
         const message = await chatCtx.sendPrepareMessage('assistant', 'memory');
         const content: MessageMemoryModal = {
@@ -113,7 +116,8 @@ export class MemorySearchAction implements ActionHandler {
             ]),
             messageQueue,
             qdrantProvider,
-            memoryService
+            memoryService,
+            debugService
         };
     }
 
@@ -125,7 +129,6 @@ export class MemorySearchAction implements ActionHandler {
             ...messages,
             { role: 'user', content: 'Generate the search contexts now.' }
         ];
-        //reasoningMessages.forEach(m => console.log(`${m.role}: ${m.content}`));
 
         // Send preparation message and get LLM response
         const response = await llmGateway.invokeAsync(
@@ -135,7 +138,7 @@ export class MemorySearchAction implements ActionHandler {
             {
                 temperature: 0.3
             });
-        //.log(`Memory generate key result ${response.content.length}: `, response.content);
+        ctx.debugService?.addRequest(ctx.chatCtx.chatId, reasoningMessages, response.content);
 
         if (response.usage) {
             ctx.message.promptTokens = response.usage.promptTokens;

@@ -12,6 +12,7 @@ import { AuthService } from './auth/auth.service.js';
 import { MongoDBService } from './database/mongodb.service.js';
 import { ChatService } from './chat/chat.service.js';
 import { ConfigService } from './config/config.service.js';
+import { DebugService } from './debug/debug.service.js';
 
 // Export services
 export * from './llm/LlmGateway.js';
@@ -28,6 +29,7 @@ export * from './database/mongodb.service.js';
 export * from './chat/chat.service.js';
 export * from './config/config.service.js';
 export * from './services/service-registry.js';
+export * from './debug/debug.service.js';
 
 // Export types
 export * from './types/index.js';
@@ -39,6 +41,7 @@ export function configureContainer() {
     // Create services instances in the correct order (respecting dependencies)
     const configService = new ConfigService();
     const mongodbService = new MongoDBService(configService);
+    const debugService = configService.isDebugEnabled() ? new DebugService() : undefined;
     const qdrantProvider = new QdrantProvider(configService);
     const llmSetService = new LlmSetService();
     const openaiProvider = new OpenAIProvider(configService);
@@ -53,6 +56,7 @@ export function configureContainer() {
 
     // Register all services
     registry.register('ConfigService', configService);
+    if (debugService) registry.register('DebugService', debugService);
     registry.register('MongoDBService', mongodbService);
     registry.register('MemoryService', memoryService);
     registry.register('QdrantProvider', qdrantProvider);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Notification as NotificationData } from '../types/notification';
+import type { Notification as NotificationData } from '../../../types/notification';
 import './NotificationItem.scss';
 
 interface NotificationItemProps {

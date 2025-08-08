@@ -3,6 +3,7 @@ import type { LlmSetConfig } from './llm';
 
 export interface IChatContext {
     memoryId: string;
+    chatId: string;
     userMessage: string;
     messages: Message[];
     llmSetConfig: LlmSetConfig;

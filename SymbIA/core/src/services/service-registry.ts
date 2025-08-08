@@ -23,6 +23,10 @@ export class ServiceRegistry {
         return service as T;
     }
 
+    getOptional<T>(key: string): T | undefined {
+        return this.services.get(key) as T;
+    }
+
     has(key: string): boolean {
         return this.services.has(key);
     }
