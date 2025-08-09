@@ -51,7 +51,6 @@ export class MemorySearchAction implements ActionHandler {
     private async prepareMessage(chatCtx: IChatContext, llmGateway: LlmGateway): Promise<MemoryContext> {
 
         const serviceRegistry = ServiceRegistry.getInstance();
-
         const qdrantProvider = serviceRegistry.get<QdrantProvider>('QdrantProvider');
         const memoryService = serviceRegistry.get<MemoryService>('MemoryService');
         const debugService = serviceRegistry.getOptional<DebugService>('DebugService');

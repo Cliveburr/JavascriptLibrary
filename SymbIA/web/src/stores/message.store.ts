@@ -25,7 +25,6 @@ export const useMessageStore = create<MessageState>((set) => {
             else if (contentCast.isReflection(message, content)) {
                 const contentReflection = message.content as MessageReflectionModal;
                 return {
-                    title: contentReflection.title + content.title,
                     content: contentReflection.content + content.content
                 };
             }

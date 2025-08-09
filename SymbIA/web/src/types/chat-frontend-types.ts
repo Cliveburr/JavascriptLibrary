@@ -4,7 +4,6 @@ export type MessageModal = 'text' | 'reflection' | 'memory';
 export type MessageModalType = string | MessageReflectionModal | MessageMemoryModal;
 
 export interface MessageReflectionModal {
-    title: string;
     content: string;
 }
 

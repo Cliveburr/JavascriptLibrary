@@ -50,7 +50,7 @@ export function configureContainer() {
     const memoryService = new MemoryService(mongodbService);
     const chatService = new ChatService(mongodbService, llmGateway, llmSetService);
     const actionService = new ActionService(llmGateway);
-    const reflectionService = new ReflectionService(actionService, llmGateway);
+    const reflectionService = new ReflectionService(llmGateway);
     const thoughtCycleService = new ThoughtCycleService(actionService, reflectionService);
     const authService = new AuthService(mongodbService, configService);
 

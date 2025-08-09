@@ -37,20 +37,22 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         }
 
         if (contentCast.isReflection(message, message.content)) {
+            const reflectionContent = message.content.content;
+            const previewContent = reflectionContent.length > 60
+                ? reflectionContent.substring(0, 60) + '...'
+                : reflectionContent;
+
             return (
                 <div className="reflection-content">
                     <div
                         className="reflection-header"
                         onClick={toggleExpanded}
                     >
-                        <span className="reflection-title">💭 {message.content.title}</span>
+                        <span className="reflection-title">
+                            💭 {isExpanded ? reflectionContent : previewContent}
+                        </span>
                         <span className="expand-icon">{isExpanded ? '▲' : '▼'}</span>
                     </div>
-                    {isExpanded && (
-                        <div className="reflection-body">
-                            {message.content.content}
-                        </div>
-                    )}
                 </div>
             );
         }

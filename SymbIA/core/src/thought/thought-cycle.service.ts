@@ -14,7 +14,14 @@ export class ThoughtCycleService {
         const stallDetector = new StallDetectorEngine();
         while (true) {
 
-            const actionName = await this.reflectionService.reflectNextAction(ctx);
+            let actionName = await this.reflectionService.reflectNextAction(ctx);
+
+            //TODO: criar uns 3 o umais tipos de reflexão que vai aumentando o grau da reflexão se não retornar uma action
+            if (!actionName) {
+                console.warn('Relection return undefined!');
+                actionName = 'Reply';
+            }
+
             await this.actionService.executeAction(actionName, ctx);
             if (ctx.finalizeIteration) {
                 break;

@@ -35,7 +35,6 @@ export type MessageModal = 'text' | 'reflection' | 'memory' | 'form' | 'chart' |
 export type MessageModalType = string | MessageReflectionModal | MessageMemoryModal;
 
 export interface MessageReflectionModal {
-    title: string;
     content: string;
 }
 

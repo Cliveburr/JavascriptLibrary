@@ -2,91 +2,81 @@ import type { IChatContext, LlmRequestMessage, Message, MessageReflectionModal }
 import { LlmGateway } from '../llm/LlmGateway';
 import type { ActionService } from '../actions/action.service';
 import type { ActionHandler } from '../actions/act-defs';
-import { parseXml, parseMessageForPrompt, MessageQueue } from '../helpers/index';
+import { parseXml, parseMessageForPrompt, MessageQueue, createBodyJsonStreamParser } from '../helpers/index';
 import { ServiceRegistry } from '../services/service-registry';
 import { DebugService } from '../debug/debug.service';
-
-enum ReflectionStage {
-    Undefined,
-    Title,
-    Content,
-    Action
-}
+import { reflectionPromptV1 } from './reflection-prompts';
 
 interface ReflectionContext {
-    stage: ReflectionStage;
     chatCtx: IChatContext;
     message: Message;
     content: MessageReflectionModal;
-    parser: (content: string) => void,
+    parser: { process: (chunk: string) => void, end: () => string; },
     messageQueue: MessageQueue<MessageReflectionModal>;
+    debugService?: DebugService;
+    action?: string;
+}
+
+interface PromptResult {
+    action: 'Reply' | 'MemorySearch';
 }
 
 export class ReflectionService {
     constructor(
-        private actionService: ActionService,
         private llmGateway: LlmGateway
     ) { }
 
-    async reflectNextAction(chatCtx: IChatContext): Promise<string> {
+    async reflectNextAction(chatCtx: IChatContext): Promise<string | undefined> {
         console.log('Reflecting...');
 
-        const actions = this.actionService.getActions();
-        if (actions.length === 0) {
-            throw 'No actions are available';
-        }
+        const ctx = await this.prepareMessage(chatCtx);
+
+        await this.callLLM(ctx);
+
+        await chatCtx.sendCompleteMessage(ctx.message);
+
+        console.log('End of Reflection!');
+        return ctx.action;
+    }
+
+    private async prepareMessage(chatCtx: IChatContext): Promise<ReflectionContext> {
+
+        const serviceRegistry = ServiceRegistry.getInstance();
+        const debugService = serviceRegistry.getOptional<DebugService>('DebugService');
 
         const message = await chatCtx.sendPrepareMessage('assistant', 'reflection');
         const content: MessageReflectionModal = {
-            title: '',
             content: ''
         };
         message.content = content;
 
-        let action = '';
+        const messageQueue = new MessageQueue<MessageReflectionModal>(chatCtx.sendStreamMessage.bind(chatCtx));
 
-        const ctx: ReflectionContext = {
-            stage: ReflectionStage.Undefined,
+        const onBody = (chunk: string): void => {
+            content.content += chunk;
+            messageQueue.add({
+                content: chunk
+            });
+        };
+
+        return {
             chatCtx,
             message,
             content,
-            //parser: parseMarkdown(responseSections),
-            parser: parseXml([
-                {
-                    tag: 'title', callback: (content) => {
-                        ctx.content.title += content;
-                        ctx.messageQueue.add({
-                            title: content,
-                            content: ''
-                        });
-                    }
-                },
-                {
-                    tag: 'reflection', callback: (content) => {
-                        ctx.content.content += content;
-                        ctx.messageQueue.add({
-                            title: '',
-                            content: content
-                        });
-                    }
-                },
-                {
-                    tag: 'action', callback: (content) => {
-                        action += content;
-                    }
-                }
-            ]),
-            messageQueue: new MessageQueue<MessageReflectionModal>(chatCtx.sendStreamMessage.bind(chatCtx))
+            parser: createBodyJsonStreamParser(onBody),
+            messageQueue,
+            debugService
         };
+    }
 
-        const messages = this.buildReflectionPrompt(ctx.chatCtx.messages, actions);
+    private async callLLM(ctx: ReflectionContext): Promise<void> {
 
-        // Call LLM to get decision using the LLM set configuration
+        const messages = this.getReflectionPrompt(ctx);
+
         const response = await this.llmGateway.invokeAsync(
             ctx.chatCtx.llmSetConfig.models.reasoningHeavy,
             messages,
-            //this.parseStream.bind(this, ctx),
-            ctx.parser,
+            ctx.parser.process,
             {
                 temperature: 0.2, // Low temperature for consistent decisions
                 maxTokens: 200, // Short response expected
@@ -96,61 +86,34 @@ export class ReflectionService {
         if (debugService) {
             debugService.addRequest(ctx.chatCtx.chatId, messages, response.content);
         }
-        //TODO: criar uns 3 o umais tipos de reflexão que vai aumentando o grau da reflexão se não retornar uma action
 
         if (response.usage) {
-            message.promptTokens = response.usage.promptTokens;
-            message.completionTokens = response.usage.completionTokens;
+            ctx.message.promptTokens = response.usage.promptTokens;
+            ctx.message.completionTokens = response.usage.completionTokens;
         }
-        await chatCtx.sendCompleteMessage(message);
 
-        console.log('End of Reflection!');
-        //return ctx.action || 'Finalize';
-        return action;
+        ctx.action = this.parseResult(ctx);
     }
 
-    // private parseStream(ctx: ReflectionContext, content: string): void {
-
-    //     ctx.parser(content);
-
-    // }
-
-    private buildReflectionPrompt(messages: Message[], actions: ActionHandler[]): Array<LlmRequestMessage> {
-        const history = messages
+    private getReflectionPrompt(ctx: ReflectionContext): Array<LlmRequestMessage> {
+        const history = ctx.chatCtx.messages
             .map(msg => parseMessageForPrompt(msg));
 
-        if (history[history.length - 1]?.role != 'user') {
-            history.push({ role: 'user', content: 'Anwser the system!' });
-        }
-
-        const systemPrompt = `You are an AI assistant that must reflect on the user's message and select exactly one action from the list below.
-
-Available Actions
-
-${actions.map(a => `- ${a.name}
-  ${a.whenToUse}`).join('\n')}
-
-CRUCIAL RULES:
-1. Even if you think you already know the answer, you MUST choose MemorySearch if there is ANY chance memory could help.
-2. If you skip MemorySearch when it is applicable, your answer will be considered WRONG.
-3. Output exactly three XML-like tags in this exact order:
-   <title>...</title>
-   <reflection>...</reflection>
-   <action>...</action>
-4. Do not output anything else, no explanations, no markdown.`;
-
-        // Obey **exactly** this output format:
-        // ##Title: a short sentence (≤ 10 words) about the reflection
-        // ##Reflection: a concise sentence (≤ 150 words) explaining why this action is best
-        // ##Action: EXACT action name here`;
-
-        // <title>a short sentence (≤ 10 words) about the reflection</title>
-        // <reflection>a concise sentence (≤ 150 words) explaining why this action is best</reflection>
-        // <action>EXACT action name here</action>`;
+        const systemPrompt = reflectionPromptV1;
 
         return [
             { role: 'system', content: systemPrompt },
             ...history,
         ];
+    }
+
+    private parseResult(ctx: ReflectionContext): string | undefined {
+        const resultJSON = ctx.parser.end();
+        try {
+            const result = JSON.parse(resultJSON) as PromptResult;
+            return result.action;
+        } catch {
+            console.warn('JSON parse error: ' + resultJSON);
+        }
     }
 }

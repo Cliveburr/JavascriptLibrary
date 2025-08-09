@@ -2,7 +2,7 @@ import type { IChatContext } from '../types/chat-types.js';
 import type { ActionHandler } from './act-defs';
 
 // Import all action handlers
-import { finalizeAction } from './finalize.action';
+//import { finalizeAction } from './finalize.action';
 import type { LlmGateway } from '../llm/LlmGateway';
 import { replyAction } from './reply.action.js';
 import { memorySearchAction } from './memory-search.action.js';
@@ -52,13 +52,6 @@ export class ActionService {
      */
     clearActions(): void {
         this.allActions = [];
-    }
-
-    /**
-     * Reset to default actions (for testing)
-     */
-    resetToDefaultActions(): void {
-        this.allActions = [finalizeAction /*, questionAction, memorySearchAction */];
     }
 
     async executeAction(actionName: string, ctx: IChatContext): Promise<void> {
