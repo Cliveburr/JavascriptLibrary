@@ -1,7 +1,7 @@
-import type { IChatContext } from '../types/chat-types.js';
-import { ReflectionService } from './reflection.service.js';
-import { StallDetectorEngine } from './stall/stall-detector.js';
-import type { ActionService } from '../actions/action.service.js';
+import type { IStreamChatContext } from './stream-chat';
+import { ReflectionService } from './reflection.service';
+import { StallDetectorEngine } from './stall/stall-detector';
+import type { ActionService } from '../actions';
 
 export class ThoughtCycleService {
 
@@ -10,7 +10,7 @@ export class ThoughtCycleService {
         private reflectionService: ReflectionService
     ) { }
 
-    async handle(ctx: IChatContext): Promise<void> {
+    async handle(ctx: IStreamChatContext): Promise<void> {
         const stallDetector = new StallDetectorEngine();
         while (true) {
 

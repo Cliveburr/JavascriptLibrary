@@ -1,19 +1,15 @@
-import type { IChatContext, LlmRequestMessage, Message, MessageReflectionModal } from '../types/index';
-import { LlmGateway } from '../llm/LlmGateway';
-import type { ActionService } from '../actions/action.service';
-import type { ActionHandler } from '../actions/act-defs';
-import { parseXml, parseMessageForPrompt, MessageQueue, createBodyJsonStreamParser } from '../helpers/index';
-import { ServiceRegistry } from '../services/service-registry';
-import { DebugService } from '../debug/debug.service';
+import { MessageQueue, createBodyJsonStreamParser, parseMessageForPrompt } from '../helpers';
+import { LlmGateway, LlmRequestMessage } from '../llm';
+import { ServiceRegistry } from '../services';
 import { reflectionPromptV1 } from './reflection-prompts';
+import { IStreamChatContext } from './stream-chat';
 
 interface ReflectionContext {
-    chatCtx: IChatContext;
+    chatCtx: IStreamChatContext;
     message: Message;
     content: MessageReflectionModal;
     parser: { process: (chunk: string) => void, end: () => string; },
     messageQueue: MessageQueue<MessageReflectionModal>;
-    debugService?: DebugService;
     action?: string;
 }
 
@@ -26,7 +22,7 @@ export class ReflectionService {
         private llmGateway: LlmGateway
     ) { }
 
-    async reflectNextAction(chatCtx: IChatContext): Promise<string | undefined> {
+    async reflectNextAction(chatCtx: IStreamChatContext): Promise<string | undefined> {
         console.log('Reflecting...');
 
         const ctx = await this.prepareMessage(chatCtx);
@@ -39,16 +35,9 @@ export class ReflectionService {
         return ctx.action;
     }
 
-    private async prepareMessage(chatCtx: IChatContext): Promise<ReflectionContext> {
+    private async prepareMessage(chatCtx: IStreamChatContext): Promise<ReflectionContext> {
 
-        const serviceRegistry = ServiceRegistry.getInstance();
-        const debugService = serviceRegistry.getOptional<DebugService>('DebugService');
-
-        const message = await chatCtx.sendPrepareMessage('assistant', 'reflection');
-        const content: MessageReflectionModal = {
-            content: ''
-        };
-        message.content = content;
+        await chatCtx.sendPrepareMessage('reflection');
 
         const messageQueue = new MessageQueue<MessageReflectionModal>(chatCtx.sendStreamMessage.bind(chatCtx));
 
@@ -64,8 +53,7 @@ export class ReflectionService {
             message,
             content,
             parser: createBodyJsonStreamParser(onBody),
-            messageQueue,
-            debugService
+            messageQueue
         };
     }
 

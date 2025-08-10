@@ -1,5 +1,5 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { ConfigService } from '../config/config.service.js';
+import { ConfigService } from '../services/config.service.js';
 
 export interface QdrantConfig {
     url?: string;

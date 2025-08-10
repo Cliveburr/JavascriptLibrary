@@ -1,8 +1,8 @@
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '../../types/llm.js';
-import { ConfigService } from '../../config/config.service.js';
+import { ConfigService } from '../../services';
+import { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, LlmRequestMessage } from '../llm.types';
 
 export interface OpenAIConfig {
-    apiKey: string;
+    apiKey?: string;
     baseUrl?: string;
 }
 
@@ -36,32 +36,32 @@ interface OpenAIEmbeddingResponse {
 }
 
 export class OpenAIProvider {
-    private apiKey: string;
-    private baseUrl: string;
+    private config: OpenAIConfig;
 
     constructor(configService: ConfigService) {
-        const openaiConfig = configService.getOpenAIConfig();
-        this.apiKey = openaiConfig.apiKey || '';
-        this.baseUrl = openaiConfig.baseUrl;
+        this.config = configService.getOpenAIConfig();
     }
 
-    async invoke(messages: LlmRequest['messages'], options?: Partial<LlmRequest>): Promise<LlmResponse> {
-        if (!this.apiKey) {
+    async invoke(messages: LlmRequestMessage[], options: LlmRequest): Promise<LlmResponse> {
+        if (!this.config.apiKey) {
             throw new Error('OpenAI API key is required');
+        }
+        if (!this.config.baseUrl) {
+            throw new Error('OpenAI URL is required');
         }
 
         const requestBody = {
-            model: options?.model || 'gpt-4o',
+            model: options.model,
             messages,
-            temperature: options?.temperature ?? 0.7,
-            max_tokens: options?.maxTokens,
+            temperature: options.temperature ?? 0.7,
+            max_tokens: options.maxTokens,
         };
 
-        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`,
+                'Authorization': `Bearer ${this.config.apiKey}`,
             },
             body: JSON.stringify(requestBody),
         });
@@ -83,28 +83,27 @@ export class OpenAIProvider {
         };
     }
 
-    async invokeAsync(
-        messages: LlmRequest['messages'],
-        options: Partial<LlmRequest>,
-        streamCallback: (content: string) => void,
-    ): Promise<LlmResponse> {
-        if (!this.apiKey) {
+    async invokeAsync(messages: LlmRequestMessage[], options: LlmRequest, streamCallback: (content: string) => void): Promise<LlmResponse> {
+        if (!this.config.apiKey) {
             throw new Error('OpenAI API key is required');
+        }
+        if (!this.config.baseUrl) {
+            throw new Error('OpenAI URL is required');
         }
 
         const requestBody = {
-            model: options?.model || 'gpt-4o',
+            model: options.model,
             messages,
-            temperature: options?.temperature ?? 0.7,
-            max_tokens: options?.maxTokens,
+            temperature: options.temperature ?? 0.7,
+            max_tokens: options.maxTokens,
             stream: true,
         };
 
-        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`,
+                'Authorization': `Bearer ${this.config.apiKey}`,
             },
             body: JSON.stringify(requestBody),
         });
@@ -171,8 +170,11 @@ export class OpenAIProvider {
     }
 
     async generateEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
-        if (!this.apiKey) {
+        if (!this.config.apiKey) {
             throw new Error('OpenAI API key is required');
+        }
+        if (!this.config.baseUrl) {
+            throw new Error('OpenAI URL is required');
         }
 
         const requestBody = {
@@ -181,11 +183,11 @@ export class OpenAIProvider {
             encoding_format: 'float',
         };
 
-        const response = await fetch(`${this.baseUrl}/embeddings`, {
+        const response = await fetch(`${this.config.baseUrl}/embeddings`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`,
+                'Authorization': `Bearer ${this.config.apiKey}`,
             },
             body: JSON.stringify(requestBody),
         });

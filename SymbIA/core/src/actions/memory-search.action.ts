@@ -1,15 +1,15 @@
-import type { IChatContext } from '../types/chat-types';
+import type { IStreamChatContext } from '../thought/stream-chat';
 import type { ActionHandler } from './act-defs';
-import type { LlmGateway } from '../llm/LlmGateway';
+import type { LlmGateway } from '../llm/llm-gateway.ts';
 import { parseMessageForPrompt, MessageQueue, parseXml } from '../helpers/index';
 import { ServiceRegistry } from '../services/service-registry';
-import type { QdrantProvider, SearchResult } from '../memory/qdrant.provider';
+import type { QdrantProvider, SearchResult } from '../vector/qdrant.provider';
 import type { Message, MessageMemoryModal } from '../types/domain';
-import { MemoryService } from '../memory/memory.service';
-import { DebugService } from '../debug/debug.service';
+import { MemoryService } from '../services/memory.service';
+import { DebugService } from '../services/debug.service';
 
 interface MemoryContext {
-    chatCtx: IChatContext;
+    chatCtx: IStreamChatContext;
     llmGateway: LlmGateway;
     message: Message;
     content: MessageMemoryModal;
@@ -30,7 +30,7 @@ export class MemorySearchAction implements ActionHandler {
 
     readonly enabled = true;
 
-    async execute(chatCtx: IChatContext, llmGateway: LlmGateway): Promise<void> {
+    async execute(chatCtx: IStreamChatContext, llmGateway: LlmGateway): Promise<void> {
         console.log("Running MemorySearch action...");
 
         const ctx = await this.prepareMessage(chatCtx, llmGateway);
@@ -48,7 +48,7 @@ export class MemorySearchAction implements ActionHandler {
         console.log("End of MemorySearch!");
     }
 
-    private async prepareMessage(chatCtx: IChatContext, llmGateway: LlmGateway): Promise<MemoryContext> {
+    private async prepareMessage(chatCtx: IStreamChatContext, llmGateway: LlmGateway): Promise<MemoryContext> {
 
         const serviceRegistry = ServiceRegistry.getInstance();
         const qdrantProvider = serviceRegistry.get<QdrantProvider>('QdrantProvider');

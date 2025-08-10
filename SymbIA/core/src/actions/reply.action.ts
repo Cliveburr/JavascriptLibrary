@@ -1,6 +1,6 @@
-import type { IChatContext } from '../types/chat-types';
+import type { IStreamChatContext } from '../thought/stream-chat';
 import type { ActionHandler } from './act-defs';
-import type { LlmGateway } from '../llm/LlmGateway';
+import type { LlmGateway } from '../llm/llm-gateway.ts';
 import { parseMessageForPrompt } from '../helpers/index';
 
 export class ReplyAction implements ActionHandler {
@@ -10,7 +10,7 @@ export class ReplyAction implements ActionHandler {
     ** You already have enough information to fully satisfy the user's request`;
     readonly enabled = true;
 
-    async execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void> {
+    async execute(ctx: IStreamChatContext, llmGateway: LlmGateway): Promise<void> {
         console.log("Running Reply action...");
 
         const history = ctx.messages

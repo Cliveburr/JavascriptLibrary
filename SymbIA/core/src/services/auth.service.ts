@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import type { Memory, User } from '../types/domain';
 import { MongoDBService } from '../database/mongodb.service';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from './config.service';
 import { v6 } from 'uuid';
+import { MemoryEntity, UserEntity } from '../entities';
 
 interface AuthResult {
-    user: User;
+    user: UserEntity;
     token: string;
     refreshToken: string;
 }
@@ -54,7 +54,7 @@ export class AuthService {
         const userId = new ObjectId();
         const now = new Date();
 
-        const user: User = {
+        const user: UserEntity = {
             _id: userId,
             username,
             email,
@@ -64,7 +64,7 @@ export class AuthService {
         };
 
         // Create default memory
-        const defaultMemory: Memory = {
+        const defaultMemory: MemoryEntity = {
             _id: <any>undefined,
             userId,
             name: 'Default Memory',
@@ -115,7 +115,7 @@ export class AuthService {
         };
     }
 
-    async validateToken(token: string): Promise<User | null> {
+    async validateToken(token: string): Promise<UserEntity | null> {
         try {
             const authConfig = this.configService.getAuthConfig();
             const decoded = jwt.verify(token, authConfig.jwtSecret) as JwtPayload;
@@ -153,7 +153,7 @@ export class AuthService {
         }
     }
 
-    private generateToken(user: User): string {
+    private generateToken(user: UserEntity): string {
         const authConfig = this.configService.getAuthConfig();
         const payload = {
             userId: user._id.toString()
@@ -163,7 +163,7 @@ export class AuthService {
         return jwt.sign(payload, authConfig.jwtSecret, options);
     }
 
-    private generateRefreshToken(user: User): string {
+    private generateRefreshToken(user: UserEntity): string {
         const authConfig = this.configService.getAuthConfig();
         const payload = {
             userId: user._id.toString(),

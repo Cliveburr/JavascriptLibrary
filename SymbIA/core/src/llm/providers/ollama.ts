@@ -1,5 +1,5 @@
-import type { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '../../types/llm';
-import { ConfigService } from '../../config/config.service';
+import { ConfigService } from '../../services';
+import { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, LlmRequestMessage } from '../llm.types';
 
 export interface OllamaConfig {
     baseUrl?: string;
@@ -19,25 +19,28 @@ interface OllamaEmbeddingResponse {
 }
 
 export class OllamaProvider {
-    private baseUrl: string;
+    private config: OllamaConfig;
 
     constructor(configService: ConfigService) {
-        const ollamaConfig = configService.getOllamaConfig();
-        this.baseUrl = ollamaConfig.baseUrl;
+        this.config = configService.getOllamaConfig();
     }
 
-    async invoke(messages: LlmRequest['messages'], options?: Partial<LlmRequest>): Promise<LlmResponse> {
+    async invoke(messages: LlmRequestMessage[], options: LlmRequest): Promise<LlmResponse> {
+        if (!this.config.baseUrl) {
+            throw new Error('Ollama URL is required');
+        }
+
         const requestBody = {
-            model: options?.model || 'phi3',
+            model: options.model,
             messages,
             stream: false,
             options: {
-                temperature: options?.temperature ?? 0.7,
-                num_predict: options?.maxTokens,
+                temperature: options.temperature ?? 0.7,
+                num_predict: options.maxTokens,
             },
         };
 
-        const response = await fetch(`${this.baseUrl}/api/chat`, {
+        const response = await fetch(`${this.config.baseUrl}/api/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -62,22 +65,22 @@ export class OllamaProvider {
         };
     }
 
-    async invokeAsync(
-        messages: LlmRequest['messages'],
-        options: Partial<LlmRequest>,
-        streamCallback: (content: string) => void,
-    ): Promise<LlmResponse> {
+    async invokeAsync(messages: LlmRequestMessage[], options: LlmRequest, streamCallback: (content: string) => void): Promise<LlmResponse> {
+        if (!this.config.baseUrl) {
+            throw new Error('Ollama URL is required');
+        }
+
         const requestBody = {
             model: options.model,
             messages,
             stream: true,
             options: {
-                temperature: options?.temperature ?? 0.7,
-                num_predict: options?.maxTokens,
+                temperature: options.temperature ?? 0.7,
+                num_predict: options.maxTokens,
             },
         };
 
-        const response = await fetch(`${this.baseUrl}/api/chat`, {
+        const response = await fetch(`${this.config.baseUrl}/api/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -145,12 +148,16 @@ export class OllamaProvider {
     }
 
     async generateEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
+        if (!this.config.baseUrl) {
+            throw new Error('Ollama URL is required');
+        }
+
         const requestBody = {
             model: request.model,
             input: request.input,
         };
 
-        const response = await fetch(`${this.baseUrl}/api/embed`, {
+        const response = await fetch(`${this.config.baseUrl}/api/embed`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

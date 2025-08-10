@@ -1,9 +1,7 @@
-import type { IChatContext } from '../types/chat-types';
-import type { LlmGateway } from '../llm/LlmGateway';
+import type { IStreamChatContext } from '../thought/stream-chat';
+import type { LlmGateway } from '../llm/llm-gateway.ts';
 
 export interface ActionHandler {
     readonly name: string;
-    readonly whenToUse: string;
-    readonly enabled: boolean;
-    execute(ctx: IChatContext, llmGateway: LlmGateway): Promise<void>;
+    execute(ctx: IStreamChatContext, llmGateway: LlmGateway): Promise<void>;
 }

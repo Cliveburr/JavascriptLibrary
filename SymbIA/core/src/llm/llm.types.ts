@@ -1,3 +1,7 @@
+
+export type LLMProviders = 'openai' | 'ollama';
+export type LLMPromptTypes = 'reflection' | 'memory_search' | 'reply';
+
 export interface LlmProvider {
     name: string;
     baseUrl?: string;
@@ -5,12 +9,11 @@ export interface LlmProvider {
 }
 
 export interface LlmRequestMessage {
-    role: string;
+    role: 'system' | 'user' | 'assistant';
     content: string;
 }
 
 export interface LlmRequest {
-    messages: Array<LlmRequestMessage>;
     model: string;
     temperature?: number;
     maxTokens?: number;

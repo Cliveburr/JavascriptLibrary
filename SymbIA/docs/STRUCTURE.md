@@ -58,7 +58,7 @@ The project follows a clean architecture pattern with three main packages:
 ### Core Types (/core/src/types/)
 - `domain.ts`: User, Memory, Chat, Message, VectorEntry entities
 - `llm.ts`: LLM providers, requests, responses, configurations
-- `chat-context.ts`: IChatContext interface for thought cycle
+- `chat-context.ts`: IStreamChatContext interface for thought cycle
 - `messages.ts`: MessageType enum and chat message interfaces
 
 ### API Types (/api/src/types/)

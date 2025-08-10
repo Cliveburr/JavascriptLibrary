@@ -1,31 +1,24 @@
 import { readdir, readFile } from 'fs/promises';
-import { join, dirname, resolve } from 'path';
-import type { LlmSetConfig } from '../types/llm.js';
+import { join, resolve } from 'path';
+import type { LlmSetConfig } from './llm.types';
 
 export class LlmSetService {
     private cachedSets: LlmSetConfig[] | null = null;
     private llmSetsPath: string;
 
     constructor() {
-        // Determine the correct path based on the current working directory
         const cwd = process.cwd();
         console.log('Current working directory:', cwd);
 
-        // Check if we're already in the api directory
         if (cwd.endsWith('api') || cwd.includes('\\api\\')) {
-            // We're in the api directory, llmsets is in src/llmsets
             this.llmSetsPath = resolve(cwd, 'src/llmsets');
         } else {
-            // We're in the root directory, llmsets is in api/src/llmsets
             this.llmSetsPath = resolve(cwd, 'api/src/llmsets');
         }
 
         console.log('LLM sets path:', this.llmSetsPath);
     }
 
-    /**
-     * Load all LLM sets from the llmsets directory
-     */
     async loadLlmSets(): Promise<LlmSetConfig[]> {
         if (this.cachedSets) {
             return this.cachedSets;
@@ -43,11 +36,9 @@ export class LlmSetService {
                     const content = await readFile(filePath, 'utf-8');
                     const setConfig = JSON.parse(content) as LlmSetConfig;
 
-                    // Validate required fields
                     if (setConfig.id && setConfig.display && setConfig.models &&
                         setConfig.models.reasoning && setConfig.models.reasoningHeavy &&
                         setConfig.models.fastChat && setConfig.models.codegen && setConfig.models.embedding) {
-                        // Apply default index 999
                         setConfig.index = setConfig.index ?? 999;
 
                         sets.push(setConfig);
@@ -59,7 +50,6 @@ export class LlmSetService {
                 }
             }
 
-            // Sort sets by display name
             console.log(`Loaded ${sets.length} LLM sets!`);
 
             this.cachedSets = sets.sort((a, b) => {
@@ -77,7 +67,6 @@ export class LlmSetService {
                 if (!aIsNumber && bIsNumber) {
                     return 1;
                 }
-                // Ambos não são número (index == 999)
                 return a.display.localeCompare(b.display);
             });
             return this.cachedSets;
@@ -87,24 +76,15 @@ export class LlmSetService {
         }
     }
 
-    /**
-     * Get a specific LLM set by ID
-     */
     async getLlmSetById(id: string): Promise<LlmSetConfig | null> {
         const sets = await this.loadLlmSets();
         return sets.find(set => set.id === id) || null;
     }
 
-    /**
-     * Clear the cache to force reload on next access
-     */
     clearCache(): void {
         this.cachedSets = null;
     }
 
-    /**
-     * Get available providers from all LLM sets
-     */
     async getAvailableProviders(): Promise<string[]> {
         const sets = await this.loadLlmSets();
         const providers = new Set<string>();

@@ -1,10 +1,10 @@
 import type { Response } from 'express';
 import { ChatStreamType, type ChatService, type ChatStream, type MessageModalType } from '@symbia/core';
-import type { MessageModal, MessageRole, IChatContext, Message, ChatStreamMessage } from '@symbia/core';
+import type { MessageModal, MessageRole, IStreamChatContext, Message, ChatStreamMessage } from '@symbia/core';
 import { ObjectId } from 'mongodb';
 import { ChatContextError, ChatContextData } from './chat-validation';
 
-export class ChatContext implements IChatContext {
+export class ChatContext implements IStreamChatContext {
 
     get memoryId() { return this.data.memoryId; }
     get chatId() { return this.data.chatId; }

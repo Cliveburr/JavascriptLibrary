@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-import type { User, Memory, Chat, Message } from '../types/domain.js';
-import { ConfigService } from '../config/config.service.js';
+import { ChatEntity, MemoryEntity, UserEntity } from '../entities';
+import { ConfigService } from '../services';
 
 export class MongoDBService {
     private client: MongoClient | null = null;
@@ -43,19 +43,16 @@ export class MongoDBService {
         return this.db;
     }
 
-    getUsersCollection(): Collection<User> {
-        return this.getDatabase().collection<User>('users');
+    getUsersCollection(): Collection<UserEntity> {
+        return this.getDatabase().collection<UserEntity>('users');
     }
 
-    getMemoriesCollection(): Collection<Memory> {
-        return this.getDatabase().collection<Memory>('memories');
+    getMemoriesCollection(): Collection<MemoryEntity> {
+        return this.getDatabase().collection<MemoryEntity>('memories');
     }
 
-    getChatsCollection(): Collection<Chat> {
-        return this.getDatabase().collection<Chat>('chats');
+    getChatsCollection(): Collection<ChatEntity> {
+        return this.getDatabase().collection<ChatEntity>('chats');
     }
 
-    getMessagesCollection(): Collection<Message> {
-        return this.getDatabase().collection<Message>('messages');
-    }
 }
