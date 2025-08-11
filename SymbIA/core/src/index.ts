@@ -13,6 +13,7 @@ export * from './services';
 export * from './llm';
 export * from './services';
 export * from './vector';
+export * from './entities';
 
 // Configure services registry
 export function configureContainer() {

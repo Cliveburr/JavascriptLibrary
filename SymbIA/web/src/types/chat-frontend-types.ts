@@ -58,3 +58,23 @@ export interface ChatStreamChat {
     title?: string;
     orderIndex?: number;
 }
+
+// ================= New Iteration DTOs (Backend Response) =================
+// Mirrors the API contract from /chats/:chatId/messages (ChatIterationDTO[])
+export interface ChatIterationRequestDTO {
+    modal: string; // backend uses 'modal' (mapped from promptName)
+    content: any; // can be plain text or structured object depending on modal
+}
+
+export interface ChatIterationDTO {
+    userMessage: string;
+    requests: ChatIterationRequestDTO[];
+}
+
+// ================= Frontend Internal Iteration Types =================
+export interface FrontendChatIterationRequest extends ChatStreamMessage { }
+
+export interface FrontendChatIteration {
+    userMessage: string;
+    requests: FrontendChatIterationRequest[];
+}

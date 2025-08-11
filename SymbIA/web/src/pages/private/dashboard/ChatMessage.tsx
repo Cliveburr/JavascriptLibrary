@@ -59,8 +59,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         return <div className="message-text">{String(message.content)}</div>;
     };
 
+    const isUser = !isReflection && !isMemory && message.modal === 'text' && typeof message.content === 'string' && !message.inPrepare;
+
     return (
-        <div className={`chat-message assistant ${isReflection ? 'reflection' : ''} ${isReflection && !isExpanded ? 'reflection-collapsed' : ''} ${isMemory ? 'memory' : ''} ${isMemory && !isExpanded ? 'memory-collapsed' : ''}`} data-testid="message">
+        <div className={`chat-message ${isUser ? 'user' : 'assistant'} ${isReflection ? 'reflection' : ''} ${isReflection && !isExpanded ? 'reflection-collapsed' : ''} ${isMemory ? 'memory' : ''} ${isMemory && !isExpanded ? 'memory-collapsed' : ''}`} data-testid="message">
             <div className="message-content">
                 {renderContent()}
             </div>

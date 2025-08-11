@@ -1,4 +1,4 @@
-// API DTOs and request/response types
+import type { PromptType } from '@symbia/core';
 
 // Auth DTOs
 export interface LoginRequest {
@@ -52,7 +52,6 @@ export interface UpdateMemoryRequest {
     name: string;
 }
 
-// Chat DTOs
 export interface ChatDTO {
     id: string;
     memoryId: string;
@@ -67,12 +66,12 @@ export interface CreateChatRequest {
     title?: string;
 }
 
-// Message DTOs
-export interface MessageDTO {
-    id: string;
-    chatId: string;
-    role: 'user' | 'assistant' | 'system';
+export interface ChatIterationDTO {
+    userMessage: string;
+    requests: ChatIterationRequestDTO[];
+}
+
+export interface ChatIterationRequestDTO {
+    modal: PromptType;
     content: string;
-    contentType: 'text' | 'form' | 'chart' | 'file';
-    createdAt: string;
 }

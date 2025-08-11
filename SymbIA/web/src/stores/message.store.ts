@@ -1,15 +1,15 @@
 import { create } from 'zustand';
-import type { ChatStreamMessage, MessageModalType, MessageReflectionModal, MessageMemoryModal } from '../types';
+import type { ChatStreamMessage, MessageModalType, MessageReflectionModal, MessageMemoryModal, FrontendChatIteration, ChatIterationDTO, FrontendChatIterationRequest } from '../types';
 import { apiService } from '../utils/apiService';
 import { contentCast } from '../utils';
 
 interface MessageState {
-    messages: ChatStreamMessage[];
+    iterations: FrontendChatIteration[]; // Each iteration: user + multiple request responses
     isLoading: boolean;
     loadMessages: (chatId: string) => Promise<void>;
-    addMessage: (message: ChatStreamMessage) => void;
-    updateContentMessage: (message: ChatStreamMessage) => void;
-    // Removed updateIdMessage/updateMessage due to backend protocol change
+    startNewIteration: (userMessage: string) => void; // Called immediately when user sends
+    addRequestMessage: (message: ChatStreamMessage) => void; // For InitStream / PrepareMessage
+    updateLastRequestContent: (message: ChatStreamMessage) => void; // For StreamMessage
     clearMessages: () => void;
 }
 
@@ -44,55 +44,66 @@ export const useMessageStore = create<MessageState>((set) => {
     }
 
     return {
-        messages: [],
+        iterations: [],
         isLoading: false,
 
         loadMessages: async (chatId: string) => {
             set({ isLoading: true });
             try {
-                const messages = await apiService.message.fetch(chatId);
-                set({
-                    messages: messages,
-                    isLoading: false
-                });
+                const iterationsDTO: ChatIterationDTO[] = await apiService.message.fetch(chatId);
+                const iterations: FrontendChatIteration[] = iterationsDTO.map(it => ({
+                    userMessage: it.userMessage,
+                    requests: it.requests.map(r => ({
+                        modal: r.modal as any, // adapt to ChatStreamMessage modal
+                        content: r.content,
+                        isExpanded: r.modal === 'reflection' || r.modal === 'memory_search'
+                    }))
+                }));
+                set({ iterations, isLoading: false });
             } catch (error) {
                 set({ isLoading: false });
                 throw error;
             }
         },
 
-        addMessage: (message: ChatStreamMessage) => {
+        startNewIteration: (userMessage: string) => {
+            set(state => ({
+                iterations: [...state.iterations, { userMessage, requests: [] }]
+            }));
+        },
+
+        addRequestMessage: (message: ChatStreamMessage) => {
             set(state => {
-                return { messages: [...state.messages, message] };
+                if (state.iterations.length === 0) return state; // safety
+                const iterations = [...state.iterations];
+                const current = iterations[iterations.length - 1];
+                const request: FrontendChatIterationRequest = { ...message };
+                current.requests.push(request);
+                return { iterations };
             });
         },
 
-        updateContentMessage: (message: ChatStreamMessage) => {
+        updateLastRequestContent: (message: ChatStreamMessage) => {
             set(state => {
-                const newMessages = [...state.messages];
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage) {
-                    if (lastMessage.inPrepare && message.content) {
-                        const newMessage: ChatStreamMessage = {
-                            modal: lastMessage.modal,
-                            content: message.content,
-                            inPrepare: false,
-                            isExpanded: lastMessage.modal === 'reflection' || lastMessage.modal === 'memory_search'
-                        };
-                        newMessages[newMessages.length - 1] = newMessage;
+                if (state.iterations.length === 0) return state;
+                const iterations = [...state.iterations];
+                const current = iterations[iterations.length - 1];
+                const lastReq = current.requests[current.requests.length - 1];
+                if (lastReq) {
+                    if (lastReq.inPrepare && message.content) {
+                        lastReq.content = message.content;
+                        lastReq.inPrepare = false;
+                        lastReq.isExpanded = lastReq.modal === 'reflection' || lastReq.modal === 'memory_search';
                     } else if (message.content) {
-                        newMessages[newMessages.length - 1] = {
-                            ...lastMessage,
-                            content: appendContent(lastMessage, message.content)
-                        };
+                        lastReq.content = appendContent(lastReq, message.content);
                     }
                 }
-                return { messages: newMessages };
+                return { iterations };
             });
         },
 
         clearMessages: () => {
-            set({ messages: [] });
+            set({ iterations: [] });
         },
     };
 });

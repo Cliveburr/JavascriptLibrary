@@ -1,4 +1,4 @@
-import type { ChatEntity, ChatIteration, ChatIterationLLMRequest, UserEntity } from '../entities';
+import type { ChatEntity, ChatIteration, ChatIterationLLMRequest, PromptType, UserEntity } from '../entities';
 import type { LlmResponseUsage, LlmSetConfig } from '../llm';
 import type { ChatService, PromptSetForUse } from '../services';
 
@@ -41,10 +41,8 @@ export interface ChatStream {
     chat?: ChatStreamChat;
 }
 
-export type ChatStreamModal = 'reflection' | 'reply' | 'memory_search';
-
 export interface ChatStreamMessage {
-    modal?: ChatStreamModal;
+    modal?: PromptType;
     content?: string;
 }
 
@@ -95,7 +93,7 @@ export class ThoughtContext {
         });
     }
 
-    sendPrepareMessage(modal?: ChatStreamModal): Promise<void> {
+    sendPrepareMessage(modal?: PromptType): Promise<void> {
         return this.sendStream({
             type: ChatStreamType.PrepareMessage,
             message: {

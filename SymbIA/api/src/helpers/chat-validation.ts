@@ -130,6 +130,7 @@ async function validateChat(
         };
     }
     catch (error) {
+        console.error(error);
         return {
             isError: true,
             code: 500,

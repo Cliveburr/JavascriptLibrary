@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from '../ChatMessage';
 import { useMessageStore } from '../../../../stores/message.store';
-import { ChatStreamMessage } from '../../../../types';
+import { ChatStreamMessage, FrontendChatIteration } from '../../../../types';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
-    const { messages } = useMessageStore();
+    const { iterations } = useMessageStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -20,7 +20,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
                 block: 'end'
             });
         }
-    }, [messages]);
+    }, [iterations]);
 
     return (
         <div className="chat-window">
@@ -30,8 +30,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
                 data-testid="messages-container"
             >
 
-                {messages.map((message: ChatStreamMessage, idx: number) => (
-                    <ChatMessage key={idx} message={message} />
+                {iterations.map((it: FrontendChatIteration, idx: number) => (
+                    <div key={idx} className="chat-iteration">
+                        {/* User message bubble */}
+                        <ChatMessage message={{ modal: 'text', content: it.userMessage }} />
+                        {/* Requests (assistant messages) */}
+                        {it.requests.map((req: ChatStreamMessage, rIdx: number) => (
+                            <ChatMessage key={`${idx}-${rIdx}`} message={req} />
+                        ))}
+                    </div>
                 ))}
 
                 <div ref={messagesEndRef} />

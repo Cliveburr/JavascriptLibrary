@@ -1,13 +1,15 @@
 import type { ObjectId } from 'mongodb';
 import { LlmRequestMessage, LlmRequestOptions, LlmSetModel } from '../llm';
 
+export type PromptType = 'reflection' | 'reply' | 'memory_search';
+
 export interface ChatIterationLLMRequest {
     requestId: string;
     llmSetModel: LlmSetModel;
 
     // Prompt
     promptSetId: ObjectId;
-    promptName: string;
+    promptName: PromptType;
     messages: LlmRequestMessage[];
     llmOptions?: LlmRequestOptions;
 

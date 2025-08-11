@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
-import { ThoughtCycleService, ChatService, LlmSetService, ChatStreamMessage, ThoughtContext, AuthService, PromptForUseService, LlmGateway } from '@symbia/core';
+import { ThoughtCycleService, ChatService, LlmSetService, ThoughtContext, AuthService, PromptForUseService, LlmGateway } from '@symbia/core';
 import { chatValidation } from '../helpers/chat-validation';
+import { ChatIterationDTO, ChatIterationRequestDTO } from '../types';
 
 export class ChatController {
 
@@ -52,16 +53,24 @@ export class ChatController {
                 res.status(404).json({ error: 'Chat não encontrado' });
                 return;
             }
-            const messageDTOs: ChatStreamMessage[] = [];
+            const iterationsDTO: ChatIterationDTO[] = [];
             for (const iteration of chat.iterations) {
-                messageDTOs.push({ content: iteration.userMessage });
-                for (const req of iteration.requests) {
-                    if (req.llmResponse) {
-                        messageDTOs.push({ content: req.llmResponse });
+                const iterationDTO: ChatIterationDTO = {
+                    userMessage: iteration.userMessage,
+                    requests: []
+                };
+                iterationsDTO.push(iterationDTO);
+                for (const request of iteration.requests) {
+                    if (request.forUser) {
+                        const requestDTO: ChatIterationRequestDTO = {
+                            modal: request.promptName,
+                            content: request.forUser
+                        };
+                        iterationDTO.requests.push(requestDTO);
                     }
                 }
             }
-            res.json(messageDTOs);
+            res.json(iterationsDTO);
         } catch (error) {
             console.error('Error fetching messages:', error);
             res.status(500).json({ error: 'Erro ao buscar mensagens' });
@@ -123,6 +132,7 @@ export class ChatController {
             await Promise.all(parallelTasks);
             await ctx.sendCompleted();
         } catch (error) {
+            console.error(error);
             res.status(500).json('Internal Error');
         }
     }
