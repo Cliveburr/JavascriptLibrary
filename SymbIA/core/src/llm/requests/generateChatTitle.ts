@@ -1,5 +1,5 @@
 import { UserEntity } from '../../entities';
-import { LlmGateway } from '../llm-gateway';
+import { LlmGateway } from '../llm.gateway';
 import { LlmRequestMessage, LlmSetConfig } from '../llm.types';
 
 export const generateChatTitle = async (

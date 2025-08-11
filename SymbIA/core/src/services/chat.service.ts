@@ -131,4 +131,13 @@ export class ChatService {
         return result.deletedCount === 1;
     }
 
+    async replaceChat(chat: ChatEntity): Promise<boolean> {
+        await this.mongoService.connect();
+        const chatsCollection = this.mongoService.getChatsCollection();
+
+        chat.updatedAt = new Date();
+
+        const result = await chatsCollection.replaceOne({ _id: new ObjectId(chat._id) }, chat);
+        return result.modifiedCount === 1;
+    }
 }

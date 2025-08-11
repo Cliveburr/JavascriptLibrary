@@ -1,46 +1,52 @@
 import { v6 } from 'uuid';
-import { ChatContext, ChatContextReflectionResponse, ChatIterationLLMRequest } from '../entities';
-import { BodyJsonParser, MessageQueue, createBodyJsonStreamParser } from '../helpers';
-import { LlmGateway, LlmSetModel } from '../llm';
-import { reflectionPromptV1 } from './reflection-prompts';
-import { IStreamChatContext } from './stream-chat';
-import { filterContextForRequest } from '../helpers/filterContextForRequest';
+import { ChatContext, ChatContextReplyResponse, ChatIterationLLMRequest } from '../../entities';
+import { BodyJsonParser, MessageQueue, createBodyJsonStreamParser } from '../../helpers';
+import { LlmGateway, LlmSetModel } from '../../llm';
+import { IStreamChatContext } from '../../thought/stream-chat';
+import { ActionHandler } from '../act-defs';
+import { replyPromptV0 } from './reply-prompt-v0';
+import { filterContextForRequest } from '../../helpers/filterContextForRequest';
 
-interface ReflectionContext {
+interface ReplyContext {
     chatCtx: IStreamChatContext;
     request: ChatIterationLLMRequest;
     parser: BodyJsonParser,
     messageQueue: MessageQueue<string>;
-    action?: string;
 }
 
-export class ReflectionService {
-    constructor(
-        private llmGateway: LlmGateway
-    ) { }
+export class ReplyAction implements ActionHandler {
+    readonly name = "Reply";
 
-    async reflectOnNextAction(chatCtx: IStreamChatContext, llmSetModel: LlmSetModel): Promise<string | undefined> {
-        console.log('Reflecting...');
+    async execute(chatCtx: IStreamChatContext, llmGateway: LlmGateway): Promise<void> {
+        console.log("Running Reply action...");
 
-        const ctx = await this.prepareRequest(chatCtx, llmSetModel);
+        const ctx = await this.prepareRequest(chatCtx);
 
-        await this.callLLM(ctx);
+        await this.callLLM(ctx, llmGateway);
 
         await chatCtx.sendCompleteMessage();
 
-        console.log('End of Reflection!');
-        return ctx.action;
+        chatCtx.finalizeIteration = true;
+        console.log("End of Reply!");
     }
 
-    private async prepareRequest(chatCtx: IStreamChatContext, llmSetModel: LlmSetModel): Promise<ReflectionContext> {
+    private async prepareRequest(chatCtx: IStreamChatContext): Promise<ReplyContext> {
 
-        await chatCtx.sendPrepareMessage('reflection');
+        await chatCtx.sendPrepareMessage('reply');
+
+        const systemPrompt = replyPromptV0
+            .replace('{{userLanguage}}', chatCtx.user.reponseLanguage);
 
         const request: ChatIterationLLMRequest = {
             requestId: `${chatCtx.chat._id}_${v6({}, undefined, Date.now())}`,
-            promptType: 'reflection',
-            llmSetModel,
-            systemPrompt: reflectionPromptV1,
+            promptType: 'reply',
+            llmSetModel: {
+                provider: chatCtx.llmSetConfig.models.fastChat.provider,
+                model: chatCtx.llmSetConfig.models.fastChat.model,
+                temperature: 0.7,
+                maxTokens: 200
+            },
+            systemPrompt,
             contexts: [],
             startedDate: new Date()
         };
@@ -55,15 +61,13 @@ export class ReflectionService {
         };
     }
 
-    private async callLLM(ctx: ReflectionContext): Promise<void> {
+    private async callLLM(ctx: ReplyContext, llmGateway: LlmGateway): Promise<void> {
 
         const messages = filterContextForRequest(ctx.chatCtx.chat,
             ctx.request.systemPrompt
         );
 
-        ctx.request.llmSetModel.maxTokens = 200;
-
-        const response = await this.llmGateway.invokeAsync(
+        const response = await llmGateway.invokeAsync(
             ctx.request.llmSetModel,
             messages,
             ctx.parser.process,
@@ -89,22 +93,24 @@ export class ReflectionService {
         this.processResponse(ctx, response.content);
     }
 
-    private processResponse(ctx: ReflectionContext, content: string): void {
+    private processResponse(ctx: ReplyContext, content: string): void {
         const parseResult = ctx.parser.end(content);
         if (!parseResult) {
             throw 'Invalid llmResponse for reflection: \n' + content;
         }
 
         try {
-            const response = JSON.parse(parseResult.JSON) as ChatContextReflectionResponse;
+            const response = JSON.parse(parseResult.JSON) as ChatContextReplyResponse;
             const context: ChatContext = {
-                type: 'reflection_response',
-                reflectionResponse: response
+                type: 'reply_response',
+                replyResponse: response
             };
             ctx.request.contexts.push(context);
-            ctx.action = response.action;
         } catch {
             throw 'JSON parse error: ' + parseResult.JSON;
         }
     }
 }
+
+// Export instance for registry
+export const replyAction = new ReplyAction();

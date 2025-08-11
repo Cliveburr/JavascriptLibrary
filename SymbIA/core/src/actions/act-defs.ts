@@ -1,5 +1,5 @@
 import type { IStreamChatContext } from '../thought/stream-chat';
-import type { LlmGateway } from '../llm/llm-gateway.ts';
+import type { LlmGateway } from '../llm/llm.gateway';
 
 export interface ActionHandler {
     readonly name: string;

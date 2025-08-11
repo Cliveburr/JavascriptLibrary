@@ -1,9 +1,11 @@
-import { ChatEntity, ChatIteration } from '../entities';
+import { ChatEntity, ChatIteration, UserEntity } from '../entities';
 import { LlmSetConfig } from '../llm';
 
 export type MessageType = 'user' | 'reflection' | 'memory_search' | 'reply';
 
 export interface IStreamChatContext {
+    addUsage(usage: { promptTokens: number; completionTokens: number; totalTokens: number; } | undefined): void;
+    user: UserEntity;
     chat: ChatEntity;
     iteration: ChatIteration;
     llmSetConfig: LlmSetConfig;

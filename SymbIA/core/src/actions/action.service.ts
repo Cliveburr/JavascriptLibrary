@@ -2,8 +2,8 @@ import type { IStreamChatContext } from '../thought/stream-chat';
 import type { ActionHandler } from './act-defs';
 import { LlmGateway } from '../llm';
 
-import { replyAction } from './reply.action';
-import { memorySearchAction } from './memory-search.action';
+import { replyAction } from './reply/reply.action';
+import { memorySearchAction } from './memory-search/memory-search.action';
 
 export class ActionService {
 

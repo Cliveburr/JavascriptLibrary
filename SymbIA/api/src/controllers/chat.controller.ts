@@ -103,8 +103,6 @@ export class ChatController {
                 'Connection': 'keep-alive'
             });
 
-            await ctx.sendInitMessage();
-
             const paralelTasks: Array<Promise<any>> = [
                 this.thoughtCycleService.handle(ctx)
             ];

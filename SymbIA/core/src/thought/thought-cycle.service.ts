@@ -2,6 +2,7 @@ import type { IStreamChatContext } from './stream-chat';
 import { ReflectionService } from './reflection.service';
 import { StallDetectorEngine } from './stall/stall-detector';
 import type { ActionService } from '../actions';
+import { LlmSetConfig, LlmSetModel } from '../llm';
 
 export class ThoughtCycleService {
 
@@ -12,11 +13,14 @@ export class ThoughtCycleService {
 
     async handle(ctx: IStreamChatContext): Promise<void> {
         const stallDetector = new StallDetectorEngine();
+        let progressivelLevel = 0;
         while (true) {
 
-            let actionName = await this.reflectionService.reflectNextAction(ctx);
+            const llmSetModel = this.progressiveModel(progressivelLevel++, ctx.llmSetConfig);
+            let actionName = llmSetModel ?
+                await this.reflectionService.reflectOnNextAction(ctx, llmSetModel)
+                : undefined;
 
-            //TODO: criar uns 3 o umais tipos de reflexão que vai aumentando o grau da reflexão se não retornar uma action
             if (!actionName) {
                 console.warn('Relection return undefined!');
                 actionName = 'Reply';
@@ -35,6 +39,19 @@ export class ThoughtCycleService {
             }
 
             //TODO: serviço para resumir as mensagens
+
+            progressivelLevel = 0;
+        }
+    }
+
+    private progressiveModel(level: number, llmSetConfig: LlmSetConfig): LlmSetModel | undefined {
+        switch (level) {
+            case 0:
+                return {
+                    model: llmSetConfig.models.reasoning.model,
+                    provider: llmSetConfig.models.reasoning.provider,
+                    temperature: 0.2
+                };
         }
     }
 }

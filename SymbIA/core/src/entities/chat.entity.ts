@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { LLMPromptTypes, LLMProviders } from '../llm';
+import { LLMPromptTypes, LlmSetModel } from '../llm';
 
 export type ChatContextType = 'reflection_response' | 'memory_search_response' | 'memory_search_result' | 'reply_response';
 
@@ -9,8 +9,13 @@ export interface ChatContextReflectionResponse {
 }
 
 export interface ChatContextMemorySearchResponse {
-    explanation: string;
-    keywords: string[];
+    explanationBody: string;
+    queriesJSON: {
+        searchGroups: Array<{
+            purpose: string,
+            keywords: string;
+        }>;
+    };
 }
 
 export interface ChatContextMemorySearchResult {
@@ -36,20 +41,22 @@ export interface ChatContext {
 
 export interface ChatIterationLLMRequest {
     requestId: string;
-    provider: LLMProviders;
-    modelName: string;
     promptType: LLMPromptTypes;
+    llmSetModel: LlmSetModel;
     systemPrompt: string;
     llmResponse?: string;
 
-    contexts?: ChatContext[];
+    forUser?: string;
+    forContext?: any;
+
+    contexts: ChatContext[];
 
     completionTokens?: number;
     promptTokens?: number;
     totalTokens?: number;
 
     startedDate: Date;
-    finishedDate: Date;
+    finishedDate?: Date;
 }
 
 export interface ChatIteration {
@@ -61,7 +68,7 @@ export interface ChatIteration {
     totalTokens?: number;
 
     startedDate: Date;
-    finishedDate: Date;
+    finishedDate?: Date;
 }
 
 export interface ChatEntity {

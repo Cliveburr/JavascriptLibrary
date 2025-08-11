@@ -1,15 +1,14 @@
 import type { Response } from 'express';
-import { ChatStreamType, type ChatService, type ChatStream, type MessageModalType } from '@symbia/core';
-import type { MessageModal, MessageRole, IStreamChatContext, Message, ChatStreamMessage } from '@symbia/core';
 import { ObjectId } from 'mongodb';
 import { ChatContextError, ChatContextData } from './chat-validation';
+import { ChatService } from '@symbia/core';
+import { IStreamChatContext } from '@symbia/core/src/thought/stream-chat';
 
 export class ChatContext implements IStreamChatContext {
 
     get memoryId() { return this.data.memoryId; }
     get chatId() { return this.data.chatId; }
     get userMessage() { return this.data.userMessage; }
-    get messages() { return this.data.messages; }
     get llmSetConfig() { return this.data.llmSetConfig; }
     finalizeIteration: boolean = false;
 
@@ -36,37 +35,6 @@ export class ChatContext implements IStreamChatContext {
 
     sendError(code: number, message: string, error?: any): void {
         ChatContext.sendStaticErrorFor(this.res, code, message, error);
-    }
-
-    async sendInitMessage(): Promise<void> {
-        const userMessage = await this.saveMessageFor('user', this.data.userMessage, 'text');
-
-        if (this.data.isNewChat) {
-            await this.sendStream({
-                type: ChatStreamType.InitNewStream,
-                chat: {
-                    chatId: this.data.chatId,
-                    orderIndex: this.data.orderIndex
-                },
-                message: {
-                    messageId: userMessage._id.toString(),
-                    modal: userMessage.modal,
-                    role: userMessage.role,
-                    content: userMessage.content
-                }
-            });
-        }
-        else {
-            await this.sendStream({
-                type: ChatStreamType.InitStream,
-                message: {
-                    messageId: userMessage._id.toString(),
-                    modal: userMessage.modal,
-                    role: userMessage.role,
-                    content: userMessage.content
-                }
-            });
-        }
     }
 
     async sendCompleted(): Promise<void> {

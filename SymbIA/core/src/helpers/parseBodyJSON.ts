@@ -20,6 +20,11 @@
 // - If `end()` is called before the sentinel appears, `onJson` will be
 //   invoked with an empty string (""). You can treat this as an error if desired.
 
+export interface BodyJsonParser {
+    process(chunk: string): void;
+    end(content: string): { body: string, JSON: string; } | undefined;
+}
+
 enum State {
     Body = 0,
     InJson = 1,
@@ -27,16 +32,12 @@ enum State {
 
 const SENTINEL = '<<END-OF-BODY>>';
 
-/**
- * Create a streaming parser for "Body + JSON" protocol.
- * @param callbacks Two callbacks: onBody (streamed), onJson (final JSON as text).
- */
-export function createBodyJsonStreamParser(onBody: (chunk: string) => void) {
+export function createBodyJsonStreamParser(onBody: (chunk: string) => void): BodyJsonParser {
     let state: State = State.Body;
 
     // We keep a small tail buffer while searching for the sentinel across chunk boundaries.
     let bodyTail = '';
-    let jsonBuffer = '';
+    //let jsonBuffer = '';
 
     function flushBodySafely(force: boolean = false) {
         if (bodyTail.length === 0) return;
@@ -75,7 +76,7 @@ export function createBodyJsonStreamParser(onBody: (chunk: string) => void) {
 
                 // Switch to JSON state; anything after the sentinel belongs to JSON.
                 state = State.InJson;
-                jsonBuffer = after;
+                //jsonBuffer = after;
                 bodyTail = '';
                 return;
             }
@@ -86,19 +87,31 @@ export function createBodyJsonStreamParser(onBody: (chunk: string) => void) {
         }
 
         // In JSON state: just accumulate.
-        jsonBuffer += chunk;
+        //jsonBuffer += chunk;
     }
 
-    function end() {
-        if (state === State.Body) {
-            // No sentinel was ever found; flush remaining body and return empty JSON.
-            flushBodySafely(true);
-            return '';
+    function end(content: string) {
+        const idx = content.indexOf(SENTINEL);
+        if (idx == -1) {
+            return undefined;
         }
 
-        // Trim trailing whitespace from the JSON buffer; the contract expects a single line.
-        const jsonText = jsonBuffer.trim();
-        return jsonText;
+        const body = content.slice(0, idx);
+        const JSON = content.slice(idx + SENTINEL.length);
+        return {
+            body,
+            JSON
+        };
+
+        // if (state === State.Body) {
+        //     // No sentinel was ever found; flush remaining body and return empty JSON.
+        //     flushBodySafely(true);
+        //     return '';
+        // }
+
+        // // Trim trailing whitespace from the JSON buffer; the contract expects a single line.
+        // const jsonText = jsonBuffer.trim();
+        // return jsonText;
     }
 
     return { process, end };

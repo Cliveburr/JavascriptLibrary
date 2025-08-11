@@ -1,6 +1,7 @@
-import type { Request, Response } from 'express';
-import { ChatService, LlmSetConfig, LlmSetService, Message } from '@symbia/core';
+import type { Request } from 'express';
+import { ChatService, LlmSetConfig, LlmSetService } from '@symbia/core';
 import { z } from 'zod';
+import { ChatEntity, ChatIteration } from '@symbia/core/src/entities';
 
 const sendMessageSchema = z.object({
     content: z.string().min(1, 'Content cannot be empty'),
@@ -17,9 +18,8 @@ export interface ChatContextData {
     userMessage: string;
     userId: string;
     isNewChat: boolean;
-    chatId: string;
-    orderIndex: number;
-    messages: Array<Message>;
+    chat: ChatEntity;
+    iteration: ChatIteration;
     llmSetConfig: LlmSetConfig;
 }
 
@@ -77,27 +77,35 @@ async function validateChat(chatService: ChatService, llmSetService: LlmSetServi
 
         // Validate the chatId
         let isNewChat: boolean = false;
-        let chatId: string;
-        let orderIndex: number = 0;
-        let messages: Array<Message>;
+        let chat: ChatEntity;
         if (chatIdParam) {
-            const chat = await chatService.getChatById(chatIdParam);
-            if (!chat) {
+            const foundChat = await chatService.getChatById(chatIdParam);
+            if (!foundChat) {
                 return {
                     isError: true,
                     code: 404,
                     message: 'Chat não encontrado'
                 };
             }
-            chatId = chat._id.toString();
-            orderIndex = chat.orderIndex;
-            messages = await chatService.getMessagesByChat(chatId);
+            chat = foundChat;
         } else {
             isNewChat = true;
-            const newChat = await chatService.createChat(userId, memoryId, 'Novo Chat');
-            chatId = newChat._id.toString();
-            orderIndex = newChat.orderIndex;
-            messages = [];
+            chat = await chatService.createChat(userId, memoryId, 'Novo Chat');
+        }
+
+        // Init iteration
+        const iteration: ChatIteration = {
+            userMessage,
+            requests: [],
+            startedDate: new Date()
+        };
+        chat.iterations.push(iteration);
+        if (!await chatService.replaceChat(chat)) {
+            return {
+                isError: true,
+                code: 404,
+                message: 'Error updating chat!'
+            };
         }
 
         // Validate llmSetConfig
@@ -115,9 +123,8 @@ async function validateChat(chatService: ChatService, llmSetService: LlmSetServi
             userMessage,
             userId,
             isNewChat,
-            chatId,
-            orderIndex,
-            messages,
+            chat,
+            iteration,
             llmSetConfig
         };
     }
