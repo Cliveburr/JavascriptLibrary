@@ -1,55 +1,20 @@
-import { ObjectId } from 'mongodb';
-import { LLMPromptTypes, LlmSetModel } from '../llm';
-
-export type ChatContextType = 'reflection_response' | 'memory_search_response' | 'memory_search_result' | 'reply_response';
-
-export interface ChatContextReflectionResponse {
-    reflection: string;
-    action: string;
-}
-
-export interface ChatContextMemorySearchResponse {
-    explanationBody: string;
-    queriesJSON: {
-        searchGroups: Array<{
-            purpose: string,
-            keywords: string;
-        }>;
-    };
-}
-
-export interface ChatContextMemorySearchResult {
-    queries: Array<{
-        keywords: string;
-        found: boolean;
-        vector_id?: string;
-        value?: string;
-    }>;
-}
-
-export interface ChatContextReplyResponse {
-    content: string;
-}
-
-export interface ChatContext {
-    type: ChatContextType;
-    reflectionResponse?: ChatContextReflectionResponse;
-    memorySearchResponse?: ChatContextMemorySearchResponse;
-    memorySearchResult?: ChatContextMemorySearchResult;
-    replyResponse?: ChatContextReplyResponse;
-}
+import type { ObjectId } from 'mongodb';
+import { LlmRequestMessage, LlmRequestOptions, LlmSetModel } from '../llm';
 
 export interface ChatIterationLLMRequest {
     requestId: string;
-    promptType: LLMPromptTypes;
     llmSetModel: LlmSetModel;
-    systemPrompt: string;
-    llmResponse?: string;
 
+    // Prompt
+    promptSetId: ObjectId;
+    promptName: string;
+    messages: LlmRequestMessage[];
+    llmOptions?: LlmRequestOptions;
+
+    // LLM Response
+    llmResponse?: string;
     forUser?: string;
     forContext?: any;
-
-    contexts: ChatContext[];
 
     completionTokens?: number;
     promptTokens?: number;

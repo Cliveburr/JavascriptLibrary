@@ -10,23 +10,19 @@
     "models": {
         "reasoning": {
             "provider": "ollama",
-            "model": "llama3-groq-tool-use:latest",
-            "promptFormat": "full-json"
+            "model": "llama3-groq-tool-use:latest"
         },
         "reasoningHeavy": {
             "provider": "ollama",
-            "model": "mixtral:8x7b-instruct",
-            "promptFormat": "text-messages"
+            "model": "mixtral:8x7b-instruct"
         },
         "fastChat": {
             "provider": "ollama",
-            "model": "phi3-mini:3.8b",
-            "promptFormat": "text-messages"
+            "model": "phi3-mini:3.8b"
         },
         "codegen": {
             "provider": "ollama",
-            "model": "deepseek-coder:6.7b",
-            "promptFormat": "text-messages"
+            "model": "deepseek-coder:6.7b"
         },
         "embedding": {
             "provider": "ollama",

@@ -1,7 +1,7 @@
-import type { IStreamChatContext } from '../thought/stream-chat';
-import type { LlmGateway } from '../llm/llm.gateway';
+import type { ThoughtContext } from '../thought';
+import type { LlmGateway } from '../llm';
 
 export interface ActionHandler {
     readonly name: string;
-    execute(ctx: IStreamChatContext, llmGateway: LlmGateway): Promise<void>;
+    execute(thoughtCtx: ThoughtContext, llmGateway: LlmGateway): Promise<void>;
 }

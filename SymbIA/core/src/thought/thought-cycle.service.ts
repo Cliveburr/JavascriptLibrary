@@ -1,8 +1,7 @@
-import type { IStreamChatContext } from './stream-chat';
-import { ReflectionService } from './reflection.service';
-import { StallDetectorEngine } from './stall/stall-detector';
+import type { ThoughtContext } from './thought-context';
+import type { ReflectionService } from './reflection.service';
 import type { ActionService } from '../actions';
-import { LlmSetConfig, LlmSetModel } from '../llm';
+import { StallDetectorEngine } from './stall/stall-detector';
 
 export class ThoughtCycleService {
 
@@ -11,19 +10,14 @@ export class ThoughtCycleService {
         private reflectionService: ReflectionService
     ) { }
 
-    async handle(ctx: IStreamChatContext): Promise<void> {
+    async handle(ctx: ThoughtContext): Promise<void> {
         const stallDetector = new StallDetectorEngine();
-        let progressivelLevel = 0;
         while (true) {
 
-            const llmSetModel = this.progressiveModel(progressivelLevel++, ctx.llmSetConfig);
-            let actionName = llmSetModel ?
-                await this.reflectionService.reflectOnNextAction(ctx, llmSetModel)
-                : undefined;
-
+            let actionName = await this.reflectionService.reflectOnNextAction(ctx);
             if (!actionName) {
-                console.warn('Relection return undefined!');
-                actionName = 'Reply';
+                ctx.sendError(500, 'Relection return undefined!');
+                return;
             }
 
             await this.actionService.executeAction(actionName, ctx);
@@ -39,19 +33,8 @@ export class ThoughtCycleService {
             }
 
             //TODO: serviço para resumir as mensagens
-
-            progressivelLevel = 0;
         }
-    }
 
-    private progressiveModel(level: number, llmSetConfig: LlmSetConfig): LlmSetModel | undefined {
-        switch (level) {
-            case 0:
-                return {
-                    model: llmSetConfig.models.reasoning.model,
-                    provider: llmSetConfig.models.reasoning.provider,
-                    temperature: 0.2
-                };
-        }
+        // se tiver test, agendar test para rodar
     }
 }

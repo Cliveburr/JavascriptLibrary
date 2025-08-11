@@ -11,23 +11,19 @@
     "models": {
         "reasoning": {
             "provider": "ollama",
-            "model": "phi3-mini:3.8b",
-            "promptFormat": "text-messages"
+            "model": "phi3-mini:3.8b"
         },
         "reasoningHeavy": {
             "provider": "ollama",
-            "model": "llama3:8b",
-            "promptFormat": "text-messages"
+            "model": "llama3:8b"
         },
         "fastChat": {
             "provider": "ollama",
-            "model": "mistral-openorca:7b",
-            "promptFormat": "text-messages"
+            "model": "mistral-openorca:7b"
         },
         "codegen": {
             "provider": "ollama",
-            "model": "phi2:latest",
-            "promptFormat": "text-messages"
+            "model": "phi2:latest"
         },
         "embedding": {
             "provider": "ollama",

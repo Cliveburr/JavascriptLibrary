@@ -10,15 +10,11 @@ export enum VectorContentType {
     PlainText
 }
 
-export type VectorContentTypes = string;
-
 export interface VectorPayload {
     keywords: string;
     timestamp: string;
-    content?: {
-        type: VectorContentType,
-        value: VectorContentTypes;
-    },
+    type: VectorContentType,
+    content?: string,
     [key: string]: any; // Index signature for Qdrant compatibility
 }
 

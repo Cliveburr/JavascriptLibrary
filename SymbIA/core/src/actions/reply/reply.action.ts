@@ -1,60 +1,61 @@
+import type { ChatIterationLLMRequest } from '../../entities';
+import type { LlmGateway } from '../../llm';
+import type { ActionHandler } from '../act-defs';
+import type { ThoughtContext } from '../../thought';
 import { v6 } from 'uuid';
-import { ChatContext, ChatContextReplyResponse, ChatIterationLLMRequest } from '../../entities';
 import { BodyJsonParser, MessageQueue, createBodyJsonStreamParser } from '../../helpers';
-import { LlmGateway, LlmSetModel } from '../../llm';
-import { IStreamChatContext } from '../../thought/stream-chat';
-import { ActionHandler } from '../act-defs';
-import { replyPromptV0 } from './reply-prompt-v0';
-import { filterContextForRequest } from '../../helpers/filterContextForRequest';
 
 interface ReplyContext {
-    chatCtx: IStreamChatContext;
+    thoughtCtx: ThoughtContext;
     request: ChatIterationLLMRequest;
     parser: BodyJsonParser,
     messageQueue: MessageQueue<string>;
 }
 
+interface ReplyResponseJSON {
+}
+
 export class ReplyAction implements ActionHandler {
     readonly name = "Reply";
 
-    async execute(chatCtx: IStreamChatContext, llmGateway: LlmGateway): Promise<void> {
+    async execute(thoughtCtx: ThoughtContext, llmGateway: LlmGateway): Promise<void> {
         console.log("Running Reply action...");
 
-        const ctx = await this.prepareRequest(chatCtx);
+        const ctx = await this.prepareRequest(thoughtCtx);
 
         await this.callLLM(ctx, llmGateway);
 
-        await chatCtx.sendCompleteMessage();
-
-        chatCtx.finalizeIteration = true;
+        thoughtCtx.finalizeIteration = true;
         console.log("End of Reply!");
     }
 
-    private async prepareRequest(chatCtx: IStreamChatContext): Promise<ReplyContext> {
+    private async prepareRequest(thoughtCtx: ThoughtContext): Promise<ReplyContext> {
 
-        await chatCtx.sendPrepareMessage('reply');
+        const promptName = 'reply';
+        await thoughtCtx.sendPrepareMessage(promptName);
 
-        const systemPrompt = replyPromptV0
-            .replace('{{userLanguage}}', chatCtx.user.reponseLanguage);
+        const { llmOptions, messages } = thoughtCtx.data.promptSet.getMessagesFor(
+            thoughtCtx.data.chat,
+            thoughtCtx.data.user,
+            promptName
+        );
 
         const request: ChatIterationLLMRequest = {
-            requestId: `${chatCtx.chat._id}_${v6({}, undefined, Date.now())}`,
-            promptType: 'reply',
-            llmSetModel: {
-                provider: chatCtx.llmSetConfig.models.fastChat.provider,
-                model: chatCtx.llmSetConfig.models.fastChat.model,
-                temperature: 0.7,
-                maxTokens: 200
-            },
-            systemPrompt,
-            contexts: [],
+            requestId: `${thoughtCtx.data.chat._id}_${v6({}, undefined, Date.now())}`,
+            llmSetModel: thoughtCtx.data.llmSetConfig.models.fastChat,
+            promptSetId: thoughtCtx.data.promptSet.promptSetId,
+            promptName,
+            messages,
+            llmOptions,
             startedDate: new Date()
         };
+        thoughtCtx.data.iteration.requests.push(request);
+        await thoughtCtx.saveChat();
 
-        const messageQueue = new MessageQueue<string>(chatCtx.sendStreamMessage.bind(chatCtx));
+        const messageQueue = new MessageQueue<string>(thoughtCtx.sendStreamMessage.bind(thoughtCtx));
 
         return {
-            chatCtx,
+            thoughtCtx,
             request,
             parser: createBodyJsonStreamParser(messageQueue.add),
             messageQueue
@@ -63,34 +64,17 @@ export class ReplyAction implements ActionHandler {
 
     private async callLLM(ctx: ReplyContext, llmGateway: LlmGateway): Promise<void> {
 
-        const messages = filterContextForRequest(ctx.chatCtx.chat,
-            ctx.request.systemPrompt
-        );
-
         const response = await llmGateway.invokeAsync(
             ctx.request.llmSetModel,
-            messages,
+            ctx.request.messages,
             ctx.parser.process,
-            {
-                temperature: ctx.request.llmSetModel.temperature,
-                maxTokens: ctx.request.llmSetModel.maxTokens
-            }
+            ctx.request.llmOptions
         );
+        ctx.request.finishedDate = new Date();
         ctx.request.llmResponse = response.content;
-
-        if (response.usage) {
-            ctx.request.promptTokens = response.usage.promptTokens;
-            ctx.request.completionTokens = response.usage.completionTokens;
-            ctx.request.totalTokens = response.usage.totalTokens;
-            ctx.chatCtx.iteration.promptTokens = (ctx.chatCtx.iteration.promptTokens || 0) + ctx.request.promptTokens;
-            ctx.chatCtx.iteration.completionTokens = (ctx.chatCtx.iteration.completionTokens || 0) + ctx.request.completionTokens;
-            ctx.chatCtx.iteration.totalTokens = (ctx.chatCtx.iteration.totalTokens || 0) + ctx.request.totalTokens;
-            ctx.chatCtx.chat.promptTokens = (ctx.chatCtx.chat.promptTokens || 0) + ctx.request.promptTokens;
-            ctx.chatCtx.chat.completionTokens = (ctx.chatCtx.chat.completionTokens || 0) + ctx.request.completionTokens;
-            ctx.chatCtx.chat.totalTokens = (ctx.chatCtx.chat.totalTokens || 0) + ctx.request.totalTokens;
-        }
-
+        ctx.thoughtCtx.addUsage(ctx.request, response.usage);
         this.processResponse(ctx, response.content);
+        await ctx.thoughtCtx.saveChat();
     }
 
     private processResponse(ctx: ReplyContext, content: string): void {
@@ -98,14 +82,10 @@ export class ReplyAction implements ActionHandler {
         if (!parseResult) {
             throw 'Invalid llmResponse for reflection: \n' + content;
         }
-
+        ctx.request.forUser = parseResult.body;
         try {
-            const response = JSON.parse(parseResult.JSON) as ChatContextReplyResponse;
-            const context: ChatContext = {
-                type: 'reply_response',
-                replyResponse: response
-            };
-            ctx.request.contexts.push(context);
+            const response = JSON.parse(parseResult.JSON) as ReplyResponseJSON;
+            ctx.request.forContext = response;
         } catch {
             throw 'JSON parse error: ' + parseResult.JSON;
         }

@@ -1,17 +1,19 @@
+import type { ChatIterationLLMRequest } from '../entities';
+import type { LlmGateway } from '../llm';
+import type { ThoughtContext } from './thought-context';
 import { v6 } from 'uuid';
-import { ChatContext, ChatContextReflectionResponse, ChatIterationLLMRequest } from '../entities';
 import { BodyJsonParser, MessageQueue, createBodyJsonStreamParser } from '../helpers';
-import { LlmGateway, LlmSetModel } from '../llm';
-import { reflectionPromptV1 } from './reflection-prompts';
-import { IStreamChatContext } from './stream-chat';
-import { filterContextForRequest } from '../helpers/filterContextForRequest';
 
 interface ReflectionContext {
-    chatCtx: IStreamChatContext;
+    thoughtCtx: ThoughtContext;
     request: ChatIterationLLMRequest;
     parser: BodyJsonParser,
     messageQueue: MessageQueue<string>;
     action?: string;
+}
+
+interface ReflectionResponseJSON {
+    action_REQ: string;
 }
 
 export class ReflectionService {
@@ -19,36 +21,44 @@ export class ReflectionService {
         private llmGateway: LlmGateway
     ) { }
 
-    async reflectOnNextAction(chatCtx: IStreamChatContext, llmSetModel: LlmSetModel): Promise<string | undefined> {
+    async reflectOnNextAction(thoughtCtx: ThoughtContext): Promise<string | undefined> {
         console.log('Reflecting...');
 
-        const ctx = await this.prepareRequest(chatCtx, llmSetModel);
+        const ctx = await this.prepareRequest(thoughtCtx);
 
         await this.callLLM(ctx);
-
-        await chatCtx.sendCompleteMessage();
 
         console.log('End of Reflection!');
         return ctx.action;
     }
 
-    private async prepareRequest(chatCtx: IStreamChatContext, llmSetModel: LlmSetModel): Promise<ReflectionContext> {
+    private async prepareRequest(thoughtCtx: ThoughtContext): Promise<ReflectionContext> {
 
-        await chatCtx.sendPrepareMessage('reflection');
+        const promptName = 'reflection';
+        await thoughtCtx.sendPrepareMessage(promptName);
+
+        const { llmOptions, messages } = thoughtCtx.data.promptSet.getMessagesFor(
+            thoughtCtx.data.chat,
+            thoughtCtx.data.user,
+            promptName
+        );
 
         const request: ChatIterationLLMRequest = {
-            requestId: `${chatCtx.chat._id}_${v6({}, undefined, Date.now())}`,
-            promptType: 'reflection',
-            llmSetModel,
-            systemPrompt: reflectionPromptV1,
-            contexts: [],
+            requestId: `${thoughtCtx.data.chat._id}_${v6({}, undefined, Date.now())}`,
+            llmSetModel: thoughtCtx.data.llmSetConfig.models.reasoningHeavy,
+            promptSetId: thoughtCtx.data.promptSet.promptSetId,
+            promptName,
+            messages,
+            llmOptions,
             startedDate: new Date()
         };
+        thoughtCtx.data.iteration.requests.push(request);
+        await thoughtCtx.saveChat();
 
-        const messageQueue = new MessageQueue<string>(chatCtx.sendStreamMessage.bind(chatCtx));
+        const messageQueue = new MessageQueue<string>(thoughtCtx.sendStreamMessage.bind(thoughtCtx));
 
         return {
-            chatCtx,
+            thoughtCtx,
             request,
             parser: createBodyJsonStreamParser(messageQueue.add),
             messageQueue
@@ -57,36 +67,17 @@ export class ReflectionService {
 
     private async callLLM(ctx: ReflectionContext): Promise<void> {
 
-        const messages = filterContextForRequest(ctx.chatCtx.chat,
-            ctx.request.systemPrompt
-        );
-
-        ctx.request.llmSetModel.maxTokens = 200;
-
         const response = await this.llmGateway.invokeAsync(
             ctx.request.llmSetModel,
-            messages,
+            ctx.request.messages,
             ctx.parser.process,
-            {
-                temperature: ctx.request.llmSetModel.temperature,
-                maxTokens: ctx.request.llmSetModel.maxTokens
-            }
+            ctx.request.llmOptions
         );
+        ctx.request.finishedDate = new Date();
         ctx.request.llmResponse = response.content;
-
-        if (response.usage) {
-            ctx.request.promptTokens = response.usage.promptTokens;
-            ctx.request.completionTokens = response.usage.completionTokens;
-            ctx.request.totalTokens = response.usage.totalTokens;
-            ctx.chatCtx.iteration.promptTokens = (ctx.chatCtx.iteration.promptTokens || 0) + ctx.request.promptTokens;
-            ctx.chatCtx.iteration.completionTokens = (ctx.chatCtx.iteration.completionTokens || 0) + ctx.request.completionTokens;
-            ctx.chatCtx.iteration.totalTokens = (ctx.chatCtx.iteration.totalTokens || 0) + ctx.request.totalTokens;
-            ctx.chatCtx.chat.promptTokens = (ctx.chatCtx.chat.promptTokens || 0) + ctx.request.promptTokens;
-            ctx.chatCtx.chat.completionTokens = (ctx.chatCtx.chat.completionTokens || 0) + ctx.request.completionTokens;
-            ctx.chatCtx.chat.totalTokens = (ctx.chatCtx.chat.totalTokens || 0) + ctx.request.totalTokens;
-        }
-
+        ctx.thoughtCtx.addUsage(ctx.request, response.usage);
         this.processResponse(ctx, response.content);
+        await ctx.thoughtCtx.saveChat();
     }
 
     private processResponse(ctx: ReflectionContext, content: string): void {
@@ -94,15 +85,11 @@ export class ReflectionService {
         if (!parseResult) {
             throw 'Invalid llmResponse for reflection: \n' + content;
         }
-
+        ctx.request.forUser = parseResult.body;
         try {
-            const response = JSON.parse(parseResult.JSON) as ChatContextReflectionResponse;
-            const context: ChatContext = {
-                type: 'reflection_response',
-                reflectionResponse: response
-            };
-            ctx.request.contexts.push(context);
-            ctx.action = response.action;
+            const response = JSON.parse(parseResult.JSON) as ReflectionResponseJSON;
+            ctx.request.forContext = response;
+            ctx.action = response.action_REQ;
         } catch {
             throw 'JSON parse error: ' + parseResult.JSON;
         }

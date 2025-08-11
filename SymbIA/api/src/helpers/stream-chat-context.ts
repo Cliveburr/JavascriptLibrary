@@ -4,7 +4,7 @@ import { ChatContextError, ChatContextData } from './chat-validation';
 import { ChatService } from '@symbia/core';
 import { IStreamChatContext } from '@symbia/core/src/thought/stream-chat';
 
-export class ChatContext implements IStreamChatContext {
+export class StreamChatContext implements IStreamChatContext {
 
     get memoryId() { return this.data.memoryId; }
     get chatId() { return this.data.chatId; }
@@ -92,6 +92,20 @@ export class ChatContext implements IStreamChatContext {
                 messageId: savedMessage._id.toString()
             }
         });
+    }
+
+    addUsage(usage: { promptTokens: number; completionTokens: number; totalTokens: number; } | undefined): void {
+        if (usage) {
+            ctx.request.promptTokens = response.usage.promptTokens;
+            ctx.request.completionTokens = response.usage.completionTokens;
+            ctx.request.totalTokens = response.usage.totalTokens;
+            ctx.chatCtx.iteration.promptTokens = (ctx.chatCtx.iteration.promptTokens || 0) + ctx.request.promptTokens;
+            ctx.chatCtx.iteration.completionTokens = (ctx.chatCtx.iteration.completionTokens || 0) + ctx.request.completionTokens;
+            ctx.chatCtx.iteration.totalTokens = (ctx.chatCtx.iteration.totalTokens || 0) + ctx.request.totalTokens;
+            ctx.chatCtx.chat.promptTokens = (ctx.chatCtx.chat.promptTokens || 0) + ctx.request.promptTokens;
+            ctx.chatCtx.chat.completionTokens = (ctx.chatCtx.chat.completionTokens || 0) + ctx.request.completionTokens;
+            ctx.chatCtx.chat.totalTokens = (ctx.chatCtx.chat.totalTokens || 0) + ctx.request.totalTokens;
+        }
     }
 
     private async saveMessage(message: Message): Promise<Message> {

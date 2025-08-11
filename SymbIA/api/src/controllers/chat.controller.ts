@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { ThoughtCycleService, ChatService, LlmSetService, ChatStreamMessage } from '@symbia/core';
-import { ChatContext } from '../helpers/chat-context';
+import { ChatContext } from '../helpers/stream-chat-context';
 import { chatValidation } from '../helpers/chat-validation';
 
 export class ChatController {

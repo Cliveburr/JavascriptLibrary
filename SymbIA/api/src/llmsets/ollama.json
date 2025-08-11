@@ -12,23 +12,19 @@
     "models": {
         "reasoning": {
             "provider": "ollama",
-            "model": "llama3-groq-tool-use:latest",
-            "promptFormat": "full-json"
+            "model": "llama3-groq-tool-use:latest"
         },
         "reasoningHeavy": {
             "provider": "ollama",
-            "model": "llama3:8b",
-            "promptFormat": "text-messages"
+            "model": "llama3:8b"
         },
         "fastChat": {
             "provider": "ollama",
-            "model": "phi4-mini:3.8b",
-            "promptFormat": "text-messages"
+            "model": "phi4-mini:3.8b"
         },
         "codegen": {
             "provider": "ollama",
-            "model": "llama3-groq-tool-use:latest",
-            "promptFormat": "full-json"
+            "model": "llama3-groq-tool-use:latest"
         },
         "embedding": {
             "provider": "ollama",

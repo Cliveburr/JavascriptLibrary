@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import { ChatService, LlmSetConfig, LlmSetService } from '@symbia/core';
+import { ChatService, LlmSetService, ThoughtContextData, ThoughtContextError } from '@symbia/core';
 import { z } from 'zod';
 import { ChatEntity, ChatIteration } from '@symbia/core/src/entities';
 
@@ -13,33 +13,16 @@ const chatParamsSchema = z.object({
     memoryId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid memory ID format')
 });
 
-export interface ChatContextData {
-    memoryId: string;
-    userMessage: string;
-    userId: string;
-    isNewChat: boolean;
-    chat: ChatEntity;
-    iteration: ChatIteration;
-    llmSetConfig: LlmSetConfig;
-}
-
-export interface ChatContextError {
-    isError: boolean;
-    code: number;
-    message: string;
-    error?: any;
-}
-
 export const chatValidation = {
-    isError(result: ChatContextData | ChatContextError): result is ChatContextError {
-        return (result as ChatContextError).isError;
+    isError(result: ThoughtContextData | ThoughtContextError): result is ThoughtContextError {
+        return (result as ThoughtContextError).isError;
     },
-    async validate(chatService: ChatService, llmSetService: LlmSetService, req: Request): Promise<ChatContextData | ChatContextError> {
+    async validate(chatService: ChatService, llmSetService: LlmSetService, req: Request): Promise<ThoughtContextData | ThoughtContextError> {
         return validateChat(chatService, llmSetService, req);
     }
 };
 
-async function validateChat(chatService: ChatService, llmSetService: LlmSetService, req: Request): Promise<ChatContextData | ChatContextError> {
+async function validateChat(chatService: ChatService, llmSetService: LlmSetService, req: Request): Promise<ThoughtContextData | ThoughtContextError> {
     try {
         // Validate params request
         const paramsResult = chatParamsSchema.safeParse(req.params);

@@ -1,6 +1,6 @@
+import type { ChatEntity, MemoryEntity, UserEntity } from '../entities';
+import type { ConfigService } from '../services';
 import { MongoClient, Db, Collection } from 'mongodb';
-import { ChatEntity, MemoryEntity, UserEntity } from '../entities';
-import { ConfigService } from '../services';
 
 export class MongoDBService {
     private client: MongoClient | null = null;

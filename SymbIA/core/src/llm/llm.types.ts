@@ -1,6 +1,5 @@
 
 export type LLMProviders = 'openai' | 'ollama';
-export type LLMPromptTypes = 'reflection' | 'memory_search' | 'reply';
 
 export interface LlmProvider {
     name: string;
@@ -8,24 +7,31 @@ export interface LlmProvider {
     apiKey?: string;
 }
 
+export interface LlmRequest {
+    model: string;
+    messages: LlmRequestMessage[];
+    options?: LlmRequestOptions;
+}
+
 export interface LlmRequestMessage {
     role: 'system' | 'user' | 'assistant';
     content: string;
 }
 
-export interface LlmRequest {
-    model: string;
+export interface LlmRequestOptions {
     temperature?: number;
     maxTokens?: number;
 }
 
+export interface LlmResponseUsage {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+}
+
 export interface LlmResponse {
     content: string;
-    usage?: {
-        promptTokens: number;
-        completionTokens: number;
-        totalTokens: number;
-    };
+    usage?: LlmResponseUsage;
 }
 
 export interface EmbeddingRequest {
@@ -35,9 +41,7 @@ export interface EmbeddingRequest {
 
 export interface EmbeddingResponse {
     embeddings: number[][];
-    usage?: {
-        promptTokens: number;
-    };
+    usage?: LlmResponseUsage;
 }
 
 // LLM Set types for configuration files
@@ -53,9 +57,6 @@ export interface LlmSetIcon {
 export interface LlmSetModel {
     provider: string;
     model: string;
-    promptFormat?: string;
-    temperature?: number;
-    maxTokens?: number;
 }
 
 export interface LlmSetConfig {

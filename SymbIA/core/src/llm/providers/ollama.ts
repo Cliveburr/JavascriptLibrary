@@ -1,5 +1,5 @@
-import { ConfigService } from '../../services';
-import { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, LlmRequestMessage } from '../llm.types';
+import type { ConfigService } from '../../services';
+import type { LlmResponse, EmbeddingRequest, EmbeddingResponse, LlmRequest } from '../llm.types';
 
 export interface OllamaConfig {
     baseUrl?: string;
@@ -25,19 +25,19 @@ export class OllamaProvider {
         this.config = configService.getOllamaConfig();
     }
 
-    async invoke(messages: LlmRequestMessage[], options: LlmRequest): Promise<LlmResponse> {
+    async invoke(request: LlmRequest): Promise<LlmResponse> {
         if (!this.config.baseUrl) {
             throw new Error('Ollama URL is required');
         }
 
         const requestBody = {
-            model: options.model,
-            messages,
-            stream: false,
+            model: request.model,
+            messages: request.messages,
             options: {
-                temperature: options.temperature ?? 0.7,
-                num_predict: options.maxTokens,
+                temperature: request.options?.temperature,
+                num_predict: request.options?.maxTokens,
             },
+            stream: false
         };
 
         const response = await fetch(`${this.config.baseUrl}/api/chat`, {
@@ -65,19 +65,19 @@ export class OllamaProvider {
         };
     }
 
-    async invokeAsync(messages: LlmRequestMessage[], options: LlmRequest, streamCallback: (content: string) => void): Promise<LlmResponse> {
+    async invokeAsync(request: LlmRequest, streamCallback: (content: string) => void): Promise<LlmResponse> {
         if (!this.config.baseUrl) {
             throw new Error('Ollama URL is required');
         }
 
         const requestBody = {
-            model: options.model,
-            messages,
-            stream: true,
+            model: request.model,
+            messages: request.messages,
             options: {
-                temperature: options.temperature ?? 0.7,
-                num_predict: options.maxTokens,
+                temperature: request.options?.temperature,
+                num_predict: request.options?.maxTokens,
             },
+            stream: true
         };
 
         const response = await fetch(`${this.config.baseUrl}/api/chat`, {

@@ -1,5 +1,5 @@
 import { ConfigService } from '../../services';
-import { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse, LlmRequestMessage } from '../llm.types';
+import { LlmRequest, LlmResponse, EmbeddingRequest, EmbeddingResponse } from '../llm.types';
 
 export interface OpenAIConfig {
     apiKey?: string;
@@ -42,7 +42,7 @@ export class OpenAIProvider {
         this.config = configService.getOpenAIConfig();
     }
 
-    async invoke(messages: LlmRequestMessage[], options: LlmRequest): Promise<LlmResponse> {
+    async invoke(request: LlmRequest): Promise<LlmResponse> {
         if (!this.config.apiKey) {
             throw new Error('OpenAI API key is required');
         }
@@ -51,10 +51,10 @@ export class OpenAIProvider {
         }
 
         const requestBody = {
-            model: options.model,
-            messages,
-            temperature: options.temperature ?? 0.7,
-            max_tokens: options.maxTokens,
+            model: request.model,
+            messages: request.messages,
+            temperature: request.options?.temperature,
+            max_tokens: request.options?.maxTokens,
         };
 
         const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
@@ -83,7 +83,7 @@ export class OpenAIProvider {
         };
     }
 
-    async invokeAsync(messages: LlmRequestMessage[], options: LlmRequest, streamCallback: (content: string) => void): Promise<LlmResponse> {
+    async invokeAsync(request: LlmRequest, streamCallback: (content: string) => void): Promise<LlmResponse> {
         if (!this.config.apiKey) {
             throw new Error('OpenAI API key is required');
         }
@@ -92,11 +92,11 @@ export class OpenAIProvider {
         }
 
         const requestBody = {
-            model: options.model,
-            messages,
-            temperature: options.temperature ?? 0.7,
-            max_tokens: options.maxTokens,
-            stream: true,
+            model: request.model,
+            messages: request.messages,
+            temperature: request.options?.temperature,
+            max_tokens: request.options?.maxTokens,
+            stream: true
         };
 
         const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
@@ -178,8 +178,8 @@ export class OpenAIProvider {
         }
 
         const requestBody = {
-            input: request.input, // Pode ser string ou array de strings
-            model: request.model || 'text-embedding-ada-002',
+            input: request.input,
+            model: request.model,
             encoding_format: 'float',
         };
 

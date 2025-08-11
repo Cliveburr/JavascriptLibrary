@@ -1,6 +1,6 @@
-import type { IStreamChatContext } from '../thought/stream-chat';
+import type { ThoughtContext } from '../thought';
 import type { ActionHandler } from './act-defs';
-import { LlmGateway } from '../llm';
+import type { LlmGateway } from '../llm';
 
 import { replyAction } from './reply/reply.action';
 import { memorySearchAction } from './memory-search/memory-search.action';
@@ -20,13 +20,13 @@ export class ActionService {
         return this.allActions.find(action => action.name === name);
     }
 
-    async executeAction(actionName: string, ctx: IStreamChatContext): Promise<void> {
+    async executeAction(actionName: string, thoughtCtx: ThoughtContext): Promise<void> {
         const actionHandler = this.getActionByName(actionName);
 
         if (!actionHandler) {
             throw new Error(`Action '${actionName}' not found`);
         }
 
-        await actionHandler.execute(ctx, this.llmGateway);
+        await actionHandler.execute(thoughtCtx, this.llmGateway);
     }
 }
