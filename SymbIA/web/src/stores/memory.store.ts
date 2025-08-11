@@ -57,9 +57,11 @@ export const useMemoryStore = create<MemoryState>()(
                         set({ isLoading: true });
                         const newMemory = await apiService.memory.create({ name });
 
-                        const { memories } = get();
+                        const { memories, selectedMemoryId } = get();
+                        const updated = [...memories, newMemory];
                         set({
-                            memories: [...memories, newMemory],
+                            memories: updated,
+                            selectedMemoryId: selectedMemoryId || newMemory.id,
                             isLoading: false
                         });
                     } catch (error) {

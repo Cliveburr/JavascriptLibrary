@@ -9,8 +9,7 @@ interface MessageState {
     loadMessages: (chatId: string) => Promise<void>;
     addMessage: (message: ChatStreamMessage) => void;
     updateContentMessage: (message: ChatStreamMessage) => void;
-    updateIdMessage: (messageId: string) => void;
-    updateMessage: (messageId: string, updates: Partial<ChatStreamMessage>) => void;
+    // Removed updateIdMessage/updateMessage due to backend protocol change
     clearMessages: () => void;
 }
 
@@ -73,54 +72,21 @@ export const useMessageStore = create<MessageState>((set) => {
                 const newMessages = [...state.messages];
                 const lastMessage = newMessages[newMessages.length - 1];
                 if (lastMessage) {
-                    if (lastMessage.inPrepare) {
+                    if (lastMessage.inPrepare && message.content) {
                         const newMessage: ChatStreamMessage = {
-                            messageId: lastMessage.messageId,
-                            modal: lastMessage.originModal,
-                            role: lastMessage.role,
-                            content: message.content
+                            modal: lastMessage.modal,
+                            content: message.content,
+                            inPrepare: false,
+                            isExpanded: lastMessage.modal === 'reflection' || lastMessage.modal === 'memory_search'
                         };
-                        if (newMessage.modal == 'reflection' || newMessage.modal == 'memory') {
-                            newMessage.isExpanded = true;
-                        }
                         newMessages[newMessages.length - 1] = newMessage;
-                    }
-                    else if (message.content) {
+                    } else if (message.content) {
                         newMessages[newMessages.length - 1] = {
                             ...lastMessage,
                             content: appendContent(lastMessage, message.content)
                         };
                     }
                 }
-                return { messages: newMessages };
-            });
-        },
-
-        updateIdMessage: (messageId: string) => {
-            set(state => {
-                const newMessages = [...state.messages];
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage) {
-                    const newMessage: ChatStreamMessage = {
-                        ...lastMessage,
-                        messageId
-                    };
-                    if (lastMessage.modal == 'reflection' || lastMessage.modal == 'memory') {
-                        newMessage.isExpanded = false;
-                    }
-                    newMessages[newMessages.length - 1] = newMessage;
-                }
-                return { messages: newMessages };
-            });
-        },
-
-        updateMessage: (messageId: string, updates: Partial<ChatStreamMessage>) => {
-            set(state => {
-                const newMessages = state.messages.map(message =>
-                    message.messageId === messageId
-                        ? { ...message, ...updates }
-                        : message
-                );
                 return { messages: newMessages };
             });
         },

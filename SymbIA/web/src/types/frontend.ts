@@ -20,7 +20,6 @@ export interface LoginResponse {
     user: {
         id: string;
         email: string;
-        defaultMemoryId: string;
     };
 }
 
@@ -31,7 +30,10 @@ export interface RegisterResponse {
         id: string;
         username: string;
         email: string;
-        defaultMemoryId: string;
+    };
+    createdMemory: {
+        id: string;
+        name: string;
     };
 }
 

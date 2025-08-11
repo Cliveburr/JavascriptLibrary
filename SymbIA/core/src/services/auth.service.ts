@@ -10,6 +10,7 @@ interface AuthResult {
     user: UserEntity;
     token: string;
     refreshToken: string;
+    createdMemory?: MemoryEntity;
 }
 
 interface JwtPayload {
@@ -30,6 +31,17 @@ export class AuthService {
         private mongoService: MongoDBService,
         private configService: ConfigService
     ) { }
+
+    async getUserById(userId: string): Promise<UserEntity | null> {
+        try {
+            await this.mongoService.connect();
+            const usersCollection = this.mongoService.getUsersCollection();
+            const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+            return user || null;
+        } catch {
+            return null;
+        }
+    }
 
     async register(username: string, email: string, password: string): Promise<AuthResult> {
         await this.mongoService.connect();
@@ -54,19 +66,8 @@ export class AuthService {
         const userId = new ObjectId();
         const now = new Date();
 
-        const user: UserEntity = {
-            _id: userId,
-            username,
-            email,
-            reponseLanguage: 'pt-BR', //TODO: pegar do browser
-            passwordHash,
-            createdAt: now,
-            updatedAt: now
-        };
-
-        // Create default memory
-        const defaultMemory: MemoryEntity = {
-            _id: <any>undefined,
+        const createdMemory: MemoryEntity = {
+            _id: new ObjectId(),
             userId,
             name: 'Default Memory',
             vectorDatabase: `${userId}_${v6(undefined, undefined, Date.now())}`,
@@ -74,9 +75,19 @@ export class AuthService {
             createdAt: now
         };
 
-        // Insert user and default memory
+        const user: UserEntity = {
+            _id: userId,
+            username,
+            email,
+            reponseLanguage: 'pt-BR', // TODO: detectar do browser
+            passwordHash,
+            createdAt: now,
+            updatedAt: now
+        };
+
+        // Insert user and (after) default memory
         await usersCollection.insertOne(user);
-        await memoriesCollection.insertOne(defaultMemory);
+        await memoriesCollection.insertOne(createdMemory);
 
         // Generate tokens
         const token = this.generateToken(user);
@@ -85,7 +96,8 @@ export class AuthService {
         return {
             user,
             token,
-            refreshToken
+            refreshToken,
+            createdMemory
         };
     }
 
@@ -93,7 +105,7 @@ export class AuthService {
         await this.mongoService.connect();
 
         const usersCollection = this.mongoService.getUsersCollection();
-        const user = await usersCollection.findOne({ email });
+        let user = await usersCollection.findOne({ email });
 
         if (!user) {
             return null;
@@ -123,7 +135,7 @@ export class AuthService {
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
-            const user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
+            let user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
 
             return user || null;
         } catch (error) {
@@ -138,7 +150,7 @@ export class AuthService {
 
             await this.mongoService.connect();
             const usersCollection = this.mongoService.getUsersCollection();
-            const user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
+            let user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
 
             if (!user) {
                 return null;

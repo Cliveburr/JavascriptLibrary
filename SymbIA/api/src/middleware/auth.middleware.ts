@@ -8,7 +8,6 @@ declare global {
             user?: {
                 id: string;
                 email: string;
-                defaultMemoryId: string;
             };
         }
     }
@@ -35,8 +34,7 @@ export const createAuthMiddleware = (authService: AuthService) => {
 
             req.user = {
                 id: user._id.toString(),
-                email: user.email,
-                defaultMemoryId: user.defaultMemoryId.toString()
+                email: user.email
             };
 
             next();

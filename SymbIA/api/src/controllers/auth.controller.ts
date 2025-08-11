@@ -47,8 +47,7 @@ export class AuthController {
                     valid: true,
                     user: {
                         id: user._id.toString(),
-                        email: user.email,
-                        defaultMemoryId: user.defaultMemoryId.toString()
+                        email: user.email
                     }
                 });
             } catch (error) {
@@ -72,8 +71,11 @@ export class AuthController {
                     user: {
                         id: authResult.user._id.toString(),
                         username: authResult.user.username,
-                        email: authResult.user.email,
-                        defaultMemoryId: authResult.user.defaultMemoryId.toString()
+                        email: authResult.user.email
+                    },
+                    createdMemory: {
+                        id: authResult.createdMemory!._id.toString(),
+                        name: authResult.createdMemory!.name
                     }
                 };
 
@@ -108,8 +110,7 @@ export class AuthController {
                         refreshToken: authResult.refreshToken,
                         user: {
                             id: authResult.user._id.toString(),
-                            email: authResult.user.email,
-                            defaultMemoryId: authResult.user.defaultMemoryId.toString()
+                            email: authResult.user.email
                         }
                     };
 
@@ -142,8 +143,7 @@ export class AuthController {
                         refreshToken: refreshResult.refreshToken,
                         user: {
                             id: refreshResult.user._id.toString(),
-                            email: refreshResult.user.email,
-                            defaultMemoryId: refreshResult.user.defaultMemoryId.toString()
+                            email: refreshResult.user.email
                         }
                     };
 

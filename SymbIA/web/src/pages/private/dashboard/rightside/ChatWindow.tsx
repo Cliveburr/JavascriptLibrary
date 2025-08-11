@@ -30,11 +30,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
                 data-testid="messages-container"
             >
 
-                {messages.map((message: ChatStreamMessage) => (
-                    <ChatMessage
-                        key={message.messageId}
-                        message={message}
-                    />
+                {messages.map((message: ChatStreamMessage, idx: number) => (
+                    <ChatMessage key={idx} message={message} />
                 ))}
 
                 <div ref={messagesEndRef} />

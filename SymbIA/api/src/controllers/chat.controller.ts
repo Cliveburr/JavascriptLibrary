@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
-import { ThoughtCycleService, ChatService, LlmSetService, ChatStreamMessage } from '@symbia/core';
-import { ChatContext } from '../helpers/stream-chat-context';
+import { ThoughtCycleService, ChatService, LlmSetService, ChatStreamMessage, ThoughtContext, AuthService, PromptForUseService, LlmGateway } from '@symbia/core';
 import { chatValidation } from '../helpers/chat-validation';
 
 export class ChatController {
@@ -8,16 +7,17 @@ export class ChatController {
     public constructor(
         private thoughtCycleService: ThoughtCycleService,
         private chatService: ChatService,
-        private llmSetService: LlmSetService
-    ) {
-    }
+        private llmSetService: LlmSetService,
+        private authService: AuthService,
+        private promptForUseService: PromptForUseService,
+        private llmGateway: LlmGateway
+    ) { }
 
     async getChatsByMemory(req: Request, res: Response): Promise<void> {
         try {
             const { memoryId } = req.query;
 
             if (!memoryId || typeof memoryId !== 'string') {
-                res.status(400).json({ error: 'MemoryId é obrigatório' });
                 return;
             }
 
@@ -47,15 +47,20 @@ export class ChatController {
                 return;
             }
 
-            const messages = await this.chatService.getMessagesByChat(chatId);
-
-            const messageDTOs = messages.map<ChatStreamMessage>(message => ({
-                messageId: message._id.toString(),
-                role: message.role,
-                content: message.content,
-                modal: message.modal
-            }));
-
+            const chat = await this.chatService.getChatById(chatId);
+            if (!chat) {
+                res.status(404).json({ error: 'Chat não encontrado' });
+                return;
+            }
+            const messageDTOs: ChatStreamMessage[] = [];
+            for (const iteration of chat.iterations) {
+                messageDTOs.push({ content: iteration.userMessage });
+                for (const req of iteration.requests) {
+                    if (req.llmResponse) {
+                        messageDTOs.push({ content: req.llmResponse });
+                    }
+                }
+            }
             res.json(messageDTOs);
         } catch (error) {
             console.error('Error fetching messages:', error);
@@ -86,15 +91,13 @@ export class ChatController {
     }
 
     async sendMessage(req: Request, res: Response): Promise<void> {
-        const data = await chatValidation.validate(this.chatService, this.llmSetService, req);
+        const data = await chatValidation.validate(this.chatService, this.llmSetService, this.authService, this.promptForUseService, req);
         if (chatValidation.isError(data)) {
-            ChatContext.sendStaticError(res, data);
+            res.status(data.code).json(data.message);
             return;
         }
 
         try {
-            const ctx = new ChatContext(this.chatService, data, res);
-
             res.writeHead(200, {
                 'Content-Type': 'text/plain; charset=utf-8',
                 'Transfer-Encoding': 'chunked',
@@ -103,40 +106,36 @@ export class ChatController {
                 'Connection': 'keep-alive'
             });
 
-            const paralelTasks: Array<Promise<any>> = [
-                this.thoughtCycleService.handle(ctx)
-            ];
+            const ctx = new ThoughtContext(this.chatService, data, {
+                status: (code: number, msg: any) => res.status(code).json(msg),
+                end: () => res.end(),
+                write: async (chunk: string) => new Promise<void>((resolve, reject) => {
+                    res.write(chunk, 'utf8', err => err ? reject(err) : resolve());
+                })
+            });
+
+            const parallelTasks: Array<Promise<any>> = [this.thoughtCycleService.handle(ctx)];
 
             if (ctx.data.isNewChat) {
-                paralelTasks.push(this.generateAndUpdateChatTitle(ctx));
+                parallelTasks.push(this.generateAndUpdateChatTitle(ctx));
             }
 
-            await Promise.all(paralelTasks);
+            await Promise.all(parallelTasks);
             await ctx.sendCompleted();
         } catch (error) {
-            ChatContext.sendStaticError(res, {
-                isError: true,
-                code: 500,
-                message: 'Internal Error',
-                error
-            });
+            res.status(500).json('Internal Error');
         }
     }
 
-    async generateAndUpdateChatTitle(ctx: ChatContext): Promise<void> {
+    async generateAndUpdateChatTitle(ctx: ThoughtContext): Promise<void> {
         try {
-            if (!ctx.data.chatId) {
-                throw 'Invalid stream.chatId';
-            }
-
-            const generatedTitle = await this.chatService.generateChatTitle(ctx.data.userMessage, ctx.data.llmSetConfig,
-                ctx.sendStreamTitle.bind(ctx)
-            );
-            await this.chatService.updateChatTitle(ctx.data.chatId, generatedTitle);
-
+            const generatedTitle = await (async () => {
+                const { generateChatTitle } = await import('@symbia/core/src/llm/requests/generateChatTitle');
+                return generateChatTitle(this.llmGateway, ctx.data.user, ctx.data.userMessage, ctx.data.llmSetConfig, ctx.sendStreamTitle.bind(ctx));
+            })();
+            await this.chatService.updateChatTitle(ctx.data.chat._id.toString(), generatedTitle);
         } catch (error) {
             console.warn('Error generating chat title:', error);
-            // Continua mesmo se falhar a geração do título
         }
     }
 

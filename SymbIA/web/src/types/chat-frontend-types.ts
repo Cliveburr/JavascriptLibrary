@@ -1,6 +1,6 @@
 
-export type MessageRole = 'user' | 'assistant';
-export type MessageModal = 'text' | 'reflection' | 'memory';
+export type MessageRole = 'user' | 'assistant'; // kept for potential future use
+export type MessageModal = 'reflection' | 'reply' | 'memory_search' | 'text';
 export type MessageModalType = string | MessageReflectionModal | MessageMemoryModal;
 
 export interface MessageReflectionModal {
@@ -36,8 +36,7 @@ export enum ChatStreamType {
     Completed = 2,
     StreamTitle = 3,
     PrepareMessage = 4,
-    StreamMessage = 5,
-    CompleteMessage = 6
+    StreamMessage = 5
 }
 
 export interface ChatStream {
@@ -47,14 +46,10 @@ export interface ChatStream {
 }
 
 export interface ChatStreamMessage {
-    messageId?: string;
-    role?: MessageRole;
     modal?: MessageModal;
     content?: MessageModalType;
-
-    // Only used in frontend
+    // frontend helpers
     inPrepare?: boolean;
-    originModal?: MessageModal;
     isExpanded?: boolean;
 }
 

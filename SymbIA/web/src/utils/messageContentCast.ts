@@ -11,7 +11,7 @@ export const contentCast = {
     },
 
     isMemory(message: ChatStreamMessage, content: MessageModalType): content is MessageMemoryModal {
-        return message.modal == 'memory';
+        return message.modal == 'memory_search';
     }
 
 };

@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import { ChatService, LlmSetService, ThoughtContextData, ThoughtContextError } from '@symbia/core';
+import { ChatService, LlmSetService, ThoughtContextData, ThoughtContextError, AuthService, PromptForUseService } from '@symbia/core';
 import { z } from 'zod';
 import { ChatEntity, ChatIteration } from '@symbia/core/src/entities';
 
@@ -17,12 +17,18 @@ export const chatValidation = {
     isError(result: ThoughtContextData | ThoughtContextError): result is ThoughtContextError {
         return (result as ThoughtContextError).isError;
     },
-    async validate(chatService: ChatService, llmSetService: LlmSetService, req: Request): Promise<ThoughtContextData | ThoughtContextError> {
-        return validateChat(chatService, llmSetService, req);
+    async validate(chatService: ChatService, llmSetService: LlmSetService, authService: AuthService, promptForUseService: PromptForUseService, req: Request): Promise<ThoughtContextData | ThoughtContextError> {
+        return validateChat(chatService, llmSetService, authService, promptForUseService, req);
     }
 };
 
-async function validateChat(chatService: ChatService, llmSetService: LlmSetService, req: Request): Promise<ThoughtContextData | ThoughtContextError> {
+async function validateChat(
+    chatService: ChatService,
+    llmSetService: LlmSetService,
+    authService: AuthService,
+    promptForUseService: PromptForUseService,
+    req: Request
+): Promise<ThoughtContextData | ThoughtContextError> {
     try {
         // Validate params request
         const paramsResult = chatParamsSchema.safeParse(req.params);
@@ -51,6 +57,15 @@ async function validateChat(chatService: ChatService, llmSetService: LlmSetServi
         // Validate the authentication
         const userId = req.user?.id;
         if (!userId) {
+            return {
+                isError: true,
+                code: 401,
+                message: 'User not authenticated'
+            };
+        }
+
+        const user = await authService.getUserById(userId);
+        if (!user) {
             return {
                 isError: true,
                 code: 401,
@@ -101,14 +116,17 @@ async function validateChat(chatService: ChatService, llmSetService: LlmSetServi
             };
         }
 
+        const promptSet = await promptForUseService.getActualPromptSetForUse();
+
         return {
             memoryId,
             userMessage,
-            userId,
+            user,
             isNewChat,
             chat,
             iteration,
-            llmSetConfig
+            llmSetConfig,
+            promptSet
         };
     }
     catch (error) {

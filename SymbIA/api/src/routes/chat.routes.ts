@@ -1,7 +1,7 @@
 import type { Router as ExpressRouter } from 'express';
 import { Router } from 'express';
 import { ChatController } from '../controllers/chat.controller.js';
-import { ServiceRegistry, ThoughtCycleService, ChatService, AuthService, LlmSetService } from '@symbia/core';
+import { ServiceRegistry, ThoughtCycleService, ChatService, AuthService, LlmSetService, PromptForUseService, LlmGateway } from '@symbia/core';
 import { createAuthMiddleware } from '../middleware/auth.middleware.js';
 
 export function createChatRoutes(): ExpressRouter {
@@ -13,9 +13,11 @@ export function createChatRoutes(): ExpressRouter {
     const chatService = registry.get<ChatService>('ChatService');
     const authService = registry.get<AuthService>('AuthService');
     const llmSetService = registry.get<LlmSetService>('LlmSetService');
+    const promptForUseService = registry.get<PromptForUseService>('PromptForUseService');
+    const llmGateway = registry.get<LlmGateway>('LlmGateway');
 
     // Create controller instance
-    const chatController = new ChatController(thoughtCycleService, chatService, llmSetService);
+    const chatController = new ChatController(thoughtCycleService, chatService, llmSetService, authService, promptForUseService, llmGateway);
 
     // Apply authentication middleware to all routes
     router.use(createAuthMiddleware(authService));

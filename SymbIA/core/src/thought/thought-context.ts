@@ -56,12 +56,6 @@ export interface ChatStreamChat {
 
 export class ThoughtContext {
 
-    // get memoryId() { return this.data.memoryId; }
-    // get chat() { return this.data.chat; }
-    // get chat() { return this.data.chat; }
-    // get iteration() { return this.data.iteration; }
-    // get llmSetConfig() { return this.data.llmSetConfig; }
-    // get promptSet() { return this.data.promptSet; }
     finalizeIteration: boolean = false;
 
     constructor(

@@ -3,7 +3,7 @@ import { LlmSetService, LlmGateway, OllamaProvider, OpenAIProvider } from './llm
 import { ReflectionService, ThoughtCycleService } from './thought';
 import { ActionService } from './actions';
 import { MongoDBService } from './database/mongodb.service';
-import { ServiceRegistry, ChatService, AuthService, ConfigService, MemoryService } from './services';
+import { ServiceRegistry, ChatService, AuthService, ConfigService, MemoryService, PromptService, PromptForUseService } from './services';
 
 // Export services
 export * from './actions';
@@ -32,6 +32,8 @@ export function configureContainer() {
     const reflectionService = new ReflectionService(llmGateway);
     const thoughtCycleService = new ThoughtCycleService(actionService, reflectionService);
     const authService = new AuthService(mongodbService, configService);
+    const promptService = new PromptService(mongodbService);
+    const promptForUseService = new PromptForUseService(promptService);
 
     // Register all services
     registry.register('ConfigService', configService);
@@ -47,6 +49,8 @@ export function configureContainer() {
     registry.register('ThoughtCycleService', thoughtCycleService);
     registry.register('AuthService', authService);
     registry.register('ChatService', chatService);
+    registry.register('PromptService', promptService);
+    registry.register('PromptForUseService', promptForUseService);
 
     return registry;
 }

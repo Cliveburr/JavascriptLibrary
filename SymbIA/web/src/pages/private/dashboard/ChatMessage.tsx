@@ -2,7 +2,6 @@ import React from 'react';
 import './ChatMessage.scss';
 import { ChatStreamMessage } from '../../../types';
 import { contentCast } from '../../../utils';
-import { useMessageStore } from '../../../stores/message.store';
 import { MemoryMessage } from './messages/MemoryMessage';
 
 interface ChatMessageProps {
@@ -10,21 +9,13 @@ interface ChatMessageProps {
 }
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
-    const { updateMessage } = useMessageStore();
-
-    const isUser = message.role === 'user';
-    const isSystem = message.role === 'assistant' && message.modal === 'text' && typeof message.content === 'string' && message.content.startsWith('[SYSTEM]');
-    const isStreaming = 'isStreaming' in message && message.isStreaming;
-    const isError = 'isError' in message && message.isError;
     const isReflection = message.modal === 'reflection';
-    const isMemory = message.modal === 'memory';
+    const isMemory = message.modal === 'memory_search';
 
     const isExpanded = message.isExpanded ?? false;
 
     const toggleExpanded = () => {
-        if (message.messageId) {
-            updateMessage(message.messageId, { isExpanded: !isExpanded });
-        }
+        message.isExpanded = !isExpanded; // local toggle (stateful store no longer tracks individual ids)
     };
 
     const renderContent = () => {
@@ -69,11 +60,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     };
 
     return (
-        <div
-            className={`chat-message ${isUser ? 'user' : isSystem ? 'system' : 'assistant'} ${isStreaming ? 'streaming' : ''} ${isError ? 'error' : ''} ${isReflection ? 'reflection' : ''} ${isReflection && !isExpanded ? 'reflection-collapsed' : ''} ${isMemory ? 'memory' : ''} ${isMemory && !isExpanded ? 'memory-collapsed' : ''}`}
-            data-testid="message"
-            data-role={message.role}
-        >
+        <div className={`chat-message assistant ${isReflection ? 'reflection' : ''} ${isReflection && !isExpanded ? 'reflection-collapsed' : ''} ${isMemory ? 'memory' : ''} ${isMemory && !isExpanded ? 'memory-collapsed' : ''}`} data-testid="message">
             <div className="message-content">
                 {renderContent()}
             </div>

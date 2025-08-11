@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { LoginResponse, RegisterResponse } from '../types/frontend';
+import { useMemoryStore } from './memory.store';
 import { createApiUrl } from '../config/api';
 
 interface User {
     id: string;
     username?: string;
     email: string;
-    defaultMemoryId: string;
 }
 
 interface AuthState {
@@ -68,6 +68,10 @@ export const useAuthStore = create<AuthState>()(
 
                     const data: RegisterResponse = await response.json();
                     get().setAuth(data);
+                    // Adiciona a memória criada e seleciona
+                    const memoryStore = useMemoryStore.getState();
+                    memoryStore.memories.push({ id: data.createdMemory.id, name: data.createdMemory.name });
+                    memoryStore.setCurrentMemory(data.createdMemory.id);
                 } catch (error) {
                     console.error('Register error:', error);
                     throw error;

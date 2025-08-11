@@ -11,7 +11,7 @@ export const useChatStreaming = () => {
     const { initNewChat, appendChatTitle } = useChatStore();
     const { selectedMemoryId } = useMemoryStore();
     const { selectedSetId } = useLLMStore();
-    const { addMessage, updateContentMessage, updateIdMessage, clearMessages } = useMessageStore();
+    const { addMessage, updateContentMessage, clearMessages } = useMessageStore();
     const { isStreaming, isPaused, setStreaming, setPaused } = useStreamingStore();
 
     const sendMessage = useCallback(async (content: string) => {
@@ -112,12 +112,9 @@ export const useChatStreaming = () => {
                     if (!stream.message) {
                         throw 'Invalid PrepareMessage message!';
                     }
-                    if (stream.message.role == 'assistant') {
-                        stream.message.originModal = stream.message.modal;
-                        stream.message.inPrepare = true;
-                        stream.message.modal = 'text';
-                        stream.message.content = '💭 IA está pensando...';
-                    }
+                    stream.message.inPrepare = true;
+                    stream.message.modal = 'text';
+                    stream.message.content = '💭 IA está pensando...';
                     addMessage(stream.message);
                     break;
                 case ChatStreamType.StreamMessage:
@@ -125,12 +122,6 @@ export const useChatStreaming = () => {
                         throw 'Invalid StreamMessage message!';
                     }
                     updateContentMessage(stream.message);
-                    break;
-                case ChatStreamType.CompleteMessage:
-                    if (!stream.message?.messageId) {
-                        throw 'Invalid CompleteMessage message!';
-                    }
-                    updateIdMessage(stream.message.messageId);
                     break;
                 case ChatStreamType.Completed:
                     setStreaming(false);
@@ -141,7 +132,7 @@ export const useChatStreaming = () => {
 
 
         }
-    }, [initNewChat, appendChatTitle, selectedMemoryId, selectedSetId, addMessage, updateContentMessage, updateIdMessage, clearMessages, isStreaming, isPaused, setStreaming, setPaused]);
+    }, [initNewChat, appendChatTitle, selectedMemoryId, selectedSetId, addMessage, updateContentMessage, clearMessages, isStreaming, isPaused, setStreaming, setPaused]);
 
     const pauseStream = useCallback(() => {
         setPaused(true);
