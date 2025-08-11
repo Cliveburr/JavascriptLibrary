@@ -175,7 +175,9 @@ export class OllamaProvider {
         return {
             embeddings: data.embeddings || [],
             usage: {
-                promptTokens: data.prompt_eval_count || 0
+                promptTokens: data.prompt_eval_count || 0,
+                completionTokens: 0,
+                totalTokens: data.prompt_eval_count || 0
             },
         };
     }

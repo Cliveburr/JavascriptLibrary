@@ -206,6 +206,8 @@ export class OpenAIProvider {
             embeddings,
             usage: {
                 promptTokens: data.usage?.prompt_tokens || 0,
+                completionTokens: 0,
+                totalTokens: data.usage?.prompt_tokens || 0
             },
         };
     }

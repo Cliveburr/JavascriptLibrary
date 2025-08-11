@@ -58,6 +58,7 @@ export class AuthService {
             _id: userId,
             username,
             email,
+            reponseLanguage: 'pt-BR', //TODO: pegar do browser
             passwordHash,
             createdAt: now,
             updatedAt: now
