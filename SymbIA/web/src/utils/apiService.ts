@@ -3,7 +3,7 @@ import { createApiUrl } from '../config/api';
 import type { FrontendChat, MemoryDTO } from '../types/frontend';
 import type { LlmSetListResponse } from '../types/llm';
 import type { PromptSetDTO, PromptSetSummaryDTO } from '../types/prompts';
-import { ChatIterationDTO } from '../types';
+import { FrontendChatIterationDTO } from '../types';
 
 // Tipos para as requisições da API
 interface CreateMemoryRequest {
@@ -125,7 +125,7 @@ export const apiService = {
 
     // === MESSAGE ENDPOINTS ===
     message: {
-        fetch: async (chatId: string): Promise<ChatIterationDTO[]> => {
+        fetch: async (chatId: string): Promise<FrontendChatIterationDTO[]> => {
             return await apiService.call(createApiUrl(`/chats/${chatId}/messages`));
         },
 

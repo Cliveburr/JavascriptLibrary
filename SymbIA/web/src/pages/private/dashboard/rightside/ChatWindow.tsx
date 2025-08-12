@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { ChatMessage } from '../ChatMessage';
+import { AssistantMessage } from '../messages/AssistantMessage';
 import { useMessageStore } from '../../../../stores/message.store';
-import { ChatStreamMessage, FrontendChatIteration } from '../../../../types';
 import { useStreamingStore } from '../../../../stores/streaming.store';
+import { UserMessage } from '../messages/UserMessage';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
@@ -31,23 +31,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
                 ref={scrollContainerRef}
                 data-testid="messages-container"
             >
+                {iterations.map((it, idx) => (
+                    <div key={idx} className="chat-iteration">
+                        <UserMessage content={it.userMessage} />
+                        {it.assistants.map((req, rIdx) => (
+                            <AssistantMessage key={`${idx}-${rIdx}`} message={req} />
+                        ))}
+                    </div>
+                ))}
+
                 {errorMessage && (
                     <div className="ephemeral-error" role="alert">
                         <div className="error-icon">⚠️</div>
                         <div className="error-text">{errorMessage}</div>
                     </div>
                 )}
-
-                {iterations.map((it: FrontendChatIteration, idx: number) => (
-                    <div key={idx} className="chat-iteration">
-                        {/* User message bubble */}
-                        <ChatMessage message={{ modal: 'text', content: it.userMessage }} />
-                        {/* Requests (assistant messages) */}
-                        {it.requests.map((req: ChatStreamMessage, rIdx: number) => (
-                            <ChatMessage key={`${idx}-${rIdx}`} message={req} />
-                        ))}
-                    </div>
-                ))}
 
                 <div ref={messagesEndRef} />
             </div>

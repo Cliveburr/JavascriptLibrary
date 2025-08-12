@@ -8,10 +8,10 @@ import type { ChatStream } from '../types/chat-frontend-types';
 import { ChatStreamType } from '../types/chat-frontend-types';
 
 export const useChatStreaming = () => {
-    const { initNewChat, appendChatTitle } = useChatStore();
+    const { addChat, appendChatTitle } = useChatStore();
     const { selectedMemoryId } = useMemoryStore();
     const { selectedSetId } = useLLMStore();
-    const { startNewIteration, addRequestMessage, updateLastRequestContent, clearMessages } = useMessageStore();
+    const { addIteration, addAssistantMessage, updateLastAssistantContent, clearMessages } = useMessageStore();
     const { isStreaming, isPaused, setStreaming, setPaused, setError, clearError } = useStreamingStore();
 
     const sendMessage = useCallback(async (content: string) => {
@@ -25,16 +25,11 @@ export const useChatStreaming = () => {
             throw new Error('LLM Set ID is required');
         }
 
-        // Any new send removes previous ephemeral errors
         clearError();
         setStreaming(true);
         setPaused(false);
 
         try {
-            // Starting a new send: reset current view and create iteration with user message
-            clearMessages();
-            startNewIteration(content);
-
             const response = await apiService.message.send(selectedMemoryId!, {
                 chatId: typeof currentSelectedChatId === 'string' ? currentSelectedChatId : undefined,
                 llmSetId: selectedSetId,
@@ -95,19 +90,15 @@ export const useChatStreaming = () => {
             switch (stream.type) {
                 case ChatStreamType.InitNewStream:
                     if (!stream.chat?.chatId
-                        || !stream.chat?.orderIndex
-                        || !stream.message) {
+                        || !stream.chat?.orderIndex) {
                         throw 'Invalid InitNewStream message!';
                     }
-                    initNewChat(stream.chat.chatId, stream.chat.orderIndex);
-                    // first AI response request inside this iteration for the newly created chat
-                    if (stream.message) addRequestMessage(stream.message);
+                    clearMessages();
+                    addChat(stream.chat.chatId, stream.chat.orderIndex);
+                    addIteration(content);
                     break;
                 case ChatStreamType.InitStream:
-                    if (!stream.message) {
-                        throw 'Invalid InitStream message!';
-                    }
-                    addRequestMessage(stream.message);
+                    addIteration(content);
                     break;
                 case ChatStreamType.StreamTitle:
                     if (!stream.chat?.title) {
@@ -116,19 +107,16 @@ export const useChatStreaming = () => {
                     appendChatTitle(stream.chat.title);
                     break;
                 case ChatStreamType.PrepareMessage:
-                    if (!stream.message) {
+                    if (!stream.message?.modal || !stream.message?.content) {
                         throw 'Invalid PrepareMessage message!';
                     }
-                    stream.message.inPrepare = true;
-                    stream.message.modal = 'text';
-                    stream.message.content = '💭 IA está pensando...';
-                    addRequestMessage(stream.message);
+                    addAssistantMessage(stream.message.modal, stream.message.content);
                     break;
                 case ChatStreamType.StreamMessage:
-                    if (!stream.message) {
+                    if (!stream.message?.content) {
                         throw 'Invalid StreamMessage message!';
                     }
-                    updateLastRequestContent(stream.message);
+                    updateLastAssistantContent(stream.message.content);
                     break;
                 case ChatStreamType.Completed:
                     setStreaming(false);
@@ -144,7 +132,7 @@ export const useChatStreaming = () => {
 
 
         }
-    }, [initNewChat, appendChatTitle, selectedMemoryId, selectedSetId, startNewIteration, addRequestMessage, updateLastRequestContent, clearMessages, isStreaming, isPaused, setStreaming, setPaused, setError, clearError]);
+    }, [addChat, appendChatTitle, selectedMemoryId, selectedSetId, addIteration, addAssistantMessage, updateLastAssistantContent, clearMessages, isStreaming, isPaused, setStreaming, setPaused, setError, clearError]);
 
     const pauseStream = useCallback(() => {
         setPaused(true);

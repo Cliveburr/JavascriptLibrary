@@ -68,10 +68,10 @@ export interface CreateChatRequest {
 
 export interface ChatIterationDTO {
     userMessage: string;
-    requests: ChatIterationRequestDTO[];
+    assistants: ChatIterationAssistantDTO[];
 }
 
-export interface ChatIterationRequestDTO {
+export interface ChatIterationAssistantDTO {
     modal: PromptType;
     content: string;
 }

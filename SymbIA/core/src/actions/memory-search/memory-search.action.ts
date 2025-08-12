@@ -53,7 +53,7 @@ export class MemorySearchAction implements ActionHandler {
         const memoryService = serviceRegistry.get<MemoryService>('MemoryService');
 
         const promptName = 'memory_search';
-        await thoughtCtx.sendPrepareMessage(promptName);
+        await thoughtCtx.sendPrepareMessage(promptName, this.getIAThinking(thoughtCtx.data.user.reponseLanguage));
 
         const { llmOptions, messages } = thoughtCtx.data.promptSet.getMessagesFor(
             thoughtCtx.data.chat,
@@ -166,6 +166,14 @@ export class MemorySearchAction implements ActionHandler {
                 searchGroup.vectorId_SYS = memoryContent.id;
                 searchGroup.content_SYS = memoryContent.payload.content;
             }
+        }
+    }
+
+    private getIAThinking(userLanguage: string): string {
+        switch (userLanguage) {
+            case 'pt':
+            case 'pt-BR': return '💭 IA vai procurar por memórias...';
+            default: return '💭 IA is looking for memories...';
         }
     }
 }

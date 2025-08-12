@@ -1,43 +1,14 @@
 
-export type MessageRole = 'user' | 'assistant'; // kept for potential future use
-export type MessageModal = 'reflection' | 'reply' | 'memory_search' | 'text';
-export type MessageModalType = string | MessageReflectionModal | MessageMemoryModal;
-
-export interface MessageReflectionModal {
-    content: string;
-}
-
-export type MessageMemoryContentType = string;
-export type MessageMemoryStatus = 'prepare' | 'embedding' | 'searching';
-export type VectorContentTypes = string;
-export enum VectorContentType {
-    PlainText
-}
-
-export interface MessageMemoryModal {
-    title: string;
-    explanation?: string;
-    status?: MessageMemoryStatus;
-    memories: Array<{
-        keyWords: string;
-        vectorId?: string;
-        content?: {
-            type: VectorContentType,
-            value: VectorContentTypes;
-        },
-        embedding?: number[];
-    }>;
-    error?: string;
-}
+export type AssistantModal = 'reflection' | 'reply' | 'memory_search';
 
 export enum ChatStreamType {
-    InitStream = 0,
     InitNewStream = 1,
-    Completed = 2,
-    StreamTitle = 3,
-    PrepareMessage = 4,
-    StreamMessage = 5,
-    Error = 6
+    InitStream = 2,
+    Completed = 3,
+    StreamTitle = 4,
+    PrepareMessage = 5,
+    StreamMessage = 6,
+    Error = 7
 }
 
 export interface ChatStream {
@@ -48,11 +19,8 @@ export interface ChatStream {
 }
 
 export interface ChatStreamMessage {
-    modal?: MessageModal;
-    content?: MessageModalType;
-    // frontend helpers
-    inPrepare?: boolean;
-    isExpanded?: boolean;
+    modal?: AssistantModal;
+    content?: string;
 }
 
 export interface ChatStreamChat {
@@ -61,22 +29,15 @@ export interface ChatStreamChat {
     orderIndex?: number;
 }
 
-// ================= New Iteration DTOs (Backend Response) =================
-// Mirrors the API contract from /chats/:chatId/messages (ChatIterationDTO[])
-export interface ChatIterationRequestDTO {
-    modal: string; // backend uses 'modal' (mapped from promptName)
-    content: any; // can be plain text or structured object depending on modal
+export interface FrontendChatIterationDTO {
+    userMessage: string;
+    assistants: FrontendChatIterationAssistantDTO[];
 }
 
-export interface ChatIterationDTO {
-    userMessage: string;
-    requests: ChatIterationRequestDTO[];
-}
-
-// ================= Frontend Internal Iteration Types =================
-export interface FrontendChatIterationRequest extends ChatStreamMessage { }
-
-export interface FrontendChatIteration {
-    userMessage: string;
-    requests: FrontendChatIterationRequest[];
+export interface FrontendChatIterationAssistantDTO {
+    modal: AssistantModal;
+    content: string;
+    // frontend helpers
+    inPrepare?: boolean;
+    isExpanded?: boolean;
 }

@@ -38,7 +38,7 @@ export class ReflectionService {
     private async prepareRequest(thoughtCtx: ThoughtContext): Promise<ReflectionContext> {
 
         const promptName = 'reflection';
-        await thoughtCtx.sendPrepareMessage(promptName);
+        await thoughtCtx.sendPrepareMessage(promptName, this.getIAThinking(thoughtCtx.data.user.reponseLanguage));
 
         const { llmOptions, messages } = thoughtCtx.data.promptSet.getMessagesFor(
             thoughtCtx.data.chat,
@@ -101,6 +101,14 @@ export class ReflectionService {
             }
         } catch (err) {
             console.error(err);
+        }
+    }
+
+    private getIAThinking(userLanguage: string): string {
+        switch (userLanguage) {
+            case 'pt':
+            case 'pt-BR': return '💭 IA está pensando...';
+            default: return '💭 IA is thinking...';
         }
     }
 }

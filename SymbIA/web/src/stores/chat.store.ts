@@ -8,7 +8,7 @@ interface ChatState {
     selectedChatId: string | null;
     isLoading: boolean;
     fetchChats: (memoryId: string) => Promise<void>;
-    initNewChat: (chatId: string, orderIndex: number) => void;
+    addChat: (chatId: string, orderIndex: number) => void;
     appendChatTitle: (content: string) => void;
     deleteChat: (chatId: string) => Promise<void>;
     selectChat: (chatId: string | null) => void;
@@ -37,7 +37,7 @@ export const useChatStore = create<ChatState>()(
                     }
                 },
 
-                initNewChat: (chatId: string, orderIndex: number) => {
+                addChat: (chatId: string, orderIndex: number) => {
                     set(state => {
                         const chat = {
                             chatId,

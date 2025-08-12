@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
+import type { ChatIterationDTO } from '../types';
 import { ThoughtCycleService, ChatService, LlmSetService, ThoughtContext, AuthService, PromptForUseService, LlmGateway } from '@symbia/core';
 import { chatValidation } from '../helpers/chat-validation';
-import { ChatIterationDTO, ChatIterationRequestDTO } from '../types';
 
 export class ChatController {
 
@@ -57,16 +57,15 @@ export class ChatController {
             for (const iteration of chat.iterations) {
                 const iterationDTO: ChatIterationDTO = {
                     userMessage: iteration.userMessage,
-                    requests: []
+                    assistants: []
                 };
                 iterationsDTO.push(iterationDTO);
                 for (const request of iteration.requests) {
                     if (request.forUser) {
-                        const requestDTO: ChatIterationRequestDTO = {
+                        iterationDTO.assistants.push({
                             modal: request.promptName,
                             content: request.forUser
-                        };
-                        iterationDTO.requests.push(requestDTO);
+                        });
                     }
                 }
             }
@@ -122,6 +121,8 @@ export class ChatController {
                     res.write(chunk, 'utf8', err => err ? reject(err) : resolve());
                 })
             });
+
+            await ctx.sendInitMessage();
 
             const parallelTasks: Array<Promise<any>> = [this.thoughtCycleService.handle(ctx)];
 

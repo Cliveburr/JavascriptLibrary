@@ -2,7 +2,7 @@ export { Header, type HeaderProps } from './header/Header';
 export { MemorySidebar } from '../pages/private/dashboard/leftside/LeftSidebar';
 export { ChatArea } from '../pages/private/dashboard/rightside/ChatArea';
 export { ChatWindow } from '../pages/private/dashboard/rightside/ChatWindow';
-export { ChatMessage } from '../pages/private/dashboard/ChatMessage';
+export { ChatMessage } from '../pages/private/dashboard/messages/AssistantMessage';
 export { ChatInput } from '../pages/private/dashboard/rightside/ChatInput';
 export { UserProfileDropdown } from '../pages/private/dashboard/leftside/UserProfileDropdown';
 export { LLMSelector } from '../pages/private/dashboard/rightside/LLMSelector';

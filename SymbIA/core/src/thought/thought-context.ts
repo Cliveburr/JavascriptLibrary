@@ -27,13 +27,13 @@ export interface ThoughtContextTransport {
 }
 
 export enum ChatStreamType {
-    InitStream = 0,
     InitNewStream = 1,
-    Completed = 2,
-    StreamTitle = 3,
-    PrepareMessage = 4,
-    StreamMessage = 5,
-    Error = 6
+    InitStream = 2,
+    Completed = 3,
+    StreamTitle = 4,
+    PrepareMessage = 5,
+    StreamMessage = 6,
+    Error = 7
 }
 
 export interface ChatStream {
@@ -86,6 +86,23 @@ export class ThoughtContext {
         });
     }
 
+    async sendInitMessage(): Promise<void> {
+        if (this.data.isNewChat) {
+            await this.sendStream({
+                type: ChatStreamType.InitNewStream,
+                chat: {
+                    chatId: this.data.chat._id.toString(),
+                    orderIndex: this.data.chat.orderIndex
+                }
+            });
+        }
+        else {
+            await this.sendStream({
+                type: ChatStreamType.InitStream
+            });
+        }
+    }
+
     async sendCompleted(): Promise<void> {
         await this.sendStream({
             type: ChatStreamType.Completed
@@ -102,11 +119,12 @@ export class ThoughtContext {
         });
     }
 
-    sendPrepareMessage(modal?: PromptType): Promise<void> {
+    sendPrepareMessage(modal: PromptType, content: string): Promise<void> {
         return this.sendStream({
             type: ChatStreamType.PrepareMessage,
             message: {
-                modal
+                modal,
+                content
             }
         });
     }
@@ -142,6 +160,7 @@ export class ThoughtContext {
     }
 
     private sendStream(message: ChatStream): Promise<void> {
+        console.log(message);
         return this.transport.write(JSON.stringify(message) + '\n');
         // return new Promise((resolve, reject) => {
         //     this.res.write(JSON.stringify(message) + '\n', 'utf8', (error) => {

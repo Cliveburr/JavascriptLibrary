@@ -1,21 +1,22 @@
 import React from 'react';
 import './ChatMessage.scss';
-import { ChatStreamMessage } from '../../../types';
-import { contentCast } from '../../../utils';
-import { MemoryMessage } from './messages/MemoryMessage';
+import { FrontendChatIterationAssistantDTO } from '../../../../types';
+import { contentCast } from '../../../../utils';
+import { MemoryMessage } from './MemoryMessage';
 
 interface ChatMessageProps {
-    message: ChatStreamMessage;
+    message: FrontendChatIterationAssistantDTO;
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+export const AssistantMessage: React.FC<ChatMessageProps> = ({ message }) => {
     const isReflection = message.modal === 'reflection';
     const isMemory = message.modal === 'memory_search';
+
 
     const isExpanded = message.isExpanded ?? false;
 
     const toggleExpanded = () => {
-        message.isExpanded = !isExpanded; // local toggle (stateful store no longer tracks individual ids)
+        message.isExpanded = !isExpanded;
     };
 
     const renderContent = () => {

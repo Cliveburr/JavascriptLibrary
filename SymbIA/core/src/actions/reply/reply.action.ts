@@ -32,7 +32,7 @@ export class ReplyAction implements ActionHandler {
     private async prepareRequest(thoughtCtx: ThoughtContext): Promise<ReplyContext> {
 
         const promptName = 'reply';
-        await thoughtCtx.sendPrepareMessage(promptName);
+        await thoughtCtx.sendPrepareMessage(promptName, this.getIAThinking(thoughtCtx.data.user.reponseLanguage));
 
         const { llmOptions, messages } = thoughtCtx.data.promptSet.getMessagesFor(
             thoughtCtx.data.chat,
@@ -88,6 +88,14 @@ export class ReplyAction implements ActionHandler {
             ctx.request.forContext = response;
         } catch {
             throw 'JSON parse error: ' + parseResult.JSON;
+        }
+    }
+
+    private getIAThinking(userLanguage: string): string {
+        switch (userLanguage) {
+            case 'pt':
+            case 'pt-BR': return '💭 IA está gerando sua resposta...';
+            default: return '💭 IA is preparing your anwser...';
         }
     }
 }
