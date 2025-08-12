@@ -77,6 +77,232 @@
         text-align: center;
     }
 
+    // Reflection styles
+    &.reflection {
+        .message-content {
+            background: rgba(167 164 164 / 24%) !important;
+        }
+
+        .reflection-content {
+            .reflection-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    background: rgba(128, 128, 128, 0.1);
+                }
+
+                .reflection-title {
+                    font-weight: 500;
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.95rem;
+                    padding-right: 5px
+                }
+
+                .expand-icon {
+                    color: rgba(128, 128, 128, 0.7);
+                    font-size: 0.8rem;
+                    transition: transform 0.2s ease;
+                }
+            }
+
+            .reflection-body {
+                animation: expand-in 0.3s ease-out;
+                color: rgba(255, 255, 255, 0.8);
+                white-space: pre-wrap;
+                font-size: 0.85rem;
+                padding-top: .15rem;
+            }
+        }
+    }
+
+    // Collapsed reflection styles - scale down entire message
+    &.reflection-collapsed {
+        margin-bottom: 0.3rem;
+
+        .message-content {
+            transform: scale(0.85);
+            transform-origin: left top;
+        }
+    }
+
+    // Memory styles
+    &.memory {
+        .message-content {
+            background: rgba(97 149 57 / 46%) !important;
+        }
+
+        .memory-content {
+            .memory-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    background: rgba(128, 128, 128, 0.1);
+                }
+
+                .memory-title {
+                    font-weight: 500;
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.95rem;
+                    padding-right: 5px
+                }
+
+                .expand-icon {
+                    color: rgba(128, 128, 128, 0.7);
+                    font-size: 0.8rem;
+                    transition: transform 0.2s ease;
+                }
+            }
+
+            .memory-body {
+                animation: expand-in 0.3s ease-out;
+                color: rgba(255, 255, 255, 0.85);
+                white-space: pre-wrap;
+                font-size: 0.85rem;
+                padding-top: .15rem;
+
+                .memory-status {
+                    opacity: .9;
+                    font-size: .8rem;
+                    margin-bottom: .25rem;
+                }
+
+                .memory-error {
+                    color: #ff9b9b;
+                    background: rgba(255, 0, 0, 0.08);
+                    border: 1px solid rgba(255, 0, 0, 0.2);
+                    border-radius: 4px;
+                    padding: .25rem .35rem;
+                    margin: .35rem 0;
+                }
+
+                .memory-list {
+                    margin-top: .25rem;
+
+                    .memory-item {
+                        padding: .25rem 0;
+                        border-top: 1px dashed rgba(128, 128, 128, 0.25);
+
+                        .memory-keywords {
+                            font-weight: 500;
+                            margin-bottom: .15rem;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &.memory-collapsed {
+        margin-bottom: 0.3rem;
+
+        .message-content {
+            transform: scale(0.85);
+            transform-origin: left top;
+        }
+    }
+}
+
+@keyframes expand-in {
+    0% {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+    }
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    display: flex;
+    min-width: 0;
+    width: 100%;
+
+    &.user {
+        justify-content: flex-end;
+
+        .message-content {
+            background: var(--chat-user-message-bg);
+            color: var(--text-primary);
+            border-radius: 4px;
+            max-width: 80%;
+            min-width: 0;
+        }
+    }
+
+    &.assistant {
+        justify-content: flex-start;
+
+        .message-content {
+            background: var(--chat-assistant-message-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--chat-assistant-message-border);
+            border-radius: 4px;
+            max-width: 80%;
+            min-width: 0;
+        }
+    }
+
+    &.system {
+        justify-content: center;
+
+        .message-content {
+            background: var(--chat-system-message-bg);
+            border: 1px solid var(--chat-system-message-border);
+            color: var(--chat-system-message-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-style: italic;
+            max-width: 80%;
+            min-width: 0;
+        }
+    }
+
+    .message-content {
+        padding: 0.3rem;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        min-width: 0;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .message-text {
+        line-height: 1.4;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        min-width: 0;
+        white-space: pre-wrap;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+        text-align: right;
+    }
+
+    .assistant .message-time {
+        text-align: left;
+    }
+
+    .system .message-time {
+        text-align: center;
+    }
+
     // Streaming styles
     &.streaming {
         .message-content {

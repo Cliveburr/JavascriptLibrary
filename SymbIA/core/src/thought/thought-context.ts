@@ -160,7 +160,7 @@ export class ThoughtContext {
     }
 
     private sendStream(message: ChatStream): Promise<void> {
-        console.log(message);
+        //console.log(message);
         return this.transport.write(JSON.stringify(message) + '\n');
         // return new Promise((resolve, reject) => {
         //     this.res.write(JSON.stringify(message) + '\n', 'utf8', (error) => {

@@ -1,9 +1,8 @@
 import React from 'react';
-import { MessageMemoryModal, VectorContentType } from '../../../../types';
-import { MemoryStringContent } from './memories/MemoryStringContent';
 
 interface MemoryMessageProps {
-    content: MessageMemoryModal;
+    // Parsed JSON content for memory search modal
+    content: any;
     isExpanded: boolean;
     onToggle: () => void;
 }
@@ -11,12 +10,13 @@ interface MemoryMessageProps {
 export const MemoryMessage: React.FC<MemoryMessageProps> = ({ content, isExpanded, onToggle }) => {
     const renderMemoryItem = (idx: number) => {
         const m = content.memories[idx];
+        const text = m?.content?.value ?? '';
         return (
-            <div key={(m.vectorId || '') + '-' + idx} className="memory-item">
-                <div className="memory-keywords">🔎 {m.keyWords}</div>
-                {m.content && m.content.type === VectorContentType.PlainText && (
+            <div key={(m?.vectorId || '') + '-' + idx} className="memory-item">
+                <div className="memory-keywords">🔎 {m?.keyWords}</div>
+                {text && (
                     <div className="memory-content">
-                        <MemoryStringContent text={String(m.content.value)} />
+                        {String(text)}
                     </div>
                 )}
             </div>
@@ -37,16 +37,14 @@ export const MemoryMessage: React.FC<MemoryMessageProps> = ({ content, isExpande
                         </div>
                     )}
                     {content.explanation && (
-                        <div className="memory-explanation">
-                            <MemoryStringContent text={content.explanation} />
-                        </div>
+                        <div className="memory-explanation">{content.explanation}</div>
                     )}
                     {!!content.error && (
                         <div className="memory-error">{content.error}</div>
                     )}
                     {Array.isArray(content.memories) && content.memories.length > 0 && (
                         <div className="memory-list">
-                            {content.memories.map((_, i) => renderMemoryItem(i))}
+                            {content.memories.map((_: any, i: number) => renderMemoryItem(i))}
                         </div>
                     )}
                 </div>

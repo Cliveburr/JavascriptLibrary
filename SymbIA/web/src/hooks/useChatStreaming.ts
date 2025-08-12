@@ -86,7 +86,7 @@ export const useChatStreaming = () => {
         }
 
         async function handleMessage(stream: ChatStream) {
-            console.log(stream.type, stream);
+            //console.log(stream.type, stream);
             switch (stream.type) {
                 case ChatStreamType.InitNewStream:
                     if (!stream.chat?.chatId

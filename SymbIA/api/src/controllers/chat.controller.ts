@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import type { ChatIterationDTO } from '../types';
-import { ThoughtCycleService, ChatService, LlmSetService, ThoughtContext, AuthService, PromptForUseService, LlmGateway } from '@symbia/core';
+import { ThoughtCycleService, ChatService, LlmSetService, ThoughtContext, AuthService, PromptForUseService, LlmGateway, generateChatTitle } from '@symbia/core';
 import { chatValidation } from '../helpers/chat-validation';
 
 export class ChatController {
@@ -140,10 +140,14 @@ export class ChatController {
 
     async generateAndUpdateChatTitle(ctx: ThoughtContext): Promise<void> {
         try {
-            const generatedTitle = await (async () => {
-                const { generateChatTitle } = await import('@symbia/core/src/llm/requests/generateChatTitle');
-                return generateChatTitle(this.llmGateway, ctx.data.user, ctx.data.userMessage, ctx.data.llmSetConfig, ctx.sendStreamTitle.bind(ctx));
-            })();
+            const generatedTitle = await generateChatTitle(
+                this.llmGateway,
+                ctx.data.user,
+                ctx.data.userMessage,
+                ctx.data.llmSetConfig,
+                ctx.sendStreamTitle.bind(ctx)
+            );
+            ctx.data.chat.title = generatedTitle;
             await this.chatService.updateChatTitle(ctx.data.chat._id.toString(), generatedTitle);
         } catch (error) {
             console.warn('Error generating chat title:', error);

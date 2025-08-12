@@ -1,8 +1,10 @@
 import React from 'react';
 import './ChatMessage.scss';
+import './AssistantMessage.scss';
 import { FrontendChatIterationAssistantDTO } from '../../../../types';
-import { contentCast } from '../../../../utils';
 import { MemoryMessage } from './MemoryMessage';
+import { ReplyMessage } from './ReplyMessage';
+import { ReflectionMessage } from './ReflectionMessage';
 
 interface ChatMessageProps {
     message: FrontendChatIterationAssistantDTO;
@@ -20,50 +22,36 @@ export const AssistantMessage: React.FC<ChatMessageProps> = ({ message }) => {
     };
 
     const renderContent = () => {
-        if (!message.content) {
-            return null;
-        }
+        if (!message.content) return null;
 
-        if (contentCast.isText(message, message.content) && typeof message.content === 'string') {
-            return <div className="message-text">{message.content}</div>;
-        }
-
-        if (contentCast.isReflection(message, message.content)) {
-            // Defensive: backend may stream partial objects, ensure we have a string
-            const reflectionContent = (typeof message.content === 'object' && message.content && typeof (message.content as any).content === 'string')
-                ? (message.content as any).content
-                : '';
-            const previewContent = reflectionContent.length > 60
-                ? reflectionContent.substring(0, 60) + '...'
-                : reflectionContent;
-
-            return (
-                <div className="reflection-content">
-                    <div
-                        className="reflection-header"
-                        onClick={toggleExpanded}
-                    >
-                        <span className="reflection-title">
-                            💭 {isExpanded ? reflectionContent : previewContent}
-                        </span>
-                        <span className="expand-icon">{isExpanded ? '▲' : '▼'}</span>
+        switch (message.modal) {
+            case 'reply':
+                return <ReplyMessage content={message.content} />;
+            case 'reflection': {
+                const reflectionText = String(message.content);
+                return (
+                    <ReflectionMessage content={reflectionText} isExpanded={isExpanded} onToggle={toggleExpanded} />
+                );
+            }
+            case 'memory_search': {
+                // message.content is expected to be a serialized JSON string for memory modal
+                let parsed: any = null;
+                try { parsed = JSON.parse(message.content); } catch { }
+                if (!parsed || typeof parsed !== 'object') {
+                    return <div className="bubble assistant-bubble">{message.content}</div>;
+                }
+                return (
+                    <div className="memory-wrapper">
+                        <MemoryMessage content={parsed} isExpanded={isExpanded} onToggle={toggleExpanded} />
                     </div>
-                </div>
-            );
+                );
+            }
+            default:
+                return <div className="bubble assistant-bubble">{String(message.content)}</div>;
         }
-
-        if (contentCast.isMemory(message, message.content) && typeof message.content === 'object' && message.content) {
-            return (
-                <div className="memory-wrapper">
-                    <MemoryMessage content={message.content} isExpanded={isExpanded} onToggle={toggleExpanded} />
-                </div>
-            );
-        }
-
-        return <div className="message-text">{String(message.content)}</div>;
     };
-
-    const isUser = !isReflection && !isMemory && message.modal === 'text' && typeof message.content === 'string' && !message.inPrepare;
+    // Assistant messages are always rendered on the left in this component
+    const isUser = false;
 
     return (
         <div className={`chat-message ${isUser ? 'user' : 'assistant'} ${isReflection ? 'reflection' : ''} ${isReflection && !isExpanded ? 'reflection-collapsed' : ''} ${isMemory ? 'memory' : ''} ${isMemory && !isExpanded ? 'memory-collapsed' : ''}`} data-testid="message">
@@ -73,3 +61,6 @@ export const AssistantMessage: React.FC<ChatMessageProps> = ({ message }) => {
         </div>
     );
 };
+
+// Backwards-compatible alias expected by components/index.ts
+export const ChatMessage = AssistantMessage;

@@ -3,3 +3,4 @@ export * from './providers/openai';
 export * from './llm.gateway';
 export * from './llm-set.service';
 export * from './llm.types';
+export * from './requests/generateChatTitle';
