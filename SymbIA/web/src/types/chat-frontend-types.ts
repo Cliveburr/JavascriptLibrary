@@ -36,13 +36,15 @@ export enum ChatStreamType {
     Completed = 2,
     StreamTitle = 3,
     PrepareMessage = 4,
-    StreamMessage = 5
+    StreamMessage = 5,
+    Error = 6
 }
 
 export interface ChatStream {
     type: ChatStreamType;
     message?: ChatStreamMessage;
     chat?: ChatStreamChat;
+    error?: string;
 }
 
 export interface ChatStreamMessage {

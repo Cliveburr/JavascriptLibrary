@@ -16,7 +16,7 @@ export class ThoughtCycleService {
 
             let actionName = await this.reflectionService.reflectOnNextAction(ctx);
             if (!actionName) {
-                ctx.sendError(500, 'Relection return undefined!');
+                ctx.sendError('Relection return undefined!');
                 return;
             }
 
@@ -27,7 +27,7 @@ export class ThoughtCycleService {
 
             const stallCheck = stallDetector.signalEndOfActionAndDetectStall(actionName);
             if (stallCheck.isStall) {
-                ctx.sendError(500, stallCheck.reason || 'Stall detected');
+                ctx.sendError(stallCheck.reason || 'Stall detected');
                 console.warn(`Stall detected: ${stallCheck.reason}`);
                 break;
             }

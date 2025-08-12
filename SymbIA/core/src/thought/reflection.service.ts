@@ -2,12 +2,15 @@ import type { ChatIterationLLMRequest } from '../entities';
 import type { LlmGateway } from '../llm';
 import type { ThoughtContext } from './thought-context';
 import { v6 } from 'uuid';
-import { BodyJsonParser, MessageQueue, createBodyJsonStreamParser } from '../helpers';
+import { ParserResponse, MessageQueue, createBodyJsonStreamParser } from '../helpers';
+import { ServerMonitoringMode } from 'mongodb';
+
+const BODYJSONSENTINEL = '<<END-OF-BODY>>';
 
 interface ReflectionContext {
     thoughtCtx: ThoughtContext;
     request: ChatIterationLLMRequest;
-    parser: BodyJsonParser,
+    //parser: ParserResponse,
     messageQueue: MessageQueue<string>;
     action?: string;
 }
@@ -60,17 +63,18 @@ export class ReflectionService {
         return {
             thoughtCtx,
             request,
-            parser: createBodyJsonStreamParser(messageQueue.add),
+            //parser: createBodyJsonStreamParser(messageQueue.add),
             messageQueue
         };
     }
 
     private async callLLM(ctx: ReflectionContext): Promise<void> {
 
-        const response = await this.llmGateway.invokeAsync(
+        const response = await this.llmGateway.invokeBodyJSONAsync(
             ctx.request.llmSetModel,
+            BODYJSONSENTINEL,
             ctx.request.messages,
-            ctx.parser.process,
+            ctx.messageQueue.add.bind(ctx.messageQueue),
             ctx.request.llmOptions
         );
         ctx.request.finishedDate = new Date();
@@ -81,17 +85,22 @@ export class ReflectionService {
     }
 
     private processResponse(ctx: ReflectionContext, content: string): void {
-        const parseResult = ctx.parser.end(content);
-        if (!parseResult) {
-            throw 'Invalid llmResponse for reflection: \n' + content;
-        }
-        ctx.request.forUser = parseResult.body;
         try {
-            const response = JSON.parse(parseResult.JSON) as ReflectionResponseJSON;
-            ctx.request.forContext = response;
-            ctx.action = response.action_REQ;
-        } catch {
-            throw 'JSON parse error: ' + parseResult.JSON;
+            //const parseResult = ctx.parser.end(content);
+            const bodyJSON = content.split(BODYJSONSENTINEL);
+            if (bodyJSON.length != 2) {
+                throw 'Invalid llmResponse for reflection: \n' + content;
+            }
+            ctx.request.forUser = bodyJSON[0];
+            try {
+                const response = JSON.parse(bodyJSON[1]) as ReflectionResponseJSON;
+                ctx.request.forContext = response;
+                ctx.action = response.action_REQ;
+            } catch {
+                throw 'JSON parse error: ' + bodyJSON[1];
+            }
+        } catch (err) {
+            console.error(err);
         }
     }
 }

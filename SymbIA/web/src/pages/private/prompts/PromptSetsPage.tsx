@@ -3,6 +3,8 @@ import { apiService } from '../../../utils/apiService';
 import type { PromptEntry, PromptSetDTO, PromptSetSummaryDTO } from '../../../types/prompts';
 import { useNotificationStore } from '../../../stores/notification.store';
 import './PromptSetsPage.scss';
+import { PromptEntryEditor } from './components/PromptEntryEditor';
+import { PromptEntryList } from './components/PromptEntryList';
 
 type TabKey = 'promptSets';
 
@@ -29,6 +31,7 @@ export const PromptSetsPage: React.FC = () => {
     const [isCreating, setIsCreating] = useState(false);
     const [form, setForm] = useState<Omit<PromptSetDTO, '_id' | 'promptTestResultIds'>>({ ...emptySet });
     const [searchTerm, setSearchTerm] = useState('');
+    const [editingPromptIndex, setEditingPromptIndex] = useState<number | null>(null);
 
     const { addNotification } = useNotificationStore();
 
@@ -399,21 +402,32 @@ export const PromptSetsPage: React.FC = () => {
 
                             <div className="form-section">
                                 <h3 className="form-section-title">📝 Prompts</h3>
-                                <p>Configuração simplificada para teste</p>
-                                <textarea
-                                    rows={10}
-                                    value={JSON.stringify(form.prompts, null, 2)}
-                                    onChange={(e) => {
-                                        try {
-                                            const prompts = JSON.parse(e.target.value);
-                                            setForm({ ...form, prompts });
-                                        } catch (error) {
-                                            // Ignore JSON parse errors during typing
-                                        }
-                                    }}
-                                    className="form-textarea"
-                                    placeholder="JSON dos prompts"
-                                />
+                                {editingPromptIndex === null ? (
+                                    <PromptEntryList
+                                        prompts={form.prompts}
+                                        onAdd={() => {
+                                            const next = [...form.prompts, { ...emptyPrompt }];
+                                            setForm({ ...form, prompts: next });
+                                            setEditingPromptIndex(next.length - 1);
+                                        }}
+                                        onEdit={(index) => setEditingPromptIndex(index)}
+                                        onRemove={(index) => {
+                                            const next = form.prompts.filter((_, i) => i !== index);
+                                            setForm({ ...form, prompts: next });
+                                        }}
+                                    />
+                                ) : (
+                                    <PromptEntryEditor
+                                        value={form.prompts[editingPromptIndex]}
+                                        onChange={(next) => {
+                                            const arr = [...form.prompts];
+                                            arr[editingPromptIndex] = next;
+                                            setForm({ ...form, prompts: arr });
+                                        }}
+                                        onCancel={() => setEditingPromptIndex(null)}
+                                        onSave={() => setEditingPromptIndex(null)}
+                                    />
+                                )}
                             </div>
                         </div>
                     )}

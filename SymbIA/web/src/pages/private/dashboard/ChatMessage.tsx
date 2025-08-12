@@ -23,12 +23,15 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             return null;
         }
 
-        if (contentCast.isText(message, message.content)) {
+        if (contentCast.isText(message, message.content) && typeof message.content === 'string') {
             return <div className="message-text">{message.content}</div>;
         }
 
         if (contentCast.isReflection(message, message.content)) {
-            const reflectionContent = message.content.content;
+            // Defensive: backend may stream partial objects, ensure we have a string
+            const reflectionContent = (typeof message.content === 'object' && message.content && typeof (message.content as any).content === 'string')
+                ? (message.content as any).content
+                : '';
             const previewContent = reflectionContent.length > 60
                 ? reflectionContent.substring(0, 60) + '...'
                 : reflectionContent;
@@ -48,7 +51,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             );
         }
 
-        if (contentCast.isMemory(message, message.content)) {
+        if (contentCast.isMemory(message, message.content) && typeof message.content === 'object' && message.content) {
             return (
                 <div className="memory-wrapper">
                     <MemoryMessage content={message.content} isExpanded={isExpanded} onToggle={toggleExpanded} />

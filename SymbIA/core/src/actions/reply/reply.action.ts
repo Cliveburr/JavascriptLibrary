@@ -3,12 +3,12 @@ import type { LlmGateway } from '../../llm';
 import type { ActionHandler } from '../act-defs';
 import type { ThoughtContext } from '../../thought';
 import { v6 } from 'uuid';
-import { BodyJsonParser, MessageQueue, createBodyJsonStreamParser } from '../../helpers';
+import { ParserResponse, MessageQueue, createBodyJsonStreamParser } from '../../helpers';
 
 interface ReplyContext {
     thoughtCtx: ThoughtContext;
     request: ChatIterationLLMRequest;
-    parser: BodyJsonParser,
+    parser: ParserResponse,
     messageQueue: MessageQueue<string>;
 }
 

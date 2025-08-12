@@ -36,6 +36,19 @@ export class LlmGateway {
         }
     }
 
+    async invokeBodyJSONAsync(modelSpec: LlmSetModel, sentinel: string, messages: LlmRequestMessage[], streamCallback: (content: string) => void, options?: LlmRequestOptions): Promise<LlmResponse> {
+        const request: LlmRequest = {
+            model: modelSpec.model,
+            messages,
+            options
+        };
+        switch (modelSpec.provider) {
+            //case 'openai': return this.openaiProvider.invokeAsync(request, streamCallback);
+            case 'ollama': return this.ollamaProvider.invokeBodyJSONAsync(request, sentinel, streamCallback);
+            default: throw new Error(`Unsupported LLM provider: ${modelSpec.provider}`);
+        }
+    }
+
     async generateEmbedding(llmSetConfig: LlmSetConfig, texts: Array<string>): Promise<EmbeddingResponse> {
         const embeddingModel = llmSetConfig.models.embedding;
         const requestOptions: EmbeddingRequest = {

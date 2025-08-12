@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { ChatMessage } from '../ChatMessage';
 import { useMessageStore } from '../../../../stores/message.store';
 import { ChatStreamMessage, FrontendChatIteration } from '../../../../types';
+import { useStreamingStore } from '../../../../stores/streaming.store';
 import './ChatWindow.scss';
 
 interface ChatWindowProps {
@@ -9,6 +10,7 @@ interface ChatWindowProps {
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
     const { iterations } = useMessageStore();
+    const { errorMessage } = useStreamingStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +31,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ }) => {
                 ref={scrollContainerRef}
                 data-testid="messages-container"
             >
+                {errorMessage && (
+                    <div className="ephemeral-error" role="alert">
+                        <div className="error-icon">⚠️</div>
+                        <div className="error-text">{errorMessage}</div>
+                    </div>
+                )}
 
                 {iterations.map((it: FrontendChatIteration, idx: number) => (
                     <div key={idx} className="chat-iteration">

@@ -5,12 +5,12 @@ import type { ThoughtContext } from '../../thought';
 import type { QdrantProvider } from '../../vector';
 import { ServiceRegistry, type MemoryService } from '../../services';
 import { v6 } from 'uuid';
-import { BodyJsonParser, MessageQueue, createBodyJsonStreamParser } from '../../helpers';
+import { ParserResponse, MessageQueue, createBodyJsonStreamParser } from '../../helpers';
 
 interface MemoryContext {
     thoughtCtx: ThoughtContext;
     request: ChatIterationLLMRequest;
-    parser: BodyJsonParser,
+    parser: ParserResponse,
     messageQueue: MessageQueue<string>;
     qdrantProvider: QdrantProvider;
     memoryService: MemoryService;

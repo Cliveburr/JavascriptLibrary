@@ -12,7 +12,7 @@ export const useChatStreaming = () => {
     const { selectedMemoryId } = useMemoryStore();
     const { selectedSetId } = useLLMStore();
     const { startNewIteration, addRequestMessage, updateLastRequestContent, clearMessages } = useMessageStore();
-    const { isStreaming, isPaused, setStreaming, setPaused } = useStreamingStore();
+    const { isStreaming, isPaused, setStreaming, setPaused, setError, clearError } = useStreamingStore();
 
     const sendMessage = useCallback(async (content: string) => {
         const currentSelectedChatId = useChatStore.getState().selectedChatId;
@@ -25,6 +25,8 @@ export const useChatStreaming = () => {
             throw new Error('LLM Set ID is required');
         }
 
+        // Any new send removes previous ephemeral errors
+        clearError();
         setStreaming(true);
         setPaused(false);
 
@@ -89,6 +91,7 @@ export const useChatStreaming = () => {
         }
 
         async function handleMessage(stream: ChatStream) {
+            console.log(stream.type, stream);
             switch (stream.type) {
                 case ChatStreamType.InitNewStream:
                     if (!stream.chat?.chatId
@@ -130,13 +133,18 @@ export const useChatStreaming = () => {
                 case ChatStreamType.Completed:
                     setStreaming(false);
                     break;
+                case ChatStreamType.Error:
+                    // Ephemeral error: show it immediately; do not store in iterations
+                    setError(stream.error || 'Erro desconhecido');
+                    setStreaming(false);
+                    break;
                 default:
                     throw 'Unknown message type: ' + stream.type;
             }
 
 
         }
-    }, [initNewChat, appendChatTitle, selectedMemoryId, selectedSetId, startNewIteration, addRequestMessage, updateLastRequestContent, clearMessages, isStreaming, isPaused, setStreaming, setPaused]);
+    }, [initNewChat, appendChatTitle, selectedMemoryId, selectedSetId, startNewIteration, addRequestMessage, updateLastRequestContent, clearMessages, isStreaming, isPaused, setStreaming, setPaused, setError, clearError]);
 
     const pauseStream = useCallback(() => {
         setPaused(true);

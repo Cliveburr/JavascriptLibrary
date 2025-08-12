@@ -20,10 +20,7 @@
 // - If `end()` is called before the sentinel appears, `onJson` will be
 //   invoked with an empty string (""). You can treat this as an error if desired.
 
-export interface BodyJsonParser {
-    process(chunk: string): void;
-    end(content: string): { body: string, JSON: string; } | undefined;
-}
+import { ParserRequest, ParserResponse } from './parser-types';
 
 enum State {
     Body = 0,
@@ -32,7 +29,7 @@ enum State {
 
 const SENTINEL = '<<END-OF-BODY>>';
 
-export function createBodyJsonStreamParser(onBody: (chunk: string) => void): BodyJsonParser {
+export function createBodyJsonStreamParser(onBody: ParserRequest): ParserResponse {
     let state: State = State.Body;
 
     // We keep a small tail buffer while searching for the sentinel across chunk boundaries.
@@ -57,6 +54,7 @@ export function createBodyJsonStreamParser(onBody: (chunk: string) => void): Bod
     }
 
     function process(chunk: string) {
+        //console.log('parseBodyJSON.process: ' + chunk);
         if (state === State.Body) {
             bodyTail += chunk;
 

@@ -32,13 +32,15 @@ export enum ChatStreamType {
     Completed = 2,
     StreamTitle = 3,
     PrepareMessage = 4,
-    StreamMessage = 5
+    StreamMessage = 5,
+    Error = 6
 }
 
 export interface ChatStream {
     type: ChatStreamType;
     message?: ChatStreamMessage;
     chat?: ChatStreamChat;
+    error?: string;
 }
 
 export interface ChatStreamMessage {
@@ -63,7 +65,7 @@ export class ThoughtContext {
     ) {
     }
 
-    sendError(code: number, message: string, error?: any): void {
+    sendError_old(code: number, message: string, error?: any): void {
         // If not error, means that is user error and not system
         if (error) {
             console.error(message, error); //TODO: maybe log in db, future error handler service
@@ -75,6 +77,13 @@ export class ThoughtContext {
         // Flush chat to db
         this.saveChat()
             .then();
+    }
+
+    sendError(error: string): Promise<void> {
+        return this.sendStream({
+            type: ChatStreamType.Error,
+            error
+        });
     }
 
     async sendCompleted(): Promise<void> {
@@ -103,6 +112,7 @@ export class ThoughtContext {
     }
 
     sendStreamMessage(content: string): Promise<void> {
+        //console.log('sendStreamMessage: ' + content);
         return this.sendStream({
             type: ChatStreamType.StreamMessage,
             message: {
