@@ -20,7 +20,7 @@ export interface PromptSet {
         maxTokens?: number;          // Ajustavel pelo sistema de auto-tuning
     }>;
     fromTunningId?: ObjectId;          // Se for gerado automaticamente por tuning
-    promptTestResultIds: PromptTestResult[];
+    promptTestResultIds: ObjectId[];
 }
 
 export interface PromptTest {

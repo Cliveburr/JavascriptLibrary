@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './layouts';
-import { Header, NotificationContainer, AuthLoadingScreen } from './components';
-import { HomePage, LoginPage, RegisterPage, DashboardPage } from './pages';
+import { Header, AuthLoadingScreen, NotificationContainer } from './components';
+import { HomePage, LoginPage, RegisterPage, DashboardPage, PromptSetsPage } from './pages';
 import { useTheme, useTokenValidation } from './hooks';
 import { useAuthStore } from './stores';
 import './styles/globals.scss';
@@ -67,6 +67,14 @@ function App() {
             element={
               <PrivateRoute>
                 <DashboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/prompts"
+            element={
+              <PrivateRoute>
+                <PromptSetsPage />
               </PrivateRoute>
             }
           />

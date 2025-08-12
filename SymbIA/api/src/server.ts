@@ -25,6 +25,7 @@ async function startServer() {
     const { createMemoriesRoutes } = await import('./routes/memories.routes.js');
     const { createChatRoutes } = await import('./routes/chat.routes.js');
     const { createLlmSetsRoutes } = await import('./routes/llm-sets.routes.js');
+    const { createPromptsRoutes } = await import('./routes/prompts.routes.js');
     const { createDebugRoutes } = await import('./routes/debug.routes.js');
 
     const app: Express = express();
@@ -56,6 +57,7 @@ async function startServer() {
     app.use('/memories', createMemoriesRoutes());
     app.use('/chats', createChatRoutes());
     app.use('/llm-sets', createLlmSetsRoutes());
+    app.use('/prompts', createPromptsRoutes());
     const debugRoutes = createDebugRoutes();
     if (debugRoutes) {
       app.use('/debug', debugRoutes);

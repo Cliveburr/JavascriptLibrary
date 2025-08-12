@@ -2,6 +2,7 @@ import { useAuthStore } from '../stores/auth.store';
 import { createApiUrl } from '../config/api';
 import type { FrontendChat, MemoryDTO } from '../types/frontend';
 import type { LlmSetListResponse } from '../types/llm';
+import type { PromptSetDTO, PromptSetSummaryDTO } from '../types/prompts';
 import { ChatIterationDTO } from '../types';
 
 // Tipos para as requisições da API
@@ -140,6 +141,38 @@ export const apiService = {
     llm: {
         fetchSets: async (): Promise<LlmSetListResponse> => {
             return await apiService.call(createApiUrl('/llm-sets'));
+        },
+    },
+
+    // === PROMPTS ENDPOINTS ===
+    prompts: {
+        listSummaries: async (): Promise<PromptSetSummaryDTO[]> => {
+            return await apiService.call(createApiUrl('/prompts/sets'));
+        },
+        getById: async (id: string): Promise<PromptSetDTO> => {
+            return await apiService.call(createApiUrl(`/prompts/sets/${id}`));
+        },
+        create: async (data: Omit<PromptSetDTO, '_id' | 'promptTestResultIds'>): Promise<PromptSetDTO> => {
+            return await apiService.call(createApiUrl('/prompts/sets'), {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+        update: async (id: string, data: Partial<Omit<PromptSetDTO, '_id' | 'promptTestResultIds'>>): Promise<PromptSetDTO> => {
+            return await apiService.call(createApiUrl(`/prompts/sets/${id}`), {
+                method: 'PUT',
+                body: JSON.stringify(data),
+            });
+        },
+        remove: async (id: string): Promise<void> => {
+            return await apiService.call(createApiUrl(`/prompts/sets/${id}`), {
+                method: 'DELETE',
+            });
+        },
+        setCurrent: async (id: string): Promise<void> => {
+            return await apiService.call(createApiUrl(`/prompts/sets/${id}/set-current`), {
+                method: 'POST',
+            });
         },
     },
 };
