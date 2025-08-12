@@ -3,7 +3,6 @@ import { AssistantMessage } from '../messages/AssistantMessage';
 import { useMessageStore } from '../../../../stores/message.store';
 import { useStreamingStore } from '../../../../stores/streaming.store';
 import { UserMessage } from '../messages/UserMessage';
-import './ChatWindow.scss';
 
 interface ChatWindowProps {
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import './AuthLoadingScreen.scss';
 
 export const AuthLoadingScreen: React.FC = () => {
     return (

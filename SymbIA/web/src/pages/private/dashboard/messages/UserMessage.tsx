@@ -1,7 +1,4 @@
-
-
 import React from 'react';
-import './ChatMessage.scss';
 
 interface UserMessageProps {
     content: string;
@@ -9,9 +6,9 @@ interface UserMessageProps {
 
 export const UserMessage: React.FC<UserMessageProps> = ({ content }) => {
     return (
-        <div className="chat-message user" data-testid="user-message">
-            <div className="message-content">
-                <div className="bubble user-bubble">{content}</div>
+        <div className="chat-message chat-message--user" data-testid="user-message">
+            <div className="chat-message__content">
+                <div className="chat-bubble chat-bubble--user">{content}</div>
             </div>
         </div>
     );

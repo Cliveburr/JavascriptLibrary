@@ -1,7 +1,6 @@
 import React from 'react';
 
 interface MemoryMessageProps {
-    // Parsed JSON content for memory search modal
     content: any;
     isExpanded: boolean;
     onToggle: () => void;

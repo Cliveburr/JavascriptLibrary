@@ -1,0 +1,48 @@
+@use '../variables' as *;
+
+.header {
+    height: $header-height;
+    background: var(--header-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--header-border);
+    box-shadow: $shadow-sm;
+    position: sticky;
+    top: 0;
+    z-index: $z-index-sticky;
+}
+
+.header__container {
+    height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header__left,
+.header__right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+}
+
+.header__logo {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    text-decoration: none;
+}
+
+.header__nav {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+}
+
+.header__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+}

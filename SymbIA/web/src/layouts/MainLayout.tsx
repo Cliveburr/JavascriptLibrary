@@ -1,5 +1,5 @@
 import React from 'react';
-import './MainLayout.scss';
+// using framework utilities
 
 export interface MainLayoutProps {
     children: React.ReactNode;
@@ -15,29 +15,25 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     footer,
 }) => {
     return (
-        <div className="main-layout">
+        <div className="flex flex-col" style={{ minHeight: '100vh' }}>
             {header && (
-                <header className="main-layout__header">
-                    {header}
-                </header>
+                <header>{header}</header>
             )}
 
-            <div className="main-layout__body">
+            <div className="flex flex-1">
                 {sidebar && (
-                    <aside className="main-layout__sidebar">
+                    <aside className="flex-shrink-0" style={{ width: 280, minWidth: 280 }}>
                         {sidebar}
                     </aside>
                 )}
 
-                <main className="main-layout__content">
+                <main className="flex-1 min-w-0">
                     {children}
                 </main>
             </div>
 
             {footer && (
-                <footer className="main-layout__footer">
-                    {footer}
-                </footer>
+                <footer>{footer}</footer>
             )}
         </div>
     );

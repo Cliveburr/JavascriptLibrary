@@ -1,0 +1,31 @@
+@use '../variables' as *;
+
+// Utilities
+@use './utilities.spacing' as *;
+@use './utilities.flex' as *;
+@use './utilities.display' as *;
+@use './utilities.typography' as *;
+@use './utilities.colors' as *;
+@use './utilities.border' as *;
+@use './utilities.effects' as *;
+@use './utilities.layout' as *;
+
+// Components
+@use './components.buttons' as *;
+@use './components.inputs' as *;
+@use './components.modal' as *;
+@use './components.notification' as *;
+@use './components.dropdown' as *;
+@use './components.tabs' as *;
+@use './components.table' as *;
+@use './components.card' as *;
+@use './components.header' as *;
+@use './components.effects-home' as *;
+@use './components.auth' as *;
+@use './components.empty-state' as *;
+@use './components.toolbar' as *;
+@use './components.page' as *;
+@use './components.search' as *;
+@use './components.chat' as *;
+
+// (Removed u-* duplicates) utilities are loaded via utilities.* partials above

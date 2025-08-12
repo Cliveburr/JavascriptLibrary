@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { Notification as NotificationData } from '../../../types/notification';
-import './NotificationItem.scss';
+// using global framework styles
 
 interface NotificationItemProps {
     notification: NotificationData;

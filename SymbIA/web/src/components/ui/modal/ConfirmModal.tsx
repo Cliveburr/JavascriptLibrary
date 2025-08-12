@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import './ConfirmModal.scss';
 
 interface ConfirmModalProps {
     isOpen: boolean;
@@ -45,12 +44,12 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="confirm-modal-overlay" onClick={onCancel}>
-            <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="confirm-modal-header">
-                    <h3 className="confirm-modal-title">{title}</h3>
+        <div className="modal-overlay" onClick={onCancel}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h3 className="modal-title">{title}</h3>
                     <button
-                        className="confirm-modal-close"
+                        className="modal-close"
                         onClick={onCancel}
                         aria-label="Fechar"
                     >
@@ -66,19 +65,19 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                     </button>
                 </div>
 
-                <div className="confirm-modal-content">
-                    <p className="confirm-modal-message">{message}</p>
+                <div className="modal-content">
+                    <p className="modal-message">{message}</p>
                 </div>
 
-                <div className="confirm-modal-actions">
+                <div className="modal-actions">
                     <button
-                        className="confirm-modal-button cancel"
+                        className="btn btn-secondary"
                         onClick={onCancel}
                     >
                         {cancelText}
                     </button>
                     <button
-                        className={`confirm-modal-button confirm ${isDestructive ? 'destructive' : ''}`}
+                        className={`btn ${isDestructive ? 'btn-danger' : 'btn-primary'}`}
                         onClick={onConfirm}
                         autoFocus
                     >

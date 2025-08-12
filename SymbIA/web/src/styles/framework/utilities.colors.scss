@@ -1,0 +1,65 @@
+@use '../variables' as *;
+
+// Text colors
+.text-primary {
+    color: var(--text-primary) !important;
+}
+
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+.text-tertiary {
+    color: var(--text-tertiary) !important;
+}
+
+.text-accent {
+    color: var(--color-accent) !important;
+}
+
+// Backgrounds
+.bg-surface {
+    background-color: var(--surface-primary) !important;
+}
+
+.bg-surface-2 {
+    background-color: var(--surface-secondary) !important;
+}
+
+.bg-surface-3 {
+    background-color: var(--surface-tertiary) !important;
+}
+
+.bg-dark {
+    background-color: var(--surface-dark) !important;
+}
+
+.bg-gradient-primary {
+    background: $gradient-primary !important;
+}
+
+.bg-gradient-accent {
+    background: $gradient-accent !important;
+}
+
+// Accents
+.text-on-accent {
+    color: var(--text-on-accent) !important;
+}
+
+// Status
+.text-success {
+    color: var(--color-success) !important;
+}
+
+.text-warning {
+    color: var(--color-warning) !important;
+}
+
+.text-error {
+    color: var(--color-error) !important;
+}
+
+.text-info {
+    color: var(--color-info) !important;
+}

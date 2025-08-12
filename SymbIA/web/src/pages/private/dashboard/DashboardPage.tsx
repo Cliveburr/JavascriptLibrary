@@ -3,7 +3,7 @@ import { useLLMStore } from '../../../stores';
 import { useError } from '../../../hooks';
 import { MemorySidebar } from './leftside/LeftSidebar';
 import { ChatArea } from './rightside/ChatArea';
-import './DashboardPage.scss';
+// using framework utilities for layout
 
 export const DashboardPage: React.FC = () => {
     const { loadSets } = useLLMStore();
@@ -17,11 +17,9 @@ export const DashboardPage: React.FC = () => {
     }, [loadSets, handleError]);
 
     return (
-        <div className="dashboard-page">
-            <div className="dashboard-content">
-                <MemorySidebar />
-                <ChatArea />
-            </div>
+        <div className="flex flex-1 min-w-0">
+            <MemorySidebar />
+            <ChatArea />
         </div>
     );
 };

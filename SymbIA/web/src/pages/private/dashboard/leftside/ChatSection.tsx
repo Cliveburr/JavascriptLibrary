@@ -112,11 +112,11 @@ export const ChatSection: React.FC = () => {
 
     return (
         <>
-            <div className="chats-section">
-                <div className="section-header">
-                    <h3>Chats</h3>
+            <div className="flex flex-col min-h-0 flex-1">
+                <div className="flex items-center justify-between px-xs pt-sm pb-xs">
+                    <h3 className="text-xs text-secondary uppercase" style={{ letterSpacing: '.05em', margin: 0 }}>Chats</h3>
                     <button
-                        className="add-button"
+                        className="btn btn-outline btn-sm"
                         onClick={() => {
                             selectChat(null);
                         }}
@@ -129,21 +129,21 @@ export const ChatSection: React.FC = () => {
                     </button>
                 </div>
 
-                <div className="chats-list" key={`chats-${selectedMemoryId}-${chatListKey}`} ref={chatListRef}>
+                <div className="flex-1" key={`chats-${selectedMemoryId}-${chatListKey}`} ref={chatListRef} style={{ overflowY: 'auto' }}>
                     {isLoading ? (
-                        <div className="loading">Carregando chats...</div>
+                        <div className="py-sm text-center text-tertiary text-xs">Carregando chats...</div>
                     ) : currentMemoryChats.length === 0 ? (
-                        <div className="empty-state">Nenhum chat nesta memória</div>
+                        <div className="py-sm text-center text-tertiary text-xs">Nenhum chat nesta memória</div>
                     ) : (
                         currentMemoryChats.map((chat) => (
                             <div
                                 key={chat.chatId}
-                                className={`chat-item ${selectedChatId === chat.chatId ? 'active' : ''}`}
+                                className={`flex items-center justify-between p-xs mb-xxs rounded-sm border ${selectedChatId === chat.chatId ? 'border-primary bg-accent' : 'bg-surface-2'}`}
                                 onClick={() => selectChat(chat.chatId)}
                             >
-                                <span className="chat-title">{chat.title}</span>
+                                <span className="text-primary text-sm truncate flex-1">{chat.title}</span>
                                 <button
-                                    className="delete-button"
+                                    className="btn btn-ghost btn-sm"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleDeleteChat(chat.chatId, chat.title);

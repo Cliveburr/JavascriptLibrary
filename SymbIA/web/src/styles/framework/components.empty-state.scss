@@ -1,0 +1,23 @@
+@use '../variables' as *;
+
+.empty-state {
+    text-align: center;
+    color: var(--empty-state-color);
+    padding: $spacing-xl;
+}
+
+.empty-state-icon {
+    font-size: 2rem;
+    margin-bottom: $spacing-sm;
+}
+
+.empty-state-title {
+    font-weight: 600;
+    margin-bottom: $spacing-xs;
+    color: var(--text-primary);
+}
+
+.empty-state-subtitle {
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+}

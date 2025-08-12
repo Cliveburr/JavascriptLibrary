@@ -1,0 +1,35 @@
+@use '../variables' as *;
+
+.tabs {
+    display: flex;
+    gap: $spacing-xs;
+    margin-bottom: $spacing-lg;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: $border-radius-xl;
+    padding: $spacing-xs;
+    backdrop-filter: blur(10px);
+}
+
+.tabs button {
+    flex: 1;
+    padding: $spacing-sm $spacing-lg;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: $border-radius-md;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    transition: all $transition-normal;
+}
+
+.tabs button:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tabs button.active {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-color);
+    box-shadow: var(--btn-primary-shadow);
+}

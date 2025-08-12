@@ -73,11 +73,11 @@ export const MemorySection: React.FC = () => {
     }, [setCurrentMemory, selectChat]);
 
     return (
-        <div className="memories-section">
-            <div className="section-header">
-                <h3>Memórias</h3>
+        <div className="border-b pb-sm" style={{ borderColor: 'var(--border-subtle)' }}>
+            <div className="flex items-center justify-between px-xs pt-sm pb-xs">
+                <h3 className="text-xs text-secondary uppercase" style={{ letterSpacing: '.05em', margin: 0 }}>Memórias</h3>
                 <button
-                    className="add-button"
+                    className="btn btn-outline btn-sm"
                     onClick={() => setShowCreateMemoryForm(!showCreateMemoryForm)}
                     disabled={isLoading}
                     title="Adicionar memória"
@@ -89,7 +89,7 @@ export const MemorySection: React.FC = () => {
             </div>
 
             {showCreateMemoryForm && (
-                <form className="create-form" onSubmit={handleCreateMemory}>
+                <form className="bg-surface-2 border rounded-md p-sm mb-sm" onSubmit={handleCreateMemory}>
                     <input
                         type="text"
                         value={newMemoryName}
@@ -97,19 +97,20 @@ export const MemorySection: React.FC = () => {
                         placeholder="Nome da memória"
                         autoFocus
                         disabled={isLoading}
+                        className="form-input mb-xs"
                     />
-                    <div className="form-actions">
+                    <div className="flex gap-xs">
                         <button
                             type="submit"
                             disabled={isLoading || !newMemoryName.trim()}
-                            className="confirm-btn"
+                            className="btn btn-primary btn-sm"
                         >
                             Criar
                         </button>
                         <button
                             type="button"
                             onClick={() => setShowCreateMemoryForm(false)}
-                            className="cancel-btn"
+                            className="btn btn-ghost btn-sm"
                         >
                             Cancelar
                         </button>
@@ -117,19 +118,19 @@ export const MemorySection: React.FC = () => {
                 </form>
             )}
 
-            <div className="memories-list">
+            <div className="" style={{ maxHeight: 200, overflowY: 'auto' }}>
                 {isLoading && memories.length === 0 ? (
-                    <div className="loading">Carregando memórias...</div>
+                    <div className="py-sm text-center text-tertiary text-xs">Carregando memórias...</div>
                 ) : (
                     memories.map((memory) => (
                         <div
                             key={memory.id}
-                            className={`memory-item ${selectedMemoryId === memory.id ? 'active' : ''}`}
+                            className={`flex items-center justify-between p-xs mb-xxs rounded-sm border ${selectedMemoryId === memory.id ? 'border-primary bg-accent' : 'bg-surface-2'}`}
                             onClick={() => handleMemorySelect(memory.id)}
                         >
-                            <span className="memory-name">{memory.name}</span>
+                            <span className="text-primary text-sm truncate flex-1">{memory.name}</span>
                             <button
-                                className="delete-button"
+                                className="btn btn-ghost btn-sm"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteMemory(memory.id);

@@ -1,0 +1,56 @@
+@use '../variables' as *;
+
+.w-full {
+    width: 100% !important;
+}
+
+.min-h-screen {
+    min-height: 100vh !important;
+}
+
+.max-w-sm {
+    max-width: 320px !important;
+}
+
+.max-w-md {
+    max-width: 480px !important;
+}
+
+.max-w-lg {
+    max-width: 640px !important;
+}
+
+.max-w-xl {
+    max-width: 768px !important;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+}
+
+@media (min-width: $breakpoint-lg) {
+    .container {
+        padding: 0 $spacing-lg;
+    }
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-lg;
+}
+
+.card--outlined {
+    background: transparent;
+    border-color: var(--card-outlined-border);
+}
+
+.card--glass {
+    background: var(--card-glass-bg);
+    border-color: var(--card-glass-border);
+    backdrop-filter: blur(12px);
+}

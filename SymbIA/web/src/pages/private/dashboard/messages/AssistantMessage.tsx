@@ -1,6 +1,4 @@
 import React from 'react';
-import './ChatMessage.scss';
-import './AssistantMessage.scss';
 import { FrontendChatIterationAssistantDTO } from '../../../../types';
 import { MemoryMessage } from './MemoryMessage';
 import { ReplyMessage } from './ReplyMessage';
@@ -38,7 +36,7 @@ export const AssistantMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 let parsed: any = null;
                 try { parsed = JSON.parse(message.content); } catch { }
                 if (!parsed || typeof parsed !== 'object') {
-                    return <div className="bubble assistant-bubble">{message.content}</div>;
+                    return <div className="chat-bubble chat-bubble--assistant">{message.content}</div>;
                 }
                 return (
                     <div className="memory-wrapper">
@@ -47,15 +45,15 @@ export const AssistantMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 );
             }
             default:
-                return <div className="bubble assistant-bubble">{String(message.content)}</div>;
+                return <div className="chat-bubble chat-bubble--assistant">{String(message.content)}</div>;
         }
     };
     // Assistant messages are always rendered on the left in this component
     const isUser = false;
 
     return (
-        <div className={`chat-message ${isUser ? 'user' : 'assistant'} ${isReflection ? 'reflection' : ''} ${isReflection && !isExpanded ? 'reflection-collapsed' : ''} ${isMemory ? 'memory' : ''} ${isMemory && !isExpanded ? 'memory-collapsed' : ''}`} data-testid="message">
-            <div className="message-content">
+        <div className={`chat-message ${isUser ? 'chat-message--user' : 'chat-message--assistant'} ${isReflection ? 'chat-reflection' : ''} ${isReflection && !isExpanded ? 'chat-reflection--collapsed' : ''} ${isMemory ? 'chat-memory' : ''} ${isMemory && !isExpanded ? 'chat-memory--collapsed' : ''}`} data-testid="message">
+            <div className="chat-message__content">
                 {renderContent()}
             </div>
         </div>

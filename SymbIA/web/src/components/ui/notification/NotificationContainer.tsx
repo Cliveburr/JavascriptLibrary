@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNotificationStore } from '../../../stores/notification.store';
 import { NotificationItem } from './NotificationItem';
-import './NotificationContainer.scss';
+// using global framework styles
 
 export const NotificationContainer: React.FC = () => {
     const { notifications, removeNotification } = useNotificationStore();

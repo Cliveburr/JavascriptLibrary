@@ -1,0 +1,33 @@
+@use '../variables' as *;
+
+.border {
+    border: 1px solid var(--border-subtle) !important;
+}
+
+.border-0 {
+    border: 0 !important;
+}
+
+.border-primary {
+    border-color: var(--border-primary) !important;
+}
+
+.rounded-sm {
+    border-radius: $border-radius-sm !important;
+}
+
+.rounded-md {
+    border-radius: $border-radius-md !important;
+}
+
+.rounded-lg {
+    border-radius: $border-radius-lg !important;
+}
+
+.rounded-xl {
+    border-radius: $border-radius-xl !important;
+}
+
+.rounded-full {
+    border-radius: $border-radius-full !important;
+}

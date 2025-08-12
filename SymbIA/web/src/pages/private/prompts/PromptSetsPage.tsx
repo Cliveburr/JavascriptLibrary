@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { apiService } from '../../../utils/apiService';
 import type { PromptEntry, PromptSetDTO, PromptSetSummaryDTO } from '../../../types/prompts';
 import { useNotificationStore } from '../../../stores/notification.store';
-import './PromptSetsPage.scss';
 import { PromptEntryEditor } from './components/PromptEntryEditor';
 import { PromptEntryList } from './components/PromptEntryList';
 
@@ -182,7 +181,7 @@ export const PromptSetsPage: React.FC = () => {
     const isInEditMode = editing || isCreating;
 
     return (
-        <div className="prompts-page">
+        <div className="page min-h-screen bg-auth-gradient">
             <div className="page-header">
                 <h1 className="page-title">Gerenciamento de Prompts</h1>
                 <p className="page-subtitle">Configure e gerencie os conjuntos de prompts do sistema</p>
@@ -198,7 +197,7 @@ export const PromptSetsPage: React.FC = () => {
             </div>
 
             {activeTab === 'promptSets' && (
-                <div className="tab-content">
+                <div className="card card--glass card--padding-lg">
                     {!isInEditMode ? (
                         <div className="list-view">
                             <div className="toolbar">
@@ -222,7 +221,7 @@ export const PromptSetsPage: React.FC = () => {
                             </div>
 
                             {loading ? (
-                                <div className="loading">Carregando PromptSets...</div>
+                                <div className="text-secondary text-lg py-xl text-center">Carregando PromptSets...</div>
                             ) : filteredItems.length === 0 ? (
                                 <div className="empty-state">
                                     <div className="empty-state-icon">📝</div>
@@ -283,7 +282,7 @@ export const PromptSetsPage: React.FC = () => {
                                                     )}
                                                 </td>
                                                 <td>
-                                                    <div className="actions-cell">
+                                                    <div className="flex items-center gap-xs flex-wrap" style={{ minWidth: 200, justifyContent: 'flex-start' }}>
                                                         <button
                                                             onClick={() => onEdit(item._id)}
                                                             className="btn btn-secondary btn-sm"
@@ -316,12 +315,12 @@ export const PromptSetsPage: React.FC = () => {
                             )}
                         </div>
                     ) : (
-                        <div className="edit-view">
-                            <div className="edit-header">
-                                <h2 className="edit-title">
+                        <div>
+                            <div className="flex items-center justify-between mb-lg pb-md" style={{ borderBottom: '2px solid rgba(102, 126, 234, 0.2)' }}>
+                                <h2 className="text-2xl font-bold text-white m-0">
                                     {isCreating ? '✨ Novo PromptSet' : '✏️ Editar PromptSet'}
                                 </h2>
-                                <div className="edit-actions">
+                                <div className="flex gap-sm">
                                     <button
                                         onClick={cancelEdit}
                                         className="btn btn-secondary"
@@ -339,10 +338,10 @@ export const PromptSetsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="form-section">
-                                <h3 className="form-section-title">⚙️ Configurações Básicas</h3>
-                                <div className="form-grid">
-                                    <div className="form-field">
+                            <div className="card card--default card--padding-lg mb-lg">
+                                <h3 className="text-lg font-semibold text-white m-0 mb-md flex items-center gap-sm">⚙️ Configurações Básicas</h3>
+                                <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginBottom: 20 }}>
+                                    <div className="flex flex-col gap-sm">
                                         <label className="form-label">Alias *</label>
                                         <input
                                             type="text"
@@ -353,7 +352,7 @@ export const PromptSetsPage: React.FC = () => {
                                         />
                                     </div>
 
-                                    <div className="form-field">
+                                    <div className="flex flex-col gap-sm">
                                         <label className="form-label">Observação</label>
                                         <input
                                             type="text"
@@ -364,7 +363,7 @@ export const PromptSetsPage: React.FC = () => {
                                         />
                                     </div>
 
-                                    <div className="form-field">
+                                    <div className="flex flex-col gap-sm">
                                         <label className="form-label">Versão Manual</label>
                                         <input
                                             type="number"
@@ -375,7 +374,7 @@ export const PromptSetsPage: React.FC = () => {
                                         />
                                     </div>
 
-                                    <div className="form-field">
+                                    <div className="flex flex-col gap-sm">
                                         <label className="form-label">Versão Tuning</label>
                                         <input
                                             type="number"
@@ -400,8 +399,8 @@ export const PromptSetsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="form-section">
-                                <h3 className="form-section-title">📝 Prompts</h3>
+                            <div className="card card--default card--padding-lg mb-lg">
+                                <h3 className="text-lg font-semibold text-white m-0 mb-md">📝 Prompts</h3>
                                 {editingPromptIndex === null ? (
                                     <PromptEntryList
                                         prompts={form.prompts}

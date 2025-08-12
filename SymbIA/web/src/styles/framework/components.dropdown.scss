@@ -1,0 +1,33 @@
+@use '../variables' as *;
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: $spacing-sm;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: $border-radius-md;
+    box-shadow: $shadow-lg;
+    min-width: 180px;
+    z-index: $z-index-dropdown;
+    padding: $spacing-sm 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: var(--sidebar-hover-bg);
+    color: var(--text-primary);
+}

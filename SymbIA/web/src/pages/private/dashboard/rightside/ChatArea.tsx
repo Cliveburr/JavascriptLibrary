@@ -4,7 +4,6 @@ import { ChatWindow } from './ChatWindow';
 import { ChatInput, type ChatInputRef } from './ChatInput';
 import { LLMSelector } from './LLMSelector';
 import { useChatStreaming } from '../../../../hooks/useChatStreaming';
-import './ChatArea.scss';
 import { ChatDebug } from '../../../../components';
 
 export const ChatArea: React.FC = () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui';
 import { useAuthStore } from '../../stores';
-import './Header.scss';
+// using global framework header styles
 
 export interface HeaderProps {
     title?: string;

@@ -2,7 +2,6 @@ import { useState, useRef, useImperativeHandle, forwardRef, useCallback, useMemo
 import type { KeyboardEvent } from 'react';
 import { useChatStore } from '../../../../stores/chat.store';
 import { useChatStreaming } from '../../../../hooks/useChatStreaming';
-import './ChatInput.scss';
 import { useNotification } from '../../../../hooks/useNotification';
 
 interface ChatInputProps {
@@ -112,13 +111,13 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ horizontal 
                     placeholder={isNewChat ? "Digite a primeira mensagem para iniciar o chat..." : "Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"}
                     disabled={isLoading || isStreaming}
                     rows={1}
-                    className="message-input"
+                    className="form-input"
                     data-testid="chat-input"
                 />
                 <button
                     onClick={handleButtonClick}
                     disabled={buttonState === 'disabled'}
-                    className={`send-button ${buttonState}`}
+                    className={`btn btn-primary ${buttonState === 'processing' ? 'is-loading' : ''}`}
                     type="button"
                     data-testid="send-button"
                     title={

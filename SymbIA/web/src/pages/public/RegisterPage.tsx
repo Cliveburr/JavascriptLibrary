@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../stores';
-import './RegisterPage.scss';
+import { useNotificationStore } from '../../stores/notification.store';
 
 interface ApiError {
     message?: string;
@@ -13,23 +13,23 @@ export const RegisterPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+    const addNotification = useNotificationStore(state => state.addNotification);
 
     const register = useAuthStore(state => state.register);
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError('');
+        // Using notifications instead of inline error state
 
         if (password !== confirmPassword) {
-            setError('Passwords do not match');
+            addNotification({ type: 'error', title: 'Check your password', message: 'Passwords do not match', timeout: 8 });
             setIsLoading(false);
             return;
         }
 
         if (password.length < 6) {
-            setError('Password must be at least 6 characters long');
+            addNotification({ type: 'error', title: 'Weak password', message: 'Password must be at least 6 characters long', timeout: 8 });
             setIsLoading(false);
             return;
         }
@@ -38,7 +38,7 @@ export const RegisterPage: React.FC = () => {
             await register({ username, email, password });
         } catch (err: unknown) {
             const apiError = err as ApiError;
-            setError(apiError.message || 'Registration failed');
+            addNotification({ type: 'error', title: 'Registration failed', message: apiError.message || 'Try again later', timeout: 10 });
         } finally {
             setIsLoading(false);
         }
@@ -61,16 +61,18 @@ export const RegisterPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="register-page">
-            <div className="register-container">
-                <div className="register-header">
-                    <h1>Join SymbIA</h1>
-                    <p>Create your account and start building memories</p>
+        <div className="min-h-screen flex items-center justify-center bg-register-gradient px-sm">
+            <div className="bg-surface border rounded-lg w-100" style={{ maxWidth: 400, padding: '2.5rem', boxShadow: '0 10px 30px rgba(0,0,0,.3)', borderColor: 'var(--border-subtle)', backdropFilter: 'blur(10px)' }}>
+                <div className="text-center mb-lg">
+                    <h1 className="page-title" style={{ fontSize: '2rem', fontWeight: 700, background: 'linear-gradient(45deg, var(--color-primary), var(--color-secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' as any }}>
+                        Join SymbIA
+                    </h1>
+                    <p className="text-secondary text-sm">Create your account and start building memories</p>
                 </div>
 
-                <form className="register-form" onSubmit={handleSubmit}>
+                <form className="flex flex-col gap-md" onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="username" className="form-label">Username</label>
                         <input
                             id="username"
                             type="text"
@@ -80,11 +82,12 @@ export const RegisterPage: React.FC = () => {
                             disabled={isLoading}
                             placeholder="Your username"
                             minLength={3}
+                            className="form-input"
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email" className="form-label">Email</label>
                         <input
                             id="email"
                             type="email"
@@ -94,11 +97,12 @@ export const RegisterPage: React.FC = () => {
                             disabled={isLoading}
                             placeholder="your@email.com"
                             data-testid="email-input"
+                            className="form-input"
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password" className="form-label">Password</label>
                         <input
                             id="password"
                             type="password"
@@ -109,11 +113,12 @@ export const RegisterPage: React.FC = () => {
                             placeholder="At least 6 characters"
                             data-testid="password-input"
                             minLength={6}
+                            className="form-input"
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="confirmPassword">Confirm Password</label>
+                        <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
                         <input
                             id="confirmPassword"
                             type="password"
@@ -124,18 +129,13 @@ export const RegisterPage: React.FC = () => {
                             placeholder="Confirm your password"
                             data-testid="confirm-password-input"
                             minLength={6}
+                            className="form-input"
                         />
                     </div>
 
-                    {error && (
-                        <div className="error-message" data-testid="error-message">
-                            {error}
-                        </div>
-                    )}
-
                     <button
                         type="submit"
-                        className="register-button"
+                        className="btn btn-primary w-100 mt-sm"
                         disabled={isLoading}
                         data-testid="register-button"
                     >
@@ -143,10 +143,10 @@ export const RegisterPage: React.FC = () => {
                     </button>
                 </form>
 
-                <div className="register-footer">
-                    <p>
+                <div className="text-center mt-lg pt-md" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                    <p className="text-secondary text-sm">
                         Already have an account?{' '}
-                        <Link to="/login" className="login-link">
+                        <Link to="/login" className="text-accent font-medium">
                             Sign in
                         </Link>
                     </p>

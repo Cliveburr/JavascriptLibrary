@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLLMStore } from '../../../../stores';
 import { useError } from '../../../../hooks';
 import type { LlmSetIcon } from '../../../../types/llm';
-import './LLMSelector.scss';
 
 export const LLMSelector: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -84,15 +83,15 @@ export const LLMSelector: React.FC = () => {
     }, []);
 
     return (
-        <div className="llm-selector" ref={dropdownRef}>
+        <div className="dropdown" ref={dropdownRef}>
             <button
-                className="llm-selector-trigger"
+                className="btn btn-outline inline-flex items-center gap-sm"
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isLoading}
                 aria-expanded={isOpen}
             >
                 {isLoading ? (
-                    <div className="loading-spinner">
+                    <div className="spinner sm">
                         <svg width="16" height="16" viewBox="0 0 24 24">
                             <path
                                 d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
@@ -110,11 +109,11 @@ export const LLMSelector: React.FC = () => {
                         {selectedSet && (
                             <>
                                 {renderIcon(selectedSet.icon)}
-                                <span className="model-name">{selectedSet.display}</span>
+                                <span className="ml-sm">{selectedSet.display}</span>
                             </>
                         )}
                         <svg
-                            className={`dropdown-arrow ${isOpen ? 'open' : ''}`}
+                            className={`ml-sm ${isOpen ? 'rotate-180' : ''}`}
                             width="12"
                             height="12"
                             viewBox="0 0 12 12"
@@ -126,8 +125,8 @@ export const LLMSelector: React.FC = () => {
             </button>
 
             {isOpen && !isLoading && (
-                <div className="llm-dropdown-menu">
-                    <div className="dropdown-header">
+                <div className="dropdown-menu">
+                    <div className="dropdown-header px-sm py-sm border-b">
                         <span>Selecionar Conjunto LLM</span>
                     </div>
 
@@ -135,27 +134,23 @@ export const LLMSelector: React.FC = () => {
                         return (
                             <button
                                 key={set.id}
-                                className={`model-option ${selectedSetId === set.id ? 'selected' : ''}`}
+                                className={`dropdown-item w-100 ${selectedSetId === set.id ? 'selected' : ''}`}
                                 onClick={() => handleSetSelect(set.id)}
                             >
-                                <div className="model-info">
-                                    <div className="model-header">
-                                        {renderIcon(set.icon)}
-                                        <span className="model-name">{set.display}</span>
-                                        {selectedSetId === set.id && (
-                                            <svg className="check-icon" width="16" height="16" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"
-                                                    fill="currentColor"
-                                                />
-                                            </svg>
-                                        )}
-                                    </div>
-                                    <div className="model-meta">
-                                        {set.info && (
-                                            <span className="description">{set.info}</span>
-                                        )}
-                                    </div>
+                                <div className="flex items-center gap-sm w-100">
+                                    {renderIcon(set.icon)}
+                                    <span className="ml-sm flex-1 text-primary">{set.display}</span>
+                                    {selectedSetId === set.id && (
+                                        <svg className="ml-sm" width="16" height="16" viewBox="0 0 16 16">
+                                            <path
+                                                d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"
+                                                fill="currentColor"
+                                            />
+                                        </svg>
+                                    )}
+                                    {set.info && (
+                                        <span className="block text-tertiary text-sm">{set.info}</span>
+                                    )}
                                 </div>
                             </button>
                         );

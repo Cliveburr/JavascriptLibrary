@@ -1,4 +1,4 @@
-@use '../../../styles/_variables' as *;
+@use '../variables' as *;
 
 .card {
     border-radius: $border-radius-lg;
@@ -6,7 +6,6 @@
     position: relative;
     overflow: hidden;
 
-    // Default variant
     &--default {
         background-color: var(--card-bg);
         border: 1px solid var(--card-border);
@@ -18,7 +17,6 @@
         }
     }
 
-    // Elevated variant
     &--elevated {
         background-color: var(--card-bg);
         border: 1px solid var(--card-border);
@@ -30,7 +28,6 @@
         }
     }
 
-    // Outlined variant
     &--outlined {
         background-color: transparent;
         border: 2px solid var(--card-outlined-border);
@@ -41,7 +38,6 @@
         }
     }
 
-    // Glass variant (glassmorphism effect)
     &--glass {
         background: var(--card-glass-bg);
         backdrop-filter: blur(10px);
@@ -54,10 +50,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg,
-                    transparent,
-                    rgba($color-primary, 0.5),
-                    transparent);
+            background: linear-gradient(90deg, transparent, rgba($color-primary, 0.5), transparent);
         }
 
         &:hover {
@@ -66,7 +59,6 @@
         }
     }
 
-    // Glow effect
     &--glow {
         box-shadow: $shadow-md, $glow-primary;
 
@@ -75,7 +67,6 @@
         }
     }
 
-    // Padding variants
     &--padding-none {
         padding: 0;
     }
@@ -92,26 +83,15 @@
         padding: $spacing-lg;
     }
 
-    // Interactive states
     &:focus-within {
         outline: 2px solid $color-primary;
         outline-offset: 2px;
     }
 }
 
-// Card header, body, footer components
 .card__header {
     padding: $spacing-md $spacing-md $spacing-sm;
     border-bottom: 1px solid $color-border;
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        margin-bottom: 0;
-    }
 }
 
 .card__body {

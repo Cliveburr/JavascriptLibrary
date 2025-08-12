@@ -2,6 +2,7 @@
 // ==================================================
 
 @use 'variables' as *;
+@use 'framework/index' as *;
 
 // CSS Custom Properties (CSS Variables) - Tema Blue Twilight (Ativo)
 :root {
@@ -22,6 +23,15 @@
     // Transitions
     --transition-fast: #{$transition-fast};
     --transition-normal: #{$transition-normal};
+}
+
+// Enable runtime theme switching by toggling classes on :root
+:root.theme-futuristic-dark {
+    @include apply-theme('futuristic-dark');
+}
+
+:root.theme-blue-twilight {
+    @include apply-theme('blue-twilight');
 }
 
 // CSS Reset & Base Styles

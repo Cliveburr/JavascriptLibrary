@@ -1,0 +1,74 @@
+@use '../variables' as *;
+
+.flex {
+    display: flex !important;
+}
+
+.inline-flex {
+    display: inline-flex !important;
+}
+
+.flex-col {
+    flex-direction: column !important;
+}
+
+.flex-row {
+    flex-direction: row !important;
+}
+
+.items-center {
+    align-items: center !important;
+}
+
+.items-start {
+    align-items: flex-start !important;
+}
+
+.items-end {
+    align-items: flex-end !important;
+}
+
+.justify-center {
+    justify-content: center !important;
+}
+
+.justify-start {
+    justify-content: flex-start !important;
+}
+
+.justify-end {
+    justify-content: flex-end !important;
+}
+
+.justify-between {
+    justify-content: space-between !important;
+}
+
+.flex-1 {
+    flex: 1 1 0% !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+// Gap utilities reuse spacing
+.gap-xs {
+    gap: $spacing-xs !important;
+}
+
+.gap-sm {
+    gap: $spacing-sm !important;
+}
+
+.gap-md {
+    gap: $spacing-md !important;
+}
+
+.gap-lg {
+    gap: $spacing-lg !important;
+}
+
+.gap-xl {
+    gap: $spacing-xl !important;
+}

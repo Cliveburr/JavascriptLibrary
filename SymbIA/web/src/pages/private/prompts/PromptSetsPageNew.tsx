@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { apiService } from '../../../utils/apiService';
 import type { PromptEntry, PromptSetDTO, PromptSetSummaryDTO } from '../../../types/prompts';
 import { notify } from '../../../hooks/useNotifications';
-import './PromptSetsPage.scss';
+// using global framework styles (framework/index)
 
 type TabKey = 'promptSets';
 

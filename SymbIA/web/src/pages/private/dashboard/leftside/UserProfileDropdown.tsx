@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../../../../stores';
-import './UserProfileDropdown.scss';
 
 export const UserProfileDropdown: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -40,21 +39,21 @@ export const UserProfileDropdown: React.FC = () => {
     const initials = getInitials(displayName || 'U');
 
     return (
-        <div className="user-profile-dropdown" ref={dropdownRef}>
+        <div className="dropdown w-100" ref={dropdownRef}>
             <button
-                className="user-profile-trigger"
+                className="btn btn-outline w-100 inline-flex items-center gap-sm"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
             >
-                <div className="user-avatar">
+                <div className="rounded-full bg-accent text-on-accent flex items-center justify-center" style={{ width: '1.75rem', height: '1.75rem', fontSize: '.7rem', fontWeight: 600 }}>
                     {initials}
                 </div>
-                <div className="user-info">
-                    <span className="username">{displayName}</span>
-                    <span className="email">{user.email}</span>
+                <div className="flex-1 text-left min-w-0 ml-sm">
+                    <span className="block text-primary truncate">{displayName}</span>
+                    <span className="block text-tertiary text-xs truncate">{user.email}</span>
                 </div>
                 <svg
-                    className={`dropdown-arrow ${isOpen ? 'open' : ''}`}
+                    className={`${isOpen ? 'rotate-180' : ''}`}
                     width="12"
                     height="12"
                     viewBox="0 0 12 12"
@@ -82,10 +81,10 @@ export const UserProfileDropdown: React.FC = () => {
                         Configuração do perfil
                     </button>
 
-                    <div className="dropdown-divider" />
+                    <div className="border-t my-xs" />
 
                     <button
-                        className="dropdown-item logout"
+                        className="dropdown-item text-error"
                         onClick={handleLogout}
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16">

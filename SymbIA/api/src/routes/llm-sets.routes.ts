@@ -1,7 +1,6 @@
 import { Router, type IRouter } from 'express';
 import { LlmSetController } from '../controllers/llm-sets.controller.js';
-import { LlmController } from '../controllers/llm.controller.js';
-import { ServiceRegistry, LlmSetService, LlmGateway, AuthService } from '@symbia/core';
+import { ServiceRegistry, LlmSetService, AuthService } from '@symbia/core';
 import { createAuthMiddleware } from '../middleware/auth.middleware.js';
 
 export function createLlmSetsRoutes(): IRouter {
@@ -10,12 +9,10 @@ export function createLlmSetsRoutes(): IRouter {
 
     // Get services from registry
     const llmSetService = registry.get<LlmSetService>('LlmSetService');
-    const llmGateway = registry.get<LlmGateway>('LlmGateway');
     const authService = registry.get<AuthService>('AuthService');
 
     // Create controller instances
     const controller = new LlmSetController(llmSetService);
-    const llmController = new LlmController(llmGateway, llmSetService);
 
     // GET /llm-sets - Get all LLM sets (public)
     router.get('/', controller.getAllSets.bind(controller));
@@ -28,11 +25,6 @@ export function createLlmSetsRoutes(): IRouter {
 
     // POST /llm-sets/reload - Reload LLM sets (clear cache) - requires auth
     router.post('/reload', createAuthMiddleware(authService), controller.reloadSets.bind(controller));
-
-    // POST /llm/generate-title - requires auth
-    router.post('/generate-title', createAuthMiddleware(authService), (req, res) => {
-        llmController.generateTitle(req, res);
-    });
 
     return router;
 }

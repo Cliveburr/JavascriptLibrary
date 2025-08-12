@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import type { DebugService, LlmRequestMessage } from '@symbia/core';
+import type { ChatService, LlmRequestMessage } from '@symbia/core';
 
 // Interfaces for requests/responses
 export interface DebugListQuery {
@@ -22,29 +22,33 @@ export interface DebugGetResponse {
 }
 
 export class DebugController {
-    constructor(private debugService: DebugService) { }
+    constructor(private chatService: ChatService) { }
 
-    list(req: Request, res: Response) {
+    async list(req: Request, res: Response) {
         const chatId = req.query.chatId;
         if (!chatId || typeof chatId !== 'string') return res.status(400).json([]);
-        const data = this.debugService.getByChat(chatId);
-        if (!data) return res.status(404).json([]);
-        const timestamps = data.requests.map(r => r.timestamp);
-        res.json(timestamps);
+        const chat = await this.chatService.getChatById(chatId);
+        if (!chat) return res.status(404).json([]);
+        const response: DebugListResponse[] = chat.iterations
+            .map(i => i.requests
+                .map(r => r.startedDate.toLocaleString()));
+        res.json(response);
     }
 
-    get(req: Request, res: Response) {
+    async get(req: Request, res: Response) {
         const chatId = req.params.chatId as string;
         const timestamp = req.query.timestamp as string;
         if (!chatId || !timestamp) return res.status(400).json({ error: 'chatId and timestamp are required' });
-        const data = this.debugService.getByChatAt(chatId, timestamp);
-        if (!data || data.requests.length === 0) return res.status(404).json({ error: 'Not found' });
-        const first = data.requests[0];
-        res.json({ messages: first.messages, response: first.response });
-    }
-
-    clear(_req: Request, res: Response) {
-        this.debugService.clear();
-        res.status(204).send();
+        const chat = await this.chatService.getChatById(chatId);
+        if (!chat) return res.status(404).json({ error: 'Chat Not found' });
+        const request = chat.iterations
+            .flatMap(i => i.requests)
+            .find(r => r.startedDate.toLocaleString() == timestamp);
+        if (!request) return res.status(404).json({ error: 'Request Not found' });
+        const response: DebugGetResponse = {
+            messages: request.messages,
+            response: request.llmResponse
+        };
+        res.json(response);
     }
 }

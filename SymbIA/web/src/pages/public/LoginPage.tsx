@@ -1,25 +1,31 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../stores';
-import './LoginPage.scss';
+import { useNotificationStore } from '../../stores/notification.store';
 
 export const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+    // notifications
+    const addNotification = useNotificationStore(state => state.addNotification);
 
     const login = useAuthStore(state => state.login);
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError('');
+        // clear any page-level errors (we use notifications now)
 
         try {
             await login({ email, password });
         } catch {
-            setError('Invalid email or password');
+            addNotification({
+                type: 'error',
+                title: 'Login failed',
+                message: 'Invalid email or password',
+                timeout: 8,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -34,16 +40,16 @@ export const LoginPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="login-page">
-            <div className="login-container">
-                <div className="login-header">
-                    <h1>SymbIA</h1>
-                    <p>Enter your credentials to access your memories</p>
+        <div className="min-h-screen flex items-center justify-center bg-auth-gradient px-sm">
+            <div className="bg-glass border rounded-lg w-100" style={{ maxWidth: 400, padding: '2.5rem 2rem', backdropFilter: 'blur(10px)', borderColor: 'rgba(255,255,255,.1)', boxShadow: '0 20px 40px rgba(0,0,0,.3)' }}>
+                <div className="text-center mb-lg">
+                    <h1 className="text-3xl font-light mb-xs tracking-wide">SymbIA</h1>
+                    <p className="text-secondary text-sm">Enter your credentials to access your memories</p>
                 </div>
 
-                <form className="login-form" onSubmit={handleSubmit}>
+                <form className="flex flex-col gap-md" onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email" className="form-label">Email</label>
                         <input
                             id="email"
                             type="email"
@@ -52,11 +58,12 @@ export const LoginPage: React.FC = () => {
                             required
                             disabled={isLoading}
                             placeholder="your@email.com"
+                            className="form-input"
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password" className="form-label">Password</label>
                         <input
                             id="password"
                             type="password"
@@ -65,28 +72,23 @@ export const LoginPage: React.FC = () => {
                             required
                             disabled={isLoading}
                             placeholder="••••••••"
+                            className="form-input"
                         />
                     </div>
 
-                    {error && (
-                        <div className="error-message">
-                            {error}
-                        </div>
-                    )}
-
                     <button
                         type="submit"
-                        className="login-button"
+                        className="btn btn-primary w-100 mt-sm"
                         disabled={isLoading}
                     >
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
 
-                <div className="login-footer">
-                    <p>
+                <div className="text-center mt-lg pt-md" style={{ borderTop: '1px solid rgba(255,255,255,.1)' }}>
+                    <p className="text-secondary text-sm">
                         Don't have an account?{' '}
-                        <Link to="/register" className="register-link">
+                        <Link to="/register" className="text-accent font-medium">
                             Create one
                         </Link>
                     </p>
