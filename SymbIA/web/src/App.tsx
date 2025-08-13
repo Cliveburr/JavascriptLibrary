@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { MainLayout } from './layouts';
 import { Header, AuthLoadingScreen, NotificationContainer } from './components';
 import { HomePage, LoginPage, RegisterPage, DashboardPage, PromptSetsPage } from './pages';
+import { StyleDebugPage } from './pages/debug/StyleDebugPage';
 import { useTheme, useTokenValidation } from './hooks';
 import { useAuthStore } from './stores';
 import './styles/globals.scss';
@@ -39,6 +40,16 @@ function App() {
             element={
               <MainLayout header={<Header />}>
                 <HomePage />
+              </MainLayout>
+            }
+          />
+
+          {/* Rota de debug de estilos - sempre acessível para desenvolvimento */}
+          <Route
+            path="/style-debug"
+            element={
+              <MainLayout header={<Header />}>
+                <StyleDebugPage />
               </MainLayout>
             }
           />

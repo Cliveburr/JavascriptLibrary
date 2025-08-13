@@ -1,0 +1,96 @@
+@use '../../../variables' as *;
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba($color-bg-primary, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: $z-index-modal-backdrop;
+    backdrop-filter: blur($modal-overlay-blur);
+    animation: modal-fade-in $transition-fast ease-out;
+}
+
+.modal {
+    background: $color-bg-secondary;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-xl;
+    width: 90%;
+    max-width: $modal-max-width;
+    margin: 0 $modal-padding;
+    border: 1px solid $color-border;
+    animation: modal-slide-in $transition-fast ease-out;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $modal-header-padding;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: $color-text-secondary;
+    cursor: pointer;
+    padding: $spacing-xs;
+    border-radius: $border-radius-sm;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all $transition-fast;
+}
+
+.modal-close:hover {
+    color: $color-text-primary;
+    background: $color-bg-tertiary;
+}
+
+.modal-content {
+    padding: $modal-content-padding;
+}
+
+.modal-message {
+    margin: 0;
+    font-size: $font-size-sm;
+    line-height: $line-height-normal;
+    color: $color-text-secondary;
+}
+
+.modal-actions {
+    display: flex;
+    gap: $modal-actions-gap;
+    padding: $modal-actions-padding;
+    justify-content: flex-end;
+}
+
+@keyframes modal-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modal-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

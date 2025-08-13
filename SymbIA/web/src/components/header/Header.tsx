@@ -48,6 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
                             <nav className="header__nav">
                                 <Link to="/dashboard" className="nav-link">Dashboard</Link>
                                 <Link to="/prompts" className="nav-link">Prompts</Link>
+                                <Link to="/style-debug" className="nav-link">🎨 Styles</Link>
                             </nav>
 
                             <div className="header__actions">

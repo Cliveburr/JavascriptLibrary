@@ -129,6 +129,55 @@ $z-index-modal: 1050;
 $z-index-popover: 1060;
 $z-index-tooltip: 1070;
 
+// Component-specific Variables
+// ============================
+
+// Form & Input Variables
+$input-bg: rgba(255, 255, 255, 0.08);
+$input-border: rgba(255, 255, 255, 0.2);
+$input-focus-bg: rgba(255, 255, 255, 0.12);
+$input-padding-x: 1rem;
+$input-padding-y: 0.875rem;
+$input-placeholder-color: rgba($color-text-secondary, 0.7);
+$input-focus-shadow: 0 0 0 3px rgba($color-primary, 0.15);
+$input-error-shadow: 0 0 0 3px rgba($color-error, 0.15);
+$textarea-min-height: 120px;
+$checkbox-size: 16px;
+
+// Button Variables
+$btn-height-sm: 32px;
+$btn-height-md: 40px;
+$btn-height-lg: 48px;
+$btn-disabled-opacity: 0.6;
+$btn-hover-transform: translateY(-2px);
+
+// Modal Variables
+$modal-max-width: 400px;
+$modal-padding: 20px;
+$modal-header-padding: 20px 20px 0 20px;
+$modal-content-padding: 20px;
+$modal-actions-padding: 0 20px 20px 20px;
+$modal-actions-gap: 12px;
+$modal-overlay-blur: 4px;
+
+// Card Variables
+$card-padding: $spacing-lg;
+$card-border-width: 1px;
+
+// Table Variables
+$table-cell-padding: $spacing-sm $spacing-md;
+$table-header-font-weight: $font-weight-semibold;
+$table-border-width: 1px;
+
+// Header Variables
+$header-height: 64px;
+$header-padding: 0 $spacing-lg;
+
+// Notification Variables
+$notification-padding: $spacing-md;
+$notification-border-radius: $border-radius-md;
+$notification-max-width: 400px;
+
 // Breakpoints
 $breakpoint-sm: 640px;
 $breakpoint-md: 768px;
