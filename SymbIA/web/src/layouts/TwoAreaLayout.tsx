@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuthStore } from '../stores';
+import { Tabs, type TabItem as TabsTabItem } from '../components/ui';
 
 export interface TabItem {
     id: string;
@@ -36,6 +37,23 @@ export const TwoAreaLayout: React.FC<TwoAreaLayoutProps> = ({
 
     const containerRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Create tab items for the Tabs component
+    const tabItems: TabsTabItem[] = [
+        {
+            id: 'menu',
+            label: '',
+            icon: (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            )
+        },
+        ...dynamicTabs.map(tab => ({
+            id: tab.id,
+            label: tab.label
+        }))
+    ];
 
     // Save width to localStorage
     useEffect(() => {
@@ -135,18 +153,17 @@ export const TwoAreaLayout: React.FC<TwoAreaLayoutProps> = ({
                 style={{ width: leftWidth, minWidth: leftWidth, maxWidth: leftWidth }}
             >
                 {/* Logo */}
-                <div className="p-lg border-b border-outline">
+                <div className="pt-sm px-sm">
                     <a href="/" className="inline-block">
                         <img
                             src="/logo.png"
                             alt="SymbIA Logo"
-                            className="h-10 w-auto"
                         />
                     </a>
                 </div>
 
                 {/* User Profile Dropdown */}
-                <div className="p-lg border-b border-outline" ref={dropdownRef}>
+                <div className="p-sm border-b border-outline" ref={dropdownRef}>
                     <div className="dropdown w-100">
                         <button
                             className="btn btn-outline w-100 inline-flex items-center gap-sm justify-start"
@@ -197,26 +214,13 @@ export const TwoAreaLayout: React.FC<TwoAreaLayoutProps> = ({
 
                 {/* Tabs */}
                 <div className="flex-1 flex flex-col min-h-0">
-                    <div className="tabs border-b border-outline">
-                        {/* Fixed Menu Tab */}
-                        <button
-                            className={`tab ${activeTab === 'menu' ? 'active' : ''}`}
-                            onClick={() => handleTabClick('menu')}
-                        >
-                            Menu
-                        </button>
-
-                        {/* Dynamic Tabs */}
-                        {dynamicTabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-                                onClick={() => handleTabClick(tab.id)}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+                    <Tabs
+                        items={tabItems}
+                        activeTab={activeTab}
+                        onTabChange={handleTabClick}
+                        variant="underline"
+                        size="sm"
+                    />
 
                     {/* Tab Content */}
                     <div className="flex-1 overflow-y-auto">
@@ -274,28 +278,12 @@ export const TwoAreaLayout: React.FC<TwoAreaLayoutProps> = ({
                 title="Arraste para redimensionar as áreas"
                 style={{
                     background: `linear-gradient(to right, 
-                        rgba(51, 65, 85, 0.8) 0%, 
-                        rgba(51, 65, 85, 0.9) 20%, 
-                        rgba(71, 85, 105, 1) 40%, 
-                        rgba(71, 85, 105, 1) 60%, 
-                        rgba(51, 65, 85, 0.9) 80%, 
-                        rgba(51, 65, 85, 0.8) 100%
+                        var(--bg-surface-variant) 0%, 
+                        var(--bg-surface-content) 100%
                     )`,
-                    boxShadow: isResizing
-                        ? '2px 0 8px rgba(0, 0, 0, 0.3), -2px 0 8px rgba(0, 0, 0, 0.2)'
-                        : '1px 0 4px rgba(0, 0, 0, 0.2), -1px 0 4px rgba(0, 0, 0, 0.1)',
-                    borderLeft: '1px solid rgba(71, 85, 105, 0.6)',
-                    borderRight: '1px solid rgba(71, 85, 105, 0.6)',
                     cursor: 'col-resize'
                 }}
             >
-                {/* Double line visual effect */}
-                <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-outline to-transparent opacity-80"></div>
-                <div className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-outline to-transparent opacity-80"></div>
-
-                {/* Central divider line */}
-                <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-primary to-transparent opacity-60"></div>
-
                 {/* Visual indicator dots */}
                 <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 flex flex-col justify-center items-center">
                     <div className="flex flex-col gap-1">

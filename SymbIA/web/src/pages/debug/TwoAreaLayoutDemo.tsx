@@ -80,6 +80,9 @@ export const TwoAreaLayoutDemo: React.FC = () => {
                             <li>• <strong>Persistência:</strong> O tamanho da área esquerda é salvo automaticamente no browser</li>
                             <li>• <strong>Logo e navegação:</strong> Logo clicável no topo que leva para a home</li>
                             <li>• <strong>Dropdown do usuário:</strong> Avatar com iniciais e menu de configuração/logout</li>
+                            <li>• <strong>Componente Tabs integrado:</strong> Usa o componente Tabs do framework SymbIA</li>
+                            <li>• <strong>Tabs dinâmicas:</strong> Suporte a tabs dinâmicas além do menu fixo</li>
+                            <li>• <strong>Interface consistente:</strong> Visual padronizado com ícones e estilo do framework</li>
                             <li>• <strong>Tabs dinâmicas:</strong> Tab "Menu" fixa + tabs customizáveis por página</li>
                             <li>• <strong>Scroll independente:</strong> Cada área (esquerda e direita) tem scroll próprio</li>
                             <li>• <strong>Responsivo:</strong> Adapta-se a diferentes tamanhos de tela</li>
@@ -102,16 +105,16 @@ export const TwoAreaLayoutDemo: React.FC = () => {
                             <h3 className="text-lg font-semibold mb-md text-on-surface">Como usar o separador:</h3>
                             <ul className="space-y-sm text-on-surface-variant">
                                 <li>• <strong>Posicione o mouse</strong> sobre o separador vertical entre as áreas</li>
-                                <li>• <strong>Visual melhorado:</strong> Linha dupla fininha com gradiente e sombra suave</li>
+                                <li>• <strong>Visual em gradiente:</strong> Transição suave da cor da área esquerda para direita</li>
                                 <li>• <strong>Tamanho fixo:</strong> Separador mantém largura consistente de 8px</li>
                                 <li>• <strong>Cursor consistente:</strong> Mouse sempre mostra ↔ no separador</li>
-                                <li>• <strong>Feedback visual:</strong> Pontos indicadores mudam de cor durante interação</li>
+                                <li>• <strong>Indicadores centrais:</strong> 5 pontos que mudam de cor durante interação</li>
                                 <li>• <strong>Arraste:</strong> Clique e arraste para a esquerda ou direita</li>
                                 <li>• <strong>Durante o drag:</strong> Sombra mais pronunciada para feedback</li>
                                 <li>• <strong>Limites:</strong> Largura mínima: 250px, máxima: 600px</li>
                                 <li>• <strong>Persistência:</strong> O tamanho é salvo automaticamente no localStorage</li>
                                 <li>• <strong>Área de interação ampliada:</strong> Facilita o uso em devices touch</li>
-                                <li>• <strong>Sombra suave:</strong> Transição visual da área escura (esquerda) para clara (direita)</li>
+                                <li>• <strong>Design integrado:</strong> Gradiente cria transição visual harmoniosa</li>
                             </ul>
                         </div>
 
