@@ -19,6 +19,7 @@ $theme-futuristic-bg-primary: #0a0a0a; // Deep Black
 $theme-futuristic-bg-secondary: #1a1a1a; // Dark Gray
 $theme-futuristic-bg-tertiary: #2a2a2a; // Medium Gray
 $theme-futuristic-bg-surface: #1e1e1e; // Surface Gray
+$theme-futuristic-bg-content: #3a3a3a; // Content background - Mais claro para área principal
 
 // Text Colors
 $theme-futuristic-text-primary: #ffffff; // White
@@ -68,6 +69,14 @@ $theme-futuristic-glow-error: 0 0 20px rgba($theme-futuristic-error, 0.5);
     --surface-secondary: #{$theme-futuristic-bg-secondary};
     --surface-tertiary: #{$theme-futuristic-bg-tertiary};
     --surface-dark: #{$theme-futuristic-bg-surface};
+    --surface-content: #{$theme-futuristic-bg-content};
+
+    // Background aliases for utilities
+    --bg-surface: #{$theme-futuristic-bg-surface};
+    --bg-surface-2: #{$theme-futuristic-bg-secondary};
+    --bg-surface-3: #{$theme-futuristic-bg-tertiary};
+    --bg-surface-variant: #{$theme-futuristic-bg-secondary};
+    --bg-surface-content: #{$theme-futuristic-bg-content};
 
     // Text Colors
     --text-primary: #{$theme-futuristic-text-primary};

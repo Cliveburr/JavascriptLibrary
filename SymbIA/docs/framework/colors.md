@@ -22,6 +22,7 @@ O sistema de cores do SymbIA Framework oferece uma paleta consistente baseada no
 | **BG Secondary** | `#1a2642` | `26, 38, 66` | Cards, headers, sidebars |
 | **BG Tertiary** | `#243356` | `36, 51, 86` | Elementos ativos, hovers |
 | **BG Surface** | `#143697` | `20, 54, 151` | Superfícies de destaque |
+| **BG Content** | `#2d4372` | `45, 67, 114` | Área de conteúdo principal, mais clara |
 
 ### **Cores de Texto**
 | Nome | Hex | RGB | Uso Principal |
@@ -99,6 +100,7 @@ O sistema de cores do SymbIA Framework oferece uma paleta consistente baseada no
 <div class="bg-bg-secondary">Fundo de cards e componentes</div>
 <div class="bg-bg-tertiary">Fundo de elementos ativos</div>
 <div class="bg-bg-surface">Superfície de destaque</div>
+<div class="bg-surface-content">Área de conteúdo principal (mais clara)</div>
 ```
 
 ### **Backgrounds de Brand**

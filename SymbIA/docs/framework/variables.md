@@ -28,6 +28,7 @@ $color-bg-primary: #0f1629;     // Deep Blue Dark - Fundo principal
 $color-bg-secondary: #1a2642;   // Medium Blue Dark - Cards, headers
 $color-bg-tertiary: #243356;    // Lighter Blue Dark - Elementos ativos
 $color-bg-surface: #143697;     // Surface - Botões, superfícies
+$color-bg-content: #2d4372;     // Content background - Mais claro para área principal
 ```
 
 ### **Cores de Texto**

@@ -20,6 +20,7 @@ $theme-blue-bg-primary: #0f1629; // Deep Blue Dark (baseado em #143697 mais escu
 $theme-blue-bg-secondary: #1a2642; // Medium Blue Dark
 $theme-blue-bg-tertiary: #243356; // Lighter Blue Dark
 $theme-blue-bg-surface: #143697; // Surface usando a cor base
+$theme-blue-bg-content: #2d4372; // Content background - Mais claro para área principal
 
 // Text Colors - Contraste adequado
 $theme-blue-text-primary: #e2e8f0; // Soft White
@@ -69,6 +70,14 @@ $theme-blue-glow-error: 0 0 20px rgba($theme-blue-error, 0.4);
     --surface-secondary: #{$theme-blue-bg-secondary};
     --surface-tertiary: #{$theme-blue-bg-tertiary};
     --surface-dark: #{$theme-blue-bg-surface};
+    --surface-content: #{$theme-blue-bg-content};
+
+    // Background aliases for utilities
+    --bg-surface: #{$theme-blue-bg-surface};
+    --bg-surface-2: #{$theme-blue-bg-secondary};
+    --bg-surface-3: #{$theme-blue-bg-tertiary};
+    --bg-surface-variant: #{$theme-blue-bg-secondary};
+    --bg-surface-content: #{$theme-blue-bg-content};
 
     // Text Colors
     --text-primary: #{$theme-blue-text-primary};

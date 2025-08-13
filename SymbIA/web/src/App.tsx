@@ -3,6 +3,7 @@ import { MainLayout } from './layouts';
 import { Header, AuthLoadingScreen, NotificationContainer } from './components';
 import { HomePage, LoginPage, RegisterPage, DashboardPage, PromptSetsPage } from './pages';
 import { StyleDebugPage } from './pages/debug/StyleDebugPage';
+import { TwoAreaLayoutDemo } from './pages/debug/TwoAreaLayoutDemo';
 import { useTheme, useTokenValidation } from './hooks';
 import { useAuthStore } from './stores';
 import './styles/globals.scss';
@@ -52,6 +53,12 @@ function App() {
                 <StyleDebugPage />
               </MainLayout>
             }
+          />
+
+          {/* Rota de demo do TwoAreaLayout - sempre acessível para desenvolvimento */}
+          <Route
+            path="/two-area-demo"
+            element={<TwoAreaLayoutDemo />}
           />
 
           {/* Rotas de autenticação - apenas para usuários não autenticados */}
