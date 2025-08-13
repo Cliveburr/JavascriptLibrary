@@ -179,6 +179,13 @@ $notification-padding: $spacing-md;
 $notification-border-radius: $border-radius-md;
 $notification-max-width: 400px;
 
+// Dropdown
+$dropdown-min-width: 120px;
+$dropdown-max-height: 300px;
+$dropdown-border-width: 1px;
+$dropdown-z-index: 1000;
+$dropdown-margin-top: 2px;
+
 // Breakpoints
 $breakpoint-sm: 640px;
 $breakpoint-md: 768px;

@@ -650,6 +650,259 @@ Este documento apresenta componentes prontos usando as classes utilitárias do S
 - **Modal + Form**: Entrada de dados contextual
 - **Toast + Button**: Feedback de ações
 
+## 📋 **Dropdown Component**
+
+### **Dropdown Básico**
+```html
+<!-- Estrutura HTML básica do dropdown -->
+<div class="dropdown">
+  <button class="dropdown__trigger" type="button">
+    <span class="dropdown__trigger-text">Select Option</span>
+    <span class="dropdown__icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+      </svg>
+    </span>
+  </button>
+  
+  <div class="dropdown__content dropdown__content--open">
+    <div class="dropdown__menu">
+      <button class="dropdown__item" type="button">
+        <span class="dropdown__item-icon">👤</span>
+        <span class="dropdown__item-text">Profile</span>
+      </button>
+      <button class="dropdown__item" type="button">
+        <span class="dropdown__item-icon">⚙️</span>
+        <span class="dropdown__item-text">Settings</span>
+      </button>
+      <div class="dropdown__divider"></div>
+      <button class="dropdown__item" type="button">
+        <span class="dropdown__item-icon">🚪</span>
+        <span class="dropdown__item-text">Logout</span>
+      </button>
+    </div>
+  </div>
+</div>
+```
+
+### **Variações de Tamanho**
+```html
+<!-- Dropdown pequeno -->
+<div class="dropdown dropdown--sm">
+  <button class="dropdown__trigger">Small Dropdown</button>
+  <!-- content -->
+</div>
+
+<!-- Dropdown médio (padrão) -->
+<div class="dropdown dropdown--md">
+  <button class="dropdown__trigger">Medium Dropdown</button>
+  <!-- content -->
+</div>
+
+<!-- Dropdown grande -->
+<div class="dropdown dropdown--lg">
+  <button class="dropdown__trigger">Large Dropdown</button>
+  <!-- content -->
+</div>
+```
+
+### **Variações de Cor**
+```html
+<!-- Dropdown padrão -->
+<div class="dropdown">
+  <button class="dropdown__trigger">Default</button>
+</div>
+
+<!-- Dropdown primário -->
+<div class="dropdown dropdown--primary">
+  <button class="dropdown__trigger">Primary</button>
+</div>
+
+<!-- Dropdown secundário -->
+<div class="dropdown dropdown--secondary">
+  <button class="dropdown__trigger">Secondary</button>
+</div>
+
+<!-- Dropdown accent -->
+<div class="dropdown dropdown--accent">
+  <button class="dropdown__trigger">Accent</button>
+</div>
+
+<!-- Dropdown outline -->
+<div class="dropdown dropdown--outline">
+  <button class="dropdown__trigger">Outline</button>
+</div>
+```
+
+### **Variações de Border Radius**
+```html
+<!-- Border radius pequeno -->
+<div class="dropdown dropdown--rounded-sm">
+  <button class="dropdown__trigger">Small Radius</button>
+</div>
+
+<!-- Border radius médio (padrão) -->
+<div class="dropdown dropdown--rounded-md">
+  <button class="dropdown__trigger">Medium Radius</button>
+</div>
+
+<!-- Border radius grande -->
+<div class="dropdown dropdown--rounded-lg">
+  <button class="dropdown__trigger">Large Radius</button>
+</div>
+
+<!-- Border radius extra grande -->
+<div class="dropdown dropdown--rounded-xl">
+  <button class="dropdown__trigger">XL Radius</button>
+</div>
+
+<!-- Border radius completo -->
+<div class="dropdown dropdown--rounded-full">
+  <button class="dropdown__trigger">Full Radius</button>
+</div>
+```
+
+### **Estados do Dropdown**
+```html
+<!-- Estado aberto -->
+<div class="dropdown">
+  <button class="dropdown__trigger dropdown__trigger--open">
+    Open State
+    <span class="dropdown__icon dropdown__icon--open">↑</span>
+  </button>
+  <div class="dropdown__content dropdown__content--open">
+    <!-- menu content -->
+  </div>
+</div>
+
+<!-- Estado desabilitado -->
+<div class="dropdown">
+  <button class="dropdown__trigger dropdown__trigger--disabled" disabled>
+    Disabled State
+  </button>
+</div>
+
+<!-- Item selecionado -->
+<button class="dropdown__item dropdown__item--selected">
+  <span class="dropdown__item-text">Selected Item</span>
+</button>
+
+<!-- Item desabilitado -->
+<button class="dropdown__item dropdown__item--disabled" disabled>
+  <span class="dropdown__item-text">Disabled Item</span>
+</button>
+```
+
+### **Posicionamento**
+```html
+<!-- Dropdown posicionado abaixo (padrão) -->
+<div class="dropdown">
+  <button class="dropdown__trigger">Bottom Position</button>
+  <div class="dropdown__content"><!-- content --></div>
+</div>
+
+<!-- Dropdown posicionado acima -->
+<div class="dropdown">
+  <button class="dropdown__trigger">Top Position</button>
+  <div class="dropdown__content dropdown__content--above"><!-- content --></div>
+</div>
+```
+
+### **Full Width**
+```html
+<!-- Dropdown ocupando toda a largura -->
+<div class="dropdown dropdown--full-width">
+  <button class="dropdown__trigger">Full Width Dropdown</button>
+  <div class="dropdown__content"><!-- content --></div>
+</div>
+```
+
+### **Classes CSS Disponíveis**
+
+#### **Container Principal**
+- `.dropdown` - Container base
+- `.dropdown--sm` - Tamanho pequeno
+- `.dropdown--lg` - Tamanho grande
+- `.dropdown--primary` - Estilo primário
+- `.dropdown--secondary` - Estilo secundário
+- `.dropdown--accent` - Estilo accent
+- `.dropdown--outline` - Estilo outline
+- `.dropdown--rounded-sm` - Border radius pequeno
+- `.dropdown--rounded-lg` - Border radius grande
+- `.dropdown--rounded-xl` - Border radius extra grande
+- `.dropdown--rounded-full` - Border radius completo
+- `.dropdown--full-width` - Largura completa
+
+#### **Trigger (Botão)**
+- `.dropdown__trigger` - Botão principal
+- `.dropdown__trigger--open` - Estado aberto
+- `.dropdown__trigger--disabled` - Estado desabilitado
+
+#### **Conteúdo**
+- `.dropdown__content` - Container do conteúdo
+- `.dropdown__content--open` - Estado aberto (visível)
+- `.dropdown__content--above` - Posicionado acima
+
+#### **Menu e Items**
+- `.dropdown__menu` - Container dos itens do menu
+- `.dropdown__item` - Item individual do menu
+- `.dropdown__item--selected` - Item selecionado
+- `.dropdown__item--disabled` - Item desabilitado
+- `.dropdown__item-icon` - Ícone do item
+- `.dropdown__item-text` - Texto do item
+- `.dropdown__divider` - Divisória entre itens
+
+#### **Ícones**
+- `.dropdown__icon` - Ícone do trigger (seta)
+- `.dropdown__icon--open` - Ícone quando aberto (rotacionado)
+
+### **Exemplo Completo**
+```html
+<div class="dropdown dropdown--primary dropdown--lg dropdown--rounded-lg">
+  <button class="dropdown__trigger" type="button">
+    <span class="dropdown__trigger-text">User Menu</span>
+    <span class="dropdown__icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+      </svg>
+    </span>
+  </button>
+  
+  <div class="dropdown__content">
+    <div class="dropdown__menu">
+      <button class="dropdown__item" type="button">
+        <span class="dropdown__item-icon">
+          <svg width="16" height="16" fill="currentColor">
+            <path d="M8 8a3 3 0 100-6 3 3 0 000 6zM8 9a5 5 0 00-5 5v1h10v-1a5 5 0 00-5-5z"/>
+          </svg>
+        </span>
+        <span class="dropdown__item-text">Profile</span>
+      </button>
+      
+      <button class="dropdown__item" type="button">
+        <span class="dropdown__item-icon">
+          <svg width="16" height="16" fill="currentColor">
+            <path d="M8 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM8 10a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+          </svg>
+        </span>
+        <span class="dropdown__item-text">Settings</span>
+      </button>
+      
+      <div class="dropdown__divider"></div>
+      
+      <button class="dropdown__item" type="button">
+        <span class="dropdown__item-icon">
+          <svg width="16" height="16" fill="currentColor">
+            <path d="M6 3.5a.5.5 0 01.5-.5h8a.5.5 0 01.5.5v9a.5.5 0 01-.5.5h-8a.5.5 0 01-.5-.5z"/>
+          </svg>
+        </span>
+        <span class="dropdown__item-text">Logout</span>
+      </button>
+    </div>
+  </div>
+</div>
+```
+
 ---
 
 **💡 Todos os componentes são responsivos e seguem as melhores práticas de acessibilidade do framework.**

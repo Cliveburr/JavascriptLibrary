@@ -1,5 +1,6 @@
 // GLOBAL STYLES & RESET
 // ==================================================
+// Updated to force dropdown styles recompilation - force update
 
 @use 'variables' as *;
 @use 'framework/index' as *;
@@ -14,6 +15,13 @@
     --spacing-md: #{$spacing-md};
     --spacing-lg: #{$spacing-lg};
     --spacing-xl: #{$spacing-xl};
+
+    // Border Radius
+    --border-radius-sm: #{$border-radius-sm};
+    --border-radius-md: #{$border-radius-md};
+    --border-radius-lg: #{$border-radius-lg};
+    --border-radius-xl: #{$border-radius-xl};
+    --border-radius-full: #{$border-radius-full};
 
     // Typography
     --font-size-xs: #{$font-size-xs};

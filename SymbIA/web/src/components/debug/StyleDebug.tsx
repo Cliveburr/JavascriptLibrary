@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '../ui/buttons/Button';
 import { Card } from '../ui/card/Card';
 import { Tabs, type TabItem } from '../ui/navigation/Tabs';
+import { Dropdown, createDropdownItem, createDropdownDivider } from '../ui/dropdown';
 import { CodeExample } from './CodeExample';
 
 interface StyleSection {
@@ -660,6 +661,483 @@ export const StyleDebug: React.FC = () => {
                 )
             }
         ],
+        dropdown: [
+            {
+                title: 'Dropdown Variants',
+                component: (() => {
+                    // Icons para demonstração
+                    const UserIcon = () => (
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 8a3 3 0 100-6 3 3 0 000 6zM8 9a5 5 0 00-5 5v1h10v-1a5 5 0 00-5-5z" />
+                        </svg>
+                    );
+
+                    const SettingsIcon = () => (
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM8 10a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM8 15.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                        </svg>
+                    );
+
+                    const LogoutIcon = () => (
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M6 3.5a.5.5 0 01.5-.5h8a.5.5 0 01.5.5v9a.5.5 0 01-.5.5h-8a.5.5 0 01-.5-.5v-2a.5.5 0 00-1 0v2A1.5 1.5 0 006.5 14h8a1.5 1.5 0 001.5-1.5v-9A1.5 1.5 0 0014.5 2h-8A1.5 1.5 0 005 3.5v2a.5.5 0 001 0v-2z" />
+                            <path d="M11.854 8.354a.5.5 0 000-.708l-3-3a.5.5 0 10-.708.708L10.293 7.5H1.5a.5.5 0 000 1h8.793l-2.147 2.146a.5.5 0 00.708.708l3-3z" />
+                        </svg>
+                    );
+
+                    const menuItems = [
+                        createDropdownItem('profile', 'Profile', {
+                            icon: <UserIcon />,
+                            onClick: () => alert('Profile clicked')
+                        }),
+                        createDropdownItem('settings', 'Settings', {
+                            icon: <SettingsIcon />,
+                            onClick: () => alert('Settings clicked')
+                        }),
+                        createDropdownDivider('divider1'),
+                        createDropdownItem('logout', 'Logout', {
+                            icon: <LogoutIcon />,
+                            onClick: () => alert('Logout clicked')
+                        })
+                    ];
+
+                    return (
+                        <div className="space-y-lg">
+                            <div className="grid gap-md">
+                                <h4>Color Variants</h4>
+                                <div className="flex flex-wrap gap-md">
+                                    <Dropdown
+                                        variant="primary"
+                                        placeholder="Default"
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        variant="primary"
+                                        placeholder="Primary"
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        variant="secondary"
+                                        placeholder="Secondary"
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        variant="accent"
+                                        placeholder="Accent"
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        variant="outline"
+                                        placeholder="Outline"
+                                        items={menuItems}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()
+            },
+            {
+                title: 'Dropdown Sizes',
+                component: (() => {
+                    const menuItems = [
+                        createDropdownItem('item1', 'Option 1', {
+                            onClick: () => console.log('Option 1 clicked')
+                        }),
+                        createDropdownItem('item2', 'Option 2', {
+                            onClick: () => console.log('Option 2 clicked')
+                        }),
+                        createDropdownItem('item3', 'Option 3', {
+                            onClick: () => console.log('Option 3 clicked')
+                        })
+                    ];
+
+                    return (
+                        <div className="space-y-lg">
+                            <div className="grid gap-md">
+                                <h4>Size Variants</h4>
+                                <div className="flex flex-wrap items-center gap-md">
+                                    <Dropdown
+                                        size="sm"
+                                        placeholder="Small"
+                                        variant='primary'
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        size="md"
+                                        placeholder="Medium"
+                                        variant='primary'
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        size="lg"
+                                        placeholder="Large"
+                                        variant='primary'
+                                        items={menuItems}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()
+            },
+            {
+                title: 'Dropdown Border Radius',
+                component: (() => {
+                    const menuItems = [
+                        createDropdownItem('item1', 'Menu Item 1'),
+                        createDropdownItem('item2', 'Menu Item 2'),
+                        createDropdownDivider('div1'),
+                        createDropdownItem('item3', 'Menu Item 3')
+                    ];
+
+                    return (
+                        <div className="space-y-lg">
+                            <div className="grid gap-md">
+                                <h4>Border Radius Variants</h4>
+                                <div className="flex flex-wrap gap-md">
+                                    <Dropdown
+                                        borderRadius="sm"
+                                        bordered={true}
+                                        placeholder="Small Radius"
+                                        variant='primary'
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        borderRadius="md"
+                                        bordered={true}
+                                        placeholder="Medium Radius"
+                                        variant='primary'
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        borderRadius="lg"
+                                        bordered={true}
+                                        placeholder="Large Radius"
+                                        variant='primary'
+                                        items={menuItems}
+                                    />
+                                    <Dropdown
+                                        borderRadius="xl"
+                                        bordered={true}
+                                        placeholder="XL Radius"
+                                        variant='primary'
+                                        items={menuItems}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()
+            },
+            {
+                title: 'Dropdown Border Options',
+                component: (() => {
+                    const menuItems = [
+                        createDropdownItem('item1', 'Menu Item 1'),
+                        createDropdownItem('item2', 'Menu Item 2'),
+                        createDropdownDivider('div1'),
+                        createDropdownItem('item3', 'Menu Item 3')
+                    ];
+
+                    return (
+                        <div className="space-y-lg">
+                            <div className="grid gap-md">
+                                <h4>Border Variants</h4>
+                                <div className="flex flex-wrap gap-md">
+                                    <div className="space-y-sm">
+                                        <label className="block text-sm font-medium text-text-secondary">With Border (Default)</label>
+                                        <Dropdown
+                                            variant="primary"
+                                            placeholder="With Border"
+                                            bordered={true}
+                                            items={menuItems}
+                                        />
+                                    </div>
+                                    <div className="space-y-sm">
+                                        <label className="block text-sm font-medium text-text-secondary">Without Border</label>
+                                        <Dropdown
+                                            variant="primary"
+                                            placeholder="No Border"
+                                            bordered={false}
+                                            items={menuItems}
+                                        />
+                                    </div>
+                                    <div className="space-y-sm">
+                                        <label className="block text-sm font-medium text-text-secondary">Secondary with Border</label>
+                                        <Dropdown
+                                            variant="secondary"
+                                            placeholder="Secondary Bordered"
+                                            bordered={true}
+                                            items={menuItems}
+                                        />
+                                    </div>
+                                    <div className="space-y-sm">
+                                        <label className="block text-sm font-medium text-text-secondary">Secondary without Border</label>
+                                        <Dropdown
+                                            variant="secondary"
+                                            placeholder="Secondary No Border"
+                                            bordered={false}
+                                            items={menuItems}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()
+            },
+            {
+                title: 'Advanced Features',
+                component: (() => {
+                    const [selectedOption, setSelectedOption] = useState<string>('option1');
+
+                    const selectionItems = [
+                        createDropdownItem('option1', 'Option 1', {
+                            selected: selectedOption === 'option1',
+                            onClick: () => setSelectedOption('option1')
+                        }),
+                        createDropdownItem('option2', 'Option 2', {
+                            selected: selectedOption === 'option2',
+                            onClick: () => setSelectedOption('option2')
+                        }),
+                        createDropdownItem('option3', 'Option 3', {
+                            selected: selectedOption === 'option3',
+                            onClick: () => setSelectedOption('option3')
+                        }),
+                        createDropdownItem('option4', 'Option 4 (Disabled)', {
+                            disabled: true
+                        })
+                    ];
+
+                    const renderCustomTemplate = (data: any) => (
+                        <div className="p-md">
+                            <h4 className="text-sm font-bold mb-sm text-text-primary">Users Online</h4>
+                            {data.users.map((user: string, index: number) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center p-sm hover:bg-bg-tertiary rounded cursor-pointer"
+                                    onClick={() => console.log(`Selected user: ${user}`)}
+                                >
+                                    <div className="w-6 h-6 bg-success rounded-full mr-sm flex items-center justify-center">
+                                        <span className="text-xs text-white">{user[0]}</span>
+                                    </div>
+                                    <span className="text-text-primary">{user}</span>
+                                </div>
+                            ))}
+                        </div>
+                    );
+
+                    return (
+                        <div className="space-y-lg">
+                            <div className="grid gap-md">
+                                <h4>Selection Dropdown</h4>
+                                <div className="max-w-xs">
+                                    <Dropdown
+                                        variant="primary"
+                                        placeholder="Choose an option"
+                                        items={selectionItems}
+                                    />
+                                    <p className="text-text-secondary text-sm mt-sm">
+                                        Selected: {selectedOption}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-md">
+                                <h4>Full Width</h4>
+                                <Dropdown
+                                    variant="primary"
+                                    fullWidth
+                                    placeholder="Full Width Dropdown"
+                                    items={selectionItems}
+                                />
+                            </div>
+
+                            <div className="grid gap-md">
+                                <h4>Custom Template</h4>
+                                <div className="max-w-xs">
+                                    <Dropdown
+                                        variant="primary"
+                                        placeholder="Users"
+                                        template={renderCustomTemplate}
+                                        templateData={{ users: ['Alice', 'Bob', 'Charlie'] }}
+                                        closeOnSelect={true}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid gap-md">
+                                <h4>Custom Content</h4>
+                                <div className="max-w-xs">
+                                    <Dropdown variant="primary" placeholder="Custom Content">
+                                        <div className="p-md">
+                                            <h4 className="text-sm font-bold mb-sm text-text-primary">Quick Actions</h4>
+                                            <button className="w-full text-left p-sm hover:bg-bg-tertiary rounded mb-xs text-text-primary">
+                                                Create new file
+                                            </button>
+                                            <button className="w-full text-left p-sm hover:bg-bg-tertiary rounded mb-xs text-text-primary">
+                                                Open folder
+                                            </button>
+                                            <div className="border-t border-border my-sm"></div>
+                                            <div className="p-sm">
+                                                <label className="block text-xs text-text-secondary mb-xs">
+                                                    Search files:
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full bg-bg-primary border border-border rounded px-sm py-xs text-text-primary text-sm"
+                                                    placeholder="Type to search..."
+                                                />
+                                            </div>
+                                        </div>
+                                    </Dropdown>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-md">
+                                <h4>Disabled State</h4>
+                                <div className="max-w-xs">
+                                    <Dropdown
+                                        variant="primary"
+                                        placeholder="Disabled Dropdown"
+                                        items={selectionItems}
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()
+            },
+            {
+                title: 'Code Examples',
+                component: (
+                    <div className="space-y-lg">
+                        <CodeExample
+                            title="Basic Dropdown Menu"
+                            description="Example of a dropdown with icons and dividers"
+                            code={`import { Dropdown, createDropdownItem, createDropdownDivider } from '../ui/dropdown';
+
+const menuItems = [
+  createDropdownItem('profile', 'Profile', { 
+    icon: <UserIcon />,
+    onClick: () => console.log('Profile clicked')
+  }),
+  createDropdownItem('settings', 'Settings', { 
+    icon: <SettingsIcon />,
+    onClick: () => console.log('Settings clicked')
+  }),
+  createDropdownDivider('divider1'),
+  createDropdownItem('logout', 'Logout', { 
+    icon: <LogoutIcon />,
+    onClick: () => console.log('Logout clicked')
+  })
+];
+
+<Dropdown
+  variant="primary"
+  placeholder="User Menu"
+  items={menuItems}
+  onSelect={(item) => console.log('Selected:', item)}
+/>`}
+                        >
+                            <Dropdown
+                                variant="primary"
+                                placeholder="User Menu"
+                                items={(() => {
+                                    const UserIcon = () => (
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                            <path d="M8 8a3 3 0 100-6 3 3 0 000 6zM8 9a5 5 0 00-5 5v1h10v-1a5 5 0 00-5-5z" />
+                                        </svg>
+                                    );
+                                    const SettingsIcon = () => (
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                            <path d="M8 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM8 10a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM8 15.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                        </svg>
+                                    );
+                                    const LogoutIcon = () => (
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                            <path d="M6 3.5a.5.5 0 01.5-.5h8a.5.5 0 01.5.5v9a.5.5 0 01-.5.5h-8a.5.5 0 01-.5-.5v-2a.5.5 0 00-1 0v2A1.5 1.5 0 006.5 14h8a1.5 1.5 0 001.5-1.5v-9A1.5 1.5 0 0014.5 2h-8A1.5 1.5 0 005 3.5v2a.5.5 0 001 0v-2z" />
+                                            <path d="M11.854 8.354a.5.5 0 000-.708l-3-3a.5.5 0 10-.708.708L10.293 7.5H1.5a.5.5 0 000 1h8.793l-2.147 2.146a.5.5 0 00.708.708l3-3z" />
+                                        </svg>
+                                    );
+                                    return [
+                                        createDropdownItem('profile', 'Profile', {
+                                            icon: <UserIcon />,
+                                            onClick: () => alert('Profile clicked')
+                                        }),
+                                        createDropdownItem('settings', 'Settings', {
+                                            icon: <SettingsIcon />,
+                                            onClick: () => alert('Settings clicked')
+                                        }),
+                                        createDropdownDivider('divider1'),
+                                        createDropdownItem('logout', 'Logout', {
+                                            icon: <LogoutIcon />,
+                                            onClick: () => alert('Logout clicked')
+                                        })
+                                    ];
+                                })()}
+                                onSelect={(item) => console.log('Selected:', item)}
+                            />
+                        </CodeExample>
+
+                        <CodeExample
+                            title="Custom Template Dropdown"
+                            description="Example using template prop for custom rendering"
+                            code={`const renderTemplate = (data) => (
+  <div className="p-md">
+    <h4 className="text-sm font-bold mb-sm">Users Online</h4>
+    {data.users.map((user, index) => (
+      <div 
+        key={index} 
+        className="flex items-center p-sm hover:bg-bg-tertiary rounded cursor-pointer"
+        onClick={() => console.log(\`Selected user: \${user}\`)}
+      >
+        <div className="w-6 h-6 bg-success rounded-full mr-sm">
+          <span className="text-xs text-white">{user[0]}</span>
+        </div>
+        <span>{user}</span>
+      </div>
+    ))}
+  </div>
+);
+
+<Dropdown
+  placeholder="Users"
+  template={renderTemplate}
+  templateData={{ users: ['Alice', 'Bob', 'Charlie'] }}
+  closeOnSelect={true}
+/>`}
+                        >
+                            <Dropdown
+                                variant="primary"
+                                placeholder="Users"
+                                template={(data: any) => (
+                                    <div className="p-md">
+                                        <h4 className="text-sm font-bold mb-sm text-text-primary">Users Online</h4>
+                                        {data.users.map((user: string, index: number) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center p-sm hover:bg-bg-tertiary rounded cursor-pointer"
+                                                onClick={() => console.log(`Selected user: ${user}`)}
+                                            >
+                                                <div className="w-6 h-6 bg-success rounded-full mr-sm flex items-center justify-center">
+                                                    <span className="text-xs text-white">{user[0]}</span>
+                                                </div>
+                                                <span className="text-text-primary">{user}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                templateData={{ users: ['Alice', 'Bob', 'Charlie'] }}
+                                closeOnSelect={true}
+                            />
+                        </CodeExample>
+                    </div>
+                )
+            }
+        ],
         examples: [
             {
                 title: 'Code Examples',
@@ -742,6 +1220,7 @@ return (
         { id: 'buttons', label: 'Buttons' },
         { id: 'cards', label: 'Cards' },
         { id: 'tabs', label: 'Tabs', icon: <span>📑</span> },
+        { id: 'dropdown', label: 'Dropdown', icon: <span>📋</span> },
         { id: 'utilities', label: 'Utilities' },
         { id: 'layout', label: 'Layout' },
         { id: 'forms', label: 'Forms' },
@@ -772,7 +1251,12 @@ return (
             {/* Content Sections */}
             <div className="space-y-xl">
                 {sections[activeTab]?.map((section, index) => (
-                    <Card key={index} variant="outlined" padding="lg">
+                    <Card
+                        key={index}
+                        variant="outlined"
+                        padding="lg"
+                        className={activeTab === 'dropdown' ? 'card--allow-overflow' : ''}
+                    >
                         <div className="mb-lg">
                             <h2 className="text-xl font-semibold mb-sm">{section.title}</h2>
                         </div>

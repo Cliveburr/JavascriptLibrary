@@ -6,6 +6,11 @@
     position: relative;
     overflow: hidden;
 
+    // Allow dropdown overflow for debug cards
+    &--allow-overflow {
+        overflow: visible;
+    }
+
     &--default {
         background-color: $color-bg-secondary;
         border: $card-border-width solid $color-border;
