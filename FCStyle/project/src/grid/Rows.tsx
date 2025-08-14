@@ -1,13 +1,13 @@
 import React from 'react';
 
-export interface ColumnProps {
+export interface RowsProps {
   children: React.ReactNode;
   inverse?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
 
-export const Column: React.FC<ColumnProps> = ({
+export const Rows: React.FC<RowsProps> = ({
   children,
   inverse = false,
   className = '',
@@ -15,7 +15,7 @@ export const Column: React.FC<ColumnProps> = ({
   ...props
 }) => {
   const classNames = [
-    'column',
+    'flex-column',
     inverse ? 'inverse' : '',
     className
   ].filter(Boolean).join(' ');

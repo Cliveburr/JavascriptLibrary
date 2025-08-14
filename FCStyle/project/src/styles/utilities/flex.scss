@@ -1,0 +1,86 @@
+
+
+// Flex container utilities
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  
+  &.inverse {
+    flex-direction: row-reverse;
+  }
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  
+  &.inverse {
+    flex-direction: column-reverse;
+  }
+}
+
+// Flex wrap utilities
+.wrap { flex-wrap: wrap; }
+.wrap-reverse { flex-wrap: wrap-reverse; }
+.nowrap { flex-wrap: nowrap; }
+
+// Justify content utilities
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.justify-evenly { justify-content: space-evenly; }
+
+// Align items utilities
+.align-stretch { align-items: stretch; }
+.align-start { align-items: flex-start; }
+.align-end { align-items: flex-end; }
+.align-center { align-items: center; }
+.align-baseline { align-items: baseline; }
+
+// Align content utilities
+.align-content-start { align-content: flex-start; }
+.align-content-end { align-content: flex-end; }
+.align-content-center { align-content: center; }
+.align-content-between { align-content: space-between; }
+.align-content-around { align-content: space-around; }
+.align-content-evenly { align-content: space-evenly; }
+.align-content-stretch { align-content: stretch; }
+
+// Gap utilities
+.gap0 { gap: 0; }
+.gap1 { gap: var(--gap1); }
+.gap2 { gap: var(--gap2); }
+.gap3 { gap: var(--gap3); }
+
+// Flex children utilities
+.flex-order-0 { order: 0; }
+.flex-order-1 { order: 1; }
+.flex-order-2 { order: 2; }
+.flex-order-3 { order: 3; }
+.flex-order-4 { order: 4; }
+.flex-order-5 { order: 5; }
+
+.flex-grow-0 { flex-grow: 0; }
+.flex-grow-1 { flex-grow: 1; }
+.flex-grow-2 { flex-grow: 2; }
+.flex-grow-3 { flex-grow: 3; }
+
+.flex-shrink-0 { flex-shrink: 0; }
+.flex-shrink-1 { flex-shrink: 1; }
+.flex-shrink-2 { flex-shrink: 2; }
+.flex-shrink-3 { flex-shrink: 3; }
+
+.flex-basis-0 { flex-basis: 0; }
+.flex-basis-1 { flex-basis: 25%; }
+.flex-basis-2 { flex-basis: 50%; }
+.flex-basis-3 { flex-basis: 75%; }
+.flex-basis-auto { flex-basis: auto; }
+
+.align-self-auto { align-self: auto; }
+.align-self-start { align-self: flex-start; }
+.align-self-end { align-self: flex-end; }
+.align-self-center { align-self: center; }
+.align-self-baseline { align-self: baseline; }
+.align-self-stretch { align-self: stretch; }

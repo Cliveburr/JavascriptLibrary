@@ -1,0 +1,85 @@
+// Border variables
+$border-sizes: (
+  '0': 0,
+  '': var(--border),
+  '1': var(--border1),
+  '2': var(--border2)
+);
+
+$border-directions: (
+  't': (border-top-width),
+  'r': (border-right-width),
+  'b': (border-bottom-width),
+  'l': (border-left-width),
+  'x': (border-left-width, border-right-width),
+  'y': (border-top-width, border-bottom-width)
+);
+
+$border-radius-sizes: (
+  '0': 0,
+  '': var(--border-radius),
+  '1': var(--border-radius1),
+  '2': var(--border-radius2)
+);
+
+$border-radius-directions: (
+  't': (border-top-left-radius, border-top-right-radius),
+  'r': (border-top-right-radius, border-bottom-right-radius),
+  'b': (border-bottom-left-radius, border-bottom-right-radius),
+  'l': (border-top-left-radius, border-bottom-left-radius)
+);
+
+// Border Width Classes
+@each $suffix, $size in $border-sizes {
+  .border#{$suffix} {
+    @if $suffix != '0' {
+      border-style: solid;
+    }
+    border-width: $size;
+    
+    @if $suffix != '0' {
+      &.outset {
+        border-style: outset;
+      }
+    }
+  }
+}
+
+// Border Directional Classes
+@each $direction, $properties in $border-directions {
+  @each $suffix, $size in $border-sizes {
+    .border-#{$direction}#{$suffix} {
+      @each $property in $properties {
+        #{$property}: $size;
+      }
+    }
+  }
+}
+
+// Border Outset Classes
+@each $suffix, $size in $border-sizes {
+  @if $suffix != '0' {
+    .border-outset#{$suffix} {
+      border-style: outset;
+      border-width: $size;
+    }
+  }
+}
+
+// Border Radius Classes
+@each $suffix, $size in $border-radius-sizes {
+  .rounded#{$suffix} {
+    border-radius: $size;
+  }
+}
+
+// Border Radius Directional Classes
+@each $direction, $properties in $border-radius-directions {
+  @each $suffix, $size in $border-radius-sizes {
+    .rounded-#{$direction}#{$suffix} {
+      @each $property in $properties {
+        #{$property}: $size;
+      }
+    }
+  }
+}

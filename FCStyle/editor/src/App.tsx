@@ -1,6 +1,5 @@
-import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Layout from './components/Layout'
+//import Layout from './components/Layout'
 import Home from './pages/Home'
 import ButtonPage from './pages/components/ButtonPage'
 import ColumnPage from './pages/grid/ColumnPage'
@@ -11,7 +10,7 @@ import InputFieldPage from './pages/form/InputFieldPage'
 function App() {
   return (
     <Router>
-      <Layout>
+      {/* <Layout> */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/components/button" element={<ButtonPage />} />
@@ -20,7 +19,7 @@ function App() {
           <Route path="/form/input" element={<InputPage />} />
           <Route path="/form/input-field" element={<InputFieldPage />} />
         </Routes>
-      </Layout>
+      {/* </Layout> */}
     </Router>
   )
 }

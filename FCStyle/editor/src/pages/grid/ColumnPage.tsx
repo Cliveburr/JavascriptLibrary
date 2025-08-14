@@ -1,5 +1,5 @@
 import React from 'react'
-import { Column, Button } from 'fcstyle'
+import { Columns, Button } from 'fcstyle'
 
 const ColumnPage: React.FC = () => {
   return (
@@ -11,11 +11,11 @@ const ColumnPage: React.FC = () => {
         <section className="editor-example">
           <h2>Layout Básico em Colunas</h2>
           <div className="editor-showcase">
-            <Column>
+            <Columns>
               <Button primary>Item 1</Button>
               <Button second>Item 2</Button>
               <Button>Item 3</Button>
-            </Column>
+            </Columns>
           </div>
           <pre className="editor-code">
 {`<Column>
@@ -29,10 +29,10 @@ const ColumnPage: React.FC = () => {
         <section className="editor-example">
           <h2>Column com Gap Customizado</h2>
           <div className="editor-showcase">
-            <Column /*gap="large"*/>
+            <Columns /*gap="large"*/>
               <Button>Item com gap grande</Button>
               <Button>Item com gap grande</Button>
-            </Column>
+            </Columns>
           </div>
           <pre className="editor-code">
 {`<Column gap="large">
@@ -45,11 +45,11 @@ const ColumnPage: React.FC = () => {
         <section className="editor-example">
           <h2>Column Inversa</h2>
           <div className="editor-showcase">
-            <Column inverse>
+            <Columns inverse>
               <Button>Primeiro (será exibido por último)</Button>
               <Button>Segundo</Button>
               <Button>Terceiro (será exibido primeiro)</Button>
-            </Column>
+            </Columns>
           </div>
           <pre className="editor-code">
 {`<Column reverse>

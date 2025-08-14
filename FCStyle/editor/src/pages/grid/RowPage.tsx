@@ -1,62 +1,62 @@
 import React from 'react'
-import { Row, Button } from 'fcstyle'
+import { Rows, Button } from 'fcstyle'
 
 const RowPage: React.FC = () => {
   return (
     <div className="editor-page">
-      <h1>Row Component</h1>
-      <p>Explore todas as possibilidades de configuração do componente Row para layouts flexíveis em linhas.</p>
+      <h1>Rows Component</h1>
+      <p>Explore todas as possibilidades de configuração do componente Rows para layouts flexíveis em linhas.</p>
       
       <div className="editor-examples">
         <section className="editor-example">
           <h2>Layout Básico em Linhas</h2>
           <div className="editor-showcase">
-            <Row>
+            <Rows>
               <Button primary>Item 1</Button>
               <Button second>Item 2</Button>
               <Button>Item 3</Button>
-            </Row>
+            </Rows>
           </div>
           <pre className="editor-code">
-{`<Row>
+{`<Rows>
   <Button primary>Item 1</Button>
   <Button secondary>Item 2</Button>
   <Button>Item 3</Button>
-</Row>`}
+</Rows>`}
           </pre>
         </section>
 
         <section className="editor-example">
-          <h2>Row com Gap Customizado</h2>
+          <h2>Rows com Gap Customizado</h2>
           <div className="editor-showcase">
-            <Row /*gap="large"*/>
+            <Rows /*gap="large"*/>
               <Button>Item com gap grande</Button>
               <Button>Item com gap grande</Button>
-            </Row>
+            </Rows>
           </div>
           <pre className="editor-code">
-{`<Row gap="large">
+{`<Rows gap="large">
   <Button>Item com gap grande</Button>
   <Button>Item com gap grande</Button>
-</Row>`}
+</Rows>`}
           </pre>
         </section>
 
         <section className="editor-example">
-          <h2>Row Inversa</h2>
+          <h2>Rows Inversa</h2>
           <div className="editor-showcase">
-            <Row inverse>
+            <Rows inverse>
               <Button>Primeiro (será exibido por último)</Button>
               <Button>Segundo</Button>
               <Button>Terceiro (será exibido primeiro)</Button>
-            </Row>
+            </Rows>
           </div>
           <pre className="editor-code">
-{`<Row reverse>
+{`<Rows reverse>
   <Button>Primeiro (será exibido por último)</Button>
   <Button>Segundo</Button>
   <Button>Terceiro (será exibido primeiro)</Button>
-</Row>`}
+</Rows>`}
           </pre>
         </section>
       </div>

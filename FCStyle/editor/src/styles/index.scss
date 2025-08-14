@@ -1,9 +1,9 @@
-// Importar os estilos do projeto FCStyle
-@import '../../project/src/styles/index.scss';
+// Importar os estilos do projeto FCStyle manualmente
+@use '../../../project/src/styles/index' as *;
 
 // Estilos específicos do editor
-@import './components/layout';
-@import './components/navigation';
-@import './components/page';
-@import './components/showcase';
-@import './components/theme-customizer';
+// @use './components/layout' as *;
+// @use './components/navigation' as *;
+// @use './components/page' as *;
+// @use './components/showcase' as *;
+// @use './components/theme-customizer' as *;

@@ -12,7 +12,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "../project/src/styles/index.scss";`
+        // Remover o additionalData para evitar conflitos com @use/@import
+        // O import será feito manualmente no arquivo SCSS
       }
     }
   }

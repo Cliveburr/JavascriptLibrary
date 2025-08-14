@@ -1,2 +1,3 @@
-export { Column } from './Column';
-export { Row } from './Row';
+export { Columns } from './Columns';
+export { Rows } from './Rows';
+export { Place } from './Place';
