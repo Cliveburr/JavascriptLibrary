@@ -1,10 +1,12 @@
 import { Flex, FlexChildren, FlexChildrenClassBuilder, FlexClassBuilder } from "./flexClass";
+import { Border, BorderClassBuilder } from "./borderClass";
 
 export class ClassBuilder {
 
     private cls: string[];
     private flex?: FlexClassBuilder;
     private flexChildren?: FlexChildrenClassBuilder;
+    private border?: BorderClassBuilder;
     private enums?: any[];
     
     constructor(
@@ -32,6 +34,13 @@ export class ClassBuilder {
         return this;
     }
 
+    addFlexIf(flex?: Flex, check?: boolean): this {
+        if (check) {
+            this.addFlex(flex);
+        }
+        return this;
+    }
+
     addFlex(flex?: Flex): this {
         if (flex) {
             if (this.flex) {
@@ -44,13 +53,39 @@ export class ClassBuilder {
         return this;
     }
 
-    addChildrenFlex(flex: FlexChildren): this {
+    addChildrenFlexIf(flex?: FlexChildren, check?: boolean): this {
+        if (check) {
+            this.addChildrenFlex(flex);
+        }
+        return this;
+    }
+
+    addChildrenFlex(flex?: FlexChildren): this {
         if (flex) {
             if (this.flexChildren) {
                 this.flexChildren.set(flex);
             }
             else {
                 this.flexChildren = new FlexChildrenClassBuilder(flex);
+            }
+        }
+        return this;
+    }
+
+    addBorderIf(border?: Border, check?: boolean): this {
+        if (check) {
+            this.addBorder(border);
+        }
+        return this;
+    }
+
+    addBorder(border?: Border): this {
+        if (border) {
+            if (this.border) {
+                this.border.set(border);
+            }
+            else {
+                this.border = new BorderClassBuilder(border);
             }
         }
         return this;
@@ -90,6 +125,9 @@ export class ClassBuilder {
         }
         if (this.flexChildren) {
             this.cls.push(this.flexChildren.build());
+        }
+        if (this.border) {
+            this.cls.push(this.border.build());
         }
         const classNames = this.cls
             .join(' ');

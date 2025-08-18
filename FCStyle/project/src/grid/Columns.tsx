@@ -1,13 +1,17 @@
 import React from 'react';
-import { classBuilder, Flex, Margin, MarginProps, Padding, PaddingProps } from '../helpers';
+import { Border, BorderShortcuts, BorderShortcutsProps, classBuilder, Flex, Margin, MarginProps, Padding, PaddingProps } from '../helpers';
 
-export interface ColumnsProps extends MarginProps, PaddingProps {
+export interface ColumnsProps extends MarginProps, PaddingProps, BorderShortcutsProps {
   children: React.ReactNode;
   inverse?: boolean;
   wrap?: boolean;
   wrap_reverse?: boolean;
   gap?: boolean;
   flex?: Flex;
+
+  // Border
+  borderSet?: Border,
+  
   className?: string;
   style?: React.CSSProperties;
 }
@@ -19,6 +23,7 @@ export const Columns: React.FC<ColumnsProps> = ({
   wrap_reverse = false,
   gap = false,
   flex,
+  borderSet,
   className = '',
   style,
   ...props
@@ -29,9 +34,11 @@ export const Columns: React.FC<ColumnsProps> = ({
     .if('wrap', wrap)
     .if('wrap-reverse', wrap_reverse)
     .if('gap2', gap)
-    .addFlex(flex)
     .ofType(Margin)
     .ofType(Padding)
+    .ofType(BorderShortcuts)
+    .addFlex(flex)
+    .addBorder(borderSet)
     .build(props);
 
   return (

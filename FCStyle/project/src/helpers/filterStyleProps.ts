@@ -1,4 +1,5 @@
-import { Border, Color, Gap, Margin, Padding } from "./utilitiesClass";
+import { Color, Gap, Margin, Padding } from "./utilitiesClass";
+import { BorderShortcuts } from "./borderClass";
 
 export const filterStylePropsBy = (style: any[], props: any) => {
   const allStyleKeys = style.map(s => Object.values(s)).flat();
@@ -17,7 +18,7 @@ export const filterStyleProps = (props: any) => {
     ...Object.values(Margin),
     ...Object.values(Padding),
     ...Object.values(Color),
-    ...Object.values(Border)
+    ...Object.values(BorderShortcuts)
   ];
   
   const filteredProps = { ...props };

@@ -18,8 +18,10 @@ const Navigation: React.FC = () => {
         <li className="editor-nav__group">
           <span>Grid</span>
           <ul>
+            <li><Link to="/grid/place">Place</Link></li>
             <li><Link to="/grid/column">Column</Link></li>
             <li><Link to="/grid/row">Row</Link></li>
+            <li><Link to="/grid/divisor">Divisor</Link></li>
           </ul>
         </li>
         <li className="editor-nav__group">

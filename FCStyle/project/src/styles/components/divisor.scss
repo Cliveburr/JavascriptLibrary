@@ -1,0 +1,129 @@
+@charset "utf-8";
+
+.fc-divisor {
+  position: relative;
+  background-color: #e0e0e0;
+  user-select: none;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #c0c0c0;
+  }
+
+  &:active,
+  &.fc-divisor--dragging {
+    background-color: #007acc;
+  }
+
+  // Vertical divisor (default)
+  &--vertical {
+    cursor: ew-resize;
+    min-height: 100%;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 20px;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 1px;
+    }
+  }
+
+  // Horizontal divisor
+  &--horizontal {
+    cursor: ns-resize;
+    min-width: 100%;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 2px;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 1px;
+    }
+  }
+
+  // Estados especiais
+  &:focus {
+    outline: 2px solid #007acc;
+    outline-offset: -1px;
+  }
+
+  // Responsividade para dispositivos touch
+  @media (hover: none) and (pointer: coarse) {
+    &--vertical {
+      min-width: 8px;
+    }
+    
+    &--horizontal {
+      min-height: 8px;
+    }
+  }
+
+  // Alto contraste
+  @media (prefers-contrast: high) {
+    background-color: #000;
+    
+    &:hover {
+      background-color: #333;
+    }
+    
+    &:active,
+    &.fc-divisor--dragging {
+      background-color: #0066cc;
+    }
+
+    &::before {
+      background-color: #fff;
+    }
+  }
+
+  // Modo escuro
+  @media (prefers-color-scheme: dark) {
+    background-color: #404040;
+    
+    &:hover {
+      background-color: #505050;
+    }
+    
+    &:active,
+    &.fc-divisor--dragging {
+      background-color: #0078d4;
+    }
+
+    &::before {
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+// Container helpers para usar com divisor
+.fc-divisor-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+
+  &--vertical {
+    flex-direction: row;
+  }
+
+  &--horizontal {
+    flex-direction: column;
+  }
+}
+
+.fc-divisor-panel {
+  flex: 1;
+  overflow: auto;
+  min-width: 0;
+  min-height: 0;
+}

@@ -1,9 +1,9 @@
 // Border variables
 $border-sizes: (
   '0': 0,
-  '': var(--border),
   '1': var(--border1),
-  '2': var(--border2)
+  '2': var(--border2),
+  '3': var(--border3)
 );
 
 $border-directions: (
@@ -17,9 +17,9 @@ $border-directions: (
 
 $border-radius-sizes: (
   '0': 0,
-  '': var(--border-radius),
   '1': var(--border-radius1),
-  '2': var(--border-radius2)
+  '2': var(--border-radius2),
+  '3': var(--border-radius3)
 );
 
 $border-radius-directions: (

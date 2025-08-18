@@ -1,5 +1,6 @@
 import React from 'react'
 import Navigation from './Navigation'
+import { Divisor } from 'fcstyle'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -7,12 +8,21 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="editor-layout">
-      <Navigation />
-      <main className="editor-main">
-        {children}
-      </main>
-    </div>
+    <Divisor
+            name="home"
+            initialSize={250}
+            minSize={100}
+            maxSize={400}
+            thickness={4}
+            firstPanel={
+              <Navigation />
+            }
+            secondPanel={
+              <main className="editor-main">
+                {children}
+              </main>
+            }
+    />
   )
 }
 
