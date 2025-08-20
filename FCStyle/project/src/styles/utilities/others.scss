@@ -1,4 +1,3 @@
-
 .pointer {
     cursor: pointer;
 }
@@ -28,3 +27,10 @@
 .h8 { height: 12.5%; }
 .h9 { height: 11.11%; }
 .h10 { height: 10%; }
+
+.clickable-darken {
+    &:active {
+        filter: brightness(0.8);
+        transition: all 0.3s ease;
+    }
+}

@@ -17,7 +17,7 @@ export interface PlaceProps extends React.ButtonHTMLAttributes<HTMLDivElement>,
 
 export const Place: React.FC<PlaceProps> = ({
   children,
-  className = '',
+  className,
   style,
 
   pointer,
@@ -25,7 +25,8 @@ export const Place: React.FC<PlaceProps> = ({
   ...props
 }) => {
 
-  const { domProps, classNames } = classBuilder(className)
+  const { domProps, classNames } = classBuilder()
+    .add(className)
     .if('pointer', pointer)
     .addBuilder(ColorBuilder)
     .addBuilder(MarginBuilder)

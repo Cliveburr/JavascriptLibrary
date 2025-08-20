@@ -9,7 +9,7 @@ export interface ColumnsProps extends PlaceProps {
 
 export const Columns: React.FC<ColumnsProps> = ({
   children,
-  className = '',
+  className,
   style,
   ...props
 }) => {

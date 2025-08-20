@@ -4,10 +4,11 @@
     color: var(--one-color);
     border-color: var(--one-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--one-hover-bg);
         color: var(--one-hover-color);
         border-color: var(--one-hover-border);
+        transition: all 0.5s ease;
     }
 
     &.selected {
@@ -22,7 +23,7 @@
     color: var(--two-color);
     border-color: var(--two-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--two-hover-bg);
         color: var(--two-hover-color);
         border-color: var(--two-hover-border);
@@ -40,7 +41,7 @@
     color: var(--three-color);
     border-color: var(--three-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--three-hover-bg);
         color: var(--three-hover-color);
         border-color: var(--three-hover-border);
@@ -58,7 +59,7 @@
     color: var(--four-color);
     border-color: var(--four-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--four-hover-bg);
         color: var(--four-hover-color);
         border-color: var(--four-hover-border);
@@ -76,7 +77,7 @@
     color: var(--five-color);
     border-color: var(--five-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--five-hover-bg);
         color: var(--five-hover-color);
         border-color: var(--five-hover-border);
@@ -94,7 +95,7 @@
     color: var(--six-color);
     border-color: var(--six-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--six-hover-bg);
         color: var(--six-hover-color);
         border-color: var(--six-hover-border);
@@ -112,7 +113,7 @@
     color: var(--seven-color);
     border-color: var(--seven-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--seven-hover-bg);
         color: var(--seven-hover-color);
         border-color: var(--seven-hover-border);
@@ -130,7 +131,7 @@
     color: var(--success-color);
     border-color: var(--success-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--success-hover-bg);
         color: var(--success-hover-color);
         border-color: var(--success-hover-border);
@@ -148,7 +149,7 @@
     color: var(--warning-color);
     border-color: var(--warning-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--warning-hover-bg);
         color: var(--warning-hover-color);
         border-color: var(--warning-hover-border);
@@ -166,7 +167,7 @@
     color: var(--danger-color);
     border-color: var(--danger-border);
 
-    &.hoverable:hover {
+    &.hoverable:hover:not(:disabled) {
         background-color: var(--danger-hover-bg);
         color: var(--danger-hover-color);
         border-color: var(--danger-hover-border);

@@ -35,6 +35,13 @@ export class ClassBuilder {
             .filter(c => c != '');
     }
 
+    add(className?: string): this {
+        if (className) {
+            this.cls.push(className);
+        }
+        return this;
+    }
+
     if(className: string, check?: boolean): this {
         if (check) {
             this.cls.push(className);
@@ -56,7 +63,7 @@ export class ClassBuilder {
         const sets = [];
         for (let prop in props) {
             if (prop in builder.props) {
-                const check = builder.props[prop](prop);
+                const check = builder.props[prop](props[prop]);
                 if (check) {
                     sets.push(check);
                     delete props[prop];

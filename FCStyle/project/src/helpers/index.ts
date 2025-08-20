@@ -4,3 +4,4 @@ export * from './styles/flexClass'
 export * from './styles/borderClass';
 export * from './styles/colorClass';
 export * from './styles/sizeClass';
+export * from './styles/iconClass';

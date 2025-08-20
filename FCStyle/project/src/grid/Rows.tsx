@@ -9,7 +9,7 @@ export interface RowsProps extends PlaceProps {
 
 export const Rows: React.FC<RowsProps> = ({
   children,
-  className = '',
+  className,
   style,
   ...props
 }) => {
