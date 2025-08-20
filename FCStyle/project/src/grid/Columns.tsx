@@ -1,49 +1,66 @@
 import React from 'react';
-import { Border, BorderShortcuts, BorderShortcutsProps, classBuilder, Flex, Margin, MarginProps, Padding, PaddingProps } from '../helpers';
+import { Place, PlaceProps } from './Place';
 
-export interface ColumnsProps extends MarginProps, PaddingProps, BorderShortcutsProps {
+export interface ColumnsProps extends PlaceProps {
   children: React.ReactNode;
-  inverse?: boolean;
-  wrap?: boolean;
-  wrap_reverse?: boolean;
-  gap?: boolean;
-  flex?: Flex;
-
-  // Border
-  borderSet?: Border,
-  
   className?: string;
   style?: React.CSSProperties;
 }
 
 export const Columns: React.FC<ColumnsProps> = ({
   children,
-  inverse = false,
-  wrap = false,
-  wrap_reverse = false,
-  gap = false,
-  flex,
-  borderSet,
   className = '',
   style,
   ...props
 }) => {
 
-  const { domProps, classNames } = classBuilder('flex-row', className)
-    .if('inverse', inverse)
-    .if('wrap', wrap)
-    .if('wrap-reverse', wrap_reverse)
-    .if('gap2', gap)
-    .ofType(Margin)
-    .ofType(Padding)
-    .ofType(BorderShortcuts)
-    .addFlex(flex)
-    .addBorder(borderSet)
-    .build(props);
-
   return (
-    <div className={classNames} style={style} {...domProps}>
+    <Place row className={className} style={style} {...props}>
       {children}
-    </div>
+    </Place>
   );
 };
+// import React from 'react';
+// import { BorderBuilder, BorderShortcuts, classBuilder, Flex, Margin, MarginProps, Padding, PaddingProps } from '../helpers';
+
+// export interface ColumnsProps extends MarginProps, PaddingProps, BorderShortcuts {
+//   children: React.ReactNode;
+//   inverse?: boolean;
+//   wrap?: boolean;
+//   wrap_reverse?: boolean;
+//   gap?: boolean;
+//   flex?: Flex;
+
+//   className?: string;
+//   style?: React.CSSProperties;
+// }
+
+// export const Columns: React.FC<ColumnsProps> = ({
+//   children,
+//   inverse = false,
+//   wrap = false,
+//   wrap_reverse = false,
+//   gap = false,
+//   flex,
+//   className = '',
+//   style,
+//   ...props
+// }) => {
+
+//   const { domProps, classNames } = classBuilder('flex-row', className)
+//     .if('inverse', inverse)
+//     .if('wrap', wrap)
+//     .if('wrap-reverse', wrap_reverse)
+//     .if('gap2', gap)
+//     .ofType(Margin)
+//     .ofType(Padding)
+//     .addFlex(flex)
+//     .addBuilder(BorderBuilder)
+//     .build(props);
+
+//   return (
+//     <div className={classNames} style={style} {...domProps}>
+//       {children}
+//     </div>
+//   );
+// };

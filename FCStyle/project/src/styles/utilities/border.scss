@@ -1,3 +1,7 @@
+// Definition
+// border{size}{variant}
+// example: border2t
+
 // Border variables
 $border-sizes: (
   '0': 0,
@@ -17,9 +21,10 @@ $border-directions: (
 
 $border-radius-sizes: (
   '0': 0,
-  '1': var(--border-radius1),
-  '2': var(--border-radius2),
-  '3': var(--border-radius3)
+  '1': var(--round1),
+  '2': var(--round2),
+  '3': var(--round3),
+  'F': 9999px
 );
 
 $border-radius-directions: (
@@ -32,15 +37,12 @@ $border-radius-directions: (
 // Border Width Classes
 @each $suffix, $size in $border-sizes {
   .border#{$suffix} {
-    @if $suffix != '0' {
+    @if $suffix == '0' {
+      border-style: none;
+    } @else {
       border-style: solid;
-    }
-    border-width: $size;
-    
-    @if $suffix != '0' {
-      &.outset {
-        border-style: outset;
-      }
+      border-width: $size;
+      border-radius: var(--border#{$suffix}-radius);
     }
   }
 }
@@ -48,7 +50,7 @@ $border-radius-directions: (
 // Border Directional Classes
 @each $direction, $properties in $border-directions {
   @each $suffix, $size in $border-sizes {
-    .border-#{$direction}#{$suffix} {
+    .border#{$suffix}#{$direction} {
       @each $property in $properties {
         #{$property}: $size;
       }
@@ -59,7 +61,7 @@ $border-radius-directions: (
 // Border Outset Classes
 @each $suffix, $size in $border-sizes {
   @if $suffix != '0' {
-    .border-outset#{$suffix} {
+    .border#{$suffix}outset {
       border-style: outset;
       border-width: $size;
     }
@@ -68,7 +70,7 @@ $border-radius-directions: (
 
 // Border Radius Classes
 @each $suffix, $size in $border-radius-sizes {
-  .rounded#{$suffix} {
+  .round#{$suffix} {
     border-radius: $size;
   }
 }
@@ -76,7 +78,7 @@ $border-radius-directions: (
 // Border Radius Directional Classes
 @each $direction, $properties in $border-radius-directions {
   @each $suffix, $size in $border-radius-sizes {
-    .rounded-#{$direction}#{$suffix} {
+    .round#{$suffix}#{$direction} {
       @each $property in $properties {
         #{$property}: $size;
       }

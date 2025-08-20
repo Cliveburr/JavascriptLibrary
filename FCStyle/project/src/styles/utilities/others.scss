@@ -3,7 +3,28 @@
     cursor: pointer;
 }
 
-.circle {
-    border-style: solid;
-    border-radius: 9999px;
+.hide {
+    display: none;
 }
+
+.w1 { width: 100%; }
+.w2 { width: 50%; }
+.w3 { width: 33.33%; }
+.w4 { width: 25%; }
+.w5 { width: 20%; }
+.w6 { width: 16.66%; }
+.w7 { width: 14.25%; }
+.w8 { width: 12.5%; }
+.w9 { width: 11.11%; }
+.w10 { width: 10%; }
+
+.h1 { height: 100%; }
+.h2 { height: 50%; }
+.h3 { height: 33.33%; }
+.h4 { height: 25%; }
+.h5 { height: 20%; }
+.h6 { height: 16.66%; }
+.h7 { height: 14.25%; }
+.h8 { height: 12.5%; }
+.h9 { height: 11.11%; }
+.h10 { height: 10%; }

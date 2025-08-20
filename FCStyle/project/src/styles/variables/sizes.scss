@@ -1,49 +1,32 @@
-// Sizes variables
-
-$size-2: 0.5rem;   // 8px
-$size-1: 0.75rem;  // 12px
-$size: 1.00rem;    // 16px
-$size1: 1.125rem;  // 18px
-$size2: 1.25rem;   // 20px
 
 :root {
    
-  // Sizes
-  --size-1: #{$size-1};
-  --size: #{$size};
-  --size1: #{$size1};
+  --padding1: 0.5rem;
+  --padding2: 0.75rem;
+  --padding3: 1rem;
+  --padding4: 1.125rem;
+  --padding5: 1.25rem;
+
+  --margin1: 0.5rem;
+  --margin2: 0.75rem;
+  --margin3: 1rem;
+  --margin4: 1.125rem;
+  --margin5: 1.25rem;
 
   // Gap
-  --gap1: 0.75rem;
-  --gap2: 1.00rem;
-  --gap3: 1.125rem;
+  --gap1: 0.5rem;
+  --gap2: 0.75rem;
+  --gap3: 1rem;
+  --gap4: 1.125rem;
+  --gap5: 1.25rem;
   
   --border1: 1px;
-  --border2: 2px;
-  --border3: 4px;
-  
-  --border-radius1: 1px;
-  --border-radius2: 2px;
-  --border-radius3: 4px;
-
-
-
-
-
-
-  // Input sizes
-  --input-padding: 0.375rem 0.75rem;
-  --input-margin-bottom: 1rem;
-  --input-border-radius: 0.25rem;
-  --input-font-size: 1rem;
-  --input-line-height: 1.5;
-  --input-height: 2.25rem;
-  --input-border-width: 1px;
-  
-  --input-label-margin-bottom: 0.5rem;
-  --input-label-font-size: 0.875rem;
-  --input-label-font-weight: 500;
-  
-  --input-error-font-size: 0.875rem;
-  --input-error-margin-top: 0.25rem;
+  --border2: 1.5px;
+  --border3: 2px;
+  --round1: 4px;
+  --round2: 6px;
+  --round3: 8px;
+  --border1-radius: 4px;
+  --border2-radius: 6px;
+  --border3-radius: 8px;
 }
