@@ -1,29 +1,29 @@
 .button {
-  padding: var(--button-padding);
+  padding: var(--padding2) var(--padding3);
   border: var(--button-border);
   border-radius: var(--button-border-radius);
   cursor: pointer;
-  font-size: var(--button-font-size);
-  font-weight: var(--button-font-weight);
+  font-size: var(--font-size1);
+  font-weight: var(--font-weight3);
   text-decoration: none;
 
   // Espaçamento para ícones
   i:first-child:not(:last-child) {
-    margin-right: 0.5rem;
+    margin-right: var(--margin1);
   }
 
   i:last-child:not(:first-child) {
-    margin-left: 0.5rem;
+    margin-left: var(--margin1);
   }
 
   // Caso especial: apenas um ícone à esquerda (primeiro e último ao mesmo tempo)
   i:first-child:last-child {
-    margin-right: 0.5rem;
+    margin-right: var(--margin1);
   }
 
   &:active {
-      filter: brightness(0.8);
-      transition: all 0.3s ease;
+      filter: var(--filter-brightness-active);
+      transition: var(--transition4);
   }
 
   &:disabled {

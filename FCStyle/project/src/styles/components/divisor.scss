@@ -5,7 +5,7 @@
   background-color: #e0e0e0;
   user-select: none;
   flex-shrink: 0;
-  transition: background-color 0.2s ease;
+  transition: var(--transition-colors);
 
   &:hover {
     background-color: #c0c0c0;

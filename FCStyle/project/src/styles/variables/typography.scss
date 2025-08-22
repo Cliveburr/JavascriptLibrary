@@ -1,0 +1,45 @@
+:root {
+  
+  // Font Sizes (5 tamanhos)
+  --font-size1: 0.75rem;   // 12px - small
+  --font-size2: 0.875rem;  // 14px - body
+  --font-size3: 1rem;      // 16px - base
+  --font-size4: 1.125rem;  // 18px - large
+  --font-size5: 1.25rem;   // 20px - xlarge
+
+  // Font Families (5 tipos)
+  --font-family-one: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-family-two: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-three: 'Fira Code', 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', 'Source Code Pro', monospace;
+  --font-family-four: 'Georgia', 'Times New Roman', 'Times', serif;
+  --font-family-five: 'Poppins', 'Montserrat', 'Open Sans', sans-serif;
+
+  // Font Weights (7 pesos)
+  --font-weight1: 100;
+  --font-weight2: 300;
+  --font-weight3: 400;
+  --font-weight4: 500;
+  --font-weight5: 600;
+  --font-weight6: 700;
+  --font-weight7: 900;
+
+  // Text Transformations
+  --text-transform-none: none;
+  --text-transform-uppercase: uppercase;
+  --text-transform-lowercase: lowercase;
+  --text-transform-capitalize: capitalize;
+
+  // Line Heights
+  --line-height1: 1.2;
+  --line-height2: 1.4;
+  --line-height3: 1.6;
+  --line-height4: 1.8;
+
+  // Letter Spacing
+  --letter-spacing1: -0.025em;
+  --letter-spacing2: 0;
+  --letter-spacing3: 0.025em;
+  --letter-spacing4: 0.05em;
+  --letter-spacing5: 0.1em;
+
+}

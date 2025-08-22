@@ -2,7 +2,7 @@
 import { ClassBuilderDef, ifBy, ifSet } from "./classBuilder";
 
 export interface ColorSet {
-  variant?: 'one' | 'two' | 'three' | 'four' | 'five' | 'six' | 'seven' | 'success' | 'warning' | 'danger';
+  variant?: 'white' | 'one' | 'two' | 'three' | 'four' | 'five' | 'six' | 'seven' | 'success' | 'warning' | 'danger';
   hoverable?: boolean;
   selected?: boolean;
 }
@@ -12,6 +12,7 @@ export interface ColorShortcuts {
   colorSet?: ColorSet;
   
   // Numeric color shortcuts
+  white?: boolean;
   one?: boolean;
   two?: boolean;
   three?: boolean;
@@ -49,6 +50,7 @@ export const ColorBuilder: ClassBuilderDef<ColorSet> = {
   props: {
     'color': ifBy,
     // Numeric colors
+    'white': ifSet({ variant: 'white' }),
     'one': ifSet({ variant: 'one' }),
     'two': ifSet({ variant: 'two' }),
     'three': ifSet({ variant: 'three' }),

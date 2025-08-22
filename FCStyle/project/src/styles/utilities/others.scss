@@ -30,7 +30,7 @@
 
 .clickable-darken {
     &:active {
-        filter: brightness(0.8);
-        transition: all 0.3s ease;
+        filter: var(--filter-brightness-active);
+        transition: var(--transition4);
     }
 }

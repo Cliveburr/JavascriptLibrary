@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 
 const Navigation: React.FC = () => {
@@ -13,6 +12,7 @@ const Navigation: React.FC = () => {
           <span>Components</span>
           <ul>
             <li><Link to="/components/button">Button</Link></li>
+            <li><Link to="/components/menu">Menu</Link></li>
           </ul>
         </li>
         <li className="editor-nav__group">
@@ -29,6 +29,13 @@ const Navigation: React.FC = () => {
           <ul>
             <li><Link to="/form/input">Input</Link></li>
             <li><Link to="/form/input-field">InputField</Link></li>
+          </ul>
+        </li>
+        <li className="editor-nav__group">
+          <span>Utilities</span>
+          <ul>
+            <li><Link to="/typography">Typography</Link></li>
+            <li><Link to="/effects">Effects</Link></li>
           </ul>
         </li>
       </ul>

@@ -2,12 +2,28 @@
 :root {
     
     // Button Variables
-  --button-padding: .5rem 1rem;
   --button-border: none;
   --button-border-style: solid;
   --button-border-radius: 4px;
-  --button-transition: all 0.2s ease-in-out;
-  --button-font-size: 0.75rem;
-  --button-font-weight: 400;
+
+  // List Separator Variables
+  --list-separator-height: 1px;
+  --list-separator-margin: 0.5rem 0;
+
+  // List SubList Variables
+  --list-sublist-selected-child-border-left: 3px solid;
+
+
+
+
+
+  
+  // Input Variables
+  --input-margin-bottom: 1rem;
+  --input-label-margin-bottom: 0.5rem;
+  --input-height: 2.5rem;
+  --input-padding: 0.5rem 0.75rem;
+  --input-border-width: 1px;
+  --input-border-radius: 4px;
  
 }

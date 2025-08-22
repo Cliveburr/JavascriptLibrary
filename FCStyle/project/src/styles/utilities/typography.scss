@@ -1,0 +1,77 @@
+// Typography Utilities
+// Font Sizes
+.text-size1 { font-size: var(--font-size1); }
+.text-size2 { font-size: var(--font-size2); }
+.text-size3 { font-size: var(--font-size3); }
+.text-size4 { font-size: var(--font-size4); }
+.text-size5 { font-size: var(--font-size5); }
+
+// Font Families
+.font-one { font-family: var(--font-family-one); }
+.font-two { font-family: var(--font-family-two); }
+.font-three { font-family: var(--font-family-three); }
+.font-four { font-family: var(--font-family-four); }
+.font-five { font-family: var(--font-family-five); }
+
+// Font Weights
+.weight1 { font-weight: var(--font-weight1); }
+.weight2 { font-weight: var(--font-weight2); }
+.weight3 { font-weight: var(--font-weight3); }
+.weight4 { font-weight: var(--font-weight4); }
+.weight5 { font-weight: var(--font-weight5); }
+.weight6 { font-weight: var(--font-weight6); }
+.weight7 { font-weight: var(--font-weight7); }
+
+// Text Transformations
+.text-none { text-transform: var(--text-transform-none); }
+.text-uppercase { text-transform: var(--text-transform-uppercase); }
+.text-lowercase { text-transform: var(--text-transform-lowercase); }
+.text-capitalize { text-transform: var(--text-transform-capitalize); }
+
+// Line Heights
+.leading1 { line-height: var(--line-height1); }
+.leading2 { line-height: var(--line-height2); }
+.leading3 { line-height: var(--line-height3); }
+.leading4 { line-height: var(--line-height4); }
+
+// Letter Spacing
+.spacing1 { letter-spacing: var(--letter-spacing1); }
+.spacing2 { letter-spacing: var(--letter-spacing2); }
+.spacing3 { letter-spacing: var(--letter-spacing3); }
+.spacing4 { letter-spacing: var(--letter-spacing4); }
+.spacing5 { letter-spacing: var(--letter-spacing5); }
+
+// Typography Combinations (alguns padrões úteis)
+.text-heading {
+  font-family: var(--font-family-five);
+  font-weight: var(--font-weight6);
+  line-height: var(--line-height1);
+}
+
+.text-body {
+  font-family: var(--font-family-one);
+  font-weight: var(--font-weight3);
+  line-height: var(--line-height2);
+}
+
+.text-caption {
+  font-family: var(--font-family-two);
+  font-weight: var(--font-weight4);
+  font-size: var(--font-size1);
+  line-height: var(--line-height2);
+}
+
+.text-label {
+  font-family: var(--font-family-two);
+  font-weight: var(--font-weight5);
+  font-size: var(--font-size2);
+  text-transform: var(--text-transform-uppercase);
+  letter-spacing: var(--letter-spacing3);
+}
+
+.text-code {
+  font-family: var(--font-family-three);
+  font-weight: var(--font-weight3);
+  font-size: var(--font-size2);
+  line-height: var(--line-height3);
+}

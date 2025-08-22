@@ -1,0 +1,99 @@
+// Effects Utilities
+
+// Transitions
+.transition1 { transition: var(--transition1); }
+.transition2 { transition: var(--transition2); }
+.transition3 { transition: var(--transition3); }
+.transition4 { transition: var(--transition4); }
+.transition5 { transition: var(--transition5); }
+
+// Specific Transitions
+.transition-transform { transition: var(--transition-transform); }
+.transition-colors { transition: var(--transition-colors); }
+.transition-focus { transition: var(--transition-focus); }
+.transition-filter { transition: var(--transition-filter); }
+
+// Box Shadows
+.shadow1 { box-shadow: var(--shadow1); }
+.shadow2 { box-shadow: var(--shadow2); }
+.shadow3 { box-shadow: var(--shadow3); }
+.shadow4 { box-shadow: var(--shadow4); }
+.shadow5 { box-shadow: var(--shadow5); }
+
+// No Shadow
+.shadow-none { box-shadow: none; }
+
+// Focus Shadows
+.focus-shadow1 { box-shadow: var(--focus-shadow1); }
+.focus-shadow2 { box-shadow: var(--focus-shadow2); }
+.focus-shadow3 { box-shadow: var(--focus-shadow3); }
+
+// State Shadows
+.shadow-success { box-shadow: var(--success-shadow); }
+.shadow-error { box-shadow: var(--error-shadow); }
+.shadow-warning { box-shadow: var(--warning-shadow); }
+
+// Filters
+.filter-brightness-hover { filter: var(--filter-brightness-hover); }
+.filter-brightness-active { filter: var(--filter-brightness-active); }
+.filter-brightness-disabled { filter: var(--filter-brightness-disabled); }
+.filter-blur { filter: var(--filter-blur); }
+.filter-grayscale { filter: var(--filter-grayscale); }
+.filter-none { filter: none; }
+
+// Hover Effects (with transitions)
+.hover-shadow:hover { box-shadow: var(--shadow2); }
+.hover-shadow-large:hover { box-shadow: var(--shadow4); }
+.hover-brightness:hover { filter: var(--filter-brightness-hover); }
+.hover-lift:hover { 
+  transform: translateY(-2px);
+  box-shadow: var(--shadow3);
+}
+
+// Active Effects
+.active-brightness:active { filter: var(--filter-brightness-active); }
+.active-scale:active { transform: scale(0.98); }
+
+// Disabled Effects
+.disabled-effects {
+  filter: var(--filter-brightness-disabled);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+// Combinations (alguns padrões úteis)
+.effect-card {
+  box-shadow: var(--shadow1);
+  transition: var(--transition3);
+  
+  &:hover {
+    box-shadow: var(--shadow3);
+    transform: translateY(-1px);
+  }
+}
+
+.effect-button {
+  transition: var(--transition2);
+  
+  &:hover {
+    filter: var(--filter-brightness-hover);
+  }
+  
+  &:active {
+    filter: var(--filter-brightness-active);
+    transform: scale(0.98);
+  }
+}
+
+.effect-input {
+  transition: var(--transition-focus);
+  
+  &:focus {
+    box-shadow: var(--focus-shadow2);
+  }
+}
+
+.effect-modal {
+  box-shadow: var(--shadow5);
+  backdrop-filter: var(--filter-blur);
+}

@@ -7,7 +7,7 @@ const ButtonPage: React.FC = () => {
       <Button li="save" one>Cor One</Button>
       <Button one disabled>Disabled</Button>
       <Button two href="/">As link</Button>
-      <Button li="star" ri="arrow-down" four>Dropdown</Button>
+      <Button li="star" ri="caret-down" four>Dropdown</Button>
     </Columns>
   )
 }

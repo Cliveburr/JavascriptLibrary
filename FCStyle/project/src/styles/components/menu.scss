@@ -1,0 +1,133 @@
+
+// List Item Styles
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gap1);
+  padding: var(--padding2) var(--padding3);
+  font-size: var(--font-size2);
+  line-height: var(--line-height2);
+  transition: var(--transition2);
+  border-radius: 0;
+  cursor: pointer;
+  user-select: none;
+
+  .list-item-content {
+    flex: 1;
+  }
+
+  &.selected {
+    font-weight: var(--font-weight4);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  // Horizontal menu adjustments
+  .menu-horizontal & {
+    padding: var(--padding1) var(--padding2);
+    border-radius: 4px;
+  }
+}
+
+// List Separator Styles
+.list-separator {
+  height: var(--list-separator-height);
+  margin: var(--list-separator-margin);
+  border: none;
+
+  // Horizontal menu adjustments
+  .menu-horizontal & {
+    width: var(--list-separator-height);
+    height: auto;
+    margin: 0 var(--list-separator-margin);
+    align-self: stretch;
+  }
+}
+
+// List Label Styles
+.list-label {
+  padding: var(--padding2) var(--padding3);
+  font-size: var(--font-size1);
+  font-weight: var(--font-weight5);
+  text-transform: var(--text-transform-uppercase);
+  letter-spacing: var(--letter-spacing3);
+  user-select: none;
+}
+
+// List SubList Styles
+.list-sublist {
+  .list-sublist-header {
+    display: flex;
+    align-items: center;
+    gap: var(--gap1);
+    padding: var(--padding2) var(--padding3);
+    font-size: var(--font-size2);
+    line-height: var(--line-height2);
+    transition: var(--transition2);
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      background: var(--list-item-hover-background);
+    }
+
+    .list-sublist-label {
+      flex: 1;
+    }
+
+    .list-sublist-toggle {
+      transition: var(--transition-transform);
+    }
+  }
+
+  .list-sublist-content {
+    padding-left: var(--padding4);
+  }
+
+  &.expanded .list-sublist-header .list-sublist-toggle {
+    transform: rotate(90deg);
+  }
+
+  &.collapsed .list-sublist-content {
+    display: none;
+  }
+
+  // Highlight quando tem child selecionado
+  &.has-selected {
+    .list-sublist-header {
+      border-left: var(--list-sublist-selected-child-border-left);
+      font-weight: var(--font-weight4);
+    }
+  }
+
+  // Horizontal menu adjustments
+  .menu-horizontal & {
+    position: relative;
+
+    .list-sublist-content {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--menu-background);
+      border: var(--menu-border);
+      border-radius: var(--menu-border-radius);
+      box-shadow: var(--shadow2);
+      padding: var(--menu-padding);
+      min-width: var(--menu-min-width);
+      z-index: 1000;
+      padding-left: 0;
+    }
+
+    &.collapsed .list-sublist-content {
+      display: none;
+    }
+
+    &.expanded .list-sublist-content {
+      display: block;
+    }
+  }
+}

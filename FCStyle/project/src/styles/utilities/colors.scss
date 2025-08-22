@@ -1,181 +1,50 @@
 
-.one {
-    background-color: var(--one-bg);
-    color: var(--one-color);
-    border-color: var(--one-border);
+$colors: (
+    white,
+    one,
+    two,
+    three,
+    four,
+    five,
+    six,
+    seven,
+    success,
+    warning,
+    danger
+);
 
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--one-hover-bg);
-        color: var(--one-hover-color);
-        border-color: var(--one-hover-border);
-        transition: all 0.5s ease;
-    }
+@each $color in $colors {
+    .#{$color} {
+        background-color: var(--#{$color}-bg);
+        color: var(--#{$color}-color);
+        border-color: var(--#{$color}-border);
 
-    &.selected {
-        background-color: var(--one-selected-bg);
-        color: var(--one-selected-color);
-        border-color: var(--one-selected-border);
-    }
-}
+        .hoverable:hover:not(:disabled) {
+            background-color: var(--#{$color}-hover-bg);
+            color: var(--#{$color}-hover-color);
+            border-color: var(--#{$color}-hover-border);
+            transition: var(--transition5);
+        }
 
-.two {
-    background-color: var(--two-bg);
-    color: var(--two-color);
-    border-color: var(--two-border);
+        .selected {
+            background-color: var(--#{$color}-selected-bg);
+            color: var(--#{$color}-selected-color);
+            border-color: var(--#{$color}-selected-border);
+        }
 
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--two-hover-bg);
-        color: var(--two-hover-color);
-        border-color: var(--two-hover-border);
-    }
+        .has-selected {
+            .list-sublist-header {
+                background: color-mix(in srgb, var(--#{$color}-selected-bg) 60%, white 40%);
+                border-left-color: var(--#{$color}-selected-color);
+            }
+        }
 
-    &.selected {
-        background-color: var(--two-selected-bg);
-        color: var(--two-selected-color);
-        border-color: var(--two-selected-border);
-    }
-}
+        .list-label {
+            color: var(--#{$color}-label-color);
+        }
 
-.three {
-    background-color: var(--three-bg);
-    color: var(--three-color);
-    border-color: var(--three-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--three-hover-bg);
-        color: var(--three-hover-color);
-        border-color: var(--three-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--three-selected-bg);
-        color: var(--three-selected-color);
-        border-color: var(--three-selected-border);
-    }
-}
-
-.four {
-    background-color: var(--four-bg);
-    color: var(--four-color);
-    border-color: var(--four-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--four-hover-bg);
-        color: var(--four-hover-color);
-        border-color: var(--four-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--four-selected-bg);
-        color: var(--four-selected-color);
-        border-color: var(--four-selected-border);
-    }
-}
-
-.five {
-    background-color: var(--five-bg);
-    color: var(--five-color);
-    border-color: var(--five-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--five-hover-bg);
-        color: var(--five-hover-color);
-        border-color: var(--five-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--five-selected-bg);
-        color: var(--five-selected-color);
-        border-color: var(--five-selected-border);
-    }
-}
-
-.six {
-    background-color: var(--six-bg);
-    color: var(--six-color);
-    border-color: var(--six-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--six-hover-bg);
-        color: var(--six-hover-color);
-        border-color: var(--six-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--six-selected-bg);
-        color: var(--six-selected-color);
-        border-color: var(--six-selected-border);
-    }
-}
-
-.seven {
-    background-color: var(--seven-bg);
-    color: var(--seven-color);
-    border-color: var(--seven-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--seven-hover-bg);
-        color: var(--seven-hover-color);
-        border-color: var(--seven-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--seven-selected-bg);
-        color: var(--seven-selected-color);
-        border-color: var(--seven-selected-border);
-    }
-}
-
-.success {
-    background-color: var(--success-bg);
-    color: var(--success-color);
-    border-color: var(--success-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--success-hover-bg);
-        color: var(--success-hover-color);
-        border-color: var(--success-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--success-selected-bg);
-        color: var(--success-selected-color);
-        border-color: var(--success-selected-border);
-    }
-}
-
-.warning {
-    background-color: var(--warning-bg);
-    color: var(--warning-color);
-    border-color: var(--warning-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--warning-hover-bg);
-        color: var(--warning-hover-color);
-        border-color: var(--warning-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--warning-selected-bg);
-        color: var(--warning-selected-color);
-        border-color: var(--warning-selected-border);
-    }
-}
-
-.danger {
-    background-color: var(--danger-bg);
-    color: var(--danger-color);
-    border-color: var(--danger-border);
-
-    &.hoverable:hover:not(:disabled) {
-        background-color: var(--danger-hover-bg);
-        color: var(--danger-hover-color);
-        border-color: var(--danger-hover-border);
-    }
-
-    &.selected {
-        background-color: var(--danger-selected-bg);
-        color: var(--danger-selected-color);
-        border-color: var(--danger-selected-border);
+        .list-separator {
+            background-color: var(--#{$color}-border);
+        }
     }
 }

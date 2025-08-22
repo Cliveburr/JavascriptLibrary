@@ -5,3 +5,5 @@ export * from './styles/borderClass';
 export * from './styles/colorClass';
 export * from './styles/sizeClass';
 export * from './styles/iconClass';
+export * from './styles/typographyClass';
+export * from './styles/effectsClass';
