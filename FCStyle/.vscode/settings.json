@@ -1,9 +1,0 @@
-{
-    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-    "files.exclude": {
-        "**/node_modules": true,
-        "**/dist": true,
-        "**/build": true,
-        "**/tsconfig.tsbuildinfo": true
-    },
-}
